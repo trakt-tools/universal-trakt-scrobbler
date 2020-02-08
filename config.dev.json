@@ -1,0 +1,17 @@
+{
+  "development": {
+    "clientId": "{TraktClientId}",
+    "clientSecret": "{TraktClientSecret}",
+    "rollbarToken": "{RollbarToken}",
+    "tmdbApiKey": "{TheMovieDatabaseApiKey}"
+  },
+  "production": {
+    "clientId": "{TraktClientId}",
+    "clientSecret": "{TraktClientSecret}",
+    "rollbarToken": "{RollbarToken}",
+    "tmdbApiKey": "{TheMovieDatabaseApiKey}",
+    "chromeExtensionId": "",
+    "chromeExtensionKey": "",
+    "firefoxExtensionId": ""
+  }
+}
