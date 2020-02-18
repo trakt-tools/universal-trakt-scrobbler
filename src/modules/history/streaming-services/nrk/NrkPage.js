@@ -6,11 +6,11 @@ import { Events } from '../../../../services/Events';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
-import { NetflixApi } from './NetflixApi';
-import { NetflixStore } from './NetflixStore';
+import { NrkApi } from './NrkApi';
+import { NetflixStore } from '../netflix/NetflixStore';
 import { TraktSync } from '../../../../api/TraktSync';
 
-function NetflixPage() {
+function NrkPage() {
   const [optionsContent, setOptionsContent] = useState({
     hasLoaded: false,
     options: {},
@@ -23,26 +23,26 @@ function NetflixPage() {
     items: [],
   });
 
-  function loadNextPage() {
+  const loadNextPage = () => {
     const itemsToLoad = (content.nextVisualPage + 1) * optionsContent.options.itemsPerLoad.value - content.items.length;
     if (itemsToLoad > 0) {
       setContent(prevContent => ({
         ...prevContent,
         isLoading: true,
       }));
-      NetflixApi.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
+      NrkApi.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
     } else {
       NetflixStore.update({
         nextVisualPage: content.nextVisualPage + 1,
       });
     }
-  }
+  };
 
-  function onNextPageClick() {
+  const onNextPageClick = () => {
     loadNextPage();
-  }
+  };
 
-  async function onSyncClick() {
+  const onSyncClick = async () => {
     setContent(prevContent => ({
       ...prevContent,
       isLoading: true,
@@ -52,7 +52,7 @@ function NetflixPage() {
       ...prevContent,
       isLoading: false,
     }));
-  }
+  };
 
   useEffect(() => {
     function startListeners() {
@@ -64,14 +64,14 @@ function NetflixPage() {
       NetflixStore.startListeners();
     }
 
-    function stopListeners() {
+    const stopListeners = () => {
       Events.unsubscribe(Events.NETFLIX_STORE_UPDATE, onStoreUpdate);
       Events.unsubscribe(Events.NETFLIX_HISTORY_LOAD_ERROR, onHistoryLoadError);
       Events.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
       Events.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
       Events.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
       NetflixStore.stopListeners();
-    }
+    };
 
     /**
      * @param {Object} data
@@ -218,7 +218,7 @@ function NetflixPage() {
         <HistoryList
           dateFormat={dateFormat}
           items={itemsToShow}
-          serviceName={"Netflix"}
+          serviceName={"NRK"}
         />
       </Box>
       <HistoryActions
@@ -229,4 +229,4 @@ function NetflixPage() {
   );
 }
 
-export { NetflixPage };
+export { NrkPage };

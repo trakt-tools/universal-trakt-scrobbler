@@ -1,4 +1,5 @@
 import { NetflixPage } from './netflix/NetflixPage';
+import {NrkPage} from "./nrk/NrkPage";
 
 const streamingServices = [
   {
@@ -6,6 +7,12 @@ const streamingServices = [
     name: 'Netflix',
     path: '/netflix',
     page: NetflixPage,
+  },
+  {
+    id: 'nrk',
+    name: 'NRK',
+    path: '/nrk',
+    page: NrkPage,
   },
 ];
 

@@ -45,7 +45,7 @@ class _NetflixApi {
 
   /**
    * @param {string} text
-   * @param {string}
+   * @returns {string}
    */
   extractBuildIdentifier(text) {
     return text.match(this.BUILD_IDENTIFIER_REGEX)[1];
@@ -174,7 +174,7 @@ class _NetflixApi {
       const items = NetflixStore.data.items;
       promises = items.map(this.loadTraktItemHistory);
       await Promise.all(promises);
-      NetflixStore.update(null);
+      await NetflixStore.update(null);
     } catch (err) {
       Errors.error('Failed to load Trakt history.', err);
       await Events.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });

@@ -172,6 +172,14 @@
   "watched": {
     "message": "Watched On"
   },
+  "progress": {
+    "message": "Progress: $PROGRESS$%",
+    "placeholders": {
+      "progress" : {
+        "content" : "$1"
+      }
+    }
+  },
   "yes": {
     "message": "Yes"
   }

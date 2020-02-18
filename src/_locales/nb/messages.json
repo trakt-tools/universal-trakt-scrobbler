@@ -15,7 +15,7 @@
     "message": "Legg til med utgivelsesdato."
   },
   "aboutMessage": {
-    "message": "Sync fra dine favorittstrømmetjenester til Trakt.tv!"
+    "message": "Synkroniser historikken fra dine favorittstrømmetjenester til Trakt.tv!"
   },
   "allowRollbarDescription": {
     "message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
@@ -75,10 +75,10 @@
     "message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
   },
   "hideSyncedName": {
-    "message": "Skjul allerede syncede elementer."
+    "message": "Skjul allerede synkroniserte elementer."
   },
   "historySyncSuccess": {
-    "message": "$EPISODES$ episoder og $MOVIES$ filmer ble syncet.",
+    "message": "$EPISODES$ episoder og $MOVIES$ filmer ble sendt til trakt.",
     "placeholders": {
       "episodes" : {
         "content" : "$1"
@@ -89,7 +89,7 @@
     }
   },
   "historySyncError": {
-    "message": "Klarte ikke å synce historikken."
+    "message": "Klarte ikke å synkronisere historikken."
   },
   "home": {
     "message": "Hjem"
@@ -122,7 +122,7 @@
     "message": "Ikke funnet"
   },
   "notWatched": {
-    "message": "Ikke sett på"
+    "message": "Ikke registrert som sett"
   },
   "on": {
     "message": "På"
@@ -161,7 +161,7 @@
     "message": "Send / motta forslag til rettelser."
   },
   "sync": {
-    "message": "Sync"
+    "message": "Synkroniser historikk"
   },
   "toggleAll": {
     "message": "Veksle"
@@ -170,7 +170,15 @@
     "message": "Bruk 24-timers klokke."
   },
   "watched": {
-    "message": "Sett på"
+    "message": "Dato sett"
+  },
+  "progress": {
+    "message": "Fullført: $PROGRESS$%",
+    "placeholders": {
+      "progress": {
+        "content": "$1"
+      }
+    }
   },
   "yes": {
     "message": "Ja"

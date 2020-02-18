@@ -180,6 +180,7 @@ function getManifest(configJson, browserName) {
       'unlimitedStorage',
       '*://*.trakt.tv/*',
       '*://*.netflix.com/*',
+      '*://tv.nrk.no/*',
     ],
     web_accessible_resources: [
       'images/uts-icon-38.png',
