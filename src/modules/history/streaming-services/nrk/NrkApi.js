@@ -5,7 +5,7 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { NetflixStore } from '../netflix/NetflixStore';
+import { NrkStore } from './NrkStore';
 
 class _NrkApi {
   constructor() {
@@ -47,14 +47,14 @@ class _NrkApi {
         nextPage += 1;
       } while (!isLastPage && itemsToLoad > 0);
       if (historyItems.length > 0) {
-        items = historyItems.map(this.parseHistoryItem.bind(this));
+        items = historyItems.map(this.parseHistoryItem);
       }
       nextVisualPage += 1;
-      NetflixStore.update({isLastPage, nextPage, nextVisualPage, items})
-          .then(this.loadTraktHistory.bind(this));
+      NrkStore.update({isLastPage, nextPage, nextVisualPage, items})
+          .then(this.loadTraktHistory);
     } catch (err) {
       Errors.error('Failed to load NRK history.', err);
-      await Events.dispatch(Events.NETFLIX_HISTORY_LOAD_ERROR, {error: err});
+      await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {error: err});
     }
   }
 
@@ -90,10 +90,10 @@ class _NrkApi {
   async loadTraktHistory() {
     try {
       let promises = [];
-      const items = NetflixStore.data.items;
-      promises = items.map(this.loadTraktItemHistory.bind(this));
+      const items = NrkStore.data.items;
+      promises = items.map(this.loadTraktItemHistory);
       await Promise.all(promises);
-      NetflixStore.update(null);
+      NrkStore.update(null);
     } catch (err) {
       Errors.error('Failed to load Trakt history.', err);
       await Events.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, {error: err});

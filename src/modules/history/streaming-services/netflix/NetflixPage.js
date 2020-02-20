@@ -56,8 +56,8 @@ function NetflixPage() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.NETFLIX_STORE_UPDATE, onStoreUpdate);
-      Events.subscribe(Events.NETFLIX_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      Events.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      Events.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
       Events.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
       Events.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
       Events.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
@@ -65,8 +65,8 @@ function NetflixPage() {
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.NETFLIX_STORE_UPDATE, onStoreUpdate);
-      Events.unsubscribe(Events.NETFLIX_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      Events.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      Events.unsubscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
       Events.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
       Events.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
       Events.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);

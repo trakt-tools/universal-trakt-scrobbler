@@ -104,7 +104,7 @@ class _NetflixApi {
         .then(this.loadTraktHistory);
     } catch (err) {
       Errors.error('Failed to load Netflix history.', err);
-      await Events.dispatch(Events.NETFLIX_HISTORY_LOAD_ERROR, { error: err });
+      await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
     }
   }
 

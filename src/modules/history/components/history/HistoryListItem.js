@@ -7,7 +7,7 @@ import { HistoryListItemCard } from './HistoryListItemCard';
 
 function HistoryListItem({ dateFormat, item, serviceName }) {
   async function onCheckboxChange() {
-    await Events.dispatch(Events.NETFLIX_HISTORY_CHANGE, {
+    await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
       index: item.index,
       checked: !item.isSelected,
     });

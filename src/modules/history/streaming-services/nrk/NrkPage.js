@@ -7,7 +7,7 @@ import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
 import { NrkApi } from './NrkApi';
-import { NetflixStore } from '../netflix/NetflixStore';
+import { NrkStore } from "./NrkStore";
 import { TraktSync } from '../../../../api/TraktSync';
 
 function NrkPage() {
@@ -32,7 +32,7 @@ function NrkPage() {
       }));
       NrkApi.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
     } else {
-      NetflixStore.update({
+      NrkStore.update({
         nextVisualPage: content.nextVisualPage + 1,
       });
     }
@@ -47,7 +47,7 @@ function NrkPage() {
       ...prevContent,
       isLoading: true,
     }));
-    await TraktSync.sync(NetflixStore.data.items, optionsContent.options.addWithReleaseDate.value);
+    await TraktSync.sync(NrkStore.data.items, optionsContent.options.addWithReleaseDate.value);
     setContent(prevContent => ({
       ...prevContent,
       isLoading: false,
@@ -56,21 +56,21 @@ function NrkPage() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.NETFLIX_STORE_UPDATE, onStoreUpdate);
-      Events.subscribe(Events.NETFLIX_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      Events.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      Events.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
       Events.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
       Events.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
       Events.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
-      NetflixStore.startListeners();
+      NrkStore.startListeners();
     }
 
     const stopListeners = () => {
-      Events.unsubscribe(Events.NETFLIX_STORE_UPDATE, onStoreUpdate);
-      Events.unsubscribe(Events.NETFLIX_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      Events.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      Events.unsubscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
       Events.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
       Events.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
       Events.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
-      NetflixStore.stopListeners();
+      NrkStore.stopListeners();
     };
 
     /**
