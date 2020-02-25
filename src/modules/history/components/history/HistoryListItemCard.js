@@ -29,7 +29,7 @@ function HistoryListItemCard({ dateFormat, item, name }) {
                   <Typography variant="subtitle2">{item.title}</Typography>
                   <Divider/>
                   <Typography variant="overline">{item.watchedAt ? `${browser.i18n.getMessage('watched')} ${item.watchedAt.format(dateFormat)}` : browser.i18n.getMessage('notWatched')}</Typography>
-                  {item.percentageWatched && (
+                  {item.percentageWatched !== undefined && (
                     <Typography variant="caption" display="block">{browser.i18n.getMessage('progress', [item.percentageWatched])}</Typography>
                   )}
                 </>
