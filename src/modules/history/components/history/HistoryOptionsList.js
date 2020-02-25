@@ -2,9 +2,8 @@ import { Button, ButtonGroup, FormGroup, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { HistoryOptionsListItem } from './HistoryOptionsListItem';
-import { NetflixStore } from '../../streaming-services/netflix/NetflixStore';
 
-function HistoryOptionsList({ options }) {
+function HistoryOptionsList({ options, store }) {
   return (
     <FormGroup className="history-options-list-container">
       {options.map(option => (
@@ -16,17 +15,17 @@ function HistoryOptionsList({ options }) {
       <Typography variant="overline">{browser.i18n.getMessage('select')}</Typography>
       <ButtonGroup variant="contained">
         <Button
-          onClick={NetflixStore.selectAll}
+          onClick={store.selectAll}
         >
           {browser.i18n.getMessage('selectAll')}
         </Button>
         <Button
-          onClick={NetflixStore.selectNone}
+          onClick={store.selectNone}
         >
           {browser.i18n.getMessage('selectNone')}
         </Button>
         <Button
-          onClick={NetflixStore.toggleAll}
+          onClick={store.toggleAll}
         >
           {browser.i18n.getMessage('toggleAll')}
         </Button>

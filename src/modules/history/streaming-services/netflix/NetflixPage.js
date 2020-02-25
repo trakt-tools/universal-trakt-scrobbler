@@ -214,7 +214,7 @@ function NetflixPage() {
   ) : (
     <>
       <Box className="history-content">
-        <HistoryOptionsList options={Object.values(optionsContent.options)}/>
+        <HistoryOptionsList options={Object.values(optionsContent.options)} store={NetflixStore}/>
         <HistoryList
           dateFormat={dateFormat}
           items={itemsToShow}

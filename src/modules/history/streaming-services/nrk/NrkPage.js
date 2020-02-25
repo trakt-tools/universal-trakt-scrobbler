@@ -214,7 +214,7 @@ function NrkPage() {
   ) : (
     <>
       <Box className="history-content">
-        <HistoryOptionsList options={Object.values(optionsContent.options)}/>
+        <HistoryOptionsList options={Object.values(optionsContent.options)} store={NrkStore}/>
         <HistoryList
           dateFormat={dateFormat}
           items={itemsToShow}
