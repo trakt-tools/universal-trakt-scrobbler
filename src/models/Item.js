@@ -25,6 +25,7 @@ class Item {
       this.episodeTitle = options.episodeTitle;
       this.isCollection = options.isCollection;
     }
+    this.percentageWatched = options.percentageWatched;
     this.watchedAt = options.watchedAt;
     this.trakt = options.trakt || null;
   }

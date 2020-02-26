@@ -5,9 +5,9 @@ import React from 'react';
 import { Events } from '../../../../services/Events';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
-function HistoryListItem({ dateFormat, item }) {
+function HistoryListItem({ dateFormat, item, serviceName }) {
   async function onCheckboxChange() {
-    await Events.dispatch(Events.NETFLIX_HISTORY_CHANGE, {
+    await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
       index: item.index,
       checked: !item.isSelected,
     });
@@ -30,7 +30,7 @@ function HistoryListItem({ dateFormat, item }) {
       <HistoryListItemCard
         dateFormat={dateFormat}
         item={item}
-        name="Netflix"
+        name={serviceName}
       />
       <Button
         className="history-list-item-button"
@@ -52,6 +52,7 @@ function HistoryListItem({ dateFormat, item }) {
 HistoryListItem.propTypes = {
   dateFormat: PropTypes.string.isRequired,
   item: PropTypes.object.isRequired,
+  serviceName: PropTypes.string.isRequired,
 };
 
 export { HistoryListItem };

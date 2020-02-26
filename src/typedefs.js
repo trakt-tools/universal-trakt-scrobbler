@@ -115,6 +115,40 @@
  * @property {number} movie.ids.trakt
  */
 
+
+/**
+ * @typedef {Array<NrkHistoryItem>} NrkHistoryResponse
+ */
+
+/**
+ * @typedef {Object} NrkHistoryItem
+ * @property {NrkLastSeen} lastSeen
+ * @property {NrkProgramInfo} program
+ */
+
+/**
+ * @typedef {Object} NrkLastSeen
+ * @property {string} at
+ * @property {number} percentageWatched
+ * @property {number} percentageAssumedFinished
+ */
+
+/**
+ * @typedef {Object} NrkProgramInfo
+ * @property {string} id
+ * @property {string} title
+ * @property {string} mainTitle
+ * @property {number} viewCount
+ * @property {string} description
+ * @property {'Program'|'Episode'} programType
+ * @property {string} seriesId
+ * @property {string} episodeNumber
+ * @property {string} totalEpisodesInSeason
+ * @property {string} episodeNumberOrDate
+ * @property {string} seasonNumber
+ * @property {number} productionYear
+ */
+
 /**
  * @typedef {Object} NetflixHistoryResponse
  * @property {NetflixHistoryItems} viewedItems
@@ -209,6 +243,7 @@
  * @property {string} [episodeTitle]
  * @property {boolean} [isCollection]
  * @property {import('moment')} watchedAt
+ * @property {number} percentageWatched
  * @property {import('./models/SyncItem').SyncItem|TraktNotFound} [trakt]
  */
 
