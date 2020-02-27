@@ -1,4 +1,4 @@
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 
 export class Store {
   constructor() {
@@ -21,13 +21,13 @@ export class Store {
   }
 
   startListeners() {
-    Events.subscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
-    Events.subscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
+    EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
+    EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
   }
 
   stopListeners() {
-    Events.unsubscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
-    Events.unsubscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
+    EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
+    EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
   }
 
   /**
@@ -90,7 +90,7 @@ export class Store {
         items: [...this.data.items, ...(data.items || [])],
       };
     }
-    await Events.dispatch(Events.STREAMING_SERVICE_STORE_UPDATE, { data: this.data });
+    await EventDispatcher.dispatch(Events.STREAMING_SERVICE_STORE_UPDATE, { data: this.data });
   }
 }
 

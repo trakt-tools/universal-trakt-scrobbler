@@ -3,7 +3,7 @@ import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
 import { NrkStore } from './NrkStore';
 
@@ -54,7 +54,7 @@ class _NrkApi {
           .then(this.loadTraktHistory);
     } catch (err) {
       Errors.error('Failed to load NRK history.', err);
-      await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {error: err});
+      await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {error: err});
     }
   }
 
@@ -96,7 +96,7 @@ class _NrkApi {
       NrkStore.update(null);
     } catch (err) {
       Errors.error('Failed to load Trakt history.', err);
-      await Events.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, {error: err});
+      await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, {error: err});
     }
   }
 

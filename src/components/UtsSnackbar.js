@@ -1,7 +1,7 @@
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import React, { useEffect, useState } from 'react';
-import { Events } from '../services/Events';
+import { Events, EventDispatcher } from '../services/Events';
 
 function UtsSnackbar() {
   const [snackbar, setSnackbar] = useState({
@@ -19,11 +19,11 @@ function UtsSnackbar() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.SNACKBAR_SHOW, showSnackbar);
+      EventDispatcher.subscribe(Events.SNACKBAR_SHOW, showSnackbar);
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.SNACKBAR_SHOW, showSnackbar);
+      EventDispatcher.unsubscribe(Events.SNACKBAR_SHOW, showSnackbar);
     }
 
     /**

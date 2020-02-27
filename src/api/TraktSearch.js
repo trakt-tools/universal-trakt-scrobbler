@@ -1,5 +1,5 @@
 import { SyncItem } from '../models/SyncItem';
-import { Events } from '../services/Events';
+import { Events, EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
@@ -49,7 +49,7 @@ class _TraktSearch extends TraktApi {
           const year = movieItem.movie.year;
           syncItem = new SyncItem({ id, type: item.type, title, year });
         }
-        await Events.dispatch(Events.SEARCH_SUCCESS, { searchItem });
+        await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, { searchItem });
       } else {
         throw {
           request: { item },
@@ -58,7 +58,7 @@ class _TraktSearch extends TraktApi {
         };
       }
     } catch (err) {
-      await Events.dispatch(Events.SEARCH_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.SEARCH_ERROR, { error: err });
     }
     return syncItem;
   }

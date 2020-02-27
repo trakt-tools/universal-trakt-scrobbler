@@ -4,7 +4,7 @@ import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
 import { NetflixStore } from './NetflixStore';
 
@@ -104,7 +104,7 @@ class _NetflixApi {
         .then(this.loadTraktHistory);
     } catch (err) {
       Errors.error('Failed to load Netflix history.', err);
-      await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
     }
   }
 
@@ -177,7 +177,7 @@ class _NetflixApi {
       await NetflixStore.update(null);
     } catch (err) {
       Errors.error('Failed to load Trakt history.', err);
-      await Events.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });
     }
   }
 

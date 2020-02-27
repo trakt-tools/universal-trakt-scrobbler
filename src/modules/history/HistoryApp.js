@@ -5,7 +5,7 @@ import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { Events } from '../../services/Events';
+import { Events, EventDispatcher } from '../../services/Events';
 import { Session } from '../../services/Session';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
@@ -21,13 +21,13 @@ function HistoryApp() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.LOGIN_SUCCESS, onLogin);
-      Events.subscribe(Events.LOGOUT_SUCCESS, onLogout);
+      EventDispatcher.subscribe(Events.LOGIN_SUCCESS, onLogin);
+      EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, onLogout);
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.LOGIN_SUCCESS, onLogin);
-      Events.unsubscribe(Events.LOGOUT_SUCCESS, onLogout);
+      EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, onLogin);
+      EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, onLogout);
     }
 
     function onLogin() {

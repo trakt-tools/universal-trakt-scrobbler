@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { Events } from '../services/Events';
+import { Events, EventDispatcher } from '../services/Events';
 
 function UtsDialog() {
   const [dialog, setDialog] = useState({
@@ -27,11 +27,11 @@ function UtsDialog() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.DIALOG_SHOW, showDialog);
+      EventDispatcher.subscribe(Events.DIALOG_SHOW, showDialog);
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.DIALOG_SHOW, showDialog);
+      EventDispatcher.unsubscribe(Events.DIALOG_SHOW, showDialog);
     }
 
     /**

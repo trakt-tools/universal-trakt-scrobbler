@@ -2,7 +2,7 @@ import { Box, CircularProgress } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
 import { BrowserStorage } from '../../../../services/BrowserStorage';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
@@ -54,20 +54,20 @@ export const Page = ({serviceName, store, api}) => {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
-      Events.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
-      Events.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
-      Events.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
-      Events.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
+      EventDispatcher.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
+      EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
+      EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
       store.startListeners();
     }
 
     const stopListeners = () => {
-      Events.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
-      Events.unsubscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
-      Events.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
-      Events.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
-      Events.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
+      EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
+      EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
+      EventDispatcher.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
+      EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
+      EventDispatcher.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
       store.stopListeners();
     };
 
@@ -85,7 +85,7 @@ export const Page = ({serviceName, store, api}) => {
      * @returns {Promise}
      */
     async function onHistoryLoadError() {
-      await Events.dispatch(Events.SNACKBAR_SHOW, {
+      await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'loadHistoryError',
         severity: 'error',
       });
@@ -95,7 +95,7 @@ export const Page = ({serviceName, store, api}) => {
      * @returns {Promise}
      */
     async function onTraktHistoryLoadError() {
-      await Events.dispatch(Events.SNACKBAR_SHOW, {
+      await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'loadTraktHistoryError',
         severity: 'error',
       });
@@ -106,7 +106,7 @@ export const Page = ({serviceName, store, api}) => {
      * @returns {Promise}
      */
     async function onHistorySyncSuccess(data) {
-      await Events.dispatch(Events.SNACKBAR_SHOW, {
+      await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
         messageName: 'historySyncSuccess',
         severity: 'success',
@@ -117,7 +117,7 @@ export const Page = ({serviceName, store, api}) => {
      * @returns {Promise}
      */
     async function onHistorySyncError() {
-      await Events.dispatch(Events.SNACKBAR_SHOW, {
+      await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'historySyncError',
         severity: 'error',
       });
@@ -129,11 +129,11 @@ export const Page = ({serviceName, store, api}) => {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
+      EventDispatcher.subscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
+      EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
     }
 
     /**
@@ -157,14 +157,14 @@ export const Page = ({serviceName, store, api}) => {
             hasLoaded: true,
             options,
           });
-          await Events.dispatch(Events.SNACKBAR_SHOW, {
+          await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
             messageName: 'saveOptionSuccess',
             severity: 'success',
           });
         })
         .catch(async err => {
           Errors.error('Failed to save option.', err);
-          await Events.dispatch(Events.SNACKBAR_SHOW, {
+          await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
             messageName: 'saveOptionFailed',
             severity: 'error',
           });

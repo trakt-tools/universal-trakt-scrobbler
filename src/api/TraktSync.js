@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Errors } from '../services/Errors';
-import { Events } from '../services/Events';
+import { Events, EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
@@ -81,10 +81,10 @@ class _TraktSync extends TraktApi {
           }
         }
       }
-      await Events.dispatch(Events.HISTORY_SYNC_SUCCESS, { added: responseJson.added });
+      await EventDispatcher.dispatch(Events.HISTORY_SYNC_SUCCESS, { added: responseJson.added });
     } catch (err) {
       Errors.error('Failed to sync history.', err);
-      await Events.dispatch(Events.HISTORY_SYNC_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, { error: err });
     }
   }
 }

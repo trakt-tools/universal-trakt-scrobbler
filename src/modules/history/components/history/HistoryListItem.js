@@ -2,12 +2,12 @@ import { Box, Button, Checkbox } from '@material-ui/core';
 import SyncIcon from '@material-ui/icons/Sync';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 function HistoryListItem({ dateFormat, item, serviceName }) {
   async function onCheckboxChange() {
-    await Events.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
+    await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
       index: item.index,
       checked: !item.isSelected,
     });

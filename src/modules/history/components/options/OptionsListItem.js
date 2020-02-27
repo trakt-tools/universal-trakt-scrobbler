@@ -1,14 +1,14 @@
 import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 
 function OptionsListItem({ option }) {
   /**
    * @returns {Promise}
    */
   async function onChange() {
-    await Events.dispatch(Events.OPTIONS_CHANGE, {
+    await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
       id: option.id,
       checked: !option.value,
     });

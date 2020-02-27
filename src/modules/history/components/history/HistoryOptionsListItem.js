@@ -1,14 +1,14 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Events } from '../../../../services/Events';
+import { Events, EventDispatcher } from '../../../../services/Events';
 
 function HistoryOptionsListItem({ option }) {
   /**
    * @returns {Promise}
    */
   async function onSwitchChange() {
-    await Events.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
+    await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
       id: option.id,
       value: !option.value,
     });
@@ -18,7 +18,7 @@ function HistoryOptionsListItem({ option }) {
    * @returns {Promise}
    */
   async function onNumberInputChange(event) {
-    await Events.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
+    await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
       id: option.id,
       value: parseInt(event.currentTarget.value),
     });

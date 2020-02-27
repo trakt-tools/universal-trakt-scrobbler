@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { BrowserStorage } from '../../../services/BrowserStorage';
 import { Errors } from '../../../services/Errors';
-import { Events } from '../../../services/Events';
+import { Events, EventDispatcher } from '../../../services/Events';
 import { OptionsActions } from '../components/options/OptionsActions';
 import { OptionsList } from '../components/options/OptionsList';
 
@@ -25,13 +25,13 @@ function OptionsPage() {
 
   useEffect(() => {
     function startListeners() {
-      Events.subscribe(Events.OPTIONS_CLEAR, resetOptions);
-      Events.subscribe(Events.OPTIONS_CHANGE, onOptionChange);
+      EventDispatcher.subscribe(Events.OPTIONS_CLEAR, resetOptions);
+      EventDispatcher.subscribe(Events.OPTIONS_CHANGE, onOptionChange);
     }
 
     function stopListeners() {
-      Events.unsubscribe(Events.OPTIONS_CLEAR, resetOptions);
-      Events.unsubscribe(Events.OPTIONS_CHANGE, onOptionChange);
+      EventDispatcher.unsubscribe(Events.OPTIONS_CLEAR, resetOptions);
+      EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, onOptionChange);
     }
 
     /**
@@ -69,14 +69,14 @@ function OptionsPage() {
             isLoading: false,
             options,
           });
-          await Events.dispatch(Events.SNACKBAR_SHOW, {
+          await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
             messageName: 'saveOptionSuccess',
             severity: 'success',
           });
         })
         .catch(async err => {
           Errors.error('Failed to save option.', err);
-          await Events.dispatch(Events.SNACKBAR_SHOW, {
+          await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
             messageName: 'saveOptionFailed',
             severity: 'error',
           });
