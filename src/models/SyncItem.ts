@@ -1,5 +1,14 @@
-class SyncItem {
-  constructor(options) {
+class SyncItem implements ISyncItem {
+  id: number;
+  type: 'show' | 'movie';
+  title: string;
+  year: number;
+  season?: number;
+  episode?: number;
+  episodeTitle?: string;
+  watchedAt: GenericObject;
+
+  constructor(options: ISyncItem) {
     this.id = options.id;
     this.type = options.type;
     this.title = options.title;

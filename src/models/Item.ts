@@ -1,5 +1,5 @@
 // We use this to correct known wrong titles.
-const correctTitles = {
+const correctTitles: GenericObject = {
   ['Dynasty']: 'Dynasty reboot',
   ['Shameless (U.S.)']: 'Shameless',
   ['Star Wars: The Clone Wars']: '"Star Wars: The Clone Wars"',
@@ -12,9 +12,20 @@ const correctTitles = {
   ['Young and Hungry']: '"Young and Hungry"',
 };
 
-/** @type {ItemInterface} */
-class Item {
-  constructor(options) {
+class Item implements IItem {
+  id: number;
+  type: 'show' | 'movie';
+  title: string;
+  year: number;
+  season?: number;
+  episode?: number;
+  episodeTitle?: string;
+  isCollection?: boolean;
+  watchedAt: GenericObject;
+  percentageWatched: number;
+  trakt?: ISyncItem | TraktNotFound;
+
+  constructor(options: IItem) {
     this.id = options.id;
     this.type = options.type;
     this.title = correctTitles[options.title] || options.title;
