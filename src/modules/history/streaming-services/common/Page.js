@@ -7,6 +7,7 @@ import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
 import { TraktSync } from '../../../../api/TraktSync';
+import { TraktSettings } from "../../../../api/TraktSettings";
 
 export const Page = ({serviceName, store, api}) => {
   const [optionsContent, setOptionsContent] = useState({
@@ -20,6 +21,7 @@ export const Page = ({serviceName, store, api}) => {
     nextVisualPage: 0,
     items: [],
   });
+  const [dateFormat, setDateFormat] = useState("MMMM Do YYYY, H:mm:ss");
 
   const loadNextPage = () => {
     const itemsToLoad = (content.nextVisualPage + 1) * optionsContent.options.itemsPerLoad.value - content.items.length;
@@ -186,6 +188,13 @@ export const Page = ({serviceName, store, api}) => {
     getOptions();
   }, []);
 
+  useEffect(()=>{
+    async function getDateFormat() {
+      setDateFormat(await TraktSettings.getTimeAndDateFormat());
+    }
+    getDateFormat();
+  }, []);
+
   useEffect(() => {
     function loadFirstPage() {
       if (optionsContent.hasLoaded) {
@@ -203,7 +212,6 @@ export const Page = ({serviceName, store, api}) => {
       itemsToShow = itemsToShow.filter(x => !x.trakt || !x.trakt.watchedAt);
     }
   }
-  const dateFormat = optionsContent.hasLoaded && optionsContent.options.use24Clock.value ? 'MMMM Do YYYY, H:mm:ss' : 'MMMM Do YYYY, h:mm:ss a';
 
   return content.isLoading ? (
     <UtsCenter>
