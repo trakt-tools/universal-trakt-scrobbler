@@ -1,11 +1,12 @@
 import Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
-import { Events } from './Events';
+import { Events, EventDispatcher } from './Events';
 
 class _Errors {
+  rollbar: Rollbar;
+
   constructor() {
-    /** @type {Rollbar} */
     this.rollbar = null;
 
     this.startRollbar = this.startRollbar.bind(this);
@@ -16,7 +17,7 @@ class _Errors {
     this.error = this.error.bind(this);
   }
 
-  startRollbar() {
+  startRollbar(): void {
     this.rollbar = Rollbar.init({
       accessToken: secrets.rollbarToken,
       autoInstrument: {
@@ -32,15 +33,11 @@ class _Errors {
     window.Rollbar = this.rollbar;
   }
 
-  startListeners() {
-    Events.subscribe(Events.SEARCH_ERROR, this.onSearchError);
+  startListeners(): void {
+    EventDispatcher.subscribe(Events.SEARCH_ERROR, this.onSearchError);
   }
 
-  /**
-   * @param {ErrorEventData} data
-   * @returns {Promise}
-   */
-   async onSearchError(data) {
+  async onSearchError(data: ErrorEventData): Promise<void> {
     if (data.error) {
       const values = await BrowserStorage.get('auth');
       if (values.auth && values.auth.access_token) {
@@ -51,33 +48,21 @@ class _Errors {
     }
   }
 
-  /**
-   * @param {string} message
-   * @param {Object<string, any>} details
-   */
-  log(message, details) {
+  log(message: string, details: ErrorDetails | RequestException): void {
     console.log(`[UTS] ${message}`, details);
   }
 
-  /**
-   * @param {string} message
-   * @param {Object<string, any>} details
-   */
-  warning(message, details) {
+  warning(message: string, details: ErrorDetails | RequestException): void {
     console.warn(`[UTS] ${message}`, details);
     if (this.rollbar) {
-      this.rollbar.warning(message, details.message ? { message: details.message } : details);
+      this.rollbar.warning(message, 'message' in details ? { message: details.message } : details);
     }
   }
 
-  /**
-   * @param {string} message
-   * @param {Object<string, any>} details
-   */
-  error(message, details) {
+  error(message: string, details: ErrorDetails | RequestException): void {
     console.error(`[UTS] ${message}`, details);
     if (this.rollbar) {
-      this.rollbar.error(message, details.message ? { message: details.message } : details);
+      this.rollbar.error(message, 'message' in details ? { message: details.message } : details);
     }
   }
 }

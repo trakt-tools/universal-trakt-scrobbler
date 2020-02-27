@@ -1,9 +1,5 @@
 class _Messaging {
-  /**
-   * @param {Object} message
-   * @returns {Promise}
-   */
-  async toBackground(message) {
+  async toBackground(message: GenericObject): Promise<GenericObject> {
     const response = await browser.runtime.sendMessage(JSON.stringify(message));
     return JSON.parse(response);
   }

@@ -11,18 +11,13 @@ class _Requests {
     this.getHeaders = this.getHeaders.bind(this);
   }
 
-  /**
-   * @param {RequestDetails} request
-   * @returns {Promise<string>}
-   * @throws {RequestException}
-   */
-  async send(request) {
+  async send(request: RequestDetails): Promise<string> {
     let responseText = '';
     if (browser.isBackgroundPage || request.url.includes(window.location.host)) {
       responseText = await this.sendDirectly(request);
     } else {
       const response = await Messaging.toBackground({ action: 'send-request', request });
-      responseText = response;
+      responseText = response as any as string;
       if (response.error) {
         throw response.error;
       }
@@ -30,12 +25,7 @@ class _Requests {
     return responseText;
   }
 
-  /**
-   * @param {RequestDetails} request
-   * @returns {Promise<string>}
-   * @throws {RequestException}
-   */
-  async sendDirectly(request) {
+  async sendDirectly(request: RequestDetails): Promise<string> {
     let responseStatus = 0;
     let responseText = '';
     try {
@@ -55,11 +45,7 @@ class _Requests {
     return responseText;
   }
 
-  /**
-   * @param {RequestDetails} request
-   * @returns {Promise<Response>}
-   */
-  async fetch(request) {
+  async fetch(request: RequestDetails): Promise<Response> {
     let fetch = window.fetch;
     let options = await this.getOptions(request);
     if (window.wrappedJSObject) {
@@ -71,11 +57,7 @@ class _Requests {
     return fetch(request.url, options);
   }
 
-  /**
-   * @param {RequestDetails} request
-   * @returns {Promise<Object<string, any>}
-   */
-  async getOptions(request) {
+  async getOptions(request: RequestDetails): Promise<GenericObject> {
     return {
       method: request.method,
       headers: await this.getHeaders(request),
@@ -83,12 +65,8 @@ class _Requests {
     };
   }
 
-  /**
-   * @param {RequestDetails} request
-   * @returns {Promise<Object<string, string>>}
-   */
-  async getHeaders(request) {
-    const headers = {
+  async getHeaders(request: RequestDetails): Promise<GenericObject> {
+    const headers: GenericObject = {
       'Content-Type': typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
     };
     if (request.url.includes('trakt.tv')) {

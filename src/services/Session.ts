@@ -1,8 +1,10 @@
 import { Errors } from './Errors';
-import { Events } from './Events';
+import { Events, EventDispatcher } from './Events';
 import { Messaging } from './Messaging';
 
 class _Session {
+  isLoggedIn: boolean;
+
   constructor() {
     this.isLoggedIn = false;
 
@@ -12,62 +14,50 @@ class _Session {
     this.finishLogin = this.finishLogin.bind(this);
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async checkLogin() {
+  async checkLogin(): Promise<void> {
     try {
       const auth = await Messaging.toBackground({ action: 'check-login' });
       if (auth && auth.access_token) {
         this.isLoggedIn = true;
-        await Events.dispatch(Events.LOGIN_SUCCESS, { auth });
+        await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, { auth });
       } else {
         throw auth;
       }
     } catch (err) {
       this.isLoggedIn = false;
-      await Events.dispatch(Events.LOGIN_ERROR, {});
+      await EventDispatcher.dispatch(Events.LOGIN_ERROR, {});
     }
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async login() {
+  async login(): Promise<void> {
     try {
       const auth = await Messaging.toBackground({ action: 'login' });
       if (auth && auth.access_token) {
         this.isLoggedIn = true;
-        await Events.dispatch(Events.LOGIN_SUCCESS, { auth });
+        await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, { auth });
       } else {
         throw auth;
       }
     } catch (err) {
       Errors.error('Failed to log in.', err);
       this.isLoggedIn = false;
-      await Events.dispatch(Events.LOGIN_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.LOGIN_ERROR, { error: err });
     }
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async logout() {
+  async logout(): Promise<void> {
     try {
       await Messaging.toBackground({ action: 'logout' });
       this.isLoggedIn = false;
-      await Events.dispatch(Events.LOGOUT_SUCCESS, {});
+      await EventDispatcher.dispatch(Events.LOGOUT_SUCCESS, {});
     } catch (err) {
       Errors.error('Failed to log out.', err);
       this.isLoggedIn = true;
-      await Events.dispatch(Events.LOGOUT_ERROR, { error: err });
+      await EventDispatcher.dispatch(Events.LOGOUT_ERROR, { error: err });
     }
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async finishLogin() {
+  async finishLogin(): Promise<void> {
     const redirectUrl = window.location.search;
     if (redirectUrl.includes('code')) {
       await Messaging.toBackground({ action: 'finish-login', redirectUrl });
