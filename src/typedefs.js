@@ -1,9 +1,4 @@
 /**
- * @typedef {Object} ErrorEventData
- * @property {RequestException} error
- */
-
-/**
  * @typedef {Object} LoginEventData
  * @property {TraktAuthDetails} auth
  */
@@ -12,20 +7,6 @@
  * @typedef {Object} OptionEventData
  * @property {string} id
  * @property {boolean} checked
- */
-
-/**
- * @typedef {Object} RequestDetails
- * @property {string} url
- * @property {string} method
- * @property {string|Object<string, any>} body
- */
-
-/**
- * @typedef {Object} RequestException
- * @property {RequestDetails} request
- * @property {number} status
- * @property {string} text
  */
 
 /**
@@ -43,35 +24,6 @@
 /**
  * @typedef {Object} ScrobbleProgressEventData
  * @property {number} progress
- */
-
-/**
- * @typedef {Object} StorageValues
- * @property {TraktAuthDetails} auth
- * @property {TraktSearchData} currentItem
- * @property {Object} options
- * @property {boolean} options.allowRollbar
- * @property {boolean} options.showNotifications
- * @property {boolean} options.sendReceiveCorrections
- * @property {boolean} options.grantCookies
- * @property {Object} traktCache
- */
-
-/**
- * @typedef {Object} TraktAuthDetails
- * @property {string} access_token
- * @property {string} token_type
- * @property {number} expires_in
- * @property {string} refresh_token
- * @property {string} scope
- * @property {number} created_at
- */
-
-
-/**
- * @typedef {Object} TraktManualAuth
- * @property {Function} callback
- * @property {number} tabId
  */
 
 /**
@@ -230,38 +182,6 @@
  * @property {number} nextPage
  * @property {number} nextVisualPage
  * @property {Array<import('./models/Item').Item>} items
- */
-
-/**
- * @typedef {Object} ItemInterface
- * @property {number} id
- * @property {'show'|'movie'} type
- * @property {string} title
- * @property {number} year
- * @property {number} [season]
- * @property {number} [episode]
- * @property {string} [episodeTitle]
- * @property {boolean} [isCollection]
- * @property {import('moment')} watchedAt
- * @property {number} percentageWatched
- * @property {import('./models/SyncItem').SyncItem|TraktNotFound} [trakt]
- */
-
-/**
- * @typedef {Object} SyncItemInterface
- * @property {number} id
- * @property {'show'|'movie'} type
- * @property {string} title
- * @property {number} year
- * @property {number} [season]
- * @property {number} [episode]
- * @property {string} [episodeTitle]
- * @property {import('moment')} watchedAt
- */
-
-/**
- * @typedef {Object} TraktNotFound
- * @property {true} notFound
  */
 
 /**
