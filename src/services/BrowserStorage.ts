@@ -1,4 +1,6 @@
 class _BrowserStorage {
+  isSyncAvailable: boolean;
+
   constructor() {
     this.isSyncAvailable = !!browser.storage.sync;
 
@@ -12,10 +14,7 @@ class _BrowserStorage {
     this.getSyncOptions = this.getSyncOptions.bind(this);
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async sync() {
+  async sync(): Promise<void> {
     if (this.isSyncAvailable) {
       const values = await browser.storage.sync.get(null);
       for (const key of Object.keys(values)) {
@@ -24,54 +23,32 @@ class _BrowserStorage {
     }
   }
 
-  /**
-   * @param {StorageValues} values
-   * @param {boolean} doSync
-   * @returns {Promise}
-   */
-  async set(values, doSync) {
+  async set(values: StorageValues, doSync: boolean): Promise<void> {
     if (doSync && this.isSyncAvailable) {
       await browser.storage.sync.set(values);
     }
     await browser.storage.local.set(values);
   }
 
-  /**
-   * @param {string|Array<string>|Object<string, any>|null} keys
-   * @returns {Promise<StorageValues>}
-   */
-  get(keys) {
+  get(keys: string | string[] | null): Promise<StorageValues> {
     return browser.storage.local.get(keys);
   }
 
-  /**
-   * @param {string|Array<string>} keys
-   * @param {boolean} doSync
-   * @returns {Promise}
-   */
-  async remove(keys, doSync) {
+  async remove(keys: string | string[], doSync: boolean): Promise<void> {
     if (doSync && this.isSyncAvailable) {
       await browser.storage.sync.remove(keys);
     }
     await browser.storage.local.remove(keys);
   }
 
-  /**
-   * @param {boolean} doSync
-   * @returns {Promise}
-   */
-  async clear(doSync) {
+  async clear(doSync: boolean): Promise<void> {
     if (doSync && this.isSyncAvailable) {
       await browser.storage.sync.clear();
     }
     await browser.storage.local.clear();
   }
 
-  /**
-   * @param {string|Array<string>|Object<string, any>|null} keys
-   * @returns {Promise<string>}
-   */
-  async getSize(keys) {
+  async getSize(keys: string | string[] | null): Promise<string> {
     let size = '';
     const values = await this.get(keys);
     let bytes = (JSON.stringify(values) || '').length;
@@ -89,11 +66,8 @@ class _BrowserStorage {
     return size;
   }
 
-  /**
-   * @returns {Promise<Object>}
-   */
-  async getOptions() {
-    const options = {
+  async getOptions(): Promise<Options> {
+    const options: Options = {
       sendReceiveSuggestions: {
         id: 'sendReceiveSuggestions',
         name: '',
@@ -118,11 +92,8 @@ class _BrowserStorage {
     return options;
   }
 
-  /**
-   * @returns {Promise<Object>}
-   */
-  async getSyncOptions() {
-    const options = {
+  async getSyncOptions(): Promise<SyncOptions> {
+    const options: SyncOptions = {
       hideSynced: {
         id: 'hideSynced',
         name: '',
