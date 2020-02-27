@@ -42,6 +42,7 @@ If you want to sync from Netflix, this is the only Trakt.tv [plugin](https://tra
 ### Which streaming services are supported?
 
 - Netflix
+- NRK
 
 ### How does the extension work?
 
@@ -51,6 +52,7 @@ It extracts information about the TV shows / movies that you have watched watchi
 
 - The extension does not work well with Firefox containers, so if you use them, make sure that you are logged in to your Trakt / Netflix accounts in the no-container.
 - When you stop watching something on Netflix, try not to immediately close the tab / window. Using the "Back to Browse" button or pausing first is preferable, because then the extension is able to detect that you have stopped watching. If you simply close the tab / window, the extension will keep scrobbling the item.
+- Make sure you are logged into Streaming Services before trying to sync history content.
 
 ### Other Problems
 
@@ -61,7 +63,7 @@ If you find any other problems or have suggestions or questions, feel free to [o
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
 2. In `Redirect uri:`, put `https://trakt.tv/apps`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
-4. Copy the `config.json` example file and change the Trakt.tv credentials.
+4. Copy the `config.dev.json` example file and change the Trakt.tv credentials.
 
 ```bash
 cp config.dev.json config.json
