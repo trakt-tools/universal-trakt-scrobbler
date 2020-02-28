@@ -1,0 +1,25 @@
+.options-actions {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.options-actions >* {
+  margin: 0 8px;
+}
+
+.options-actions--container {
+  background-color: #fff;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+}
+
+.options-container {
+  padding-top: 16px;
+}
+
+.options-list-item {
+  padding-right: 64px;
+}

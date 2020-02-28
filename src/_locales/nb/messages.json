@@ -1,0 +1,186 @@
+{
+  "appName": {
+    "message": "Universal Trakt Sync"
+  },
+  "appShortName": {
+    "message": "UTS"
+  },
+  "appDescription": {
+    "message": "En universell sync-tjeneste for Trakt.tv."
+  },
+  "about": {
+    "message": "Om"
+  },
+  "addWithReleaseDateName": {
+    "message": "Legg til med utgivelsesdato."
+  },
+  "aboutMessage": {
+    "message": "Synkroniser historikken fra dine favorittstrømmetjenester til Trakt.tv!"
+  },
+  "allowRollbarDescription": {
+    "message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
+  },
+  "allowRollbarName": {
+    "message": "Tillat at feilinformasjon sendes til Rollbar."
+  },
+  "clearStorage": {
+    "message": "Fjern lagrede data"
+  },
+  "clearStorageFailed": {
+    "message": "Klarte ikke å fjerne lagret data."
+  },
+  "clearStorageSuccess": {
+    "message": "Lagret data ble fjernet."
+  },
+  "clearTraktCache": {
+    "message": "Fjern Trakt cache"
+  },
+  "clearTraktCacheFailed": {
+    "message": "Klarte ikke å fjerne Trakt cache."
+  },
+  "clearTraktCacheSuccess": {
+    "message": "Trakt cache er fjernet."
+  },
+  "confirmClearStorageMessage": {
+    "message": "Alle valgene vil bli tilbakestilt til standardvalgene og du blir nødt til å logge inn på nytt."
+  },
+  "confirmClearStorageTitle": {
+    "message": "Fjern lagrede data?"
+  },
+  "confirmClearTraktCacheMessage": {
+    "message": "Alt rettelser du har gjort blir tilbakestilt."
+  },
+  "confirmClearTraktCacheTitle": {
+    "message": "Fjerne Trakt cache?"
+  },
+  "errorNotification": {
+    "message": "Noe har gått galt. :("
+  },
+  "errorNotificationLogin": {
+    "message": "Ser ut som du ikke er logget inn. Forsøk å åpne utvidelsen og logg inn med Trakt.tv kontoen din."
+  },
+  "errorNotificationNotFound": {
+    "message": "Oops! Vi klarte ikke å finne det du ser på hos Trakt.tv. Legg gjerne igjen en feilrapport med hva du ser på hos github."
+  },
+  "errorNotificationServers": {
+    "message": "Vi klarte ikke å nå Trakt.tv serverene. Vi forsøker å fikse det, vennligst prøv igjen senere."
+  },
+  "from": {
+    "message": "fra"
+  },
+  "grantCookiesDescription": {
+    "message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
+  },
+  "grantCookiesName": {
+    "message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
+  },
+  "hideSyncedName": {
+    "message": "Skjul allerede synkroniserte elementer."
+  },
+  "historySyncSuccess": {
+    "message": "$EPISODES$ episoder og $MOVIES$ filmer ble sendt til trakt.",
+    "placeholders": {
+      "episodes" : {
+        "content" : "$1"
+      },
+      "movies" : {
+        "content" : "$2"
+      }
+    }
+  },
+  "historySyncError": {
+    "message": "Klarte ikke å synkronisere historikken."
+  },
+  "home": {
+    "message": "Hjem"
+  },
+  "isThisWrong": {
+    "message": "Er dette feil, eller ufullstendig? "
+  },
+  "itemsPerLoadName": {
+    "message": "Elementer i hver innlasting."
+  },
+  "loadHistoryError": {
+    "message": "Klarte ikke å laste inn historikken."
+  },
+  "loadTraktHistoryError": {
+    "message": "Klarte ikke å laste inn Trakt historikken."
+  },
+  "login": {
+    "message": "Logg inn med Trakt.tv"
+  },
+  "logout": {
+    "message": "Logg ut"
+  },
+  "nextPage": {
+    "message": "Neste side"
+  },
+  "no": {
+    "message":  "Nei"
+  },
+  "notFound": {
+    "message": "Ikke funnet"
+  },
+  "notWatched": {
+    "message": "Ikke registrert som sett"
+  },
+  "on": {
+    "message": "På"
+  },
+  "options": {
+    "message": "Alternativer"
+  },
+  "readMore": {
+    "message": "Les mer"
+  },
+  "save": {
+    "message": "Lagre"
+  },
+  "saveOptionFailed": {
+    "message": "Klarte ikke å lagre valgalternativ."
+  },
+  "saveOptionSuccess": {
+    "message": "Alternativ lagret."
+  },
+  "select": {
+    "message": "Velg:"
+  },
+  "selectAll": {
+    "message": "Alle"
+  },
+  "selectNone": {
+    "message": "Ingen"
+  },
+  "selectStreamingService": {
+    "message": "Velg en strømmetjeneste å synkronisere fra:"
+  },
+  "sendReceiveSuggestionsDescription": {
+    "message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Sheets-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
+  },
+  "sendReceiveSuggestionsName": {
+    "message": "Send / motta forslag til rettelser."
+  },
+  "sync": {
+    "message": "Synkroniser historikk"
+  },
+  "toggleAll": {
+    "message": "Veksle"
+  },
+  "use24ClockName": {
+    "message": "Bruk 24-timers klokke."
+  },
+  "watched": {
+    "message": "Dato sett"
+  },
+  "progress": {
+    "message": "Fullført: $PROGRESS$%",
+    "placeholders": {
+      "progress": {
+        "content": "$1"
+      }
+    }
+  },
+  "yes": {
+    "message": "Ja"
+  }
+}
