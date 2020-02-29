@@ -1,6 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { UtsCenter } from '../../../components/UtsCenter.tsx';
+import { UtsCenter } from '../../../components/UtsCenter';
 import { BrowserStorage } from '../../../services/BrowserStorage';
 import { Errors } from '../../../services/Errors';
 import { Events, EventDispatcher } from '../../../services/Events';

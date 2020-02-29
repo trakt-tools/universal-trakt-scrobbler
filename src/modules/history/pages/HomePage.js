@@ -1,9 +1,9 @@
 import { CircularProgress, List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { UtsCenter } from '../../../components/UtsCenter.tsx';
+import { UtsCenter } from '../../../components/UtsCenter';
 import { Session } from '../../../services/Session';
-import { HistoryInfo } from '../components/HistoryInfo.tsx';
+import { HistoryInfo } from '../components/HistoryInfo';
 import { streamingServices } from '../streaming-services/streamingServices';
 
 function HomePage() {
