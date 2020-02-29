@@ -2,6 +2,7 @@ import { SyncItem } from '../models/SyncItem';
 import { Events, EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
+import { Item } from '../models/Item';
 
 class _TraktSearch extends TraktApi {
   constructor() {
@@ -15,35 +16,28 @@ class _TraktSearch extends TraktApi {
     this.formatEpisodeTitle = this.formatEpisodeTitle.bind(this);
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @returns {Promise<SyncItem>}
-   */
-  async find(item) {
-    /** @type {SyncItem} */
-    let syncItem = null;
+  async find(item: Item) {
+    let syncItem: SyncItem = null;
     try {
-      /** @type {TraktSearchEpisodeItem|TraktSearchMovieItem} */
-      let searchItem = null;
+      let searchItem: TraktSearchEpisodeItem|TraktSearchMovieItem = null;
       if (item.type === 'show') {
         searchItem = await this.findEpisode(item);
       } else {
-        searchItem = await this.findItem(item);
+        searchItem = await this.findItem(item) as TraktSearchMovieItem;
       }
       if (searchItem) {
         if (item.type === 'show') {
-          /** @type {TraktSearchEpisodeItem} */
-          const episodeItem = searchItem;
+          const episodeItem = searchItem as TraktSearchEpisodeItem; //TODO can probably avoid assertion with clever generics
           const id = episodeItem.episode.ids.trakt;
           const title = episodeItem.show.title;
+          debugger;//TODO verify
           const year = episodeItem.show.year;
           const season = episodeItem.episode.season;
           const episode = episodeItem.episode.number;
           const episodeTitle = episodeItem.episode.title;
           syncItem = new SyncItem({ id, type: item.type, title, year, season, episode, episodeTitle });
         } else {
-          /** @type {TraktSearchMovieItem} */
-          const movieItem = searchItem;
+          const movieItem = searchItem as TraktSearchMovieItem; //TODO
           const id = movieItem.movie.ids.trakt;
           const title = movieItem.movie.title;
           const year = movieItem.movie.year;
@@ -63,24 +57,18 @@ class _TraktSearch extends TraktApi {
     return syncItem;
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @returns {Promise<TraktSearchShowItem|TraktSearchMovieItem>}
-   */
-  async findItem(item) {
-    /** @type {TraktSearchShowItem|TraktSearchMovieItem} */
+  async findItem(item: Item) {
     let searchItem = null;
     const responseText = await Requests.send({
       url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}`,
       method: 'GET',
     });
-    /** @type {Array<TraktSearchShowItem|TraktSearchMovieItem>} */
-    const searchItems = JSON.parse(responseText);
+    const searchItems: (TraktSearchShowItem|TraktSearchMovieItem)[] = JSON.parse(responseText);
     if (item.type === 'show') {
-      searchItem = searchItems[0];
+      searchItem = searchItems[0] as TraktSearchShowItem; //TODO can probably avoid assigning with clever generics
     } else {
       // Get the exact match if there are multiple movies with the same name by checking the year.
-      searchItem = searchItems.find(x => x.movie.title === item.title && x.movie.year === item.year);
+      searchItem = (searchItems as TraktSearchMovieItem[]).find(x => x.movie.title === item.title && x.movie.year === item.year);
     }
     if (!searchItem) {
       throw {
@@ -92,15 +80,9 @@ class _TraktSearch extends TraktApi {
     return searchItem;
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @returns {Promise<TraktSearchEpisodeItem>}
-   */
-  async findEpisode(item) {
-    /** @type {TraktSearchEpisodeItem} */
-    let episodeItem = null;
-    /** @type {TraktSearchShowItem} */
-    const showItem = await this.findItem(item);
+  async findEpisode(item: Item): Promise<TraktSearchEpisodeItem> {
+    let episodeItem: TraktEpisodeItem = null;
+    const showItem = await this.findItem(item) as TraktSearchShowItem;
     const responseText = await Requests.send({
       url: this.getEpisodeUrl(item, showItem.show.ids.trakt),
       method: 'GET',
@@ -110,24 +92,15 @@ class _TraktSearch extends TraktApi {
         episode: JSON.parse(responseText),
       };
     } else {
-      /** @type {Array<TraktSearchEpisodeItem>} */
-      const episodeItems = JSON.parse(responseText);
+      const episodeItems: TraktSearchEpisodeItem[] = JSON.parse(responseText);
       episodeItem = this.findEpisodeByTitle(item, showItem, episodeItems);
     }
-    Object.assign(episodeItem, showItem);
-    return episodeItem;
+    return Object.assign({}, episodeItem, showItem);
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @param {TraktSearchShowItem} showItem
-   * @param {Array<TraktSearchEpisodeItem>} episodeItems
-   * @returns {TraktSearchEpisodeItem}
-   */
-  findEpisodeByTitle(item, showItem, episodeItems) {
-    /** @type TraktSearchEpisodeItem */
-    const episodeItem = {
-      episode: episodeItems.map(x => x.episode || x)
+  findEpisodeByTitle(item: Item, showItem: TraktSearchShowItem, episodeItems: TraktSearchEpisodeItem[]): TraktEpisodeItem {
+    const episodeItem: TraktEpisodeItem = {
+      episode: episodeItems.map(x => x.episode)//TODO figure out removed || x
         .find(x => x.title && item.episodeTitle && this.formatEpisodeTitle(x.title) === this.formatEpisodeTitle(item.episodeTitle)),
     };
     if (!episodeItem) {
@@ -140,12 +113,7 @@ class _TraktSearch extends TraktApi {
     return episodeItem;
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @param {string} traktId
-   * @returns {string}
-   */
-  getEpisodeUrl(item, traktId) {
+  getEpisodeUrl(item: Item, traktId: number) {
     let url = '';
     if (item.episode) {
       url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}`;
@@ -157,11 +125,7 @@ class _TraktSearch extends TraktApi {
     return url;
   }
 
-  /**
-   * @param {string} title
-   * @returns {string}
-   */
-  formatEpisodeTitle(title) {
+  formatEpisodeTitle(title: string) {
     return title
       .toLowerCase()
       .replace(/(^|\s)(a|an|the)(\s)/g, '$1$3')

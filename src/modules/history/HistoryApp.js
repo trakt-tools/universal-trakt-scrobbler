@@ -7,7 +7,7 @@ import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
 import { Events, EventDispatcher } from '../../services/Events';
 import { Session } from '../../services/Session';
-import { HistoryHeader } from './components/HistoryHeader';
+import { HistoryHeader } from './components/HistoryHeader.tsx';
 import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';

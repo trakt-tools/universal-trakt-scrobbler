@@ -1,4 +1,5 @@
 import { Errors } from './Errors';
+import { StoreData } from '../modules/history/streaming-services/common/Store';
 
 enum Events {
   LOGIN_SUCCESS,
@@ -18,6 +19,27 @@ enum Events {
   TRAKT_HISTORY_LOAD_ERROR,
   HISTORY_SYNC_SUCCESS,
   HISTORY_SYNC_ERROR,
+}
+
+export interface HistoryOptionsChangeData {
+  id: keyof StorageValuesSyncOptions;
+  value: boolean|number;
+}
+
+export interface StreamingServiceStoreUpdateData {
+  data: StoreData
+}
+
+export interface StreamingServiceHistoryChangeData {
+  index: number;
+  checked: boolean;
+}
+
+export interface HistorySyncSuccessData {
+  added: {
+    episodes: number;
+    movies: number;
+  }
 }
 
 class _EventDispatcher {

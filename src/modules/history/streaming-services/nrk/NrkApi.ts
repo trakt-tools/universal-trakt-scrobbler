@@ -6,8 +6,11 @@ import { Errors } from '../../../../services/Errors';
 import { Events, EventDispatcher } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
 import { NrkStore } from './NrkStore';
+import { Api } from '../common/api';
 
-class _NrkApi {
+class _NrkApi implements Api{
+  HOST_URL: string;
+  HISTORY_API_URL: string;
   constructor() {
     this.HOST_URL = 'https://tv.nrk.no';
     this.HISTORY_API_URL = `${this.HOST_URL}/history`;
@@ -18,26 +21,17 @@ class _NrkApi {
     this.loadTraktItemHistory = this.loadTraktItemHistory.bind(this);
   }
 
-  /**
-   * @param {number} nextPage
-   * @param {number} nextVisualPage
-   * @param {number} itemsToLoad
-   * @returns {Promise}
-   */
-  async loadHistory(nextPage, nextVisualPage, itemsToLoad) {
+  async loadHistory(nextPage:number , nextVisualPage:number, itemsToLoad:number) {
     try {
       let isLastPage = false;
-      /** @type {Array<Item>} */
-      let items = [];
-      /** @type {Array<NrkHistoryItem>} */
-      const historyItems = [];
+      let items: Item[] = [];
+      const historyItems:NrkHistoryItem[] = [];
       do {
         const responseText = await Requests.send({
           url: `${this.HISTORY_API_URL}?pg=${nextPage}`, //TODO figure out if pagination is even supported in the API
           method: 'GET',
         });
-        /** @type {NrkHistoryResponse} */
-        const responseJson = JSON.parse(responseText);
+        const responseJson: NrkHistoryItem[] = JSON.parse(responseText);
         if (responseJson && responseJson.length > 0) {
           itemsToLoad -= responseJson.length;
           historyItems.push(...responseJson);
@@ -58,35 +52,27 @@ class _NrkApi {
     }
   }
 
-  /**
-   * @param {NrkHistoryItem} historyItem
-   * @returns {Item}
-   */
-  parseHistoryItem(historyItem) {
-    /** @type {NrkProgramInfo} */
-    const program = historyItem.program;
-    /** @type {Item} */
-    let item = null;
-    const id = program.id;
+  parseHistoryItem(historyItem: NrkHistoryItem): Item {
+    const program: NrkProgramInfo = historyItem.program;
+    let item: Item = null;
+    const id = parseInt(program.id, 10);
     const type = program.programType === 'Episode' ? 'show' : 'movie';
     const year = program.productionYear || null;
+    const percentageWatched = parseInt(historyItem.lastSeen.percentageWatched, 10);
     const watchedAt = moment(this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at));
     if (type === 'show') {
       const title = program.title.trim();
-      const season = program.seasonNumber;
-      const episode = program.episodeNumber;
+      const season = parseInt(program.seasonNumber, 10);
+      const episode = parseInt(program.episodeNumber, 10);
       const episodeTitle = program.mainTitle.trim();
-      item = new Item({id, type, title, year, season, episode, episodeTitle, isCollection: false, percentageWatched: historyItem.lastSeen.percentageWatched ,watchedAt});
+      item = new Item({id, type, title, year, season, episode, episodeTitle, isCollection: false, percentageWatched ,watchedAt});
     } else {
       const title = program.title.trim();
-      item = new Item({id, type, title, year, percentageWatched: historyItem.lastSeen.percentageWatched, watchedAt});
+      item = new Item({id, type, title, year, percentageWatched, watchedAt});
     }
     return item;
   }
 
-  /**
-   * @returns {Promise}
-   */
   async loadTraktHistory() {
     try {
       let promises = [];
@@ -100,11 +86,7 @@ class _NrkApi {
     }
   }
 
-  /**
-   * @param {import('../../../../models/Item').Item} item
-   * @returns {Promise}
-   */
-  async loadTraktItemHistory(item) {
+  async loadTraktItemHistory(item: Item) {
     if (!item.trakt) {
       try {
         item.trakt = await TraktSearch.find(item);
@@ -117,11 +99,7 @@ class _NrkApi {
     }
   }
 
-  /**
-   * @param {string} value
-   * @returns {Date}
-   */
-  convertAspNetJSONDateToDateObject(value) {
+  convertAspNetJSONDateToDateObject(value: string): Date {
     const dateRegexp = /^\/?Date\((-?\d+)/i;
     if (dateRegexp.exec(value) !== null) {
       const dateInMs = parseInt(value.slice(6, 19), 10);

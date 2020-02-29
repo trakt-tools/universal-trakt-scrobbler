@@ -1,7 +1,7 @@
 import { Button, Typography } from '@material-ui/core';
 import React from 'react';
 import { Messaging } from '../../../services/Messaging';
-import { HistoryInfo } from '../components/HistoryInfo';
+import { HistoryInfo } from '../components/HistoryInfo.tsx';
 
 function AboutPage() {
   /**

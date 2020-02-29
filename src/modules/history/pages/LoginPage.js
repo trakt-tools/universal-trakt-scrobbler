@@ -1,7 +1,7 @@
 import { Button, CircularProgress } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { UtsCenter } from '../../../components/UtsCenter';
+import { UtsCenter } from '../../../components/UtsCenter.tsx';
 import { Events, EventDispatcher } from '../../../services/Events';
 import { Session } from '../../../services/Session';
 

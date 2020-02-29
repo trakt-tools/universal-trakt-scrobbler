@@ -1,19 +1,48 @@
 import { Box, CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from "react";
 import { UtsCenter } from '../../../../components/UtsCenter';
 import { BrowserStorage } from '../../../../services/BrowserStorage';
-import { Events, EventDispatcher } from '../../../../services/Events';
+import {
+  Events,
+  EventDispatcher,
+  StreamingServiceStoreUpdateData,
+  HistoryOptionsChangeData, HistorySyncSuccessData
+} from '../../../../services/Events';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
 import { TraktSync } from '../../../../api/TraktSync';
+import { Store } from './Store';
+import { Item } from '../../../../models/Item';
+import { Errors } from '../../../../services/Errors';
+import { Api } from './api';
 
-export const Page = ({serviceName, store, api}) => {
-  const [optionsContent, setOptionsContent] = useState({
+interface PageProps {
+  serviceName: string;
+  store: Store;
+  api: Api;
+}
+
+interface OptionsContent {
+  hasLoaded: boolean;
+  options: SyncOptions;
+}
+
+interface Content {
+  isLoading: boolean;
+  isLastPage: boolean;
+  nextPage: number;
+  nextVisualPage: number
+  items: Item[],
+}
+
+export const Page: React.FC<PageProps> = ({serviceName, store, api}) => {
+  const [optionsContent, setOptionsContent] = useState<OptionsContent>({
     hasLoaded: false,
-    options: {},
+    options: {} as SyncOptions,
   });
-  const [content, setContent] = useState({
+  const [content, setContent] = useState<Content>({
     isLoading: true,
     isLastPage: false,
     nextPage: 0,
@@ -71,19 +100,13 @@ export const Page = ({serviceName, store, api}) => {
       store.stopListeners();
     };
 
-    /**
-     * @param {Object} data
-     */
-    function onStoreUpdate(data) {
+    function onStoreUpdate(data: StreamingServiceStoreUpdateData) {
       setContent({
         isLoading: false,
         ...data.data,
       });
     }
 
-    /**
-     * @returns {Promise}
-     */
     async function onHistoryLoadError() {
       await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'loadHistoryError',
@@ -91,9 +114,6 @@ export const Page = ({serviceName, store, api}) => {
       });
     }
 
-    /**
-     * @returns {Promise}
-     */
     async function onTraktHistoryLoadError() {
       await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'loadTraktHistoryError',
@@ -101,11 +121,7 @@ export const Page = ({serviceName, store, api}) => {
       });
     }
 
-    /**
-     * @param {Object} data
-     * @returns {Promise}
-     */
-    async function onHistorySyncSuccess(data) {
+    async function onHistorySyncSuccess(data: HistorySyncSuccessData) {
       await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
         messageName: 'historySyncSuccess',
@@ -113,9 +129,6 @@ export const Page = ({serviceName, store, api}) => {
       });
     }
 
-    /**
-     * @returns {Promise}
-     */
     async function onHistorySyncError() {
       await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
         messageName: 'historySyncError',
@@ -136,11 +149,8 @@ export const Page = ({serviceName, store, api}) => {
       EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
     }
 
-    /**
-     * @param {Object} data
-     */
-    function onOptionsChange(data) {
-      const optionsToSave = {};
+    function onOptionsChange(data: HistoryOptionsChangeData) {
+      const optionsToSave = {} as StorageValuesSyncOptions;
       const options = {
         ...optionsContent.options,
         [data.id]: {
@@ -149,6 +159,7 @@ export const Page = ({serviceName, store, api}) => {
         },
       };
       for (const option of Object.values(options)) {
+        // @ts-ignore
         optionsToSave[option.id] = option.value;
       }
       BrowserStorage.set({ syncOptions: optionsToSave }, true)
@@ -196,11 +207,11 @@ export const Page = ({serviceName, store, api}) => {
     loadFirstPage();
   }, [optionsContent.hasLoaded]);
 
-  let itemsToShow = [];
+  let itemsToShow: Item[] = [];
   if (optionsContent.hasLoaded && content.nextVisualPage > 0) {
     itemsToShow = content.items.slice((content.nextVisualPage - 1) * optionsContent.options.itemsPerLoad.value, content.nextVisualPage * optionsContent.options.itemsPerLoad.value);
     if (optionsContent.options.hideSynced.value) {
-      itemsToShow = itemsToShow.filter(x => !x.trakt || !x.trakt.watchedAt);
+      itemsToShow = itemsToShow.filter(x => !x.trakt || !(x.trakt as ISyncItem).watchedAt);
     }
   }
   const dateFormat = optionsContent.hasLoaded && optionsContent.options.use24Clock.value ? 'MMMM Do YYYY, H:mm:ss' : 'MMMM Do YYYY, h:mm:ss a';

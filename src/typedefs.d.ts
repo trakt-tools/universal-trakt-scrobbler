@@ -17,7 +17,7 @@ declare interface IItem {
   episodeTitle?: string,
   isCollection?: boolean,
   watchedAt: GenericObject,
-  percentageWatched: number,
+  percentageWatched?: number,
   trakt?: ISyncItem | TraktNotFound,
 }
 
@@ -29,7 +29,7 @@ declare interface ISyncItem {
   season?: number,
   episode?: number,
   episodeTitle?: string,
-  watchedAt: GenericObject,
+  watchedAt?: GenericObject,
 }
 
 declare type TraktNotFound = {
@@ -62,7 +62,7 @@ declare type StorageValuesOptions = {
 declare type StorageValuesSyncOptions = {
   addWithReleaseDate: boolean,
   hideSynced: boolean,
-  itemsPerLoad: boolean,
+  itemsPerLoad: number,
   use24Clock: boolean,
 };
 
@@ -78,16 +78,8 @@ declare type Option = {
   origins: string[],
 };
 
-declare type SyncOptions = {
-  [key: string]: SyncOption,
-};
-
-declare type SyncOption = {
-  id: keyof StorageValuesSyncOptions,
-  name: string,
-  value: boolean | number,
-  type: string,
-};
+declare type SyncOptions = { [K in keyof StorageValuesSyncOptions]: { id: K, value: StorageValuesSyncOptions[K], name: string, type: string } };
+declare type SyncOption = SyncOptions[keyof SyncOptions]
 
 declare type ErrorEventData = {
   error: ErrorDetails | RequestException,
@@ -106,9 +98,197 @@ declare type RequestException = {
 declare type RequestDetails = {
   url: string,
   method: string,
-  body: string | Object,
+  body?: string | Object,
 };
 
 declare type EventDispatcherListeners = {
   [key: number]: Function[],
 };
+
+
+declare interface TraktHistoryItem {
+  watched_at: string;
+}
+
+/**
+ * @typedef {Object} LoginEventData
+ * @property {TraktAuthDetails} auth
+ */
+
+/**
+ * @typedef {Object} OptionEventData
+ * @property {string} id
+ * @property {boolean} checked
+ */
+
+/**
+ * @typedef {Object} SearchEventData
+ * @property {TraktSearchData} data
+ */
+
+/**
+ * @typedef {Object} ScrobbleEventData
+ * @property {import('./models/ScrobbleItem').ScrobbleItem} item
+ * @property {number} scrobbleType
+ * @property {RequestException} error
+ */
+
+/**
+ * @typedef {Object} ScrobbleProgressEventData
+ * @property {number} progress
+ */
+
+/**
+ * @typedef {Array<TraktSearchItem>} TraktSearchItems
+ */
+
+/**
+ * @typedef {TraktSearchEpisodeItem|TraktSearchShowItem|TraktSearchMovieItem} TraktSearchItem
+ */
+
+type TraktSearchEpisodeItem = TraktEpisodeItem & TraktSearchShowItem;
+
+declare interface TraktEpisodeItem {
+  episode: {
+    season: number;
+    number: number;
+    title: string;
+    ids: {
+      trakt: number;
+    }
+  }
+}
+
+declare interface TraktSearchShowItem {
+  show: {
+    title: string;
+    year: number;
+    ids: {
+      trakt: number;
+    }
+  }
+}
+
+declare interface TraktSearchMovieItem {
+  movie: {
+    title: string;
+    year: number;
+    ids: {
+      trakt: number;
+    }
+  }
+}
+
+/**
+ * @typedef {Array<NrkHistoryItem>} NrkHistoryResponse
+ */
+
+declare interface NrkHistoryItem {
+  lastSeen: NrkLastSeen;
+  program: NrkProgramInfo;
+}
+
+declare interface NrkLastSeen {
+  at: string;
+  percentageWatched: string;
+  percentageAssumedFinished: string;
+}
+
+declare interface NrkProgramInfo {
+  id: string
+  title: string
+  mainTitle: string
+  viewCount: number
+  description: string
+  programType: 'Program' | 'Episode'
+  seriesId: string
+  episodeNumber: string
+  totalEpisodesInSeason: string
+  episodeNumberOrDate: string
+  seasonNumber: string
+  productionYear: number
+}
+
+declare interface NetflixHistoryResponse {
+  viewedItems: NetflixHistoryItem[];
+}
+
+declare type NetflixHistoryItem = NetflixHistoryShowItem|NetflixHistoryMovieItem;
+
+declare interface NetflixHistoryShowItem {
+  date: number
+  duration: number
+  episodeTitle: string
+  movieID: number
+  seasonDescriptor: string
+  series: number
+  seriesTitle: string
+  title: string
+}
+
+declare interface NetflixHistoryMovieItem {
+  date: number;
+  duration: number;
+  movieID: number;
+  title: string;
+}
+
+declare interface NetflixMetadataResponse {
+  value: {
+    videos: {[key: number]: NetflixMetadataItem}; //TODO verify {Object<string, NetflixMetadataItem>} value.videos
+  }
+}
+/**
+ * @typedef {Object} NetflixMetadataResponse
+ * @property {Object} value
+ * @property {Object<string, NetflixMetadataItem>} value.videos
+ */
+
+/**
+ * @typedef {NetflixMetadataShowItem|NetflixMetadataMovieItem} NetflixMetadataItem
+ */
+
+declare type NetflixMetadataItem = NetflixMetadataShowItem|NetflixMetadataMovieItem;
+
+declare interface NetflixMetadataShowItem {
+  releaseYear: number;
+  summary: {
+    episode: number;
+    id: number;
+    season: number;
+  }
+}
+
+declare interface NetflixMetadataMovieItem {
+  releaseYear: number;
+  summary: {
+    id: number;
+  }
+}
+
+/**
+ * @typedef {Array<NetflixHistoryItemWithMetadata>} NetflixHistoryItemsWithMetadata
+ */
+
+declare type NetflixHistoryItemWithMetadata = NetflixHistoryShowItemWithMetadata|NetflixHistoryMovieItemWithMetadata;
+
+declare type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & NetflixMetadataShowItem;
+
+declare type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem & NetflixMetadataMovieItem;
+
+interface TraktSyncResponse {
+  added: {
+    episodes: number;
+    movies: number;
+  }
+  not_found: {
+    episodes: TraktSyncNotFound[];
+    movies: TraktSyncNotFound[];
+  }
+}
+
+interface TraktSyncNotFound {
+  ids: {
+    trakt: number;
+  }
+}

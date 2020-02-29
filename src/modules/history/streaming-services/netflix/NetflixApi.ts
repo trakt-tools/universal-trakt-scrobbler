@@ -1,5 +1,5 @@
 
-import moment from 'moment';
+import * as moment from 'moment';
 import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
@@ -7,8 +7,17 @@ import { Errors } from '../../../../services/Errors';
 import { Events, EventDispatcher } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
 import { NetflixStore } from './NetflixStore';
+import { Api } from '../common/api';
 
-class _NetflixApi {
+class _NetflixApi implements Api{
+  HOST_URL: string;
+  API_URL: string;
+  ACTIVATE_URL: string;
+  AUTH_REGEX: RegExp;
+  BUILD_IDENTIFIER_REGEX: RegExp;
+  isActivated: boolean;
+  authUrl: string;
+  buildIdentifier: string;
   constructor() {
     this.HOST_URL = 'https://www.netflix.com';
     this.API_URL = `${this.HOST_URL}/api/shakti`;
@@ -16,13 +25,8 @@ class _NetflixApi {
     this.AUTH_REGEX = /"authURL":"(.*?)"/;
     this.BUILD_IDENTIFIER_REGEX = /"BUILD_IDENTIFIER":"(.*?)"/;
 
-    /** @type {boolean} */
     this.isActivated = false;
-
-    /** @type {string} */
     this.authUrl = '';
-
-    /** @type {string} */
     this.buildIdentifier = '';
 
     this.extractAuthUrl = this.extractAuthUrl.bind(this);
@@ -35,25 +39,14 @@ class _NetflixApi {
     this.loadTraktItemHistory = this.loadTraktItemHistory.bind(this);
   }
 
-  /**
-   * @param {string} text
-   * @returns {string}
-   */
-  extractAuthUrl(text) {
+  extractAuthUrl(text: string) {
     return text.match(this.AUTH_REGEX)[1];
   }
 
-  /**
-   * @param {string} text
-   * @returns {string}
-   */
-  extractBuildIdentifier(text) {
+  extractBuildIdentifier(text: string) {
     return text.match(this.BUILD_IDENTIFIER_REGEX)[1];
   }
 
-  /**
-   * @returns {Promise}
-   */
   async activate() {
     const responseText = await Requests.send({
       url: this.ACTIVATE_URL,
@@ -64,29 +57,20 @@ class _NetflixApi {
     this.isActivated = true;
   }
 
-  /**
-   * @param {number} nextPage
-   * @param {number} nextVisualPage
-   * @param {number} itemsToLoad
-   * @returns {Promise}
-   */
-  async loadHistory(nextPage, nextVisualPage, itemsToLoad) {
+  async loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number) {
     try {
       if (!this.isActivated) {
         await this.activate();
       }
       let isLastPage = false;
-      /** @type {Array<Item>} */
-      let items = [];
-      /** @type {NetflixHistoryItems} */
-      const historyItems = [];
+      let items: Item[] = [];
+      const historyItems: NetflixHistoryItem[] = [];
       do {
         const responseText = await Requests.send({
           url: `${this.API_URL}/${this.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.authUrl}&pg=${nextPage}`,
           method: 'GET',
         });
-        /** @type {NetflixHistoryResponse} */
-        const responseJson = JSON.parse(responseText);
+        const responseJson: NetflixHistoryResponse = JSON.parse(responseText);
         if (responseJson && responseJson.viewedItems.length > 0) {
           itemsToLoad -= responseJson.viewedItems.length;
           historyItems.push(...responseJson.viewedItems);
@@ -108,27 +92,24 @@ class _NetflixApi {
     }
   }
 
-  /**
-   * @param {NetflixHistoryItems} historyItems
-   * @returns {Promise<NetflixHistoryItemsWithMetadata>}
-   */
-  async getHistoryMetadata(historyItems) {
-    /** @type {NetflixHistoryItemsWithMetadata} */
-    let historyItemsWithMetadata = [];
+  async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
+    let historyItemsWithMetadata: NetflixHistoryItemWithMetadata[] = [];
     const responseText = await Requests.send({
       url: `${this.API_URL}/${this.buildIdentifier}/pathEvaluator?languages=en-US`,
       method: 'POST',
       body: `authURL=${this.authUrl}&${historyItems.map(historyItem => `path=["videos",${historyItem.movieID},["releaseYear","summary"]]`).join('&')}`,
     });
-    /** @type {NetflixMetadataResponse} */
-    const responseJson = JSON.parse(responseText);
+    const responseJson: NetflixMetadataResponse = JSON.parse(responseText);
     if (responseJson && responseJson.value.videos) {
       historyItemsWithMetadata = historyItems.map(historyItem => {
         const metadata = responseJson.value.videos[historyItem.movieID];
+        let combinedItem: NetflixHistoryItemWithMetadata;
         if (metadata) {
-          Object.assign(historyItem, metadata);
+          combinedItem = Object.assign({}, historyItem, metadata);
+        } else {
+          combinedItem = historyItem as NetflixHistoryItemWithMetadata;
         }
-        return historyItem;
+        return combinedItem;
       });
     } else {
       throw responseText;
@@ -136,18 +117,17 @@ class _NetflixApi {
     return historyItemsWithMetadata;
   }
 
-  /**
-   * @param {NetflixHistoryItemWithMetadata} historyItem
-   * @returns {Item}
-   */
-  parseHistoryItem(historyItem) {
-    /** @type {Item} */
-    let item = null;
+  isShow(historyItem: NetflixHistoryItemWithMetadata): historyItem is NetflixHistoryShowItemWithMetadata {
+    return ('series' in historyItem);
+  }
+
+  parseHistoryItem(historyItem: NetflixHistoryItemWithMetadata) {
+    let item: Item = null;
     const id = historyItem.movieID;
-    const type = typeof historyItem.series !== 'undefined' ? 'show' : 'movie';
+    const type = ('series' in historyItem) ? 'show' : 'movie';
     const year = historyItem.releaseYear || null;
     const watchedAt = moment(historyItem.date);
-    if (type === 'show') {
+    if (this.isShow(historyItem)) {
       const title = historyItem.seriesTitle.trim();
       let season = null;
       let episode = null;
@@ -165,9 +145,6 @@ class _NetflixApi {
     return item;
   }
 
-  /**
-   * @returns {Promise}
-   */
   async loadTraktHistory() {
     try {
       let promises = [];
@@ -181,11 +158,7 @@ class _NetflixApi {
     }
   }
 
-  /**
-   * @param {import('../../../../models/Item').Item} item
-   * @returns {Promise}
-   */
-  async loadTraktItemHistory(item) {
+  async loadTraktItemHistory(item: Item) {
     if (!item.trakt) {
       try {
         item.trakt = await TraktSearch.find(item);

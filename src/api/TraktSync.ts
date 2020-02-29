@@ -1,8 +1,9 @@
-import moment from 'moment';
+import * as moment from 'moment';
 import { Errors } from '../services/Errors';
 import { Events, EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
+import { Item } from '../models/Item';
 
 class _TraktSync extends TraktApi {
   constructor() {
@@ -13,51 +14,37 @@ class _TraktSync extends TraktApi {
     this.sync = this.sync.bind(this);
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @returns {Promise}
-   */
-  async loadHistory(item) {
+  async loadHistory(item: Item): Promise<void> {
     const responseText = await Requests.send({
       url: this.getUrl(item),
       method: 'GET',
     });
-    /** @type {TraktHistoryItems} */
-    const historyItems = JSON.parse(responseText);
+    const historyItems: TraktHistoryItem[] = JSON.parse(responseText);
     const historyItem = historyItems.find(x => moment(x.watched_at).diff(item.watchedAt, 'days') === 0);
-    item.trakt.watchedAt = historyItem ? moment(historyItem.watched_at) : null;
+    (item.trakt as ISyncItem).watchedAt = historyItem ? moment(historyItem.watched_at) : null;
   }
 
-  /**
-   * @param {import('../models/Item').Item} item
-   * @returns {string}
-   */
-  getUrl(item) {
+  getUrl(item: Item) {
     let url = '';
     if (item.type === 'show') {
-      url = `${this.SYNC_URL}/episodes/${item.trakt.id}`;
+      url = `${this.SYNC_URL}/episodes/${(item.trakt as ISyncItem).id}`;
     } else {
-      url = `${this.SYNC_URL}/movies/${item.trakt.id}`;
+      url = `${this.SYNC_URL}/movies/${(item.trakt as ISyncItem).id}`;
     }
     return url;
   }
 
-  /**
-   * @param {Array<import('../models/Item').Item>} items
-   * @param {boolean} addWithReleaseDate
-   * @returns {Promise}
-   */
-  async sync(items, addWithReleaseDate) {
+  async sync(items: Item[], addWithReleaseDate: boolean) {
     try {
       const data = {
         episodes: items.filter(item => item.isSelected && item.type === 'show')
           .map(item => ({
-            ids: { trakt: item.trakt.id },
+            ids: { trakt: (item.trakt as ISyncItem).id },
             watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
           })),
         movies: items.filter(item => item.isSelected && item.type === 'movie')
           .map(item => ({
-            ids: { trakt: item.trakt.id },
+            ids: { trakt: (item.trakt as ISyncItem).id },
             watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
           })),
       };
@@ -66,18 +53,17 @@ class _TraktSync extends TraktApi {
         method: 'POST',
         body: data,
       });
-      /** @type {TraktSyncResponse} */
-      const responseJson = JSON.parse(responseText);
+      const responseJson: TraktSyncResponse = JSON.parse(responseText);
       const notFoundItems = {
         episodes: responseJson.not_found.episodes.map(item => item.ids.trakt),
         movies: responseJson.not_found.movies.map(item => item.ids.trakt),
       }
       for (const item of items) {
         if (item.isSelected) {
-          if (item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) {
-            item.trakt.watchedAt = item.watchedAt;
-          } else if (item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)) {
-            item.trakt.watchedAt = item.watchedAt;
+          if (item.type === 'show' && !notFoundItems.episodes.includes((item.trakt as ISyncItem).id)) {
+            (item.trakt as ISyncItem).watchedAt = item.watchedAt;
+          } else if (item.type === 'movie' && !notFoundItems.movies.includes((item.trakt as ISyncItem).id)) {
+            (item.trakt as ISyncItem).watchedAt = item.watchedAt;
           }
         }
       }

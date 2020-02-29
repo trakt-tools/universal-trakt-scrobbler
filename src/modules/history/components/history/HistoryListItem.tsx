@@ -1,11 +1,17 @@
 import { Box, Button, Checkbox } from '@material-ui/core';
 import SyncIcon from '@material-ui/icons/Sync';
-import PropTypes from 'prop-types';
-import React from 'react';
+import * as React from 'react';
 import { Events, EventDispatcher } from '../../../../services/Events';
 import { HistoryListItemCard } from './HistoryListItemCard';
+import { Item } from '../../../../models/Item';
 
-function HistoryListItem({ dateFormat, item, serviceName }) {
+interface HistoryListItemProps {
+  dateFormat: string,
+  item: Item
+  serviceName: string,
+}
+
+const HistoryListItem: React.FC<HistoryListItemProps> = ({ dateFormat, item, serviceName }) => {
   async function onCheckboxChange() {
     await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
       index: item.index,
@@ -19,7 +25,7 @@ function HistoryListItem({ dateFormat, item, serviceName }) {
 
   return (
     <Box className="history-list-item">
-      {item.trakt && !item.trakt.notFound && !item.trakt.watchedAt && (
+      {item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt && (
         <Checkbox
           checked={item.isSelected || false}
           className="history-list-item-checkbox"
@@ -34,7 +40,7 @@ function HistoryListItem({ dateFormat, item, serviceName }) {
       />
       <Button
         className="history-list-item-button"
-        color={item.trakt && item.trakt.watchedAt ? 'primary' : 'default'}
+        color={item.trakt && ('watchedAt' in item.trakt) ? 'primary' : 'default'}
         onClick={onButtonClick}
         variant="contained"
       >
@@ -47,12 +53,6 @@ function HistoryListItem({ dateFormat, item, serviceName }) {
       />
     </Box>
   );
-}
-
-HistoryListItem.propTypes = {
-  dateFormat: PropTypes.string.isRequired,
-  item: PropTypes.object.isRequired,
-  serviceName: PropTypes.string.isRequired,
 };
 
 export { HistoryListItem };

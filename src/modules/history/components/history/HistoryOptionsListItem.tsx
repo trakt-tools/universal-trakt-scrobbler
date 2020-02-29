@@ -1,23 +1,21 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { Events, EventDispatcher } from '../../../../services/Events';
+import * as React from 'react';
+import { EventDispatcher, Events } from '../../../../services/Events';
 
-function HistoryOptionsListItem({ option }) {
-  /**
-   * @returns {Promise}
-   */
-  async function onSwitchChange() {
+interface HistoryOptionsListItemProps {
+  option: SyncOption<StorageValuesSyncOptions, StorageValuesSyncOptions[keyof StorageValuesSyncOptions]>
+}
+
+const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
+
+  async function onSwitchChange(): Promise<void> {
     await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
       id: option.id,
       value: !option.value,
     });
   }
 
-  /**
-   * @returns {Promise}
-   */
-  async function onNumberInputChange(event) {
+  async function onNumberInputChange(event: React.FormEvent<HTMLInputElement>): Promise<void> {
     await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
       id: option.id,
       value: parseInt(event.currentTarget.value),
@@ -54,10 +52,6 @@ function HistoryOptionsListItem({ option }) {
     }
   }
   return component;
-}
-
-HistoryOptionsListItem.propTypes = {
-  option: PropTypes.object.isRequired,
 };
 
 export { HistoryOptionsListItem };
