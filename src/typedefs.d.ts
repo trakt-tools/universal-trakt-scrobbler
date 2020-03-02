@@ -76,6 +76,7 @@ declare type Option = {
   description: string,
   value: boolean,
   origins: string[],
+  permissions: browser.permissions.Permission[];
 };
 
 declare type SyncOptions = { [K in keyof StorageValuesSyncOptions]: { id: K, value: StorageValuesSyncOptions[K], name: string } };
@@ -110,41 +111,10 @@ declare interface TraktHistoryItem {
   watched_at: string;
 }
 
-/**
- * @typedef {Object} LoginEventData
- * @property {TraktAuthDetails} auth
- */
-
-/**
- * @typedef {Object} OptionEventData
- * @property {string} id
- * @property {boolean} checked
- */
-
-/**
- * @typedef {Object} SearchEventData
- * @property {TraktSearchData} data
- */
-
-/**
- * @typedef {Object} ScrobbleEventData
- * @property {import('./models/ScrobbleItem').ScrobbleItem} item
- * @property {number} scrobbleType
- * @property {RequestException} error
- */
-
-/**
- * @typedef {Object} ScrobbleProgressEventData
- * @property {number} progress
- */
-
-/**
- * @typedef {Array<TraktSearchItem>} TraktSearchItems
- */
-
-/**
- * @typedef {TraktSearchEpisodeItem|TraktSearchShowItem|TraktSearchMovieItem} TraktSearchItem
- */
+declare interface OptionEventData {
+  id: string;
+  checked: boolean;
+}
 
 type TraktSearchEpisodeItem = TraktEpisodeItem & TraktSearchShowItem;
 
@@ -178,10 +148,6 @@ declare interface TraktSearchMovieItem {
     }
   }
 }
-
-/**
- * @typedef {Array<NrkHistoryItem>} NrkHistoryResponse
- */
 
 declare interface NrkHistoryItem {
   lastSeen: NrkLastSeen;
@@ -238,15 +204,6 @@ declare interface NetflixMetadataResponse {
     videos: {[key: number]: NetflixMetadataItem}; //TODO verify {Object<string, NetflixMetadataItem>} value.videos
   }
 }
-/**
- * @typedef {Object} NetflixMetadataResponse
- * @property {Object} value
- * @property {Object<string, NetflixMetadataItem>} value.videos
- */
-
-/**
- * @typedef {NetflixMetadataShowItem|NetflixMetadataMovieItem} NetflixMetadataItem
- */
 
 declare type NetflixMetadataItem = NetflixMetadataShowItem|NetflixMetadataMovieItem;
 
@@ -265,10 +222,6 @@ declare interface NetflixMetadataMovieItem {
     id: number;
   }
 }
-
-/**
- * @typedef {Array<NetflixHistoryItemWithMetadata>} NetflixHistoryItemsWithMetadata
- */
 
 declare type NetflixHistoryItemWithMetadata = NetflixHistoryShowItemWithMetadata|NetflixHistoryMovieItemWithMetadata;
 

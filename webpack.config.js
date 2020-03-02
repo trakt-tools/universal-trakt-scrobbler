@@ -60,7 +60,7 @@ function getWebpackConfig(env) {
     module: {
       rules: [
         {
-          test: /secrets\.js$/,
+          test: /secrets\.ts$/,
           loader: 'string-replace-loader',
           options: {
             multiple: [

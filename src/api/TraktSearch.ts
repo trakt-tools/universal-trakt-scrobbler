@@ -30,14 +30,13 @@ class _TraktSearch extends TraktApi {
           const episodeItem = searchItem as TraktSearchEpisodeItem; //TODO can probably avoid assertion with clever generics
           const id = episodeItem.episode.ids.trakt;
           const title = episodeItem.show.title;
-          debugger;//TODO verify
           const year = episodeItem.show.year;
           const season = episodeItem.episode.season;
           const episode = episodeItem.episode.number;
           const episodeTitle = episodeItem.episode.title;
           syncItem = new SyncItem({ id, type: item.type, title, year, season, episode, episodeTitle });
         } else {
-          const movieItem = searchItem as TraktSearchMovieItem; //TODO
+          const movieItem = searchItem as TraktSearchMovieItem; //TODO can probably avoid assertion with clever generics
           const id = movieItem.movie.ids.trakt;
           const title = movieItem.movie.title;
           const year = movieItem.movie.year;

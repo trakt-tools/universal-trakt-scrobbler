@@ -1,19 +1,17 @@
 import { CircularProgress, List, ListItem, ListItemText, Typography } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import * as React from "react";
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Session } from '../../../services/Session';
 import { HistoryInfo } from '../components/HistoryInfo';
 import { streamingServices } from '../streaming-services/streamingServices';
 
-function HomePage() {
+const HomePage: React.FC = () => {
   const history = useHistory();
   const [isLoading, setLoading] = useState(true);
 
-  /**
-   * @param {string} path
-   */
-  function onRouteClick(path) {
+  function onRouteClick(path: string) {
     history.push(path);
   }
 
@@ -51,6 +49,6 @@ function HomePage() {
       </List>
     </HistoryInfo>
   );
-}
+};
 
 export { HomePage };

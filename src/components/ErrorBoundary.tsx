@@ -2,7 +2,7 @@ import * as React from "react";
 import { Errors } from '../services/Errors';
 
 interface ErrorBoundaryProps {
-  children: React.ReactElement;
+  children: React.ReactNode;
 }
 
 interface ErrorBoundaryState {

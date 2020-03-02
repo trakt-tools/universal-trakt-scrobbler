@@ -1,6 +1,7 @@
 import { Container } from '@material-ui/core';
 import { createBrowserHistory } from 'history';
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsDialog } from '../../components/UtsDialog';
@@ -16,7 +17,7 @@ import { streamingServices } from './streaming-services/streamingServices';
 
 const history =  createBrowserHistory();
 
-function HistoryApp() {
+const HistoryApp: React.FC = () => {
   const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
 
   useEffect(() => {
@@ -83,6 +84,6 @@ function HistoryApp() {
       </Container>
     </ErrorBoundary>
   );
-}
+};
 
 export { HistoryApp };
