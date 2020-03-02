@@ -26,7 +26,6 @@
     "react-dom": "^16.12.0",
     "react-router-dom": "^5.1.2",
     "rollbar": "^2.14.4",
-    "ts-node": "^8.6.2",
     "typeface-roboto": "^0.0.75",
     "webextension-polyfill": "^0.6.0"
   },

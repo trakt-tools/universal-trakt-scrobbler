@@ -1,10 +1,11 @@
 import { Button, ButtonGroup, FormGroup, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { HistoryOptionsListItem } from './HistoryOptionsListItem';
+import { Store } from "../../streaming-services/common/Store";
 
 interface HistoryOptionsListProps {
   options: SyncOption[]
-  store: unknown;//TODO
+  store: Store
 }
 
 const HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ options, store }) => (

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import * as moment from 'moment';
 import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';

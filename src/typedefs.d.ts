@@ -78,7 +78,7 @@ declare type Option = {
   origins: string[],
 };
 
-declare type SyncOptions = { [K in keyof StorageValuesSyncOptions]: { id: K, value: StorageValuesSyncOptions[K], name: string, type: string } };
+declare type SyncOptions = { [K in keyof StorageValuesSyncOptions]: { id: K, value: StorageValuesSyncOptions[K], name: string } };
 declare type SyncOption = SyncOptions[keyof SyncOptions]
 
 declare type ErrorEventData = {

@@ -1,4 +1,4 @@
-import Rollbar from 'rollbar';
+import * as Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
 import { Events, EventDispatcher } from './Events';
@@ -49,7 +49,7 @@ class _Errors {
     }
   }
 
-  log(message: Error, details: ErrorDetails | RequestException | React.ErrorInfo): void {
+  log(message: Error | string, details: ErrorDetails | RequestException | React.ErrorInfo): void {
     console.log(`[UTS] ${message}`, details);
   }
 

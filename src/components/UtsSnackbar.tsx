@@ -1,5 +1,5 @@
 import { Snackbar } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import {Alert, Color} from '@material-ui/lab';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { EventDispatcher, Events } from '../services/Events';
@@ -7,11 +7,17 @@ import { EventDispatcher, Events } from '../services/Events';
 interface SnackbarData {
   messageName: string;
   messageArgs: string[];
-  severity: string;
+  severity: Color;
+}
+
+interface SnackBarState {
+  isOpen: boolean;
+  message: string;
+  severity: Color
 }
 
 const UtsSnackbar: React.FC = () => {
-  const [snackbar, setSnackbar] = useState({
+  const [snackbar, setSnackbar] = useState<SnackBarState>({
     isOpen: false,
     message: '',
     severity: 'info',
@@ -33,9 +39,6 @@ const UtsSnackbar: React.FC = () => {
       EventDispatcher.unsubscribe(Events.SNACKBAR_SHOW, showSnackbar);
     }
 
-    /**
-     * @param {Object} data
-     */
     function showSnackbar(data: SnackbarData) {
       setSnackbar({
         isOpen: true,

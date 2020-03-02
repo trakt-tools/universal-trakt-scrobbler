@@ -6,7 +6,7 @@ import { Item } from '../../../../models/Item';
 
 interface HistoryListItemCardProps {
   dateFormat: string,
-  item: Item,
+  item: Item | IItem["trakt"],
   name: string,
 }
 
@@ -35,9 +35,9 @@ const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({ dateFormat, i
                 <Divider/>
                 <Typography
                   variant="overline">{item.watchedAt ? `${browser.i18n.getMessage('watched')} ${item.watchedAt.format(dateFormat)}` : browser.i18n.getMessage('notWatched')}</Typography>
-                {item.percentageWatched !== undefined && (
+                {'percentageWatched' in item  && item.percentageWatched !== undefined && (
                   <Typography variant="caption"
-                              display="block">{browser.i18n.getMessage('progress', [item.percentageWatched])}</Typography>
+                              display="block">{browser.i18n.getMessage('progress', [''+item.percentageWatched])}</Typography>
                 )}
               </>
             ) : (
@@ -49,9 +49,9 @@ const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({ dateFormat, i
                 <Divider/>
                 <Typography
                   variant="overline">{item.watchedAt ? `${browser.i18n.getMessage('watched')} ${item.watchedAt.format(dateFormat)}` : browser.i18n.getMessage('notWatched')}</Typography>
-                {item.percentageWatched && (
+                {'percentageWatched' in item  && item.percentageWatched !== undefined && (
                   <Typography variant="caption"
-                              display="block">{browser.i18n.getMessage('progress', [item.percentageWatched])}</Typography>
+                              display="block">{browser.i18n.getMessage('progress', [''+item.percentageWatched])}</Typography>
                 )}
               </>
             )

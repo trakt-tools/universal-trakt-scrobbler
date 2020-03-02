@@ -3,7 +3,7 @@ import * as React from 'react';
 import { EventDispatcher, Events } from '../../../../services/Events';
 
 interface HistoryOptionsListItemProps {
-  option: SyncOption<StorageValuesSyncOptions, StorageValuesSyncOptions[keyof StorageValuesSyncOptions]>
+  option: SyncOption
 }
 
 const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
@@ -15,7 +15,7 @@ const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option 
     });
   }
 
-  async function onNumberInputChange(event: React.FormEvent<HTMLInputElement>): Promise<void> {
+  async function onNumberInputChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
     await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
       id: option.id,
       value: parseInt(event.currentTarget.value),
@@ -23,7 +23,7 @@ const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option 
   }
 
   let component = null;
-  switch (option.type) {
+  switch (typeof option.value) {
     case 'boolean': {
       component = (
         <FormControlLabel

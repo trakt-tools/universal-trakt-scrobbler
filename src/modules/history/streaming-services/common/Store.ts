@@ -38,9 +38,6 @@ export class Store {
     EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
   }
 
-  /**
-   * @param {Object} data
-   */
   onHistoryChange(data: StreamingServiceHistoryChangeData) {
     const item = this.data.items[data.index];
     if (item) {

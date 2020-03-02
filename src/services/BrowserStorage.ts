@@ -98,25 +98,21 @@ class _BrowserStorage {
         id: 'hideSynced',
         name: '',
         value: false,
-        type: 'boolean',
       },
       use24Clock: {
         id: 'use24Clock',
         name: '',
         value: false,
-        type: 'boolean',
       },
       addWithReleaseDate: {
         id: 'addWithReleaseDate',
         name: '',
         value: false,
-        type: 'boolean',
       },
       itemsPerLoad: {
         id: 'itemsPerLoad',
         name: '',
         value: 10,
-        type: 'number',
       },
     };
     const values = await BrowserStorage.get('syncOptions');
