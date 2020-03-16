@@ -149,6 +149,9 @@
 	"no": {
 		"message": "No"
 	},
+	"noMoreHistory": {
+		"message": "Reached the end of the history."
+	},
 	"noStreamingServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
 	},

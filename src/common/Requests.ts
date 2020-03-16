@@ -75,9 +75,9 @@ class _Requests {
 
 	getHeaders = async (request: RequestDetails, tabId = 0): Promise<Record<string, unknown>> => {
 		const headers: Record<string, unknown> = {
-			...(request.headers || {}),
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
+			...(request.headers || {}),
 		};
 		if (request.url.includes('trakt.tv')) {
 			Object.assign(headers, TraktAuth.getHeaders());

@@ -149,6 +149,9 @@
 	"no": {
 		"message": "Não"
 	},
+	"noMoreHistory": {
+		"message": "Chegou ao fim do histórico."
+	},
 	"noStreamingServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
 	},

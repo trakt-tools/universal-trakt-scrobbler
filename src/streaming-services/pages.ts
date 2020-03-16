@@ -1,5 +1,6 @@
 import { getSyncPageBuilder } from './common/common';
 import { StreamingService, streamingServices } from './streaming-services';
+import './hbo-go/HboGoApi';
 import './netflix/NetflixApi';
 import './nrk/NrkApi';
 import './viaplay/ViaplayApi';

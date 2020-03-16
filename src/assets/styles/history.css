@@ -26,6 +26,11 @@
 	padding-bottom: 100px;
 }
 
+.history-content--empty {
+	text-align: center;
+	width: 100%;
+}
+
 .history-header {
 	color: #fff;
 }

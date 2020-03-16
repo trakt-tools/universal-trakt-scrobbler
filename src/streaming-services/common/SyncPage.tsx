@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from '@material-ui/core';
+import { Box, CircularProgress, Typography } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -257,12 +257,18 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		<>
 			<Box className="history-content">
 				<HistoryOptionsList options={Object.values(optionsContent.options)} store={store} />
-				<HistoryList
-					dateFormat={dateFormat}
-					items={itemsToShow}
-					serviceId={serviceId}
-					serviceName={serviceName}
-				/>
+				{itemsToShow.length > 0 ? (
+					<HistoryList
+						dateFormat={dateFormat}
+						items={itemsToShow}
+						serviceId={serviceId}
+						serviceName={serviceName}
+					/>
+				) : (
+					<Box className="history-content--empty">
+						<Typography variant="body1">{browser.i18n.getMessage('noMoreHistory')}</Typography>
+					</Box>
+				)}
 			</Box>
 			<HistoryActions onNextPageClick={onNextPageClick} onSyncClick={onSyncClick} />
 		</>

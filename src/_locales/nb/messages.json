@@ -149,6 +149,9 @@
 	"no": {
 		"message": "Nei"
 	},
+	"noMoreHistory": {
+		"message": "Reached the end of the history."
+	},
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
 	},

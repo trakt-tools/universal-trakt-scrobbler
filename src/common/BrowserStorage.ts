@@ -1,5 +1,6 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { TraktItemBase } from '../models/TraktItem';
+import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { Shared } from './Shared';
 
@@ -11,6 +12,7 @@ export type StorageValues = {
 	correctUrls?: Record<StreamingServiceId, Record<string, string>>;
 	scrobblingItem?: Omit<TraktItemBase, ''>;
 	scrobblingTabId?: number;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
 export type StorageValuesOptions = {

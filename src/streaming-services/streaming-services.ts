@@ -24,7 +24,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		homePage: 'https://www.hbogola.com/',
 		hostPatterns: ['*://*.hbogola.com/*', '*://*.hbogo.com.br/*'],
 		hasScrobbler: true,
-		hasSync: false,
+		hasSync: true,
 	},
 	netflix: {
 		id: 'netflix',
