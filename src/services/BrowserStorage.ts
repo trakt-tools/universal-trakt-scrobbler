@@ -34,7 +34,7 @@ class _BrowserStorage {
     return browser.storage.local.get(keys);
   }
 
-  async remove(keys: string | string[], doSync: boolean): Promise<void> {
+  async remove(keys: string | string[], doSync = false): Promise<void> {
     if (doSync && this.isSyncAvailable) {
       await browser.storage.sync.remove(keys);
     }
@@ -74,6 +74,7 @@ class _BrowserStorage {
         description: '',
         value: false,
         origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
+        permissions: []
       },
       allowRollbar: {
         id: 'allowRollbar',
@@ -81,6 +82,7 @@ class _BrowserStorage {
         description: '',
         value: false,
         origins: ['*://api.rollbar.com/*'],
+        permissions: []
       },
     };
     const values = await BrowserStorage.get('options');
@@ -98,25 +100,21 @@ class _BrowserStorage {
         id: 'hideSynced',
         name: '',
         value: false,
-        type: 'boolean',
       },
       use24Clock: {
         id: 'use24Clock',
         name: '',
         value: false,
-        type: 'boolean',
       },
       addWithReleaseDate: {
         id: 'addWithReleaseDate',
         name: '',
         value: false,
-        type: 'boolean',
       },
       itemsPerLoad: {
         id: 'itemsPerLoad',
         name: '',
         value: 10,
-        type: 'number',
       },
     };
     const values = await BrowserStorage.get('syncOptions');

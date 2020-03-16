@@ -60,7 +60,7 @@ function getWebpackConfig(env) {
     module: {
       rules: [
         {
-          test: /secrets\.js$/,
+          test: /secrets\.ts$/,
           loader: 'string-replace-loader',
           options: {
             multiple: [
@@ -120,7 +120,7 @@ function getWebpackConfig(env) {
       ),
     ],
     resolve: {
-      extensions: ['.js', '.ts', '.json']
+      extensions: ['.js', '.ts', '.tsx', '.json']
     },
     watch: !!(env.development && env.watch),
     watchOptions: {

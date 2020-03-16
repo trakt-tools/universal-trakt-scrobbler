@@ -1,5 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { BrowserStorage } from '../../../services/BrowserStorage';
 import { Errors } from '../../../services/Errors';
@@ -7,15 +8,17 @@ import { Events, EventDispatcher } from '../../../services/Events';
 import { OptionsActions } from '../components/options/OptionsActions';
 import { OptionsList } from '../components/options/OptionsList';
 
-function OptionsPage() {
-  const [content, setContent] = useState({
+interface ContentProps {
+  isLoading: boolean;
+  options: Options;
+}
+
+const OptionsPage: React.FC = () => {
+  const [content, setContent] = useState<ContentProps>({
     isLoading: true,
     options: {},
   });
 
-  /**
-   * @returns {Promise}
-   */
   async function resetOptions() {
     setContent({
       isLoading: false,
@@ -34,11 +37,8 @@ function OptionsPage() {
       EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, onOptionChange);
     }
 
-    /**
-     * @param {OptionEventData} data
-     */
-    function onOptionChange(data) {
-      const optionsToSave = {};
+    function onOptionChange(data: OptionEventData) {
+      const optionsToSave = {} as StorageValuesOptions;
       const options = {
         ...content.options,
         [data.id]: {
@@ -101,6 +101,6 @@ function OptionsPage() {
       <OptionsActions/>
     </>
   );
-}
+};
 
 export { OptionsPage };

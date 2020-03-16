@@ -12,6 +12,7 @@ const correctTitles: GenericObject = {
   ['Young and Hungry']: '"Young and Hungry"',
 };
 
+//TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 class Item implements IItem {
   id: number;
   type: 'show' | 'movie';
@@ -24,6 +25,8 @@ class Item implements IItem {
   watchedAt: GenericObject;
   percentageWatched: number;
   trakt?: ISyncItem | TraktNotFound;
+  isSelected?: boolean;
+  index?: number;
 
   constructor(options: IItem) {
     this.id = options.id;

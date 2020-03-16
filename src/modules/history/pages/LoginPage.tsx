@@ -1,17 +1,15 @@
 import { Button, CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import * as React from "react";
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Events, EventDispatcher } from '../../../services/Events';
 import { Session } from '../../../services/Session';
 
-function LoginPage() {
+const LoginPage: React.FC = () => {
   const history = useHistory();
   const [isLoading, setLoading] = useState(true);
 
-  /**
-   * @returns {Promise}
-   */
   async function onLoginClick() {
     setLoading(true);
     await Session.login();
@@ -60,6 +58,6 @@ function LoginPage() {
       )}
     </UtsCenter>
   );
-}
+};
 
 export { LoginPage };

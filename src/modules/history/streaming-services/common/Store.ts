@@ -1,8 +1,16 @@
-import { Events, EventDispatcher } from '../../../../services/Events';
+import { Events, EventDispatcher, StreamingServiceHistoryChangeData } from '../../../../services/Events';
+import { Item } from '../../../../models/Item';
+
+export interface StoreData {
+  isLastPage: boolean;
+  nextPage: number;
+  nextVisualPage: number;
+  items: Item[]
+}
 
 export class Store {
+  data: StoreData;
   constructor() {
-    /** @type {NetflixStoreData} */
     this.data = {
       isLastPage: false,
       nextPage: 0,
@@ -30,10 +38,7 @@ export class Store {
     EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
   }
 
-  /**
-   * @param {Object} data
-   */
-  onHistoryChange(data) {
+  onHistoryChange(data: StreamingServiceHistoryChangeData) {
     const item = this.data.items[data.index];
     if (item) {
       item.isSelected = data.checked;
@@ -47,7 +52,7 @@ export class Store {
 
   selectAll() {
     for (const item of this.data.items) {
-      if (item.trakt && !item.trakt.notFound && !item.trakt.watchedAt) {
+      if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
         item.isSelected = true;
       }
     }
@@ -56,7 +61,7 @@ export class Store {
 
   selectNone() {
     for (const item of this.data.items) {
-      if (item.trakt && !item.trakt.notFound && !item.trakt.watchedAt) {
+      if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
         item.isSelected = false;
       }
     }
@@ -65,18 +70,14 @@ export class Store {
 
   toggleAll() {
     for (const item of this.data.items) {
-      if (item.trakt && !item.trakt.notFound && !item.trakt.watchedAt) {
+      if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
         item.isSelected = !item.isSelected;
       }
     }
     this.update(null);
   }
 
-  /**
-   * @param {Object} data
-   * @returns {Promise}
-   */
-  async update(data) {
+  async update(data: Partial<StoreData>) {
     if (data) {
       if (data.items) {
         data.items = data.items.map((item, index) => {

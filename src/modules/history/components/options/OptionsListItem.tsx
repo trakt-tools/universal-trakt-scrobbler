@@ -1,12 +1,12 @@
 import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
+import * as React from 'react';
 import { Events, EventDispatcher } from '../../../../services/Events';
 
-function OptionsListItem({ option }) {
-  /**
-   * @returns {Promise}
-   */
+interface OptionsListItemProps {
+  option: Option;
+}
+
+const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
   async function onChange() {
     await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
       id: option.id,
@@ -30,10 +30,6 @@ function OptionsListItem({ option }) {
       </ListItemSecondaryAction>
     </ListItem>
   );
-}
-
-OptionsListItem.propTypes = {
-  option: PropTypes.object.isRequired,
 };
 
 export { OptionsListItem };

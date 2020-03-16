@@ -1,21 +1,17 @@
 import { Box, Button, Divider } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserStorage } from '../../../../services/BrowserStorage';
 import { Events, EventDispatcher } from '../../../../services/Events';
+import { Errors } from "../../../../services/Errors";
 
-function OptionsActions() {
+const OptionsActions: React.FC = () => {
   const [cacheSize, setCacheSize] = useState('0 B');
 
-  /**
-   * @returns {Promise}
-   */
   async function updateTraktCacheSize() {
     setCacheSize(await BrowserStorage.getSize('traktCache'));
   }
 
-  /**
-   * @returns {Promise}
-   */
   async function onClearStorageClick() {
     await EventDispatcher.dispatch(Events.DIALOG_SHOW, {
       title: browser.i18n.getMessage('confirmClearStorageTitle'),
@@ -41,9 +37,6 @@ function OptionsActions() {
     });
   }
 
-  /**
-   * @returns {Promise}
-   */
   async function onClearTraktCacheClick() {
     await EventDispatcher.dispatch(Events.DIALOG_SHOW, {
       title: browser.i18n.getMessage('confirmClearTraktCacheTitle'),
@@ -90,6 +83,6 @@ function OptionsActions() {
       </Box>
     </Box>
   );
-}
+};
 
 export { OptionsActions };

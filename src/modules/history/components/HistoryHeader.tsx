@@ -1,20 +1,19 @@
 import { AppBar, Button, Toolbar } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
+import * as React from 'react';
 import { UtsLeftRight } from '../../../components/UtsLeftRight';
 import { Session } from '../../../services/Session';
+import {  History } from 'history';
 
-function HistoryHeader({ history, isLoggedIn }) {
-  /**
-   * @param {string} path
-   */
-  function onRouteClick(path) {
+interface HistoryHeaderProps {
+  history: History
+  isLoggedIn: boolean,
+}
+
+const HistoryHeader: React.FC<HistoryHeaderProps>= ({ history, isLoggedIn }) => {
+  function onRouteClick(path: string) {
     history.push(path);
   }
 
-  /**
-   * @returns {Promise}
-   */
   async function onLogoutClick() {
     await Session.logout();
   }
@@ -61,11 +60,6 @@ function HistoryHeader({ history, isLoggedIn }) {
       </Toolbar>
     </AppBar>
   );
-}
-
-HistoryHeader.propTypes = {
-  history: PropTypes.object.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 export { HistoryHeader };

@@ -1,5 +1,5 @@
 import { NetflixPage } from './netflix/NetflixPage';
-import {NrkPage} from "./nrk/NrkPage";
+import { NrkPage } from "./nrk/NrkPage";
 
 const streamingServices = [
   {

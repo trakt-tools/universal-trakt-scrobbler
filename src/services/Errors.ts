@@ -1,7 +1,8 @@
-import Rollbar from 'rollbar';
+import * as Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
 import { Events, EventDispatcher } from './Events';
+import * as React from "react";
 
 class _Errors {
   rollbar: Rollbar;
@@ -30,7 +31,7 @@ class _Errors {
         environment: 'production',
       },
     });
-    window.Rollbar = this.rollbar;
+    (window as any).Rollbar = this.rollbar;
   }
 
   startListeners(): void {
@@ -48,7 +49,7 @@ class _Errors {
     }
   }
 
-  log(message: string, details: ErrorDetails | RequestException): void {
+  log(message: Error | string, details: ErrorDetails | RequestException | React.ErrorInfo): void {
     console.log(`[UTS] ${message}`, details);
   }
 
