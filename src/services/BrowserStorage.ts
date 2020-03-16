@@ -101,11 +101,6 @@ class _BrowserStorage {
         name: '',
         value: false,
       },
-      use24Clock: {
-        id: 'use24Clock',
-        name: '',
-        value: false,
-      },
       addWithReleaseDate: {
         id: 'addWithReleaseDate',
         name: '',

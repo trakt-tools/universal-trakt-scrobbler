@@ -17,6 +17,7 @@ import { Store } from './Store';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { Api } from './api';
+import { TraktSettings } from '../../../../api/TraktSettings';
 
 interface PageProps {
   serviceName: string;
@@ -49,6 +50,7 @@ export const Page: React.FC<PageProps> = ({serviceName, store, api}) => {
     nextVisualPage: 0,
     items: [],
   });
+  const [dateFormat, setDateFormat] = useState("MMMM Do YYYY, H:mm:ss");
 
   const loadNextPage = () => {
     const itemsToLoad = (content.nextVisualPage + 1) * optionsContent.options.itemsPerLoad.value - content.items.length;
@@ -197,6 +199,13 @@ export const Page: React.FC<PageProps> = ({serviceName, store, api}) => {
     getOptions();
   }, []);
 
+  useEffect(()=>{
+    async function getDateFormat() {
+      setDateFormat(await TraktSettings.getTimeAndDateFormat());
+    }
+    getDateFormat();
+  }, []);
+
   useEffect(() => {
     function loadFirstPage() {
       if (optionsContent.hasLoaded) {
@@ -214,7 +223,6 @@ export const Page: React.FC<PageProps> = ({serviceName, store, api}) => {
       itemsToShow = itemsToShow.filter(x => !x.trakt || !(x.trakt as ISyncItem).watchedAt);
     }
   }
-  const dateFormat = optionsContent.hasLoaded && optionsContent.options.use24Clock.value ? 'MMMM Do YYYY, H:mm:ss' : 'MMMM Do YYYY, h:mm:ss a';
 
   return content.isLoading ? (
     <UtsCenter>
