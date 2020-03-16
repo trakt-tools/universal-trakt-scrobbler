@@ -100,6 +100,14 @@ npm run build
 npm run zip
 ```
 
+####How to add more streaming services
+* Make sure that the serivce you want to add actually has a rest API.
+* Add hostname/domain to permissions in manifest in `webpack.config.js`.
+* Copy one the existing services in `src/modules/history/streaming-services/`. Netflix is the most complex one.
+* The Page- and Store-files should be fairly easy to update. Probably just the name as all logic is in the inherited classes.
+* As a TypeScript project, interfaces of rest APIs should be declared in `src/typedefs.d.ts`.
+* All APIs have different aspects and limitations, updates may be needed elsewhere in the sourcecode to handle these cases.
+
 ### Credits
 
 This extension is based on [traktflix](https://github.com/tegon/traktflix), the original Netflix sync developed by [tegon](https://github.com/user/tegon), which was discontinued in favor of Universal Trakt Sync.

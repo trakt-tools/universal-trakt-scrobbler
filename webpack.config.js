@@ -60,7 +60,7 @@ function getWebpackConfig(env) {
     module: {
       rules: [
         {
-          test: /secrets\.js$/,
+          test: /secrets\.ts$/,
           loader: 'string-replace-loader',
           options: {
             multiple: [
@@ -94,12 +94,13 @@ function getWebpackConfig(env) {
           loaders: [loaders.style, loaders.css],
         },
         {
-          test: /\.jsx?$/,
+          test: /\.(t|j)sx?$/,
           exclude: /(node_modules|bower_components)/,
           loader: 'babel-loader',
           options: {
             envName: env.test ? 'test' : mode,
             presets: [
+              '@babel/typescript',
               '@babel/preset-env',
               '@babel/preset-react',
             ],
@@ -118,6 +119,9 @@ function getWebpackConfig(env) {
         env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(configJson))]
       ),
     ],
+    resolve: {
+      extensions: ['.js', '.ts', '.tsx', '.json']
+    },
     watch: !!(env.development && env.watch),
     watchOptions: {
       aggregateTimeout: 1000,
