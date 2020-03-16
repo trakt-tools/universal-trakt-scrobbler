@@ -288,3 +288,15 @@
  * @property {Object} ids
  * @property {number} ids.trakt
  */
+
+/**
+ * @typedef {Object} TraktSettingsResponse
+ * @property {TraktAccount} account
+ */
+
+/**
+ * @typedef {Object} TraktAccount
+ * @property {string} timezone
+ * @property {'mdy'|'dmy'|'ymd'|'ydm'} date_format
+ * @property {boolean} time_24hr
+ */

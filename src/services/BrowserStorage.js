@@ -129,12 +129,6 @@ class _BrowserStorage {
         value: false,
         type: 'boolean',
       },
-      use24Clock: {
-        id: 'use24Clock',
-        name: '',
-        value: false,
-        type: 'boolean',
-      },
       addWithReleaseDate: {
         id: 'addWithReleaseDate',
         name: '',

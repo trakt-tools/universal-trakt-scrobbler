@@ -10,6 +10,7 @@ class TraktApi {
     this.SEARCH_URL = `${this.API_URL}/search`;
     this.SHOWS_URL = `${this.API_URL}/shows`;
     this.SYNC_URL = `${this.API_URL}/sync/history`;
+    this.SETTINGS_URL = `${this.API_URL}/users/settings`;
   }
 }
 
