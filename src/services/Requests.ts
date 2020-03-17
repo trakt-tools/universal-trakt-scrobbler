@@ -69,6 +69,9 @@ class _Requests {
     const headers: GenericObject = {
       'Content-Type': typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
     };
+    if (request.url.includes("sumo.tv2.no")) {
+      headers['Authorization'] = 'Bearer TODO need to get the TOKEN here';
+    }
     if (request.url.includes('trakt.tv')) {
       Object.assign(headers, TraktAuth.getHeaders());
       const values = await BrowserStorage.get('auth');

@@ -229,6 +229,38 @@ declare type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & Netfl
 
 declare type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem & NetflixMetadataMovieItem;
 
+declare interface TV2SumoHistoryItem {
+  id: number;
+  date: number;
+  asset: TV2SumoInfo;
+  season: TV2SumoInfo;
+  show: TV2SumoInfo;
+}
+
+declare interface TV2SumoInfo {
+  id: number;
+  title: string;
+  path: string;
+}
+
+declare interface TV2SumoMetadataResponse {
+  id: number;
+  title: string;
+  asset_type: "episode"; //TODO check movie
+  progress: null|number;
+  episode_number: number;
+  episode_title: string;
+  season_number: number;
+  show: {
+    id: number;
+    title: string;
+  }
+}
+
+declare interface TV2SumoHistoryItemWithMetadata extends TV2SumoMetadataResponse {
+  date: number;
+}
+
 interface TraktSyncResponse {
   added: {
     episodes: number;
