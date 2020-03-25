@@ -3,17 +3,23 @@ import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
-import { Events, EventDispatcher } from '../../../../services/Events';
+import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
 import { NrkStore } from './NrkStore';
 import { Api } from '../common/api';
 
-class _NrkApi implements Api{
+class _NrkApi implements Api {
   HOST_URL: string;
   HISTORY_API_URL: string;
+  AUTH_URL: string;
+  isActivated: boolean;
+
   constructor() {
     this.HOST_URL = 'https://tv.nrk.no';
     this.HISTORY_API_URL = `${this.HOST_URL}/history`;
+    this.AUTH_URL = `${this.HOST_URL}/auth/token`;
+
+    this.isActivated = false;
 
     this.loadHistory = this.loadHistory.bind(this);
     this.parseHistoryItem = this.parseHistoryItem.bind(this);
@@ -21,11 +27,22 @@ class _NrkApi implements Api{
     this.loadTraktItemHistory = this.loadTraktItemHistory.bind(this);
   }
 
-  async loadHistory(nextPage:number , nextVisualPage:number, itemsToLoad:number) {
+  async activate() {
+    await Requests.send({
+      url: this.AUTH_URL,
+      method: 'GET',
+    });
+    this.isActivated = true;
+  }
+
+  async loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number) {
     try {
+      if (!this.isActivated) {
+        await this.activate();
+      }
       let isLastPage = false;
       let items: Item[] = [];
-      const historyItems:NrkHistoryItem[] = [];
+      const historyItems: NrkHistoryItem[] = [];
       do {
         const responseText = await Requests.send({
           url: `${this.HISTORY_API_URL}?pg=${nextPage}`, //TODO figure out if pagination is even supported in the API
@@ -44,11 +61,11 @@ class _NrkApi implements Api{
         items = historyItems.map(this.parseHistoryItem);
       }
       nextVisualPage += 1;
-      NrkStore.update({isLastPage, nextPage, nextVisualPage, items})
-          .then(this.loadTraktHistory);
+      NrkStore.update({ isLastPage, nextPage, nextVisualPage, items })
+        .then(this.loadTraktHistory);
     } catch (err) {
       Errors.error('Failed to load NRK history.', err);
-      await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {error: err});
+      await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
     }
   }
 
@@ -65,10 +82,21 @@ class _NrkApi implements Api{
       const season = parseInt(program.seasonNumber, 10);
       const episode = parseInt(program.episodeNumber, 10);
       const episodeTitle = program.mainTitle.trim();
-      item = new Item({id, type, title, year, season, episode, episodeTitle, isCollection: false, percentageWatched ,watchedAt});
+      item = new Item({
+        id,
+        type,
+        title,
+        year,
+        season,
+        episode,
+        episodeTitle,
+        isCollection: false,
+        percentageWatched,
+        watchedAt
+      });
     } else {
       const title = program.title.trim();
-      item = new Item({id, type, title, year, percentageWatched, watchedAt});
+      item = new Item({ id, type, title, year, percentageWatched, watchedAt });
     }
     return item;
   }
@@ -82,7 +110,7 @@ class _NrkApi implements Api{
       NrkStore.update(null);
     } catch (err) {
       Errors.error('Failed to load Trakt history.', err);
-      await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, {error: err});
+      await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });
     }
   }
 
