@@ -7,18 +7,14 @@ class _TraktSettings extends TraktApi {
     this.getTimeAndDateFormat = this.getTimeAndDateFormat.bind(this);
   }
 
-  /**
-   * @returns {Promise<string>}
-   */
   async getTimeAndDateFormat() {
     const responseText = await Requests.send({
       url: this.SETTINGS_URL,
       method: 'GET',
     });
-    /** @type {TraktSettingsResponse} */
-    const settings = JSON.parse(responseText);
+    const settings: TraktSettingsResponse = JSON.parse(responseText);
     let dateFormat = "ddd ";
-    switch(settings.account.date_format){
+    switch (settings.account.date_format) {
       case "dmy":
         dateFormat += "D MMM YYYY";
         break;
@@ -35,9 +31,9 @@ class _TraktSettings extends TraktApi {
         console.error("Unknown date format", settings.account.date_format);
         return "";
     }
-    if (settings.account.time_24hr){
+    if (settings.account.time_24hr) {
       dateFormat += ", H:mm:ss";
-    }else{
+    } else {
       dateFormat += ", h:mm:ss a";
     }
     return dateFormat;
