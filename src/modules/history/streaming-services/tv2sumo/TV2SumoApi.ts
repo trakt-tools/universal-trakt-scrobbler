@@ -72,30 +72,27 @@ class _TV2SumoApi implements Api {
   parseHistoryItem(historyItem: TV2SumoHistoryItemWithMetadata): Item {
     let item: Item = null;
     const id = historyItem.id;
-    const type = historyItem.asset_type === 'episode' ? 'show' : 'movie';
-    const year:number =  null;
-    const percentageWatched = historyItem.progress;
+    const year: number =  null;
     const watchedAt = moment(historyItem.date);
-    if (type === 'show') {
+    if (historyItem.asset_type === 'episode') {
       const title = historyItem.show.title.trim();
       const season = historyItem.season_number;
       const episode = historyItem.episode_number;
       const episodeTitle = historyItem.episode_title.trim();
       item = new Item({
         id,
-        type,
+        type: 'show',
         title,
         year,
         season,
         episode,
         episodeTitle,
         isCollection: false,
-        percentageWatched,
         watchedAt
       });
     } else {
       const title = historyItem.title.trim();
-      item = new Item({id, type, title, year, percentageWatched, watchedAt});
+      item = new Item({id, type: 'movie', title, year, watchedAt});
     }
     return item;
   }

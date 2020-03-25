@@ -243,11 +243,12 @@ declare interface TV2SumoInfo {
   path: string;
 }
 
-declare interface TV2SumoMetadataResponse {
+declare type TV2SumoMetadataResponse = TV2SumoMetadataResponseEpisode|TV2SumoMetadataResponseMovie;
+
+declare interface TV2SumoMetadataResponseEpisode {
   id: number;
   title: string;
-  asset_type: "episode"; //TODO check movie
-  progress: null|number;
+  asset_type: "episode"
   episode_number: number;
   episode_title: string;
   season_number: number;
@@ -257,7 +258,13 @@ declare interface TV2SumoMetadataResponse {
   }
 }
 
-declare interface TV2SumoHistoryItemWithMetadata extends TV2SumoMetadataResponse {
+declare interface TV2SumoMetadataResponseMovie {
+  id: number;
+  title: string;
+  asset_type: "movie";
+}
+
+declare type TV2SumoHistoryItemWithMetadata = TV2SumoMetadataResponse & {
   date: number;
 }
 
