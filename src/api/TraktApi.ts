@@ -9,6 +9,7 @@ class TraktApi {
   SEARCH_URL: string;
   SHOWS_URL: string;
   SYNC_URL: string;
+  SETTINGS_URL: string;
 
   constructor() {
     this.API_VERSION = '2';

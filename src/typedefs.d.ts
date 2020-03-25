@@ -63,7 +63,6 @@ declare type StorageValuesSyncOptions = {
   addWithReleaseDate: boolean,
   hideSynced: boolean,
   itemsPerLoad: number,
-  use24Clock: boolean,
 };
 
 declare type Options = {
@@ -179,7 +178,7 @@ declare interface NetflixHistoryResponse {
   viewedItems: NetflixHistoryItem[];
 }
 
-declare type NetflixHistoryItem = NetflixHistoryShowItem|NetflixHistoryMovieItem;
+declare type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
 
 declare interface NetflixHistoryShowItem {
   date: number
@@ -201,11 +200,11 @@ declare interface NetflixHistoryMovieItem {
 
 declare interface NetflixMetadataResponse {
   value: {
-    videos: {[key: number]: NetflixMetadataItem}; //TODO verify {Object<string, NetflixMetadataItem>} value.videos
+    videos: { [key: number]: NetflixMetadataItem };
   }
 }
 
-declare type NetflixMetadataItem = NetflixMetadataShowItem|NetflixMetadataMovieItem;
+declare type NetflixMetadataItem = NetflixMetadataShowItem | NetflixMetadataMovieItem;
 
 declare interface NetflixMetadataShowItem {
   releaseYear: number;
@@ -223,13 +222,13 @@ declare interface NetflixMetadataMovieItem {
   }
 }
 
-declare type NetflixHistoryItemWithMetadata = NetflixHistoryShowItemWithMetadata|NetflixHistoryMovieItemWithMetadata;
+declare type NetflixHistoryItemWithMetadata = NetflixHistoryShowItemWithMetadata | NetflixHistoryMovieItemWithMetadata;
 
 declare type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & NetflixMetadataShowItem;
 
 declare type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem & NetflixMetadataMovieItem;
 
-interface TraktSyncResponse {
+declare interface TraktSyncResponse {
   added: {
     episodes: number;
     movies: number;
@@ -240,8 +239,18 @@ interface TraktSyncResponse {
   }
 }
 
-interface TraktSyncNotFound {
+declare interface TraktSyncNotFound {
   ids: {
     trakt: number;
   }
+}
+
+declare interface TraktSettingsResponse {
+  account: TraktAccount
+}
+
+declare interface TraktAccount {
+  timezone: string;
+  date_format: 'mdy' | 'dmy' | 'ymd' | 'ydm';
+  time_24hr: boolean;
 }
