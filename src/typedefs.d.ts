@@ -228,6 +228,78 @@ declare type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & Netfl
 
 declare type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem & NetflixMetadataMovieItem;
 
+declare interface ViaplayWatchedTopResponse {
+  _embedded: {
+    'viaplay:blocks': [ViaplayHistoryPage];
+  }
+}
+
+declare interface ViaplayHistoryPage {
+  currentPage: number;
+  pageCount: number;
+  productsPerPage: number;
+  totalProductCount: number;
+  _embedded: {
+    'viaplay:products': ViaplayProduct[];
+  }
+  _links: {
+    next: {
+      href: string;
+    }
+  }
+}
+
+declare type ViaplayProduct = ViaplayEpisode | ViaplayMovie;
+
+declare interface ViaplayProductBase {
+  type: string;
+  publicPath: string;
+  system: {
+    guid: string;
+  }
+  user: ViaplayProductUserInfo;
+}
+
+declare interface ViaplayEpisode extends ViaplayProductBase {
+  type: "episode";
+  content: {
+    originalTitle?: string; //Show title
+    title: string; //Usually Episode title, sometimes Show title :-(
+    production: {
+      year: number;
+    }
+    series: {
+      episodeNumber: number;
+      episodeTitle: string; //Sometimes prefixed with episodeNumber
+      title: string; //Show title
+      season: {
+        seasonNumber: 1;
+      }
+    }
+  }
+}
+
+declare interface ViaplayMovie extends ViaplayProductBase {
+  type: "movie";
+  content: {
+    title: string;
+    imdb: {
+      id: string;
+    }
+    production: {
+      year: number;
+    }
+  }
+}
+
+declare interface ViaplayProductUserInfo {
+  progress: {
+    elapsedPercent?: number;
+    watched?: boolean;
+    updated?: number;
+  }
+}
+
 declare interface TraktSyncResponse {
   added: {
     episodes: number;
