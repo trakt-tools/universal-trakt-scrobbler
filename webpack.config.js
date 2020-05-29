@@ -185,6 +185,7 @@ function getManifest(configJson, browserName) {
       '*://*.trakt.tv/*',
       '*://*.netflix.com/*',
       '*://tv.nrk.no/*',
+      '*://*.viaplay.no/*',
       '*://sumo.tv2.no/*',
     ],
     web_accessible_resources: [

@@ -1,6 +1,7 @@
 import { NetflixPage } from './netflix/NetflixPage';
 import { NrkPage } from "./nrk/NrkPage";
 import { TV2SumoPage } from "./tv2sumo/TV2SumoPage";
+import { ViaplayPage } from './viaplay/ViaplayPage';
 
 const streamingServices = [
   {
@@ -14,6 +15,12 @@ const streamingServices = [
     name: 'NRK',
     path: '/nrk',
     page: NrkPage,
+  },
+  {
+    id: 'viaplay',
+    name: 'Viaplay',
+    path: '/viaplay',
+    page: ViaplayPage,
   },
   {
     id: 'sumo',
