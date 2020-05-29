@@ -43,6 +43,7 @@ If you want to sync from Netflix, this is the only Trakt.tv [plugin](https://tra
 
 - Netflix
 - NRK
+- Viaplay
 
 ### How does the extension work?
 
