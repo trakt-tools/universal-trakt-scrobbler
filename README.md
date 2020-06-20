@@ -23,13 +23,13 @@
 
 ### Table of Contents
 
-* [What is Universal Trakt Sync?](#what-is-universal-trakt-sync)
-* [Why do I need this extension?](#why-do-i-need-this-extension)
-* [Which streaming services are supported?](#which-streaming-services-are-supported)
-* [How does the extension work?](#how-does-the-extension-work)
-* [Problems](#problems)
-* [Development](#development)
-* [Credits](#credits)
+- [What is Universal Trakt Sync?](#what-is-universal-trakt-sync)
+- [Why do I need this extension?](#why-do-i-need-this-extension)
+- [Which streaming services are supported?](#which-streaming-services-are-supported)
+- [How does the extension work?](#how-does-the-extension-work)
+- [Problems](#problems)
+- [Development](#development)
+- [Credits](#credits)
 
 ### What is Universal Trakt Sync?
 
@@ -82,19 +82,19 @@ nvm use
 npm install
 ```
 
-* To run in development mode:
+- To run in development mode:
 
 ```bash
 npm start
 ```
 
-* To get the build version for development mode (does not watch files):
+- To get the build version for development mode (does not watch files):
 
 ```bash
 npm run build-dev
 ```
 
-* To get the build version for production mode (generates app.zip, ready for deployment):
+- To get the build version for production mode (generates app.zip, ready for deployment):
 
 ```bash
 npm run build
@@ -102,12 +102,13 @@ npm run zip
 ```
 
 ####How to add more streaming services
-* Make sure that the serivce you want to add actually has a rest API.
-* Add hostname/domain to permissions in manifest in `webpack.config.js`.
-* Copy one the existing services in `src/modules/history/streaming-services/`. Netflix is the most complex one.
-* The Page- and Store-files should be fairly easy to update. Probably just the name as all logic is in the inherited classes.
-* As a TypeScript project, interfaces of rest APIs should be declared in `src/typedefs.d.ts`.
-* All APIs have different aspects and limitations, updates may be needed elsewhere in the sourcecode to handle these cases.
+
+- Make sure that the serivce you want to add actually has a rest API.
+- Add hostname/domain to permissions in manifest in `webpack.config.js`.
+- Copy one the existing services in `src/modules/history/streaming-services/`. Netflix is the most complex one.
+- The Page- and Store-files should be fairly easy to update. Probably just the name as all logic is in the inherited classes.
+- As a TypeScript project, interfaces of rest APIs should be declared in `src/typedefs.d.ts`.
+- All APIs have different aspects and limitations, updates may be needed elsewhere in the sourcecode to handle these cases.
 
 ### Credits
 

@@ -1,3 +1,3 @@
 export interface Api {
-  loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number): Promise<void>
+	loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number): Promise<void>;
 }

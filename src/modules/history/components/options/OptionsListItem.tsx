@@ -3,33 +3,25 @@ import * as React from 'react';
 import { Events, EventDispatcher } from '../../../../services/Events';
 
 interface OptionsListItemProps {
-  option: Option;
+	option: Option;
 }
 
 const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
-  async function onChange() {
-    await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
-      id: option.id,
-      checked: !option.value,
-    });
-  }
+	async function onChange() {
+		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
+			id: option.id,
+			checked: !option.value,
+		});
+	}
 
-  return (
-    <ListItem classes={{ secondaryAction: 'options-list-item' }}>
-      <ListItemText
-        primary={option.name}
-        secondary={option.description}
-      />
-      <ListItemSecondaryAction>
-        <Switch
-          checked={option.value}
-          color="primary"
-          edge="end"
-          onChange={onChange}
-        />
-      </ListItemSecondaryAction>
-    </ListItem>
-  );
+	return (
+		<ListItem classes={{ secondaryAction: 'options-list-item' }}>
+			<ListItemText primary={option.name} secondary={option.description} />
+			<ListItemSecondaryAction>
+				<Switch checked={option.value} color="primary" edge="end" onChange={onChange} />
+			</ListItemSecondaryAction>
+		</ListItem>
+	);
 };
 
 export { OptionsListItem };

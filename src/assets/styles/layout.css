@@ -1,24 +1,25 @@
 *:focus {
-  outline: none;
+	outline: none;
 }
 
 body {
-  margin: 0;
+	margin: 0;
 }
 
 .container--center {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  height: 100%;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	height: 100%;
 }
 
-.container--left-right, .container--left-right--center {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+.container--left-right,
+.container--left-right--center {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
 }
 
 .container--left-right--center {
-  align-items: center;
+	align-items: center;
 }

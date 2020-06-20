@@ -1,15 +1,12 @@
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "outDir": "./build/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "module": "es6",
-    "target": "es6",
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/web-ext-types"
-    ],
-    "moduleResolution": "Node"
-  }
+	"compilerOptions": {
+		"jsx": "react",
+		"outDir": "./build/",
+		"sourceMap": true,
+		"noImplicitAny": true,
+		"module": "es6",
+		"target": "es6",
+		"typeRoots": ["node_modules/@types", "node_modules/web-ext-types"],
+		"moduleResolution": "Node"
+	}
 }
