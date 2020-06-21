@@ -1,12 +1,15 @@
 {
+	"exclude": ["./node_modules", "./build"],
 	"compilerOptions": {
+		"allowJs": true,
 		"jsx": "react",
-		"outDir": "./build/",
+		"module": "CommonJS",
+		"outDir": "./build",
 		"sourceMap": true,
+		"target": "ES2020",
 		"noImplicitAny": true,
-		"module": "es6",
-		"target": "es6",
-		"typeRoots": ["node_modules/@types", "node_modules/web-ext-types"],
-		"moduleResolution": "Node"
+		"noImplicitThis": true,
+		"strict": true,
+		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"]
 	}
 }
