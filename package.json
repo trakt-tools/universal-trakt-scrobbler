@@ -21,12 +21,15 @@
 		"format-check-json": "npm run prettier-json -- --check",
 		"format-json": "npm run prettier-json -- --write",
 		"eslint": "eslint '**/*.{js,jsx,ts,tsx}'",
+		"lint-check": "npm run eslint -- --quiet",
 		"lint-all": "npm run eslint -- --fix",
 		"lint": "npm run lint-all -- --quiet",
+		"lint-check-typed": "npm run lint-check -- -c ./.eslintrc.typed.js --no-eslintrc",
 		"lint-all-typed": "npm run lint-all -- -c ./.eslintrc.typed.js --no-eslintrc",
 		"lint-typed": "npm run lint -- -c ./.eslintrc.typed.js --no-eslintrc",
 		"tsc": "tsc --noEmit",
-		"validate": "run-s format-json tsc lint-typed"
+		"check": "run-s format-check-json tsc lint-check-typed",
+		"fix": "run-s format-json tsc lint-typed"
 	},
 	"dependencies": {
 		"@material-ui/core": "^4.9.1",
@@ -75,6 +78,8 @@
 		"fs-extra": "^8.1.0",
 		"gulp": "^4.0.2",
 		"gulp-zip": "^5.0.1",
+		"husky": "^4.2.5",
+		"lint-staged": "^10.2.11",
 		"npm-run-all": "^4.1.5",
 		"prettier": "^2.0.5",
 		"progress-bar-webpack-plugin": "^2.1.0",
@@ -85,5 +90,17 @@
 		"web-ext-types": "^3.2.1",
 		"webpack": "^4.41.5",
 		"webpack-cli": "^3.3.10"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"*.json": "prettier --write",
+		"*.{js,jsx,ts,tsx}": [
+			"tsc --noEmit",
+			"eslint --fix --quiet -c ./.eslintrc.typed.js --no-eslintrc"
+		]
 	}
 }
