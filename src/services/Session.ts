@@ -41,7 +41,7 @@ class _Session {
 		} catch (err) {
 			Errors.error('Failed to log in.', err);
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch(Events.LOGIN_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.LOGIN_ERROR, { error: err as Error });
 		}
 	}
 
@@ -53,7 +53,7 @@ class _Session {
 		} catch (err) {
 			Errors.error('Failed to log out.', err);
 			this.isLoggedIn = true;
-			await EventDispatcher.dispatch(Events.LOGOUT_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.LOGOUT_ERROR, { error: err as Error });
 		}
 	}
 

@@ -2,7 +2,14 @@ import { NetflixPage } from './netflix/NetflixPage';
 import { NrkPage } from './nrk/NrkPage';
 import { ViaplayPage } from './viaplay/ViaplayPage';
 
-const streamingServices = [
+interface StreamingService {
+	id: string;
+	name: string;
+	path: string;
+	page: () => React.ReactElement | null;
+}
+
+const streamingServices: StreamingService[] = [
 	{
 		id: 'netflix',
 		name: 'Netflix',

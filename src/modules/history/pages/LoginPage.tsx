@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		Session.checkLogin();
+		void Session.checkLogin();
 	}, []);
 
 	return (

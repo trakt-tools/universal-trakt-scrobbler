@@ -6,7 +6,9 @@ interface OptionsListItemProps {
 	option: Option;
 }
 
-const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
+const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
+	const { option } = props;
+
 	async function onChange() {
 		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
 			id: option.id,

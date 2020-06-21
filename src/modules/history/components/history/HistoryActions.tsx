@@ -6,18 +6,21 @@ interface HistoryActionsProps {
 	onSyncClick: () => void;
 }
 
-const HistoryActions: React.FC<HistoryActionsProps> = ({ onNextPageClick, onSyncClick }) => (
-	<Box className="history-actions--container">
-		<Divider />
-		<Box className="history-actions">
-			<Button onClick={onNextPageClick} variant="contained">
-				{browser.i18n.getMessage('nextPage')}
-			</Button>
-			<Button color="primary" onClick={onSyncClick} variant="contained">
-				{browser.i18n.getMessage('sync')}
-			</Button>
+const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProps) => {
+	const { onNextPageClick, onSyncClick } = props;
+	return (
+		<Box className="history-actions--container">
+			<Divider />
+			<Box className="history-actions">
+				<Button onClick={onNextPageClick} variant="contained">
+					{browser.i18n.getMessage('nextPage')}
+				</Button>
+				<Button color="primary" onClick={onSyncClick} variant="contained">
+					{browser.i18n.getMessage('sync')}
+				</Button>
+			</Box>
 		</Box>
-	</Box>
-);
+	);
+};
 
 export { HistoryActions };

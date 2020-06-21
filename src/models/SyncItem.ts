@@ -6,7 +6,7 @@ class SyncItem implements ISyncItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	watchedAt: GenericObject;
+	watchedAt?: import('moment').Moment;
 
 	constructor(options: ISyncItem) {
 		this.id = options.id;
@@ -18,7 +18,7 @@ class SyncItem implements ISyncItem {
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
 		}
-		this.watchedAt = options.watchedAt || null;
+		this.watchedAt = options.watchedAt;
 	}
 }
 

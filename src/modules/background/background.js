@@ -2,11 +2,12 @@ import { TraktAuth } from '../../api/TraktAuth';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
 import { Requests } from '../../services/Requests';
+import { Shared } from '../../services/Shared';
 
 init();
 
 async function init() {
-	browser.isBackgroundPage = true;
+	Shared.isBackgroundPage = true;
 	await BrowserStorage.sync();
 	const values = await BrowserStorage.get('options');
 	if (values.options && values.options.allowRollbar) {
@@ -35,10 +36,9 @@ async function onBrowserActionClicked() {
 
 /**
  * @param {string} request
- * @param {Object} sender
  * @returns {Promise}
  */
-function onMessage(request, sender) {
+function onMessage(request) {
 	let executingAction = null;
 	request = JSON.parse(request);
 	switch (request.action) {

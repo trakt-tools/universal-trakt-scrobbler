@@ -52,12 +52,12 @@ const OptionsPage: React.FC = () => {
 			const option = options[data.id];
 			if (option.permissions || option.origins) {
 				if (option.value) {
-					browser.permissions.request({
+					void browser.permissions.request({
 						permissions: option.permissions || [],
 						origins: option.origins || [],
 					});
 				} else {
-					browser.permissions.remove({
+					void browser.permissions.remove({
 						permissions: option.permissions || [],
 						origins: option.origins || [],
 					});
@@ -88,7 +88,7 @@ const OptionsPage: React.FC = () => {
 	}, [content]);
 
 	useEffect(() => {
-		resetOptions();
+		void resetOptions();
 	}, []);
 
 	return content.isLoading ? (

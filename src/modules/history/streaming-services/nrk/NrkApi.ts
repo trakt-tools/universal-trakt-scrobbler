@@ -22,9 +22,6 @@ class _NrkApi implements Api {
 		this.isActivated = false;
 
 		this.loadHistory = this.loadHistory.bind(this);
-		this.parseHistoryItem = this.parseHistoryItem.bind(this);
-		this.loadTraktHistory = this.loadTraktHistory.bind(this);
-		this.loadTraktItemHistory = this.loadTraktItemHistory.bind(this);
 	}
 
 	async activate() {
@@ -48,7 +45,7 @@ class _NrkApi implements Api {
 					url: `${this.HISTORY_API_URL}?pg=${nextPage}`, //TODO figure out if pagination is even supported in the API
 					method: 'GET',
 				});
-				const responseJson: NrkHistoryItem[] = JSON.parse(responseText);
+				const responseJson = JSON.parse(responseText) as NrkHistoryItem[];
 				if (responseJson && responseJson.length > 0) {
 					itemsToLoad -= responseJson.length;
 					historyItems.push(...responseJson);
@@ -61,19 +58,25 @@ class _NrkApi implements Api {
 				items = historyItems.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			NrkStore.update({ isLastPage, nextPage, nextVisualPage, items }).then(this.loadTraktHistory);
+			NrkStore.update({ isLastPage, nextPage, nextVisualPage, items })
+				.then(this.loadTraktHistory)
+				.catch(() => {
+					/** Do nothing */
+				});
 		} catch (err) {
 			Errors.error('Failed to load NRK history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {
+				error: err as Error,
+			});
 		}
 	}
 
-	parseHistoryItem(historyItem: NrkHistoryItem): Item {
+	parseHistoryItem = (historyItem: NrkHistoryItem): Item => {
 		const program: NrkProgramInfo = historyItem.program;
-		let item: Item = null;
+		let item: Item;
 		const id = parseInt(program.id, 10);
 		const type = program.programType === 'Episode' ? 'show' : 'movie';
-		const year = program.productionYear || null;
+		const year = program.productionYear;
 		const percentageWatched = parseInt(historyItem.lastSeen.percentageWatched, 10);
 		const watchedAt = moment(this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at));
 		if (type === 'show') {
@@ -98,22 +101,22 @@ class _NrkApi implements Api {
 			item = new Item({ id, type, title, year, percentageWatched, watchedAt });
 		}
 		return item;
-	}
+	};
 
-	async loadTraktHistory() {
+	loadTraktHistory = async () => {
 		try {
 			let promises = [];
 			const items = NrkStore.data.items;
 			promises = items.map(this.loadTraktItemHistory);
 			await Promise.all(promises);
-			NrkStore.update(null);
+			void NrkStore.update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
 		}
-	}
+	};
 
-	async loadTraktItemHistory(item: Item) {
+	loadTraktItemHistory = async (item: Item) => {
 		if (!item.trakt) {
 			try {
 				item.trakt = await TraktSearch.find(item);
@@ -124,7 +127,7 @@ class _NrkApi implements Api {
 				};
 			}
 		}
-	}
+	};
 
 	convertAspNetJSONDateToDateObject(value: string): Date {
 		const dateRegexp = /^\/?Date\((-?\d+)/i;

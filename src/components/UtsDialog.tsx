@@ -13,17 +13,19 @@ import { EventDispatcher, Events } from '../services/Events';
 interface DialogData {
 	title: string;
 	message: string;
-	onConfirm: () => void;
-	onDeny: () => void;
+	onConfirm?: () => void;
+	onDeny?: () => void;
 }
 
-function UtsDialog() {
-	const [dialog, setDialog] = useState({
+interface DialogState extends DialogData {
+	isOpen: boolean;
+}
+
+function UtsDialog(): React.ReactElement {
+	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
 		title: '',
 		message: '',
-		onConfirm: null,
-		onDeny: null,
 	});
 
 	function closeDialog(didConfirm: boolean) {

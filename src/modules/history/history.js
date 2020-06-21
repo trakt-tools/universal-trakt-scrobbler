@@ -4,11 +4,12 @@ import '../../assets/assets';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
 import { HistoryApp } from './HistoryApp';
+import { Shared } from '../../services/Shared';
 
 init();
 
 async function init() {
-	browser.isBackgroundPage = false;
+	Shared.isBackgroundPage = false;
 	await BrowserStorage.sync();
 	const values = await BrowserStorage.get('options');
 	if (values.options && values.options.allowRollbar) {

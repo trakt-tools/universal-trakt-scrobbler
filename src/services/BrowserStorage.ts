@@ -16,7 +16,7 @@ class _BrowserStorage {
 
 	async sync(): Promise<void> {
 		if (this.isSyncAvailable) {
-			const values = await browser.storage.sync.get(null);
+			const values = await browser.storage.sync.get();
 			for (const key of Object.keys(values)) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
@@ -30,7 +30,7 @@ class _BrowserStorage {
 		await browser.storage.local.set(values);
 	}
 
-	get(keys: string | string[] | null): Promise<StorageValues> {
+	get(keys?: string | string[]): Promise<StorageValues> {
 		return browser.storage.local.get(keys);
 	}
 
@@ -48,7 +48,7 @@ class _BrowserStorage {
 		await browser.storage.local.clear();
 	}
 
-	async getSize(keys: string | string[] | null): Promise<string> {
+	async getSize(keys?: string | string[]): Promise<string> {
 		let size = '';
 		const values = await this.get(keys);
 		let bytes = (JSON.stringify(values) || '').length;

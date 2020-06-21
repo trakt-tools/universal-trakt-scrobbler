@@ -21,6 +21,12 @@ enum Events {
 	HISTORY_SYNC_ERROR,
 }
 
+export type EventDispatcherListeners = {
+	[key: number]: EventDispatcherListener<any>[];
+};
+
+export type EventDispatcherListener<T> = (data: T) => void | Promise<void>;
+
 export interface HistoryOptionsChangeData {
 	id: keyof StorageValuesSyncOptions;
 	value: boolean | number;
@@ -53,14 +59,14 @@ class _EventDispatcher {
 		this.dispatch = this.dispatch.bind(this);
 	}
 
-	subscribe(eventType: Events, listener: Function): void {
+	subscribe<T>(eventType: Events, listener: EventDispatcherListener<T>): void {
 		if (!this.listeners[eventType]) {
 			this.listeners[eventType] = [];
 		}
 		this.listeners[eventType].push(listener);
 	}
 
-	unsubscribe(eventType: Events, listener: Function): void {
+	unsubscribe<T>(eventType: Events, listener: EventDispatcherListener<T>): void {
 		if (this.listeners[eventType]) {
 			this.listeners[eventType] = this.listeners[eventType].filter((fn) => fn !== listener);
 		}

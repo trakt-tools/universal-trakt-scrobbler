@@ -1,10 +1,23 @@
+declare interface Window {
+	wrappedJSObject?: Record<string, unknown>;
+	Rollbar?: import('rollbar');
+}
+
+declare let XPCNativeWrapper: <T>(value: T) => T;
+
+declare let cloneInto: <T>(value: T, window: Window) => T;
+
 declare type GenericObject = {
-	[key: string]: any;
+	[key: string]: unknown;
 };
 
+declare type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+
+declare type PromiseResolve<T> = (value?: T | PromiseLike<T>) => void;
+
 declare type TraktManualAuth = {
-	callback: Function;
-	tabId: number;
+	callback?: PromiseResolve<TraktAuthDetails>;
+	tabId?: number;
 };
 
 declare interface IItem {
@@ -16,7 +29,7 @@ declare interface IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt: GenericObject;
+	watchedAt: import('moment').Moment;
 	percentageWatched?: number;
 	trakt?: ISyncItem | TraktNotFound;
 }
@@ -29,7 +42,7 @@ declare interface ISyncItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	watchedAt?: GenericObject;
+	watchedAt?: import('moment').Moment;
 }
 
 declare type TraktNotFound = {
@@ -104,11 +117,7 @@ declare type RequestException = {
 declare type RequestDetails = {
 	url: string;
 	method: string;
-	body?: string | Object;
-};
-
-declare type EventDispatcherListeners = {
-	[key: number]: Function[];
+	body?: string | Record<string, unknown>;
 };
 
 declare interface TraktHistoryItem {
@@ -120,36 +129,44 @@ declare interface OptionEventData {
 	checked: boolean;
 }
 
-type TraktSearchEpisodeItem = TraktEpisodeItem & TraktSearchShowItem;
+declare type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
+
+declare type TraktSearchEpisodeItem = TraktEpisodeItem & TraktSearchShowItem;
 
 declare interface TraktEpisodeItem {
-	episode: {
-		season: number;
-		number: number;
-		title: string;
-		ids: {
-			trakt: number;
-		};
+	episode: TraktEpisodeItemEpisode;
+}
+
+declare interface TraktEpisodeItemEpisode {
+	season: number;
+	number: number;
+	title: string;
+	ids: {
+		trakt: number;
 	};
 }
 
 declare interface TraktSearchShowItem {
-	show: {
-		title: string;
-		year: number;
-		ids: {
-			trakt: number;
-		};
+	show: TraktSearchShowItemShow;
+}
+
+declare interface TraktSearchShowItemShow {
+	title: string;
+	year: number;
+	ids: {
+		trakt: number;
 	};
 }
 
 declare interface TraktSearchMovieItem {
-	movie: {
-		title: string;
-		year: number;
-		ids: {
-			trakt: number;
-		};
+	movie: TraktSearchMovieItemMovie;
+}
+
+declare interface TraktSearchMovieItemMovie {
+	title: string;
+	year: number;
+	ids: {
+		trakt: number;
 	};
 }
 

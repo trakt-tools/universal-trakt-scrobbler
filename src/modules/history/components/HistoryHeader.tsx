@@ -9,7 +9,9 @@ interface HistoryHeaderProps {
 	isLoggedIn: boolean;
 }
 
-const HistoryHeader: React.FC<HistoryHeaderProps> = ({ history, isLoggedIn }) => {
+const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
+	const { history, isLoggedIn } = props;
+
 	function onRouteClick(path: string) {
 		history.push(path);
 	}
@@ -37,11 +39,11 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({ history, isLoggedIn }) =>
 						</>
 					}
 					right={
-						isLoggedIn && (
+						isLoggedIn ? (
 							<Button color="inherit" onClick={onLogoutClick}>
 								{browser.i18n.getMessage('logout')}
 							</Button>
-						)
+						) : undefined
 					}
 				/>
 			</Toolbar>

@@ -24,9 +24,6 @@ class _ViaplayApi implements Api {
 		this.isActivated = false;
 
 		this.loadHistory = this.loadHistory.bind(this);
-		this.parseHistoryItem = this.parseHistoryItem.bind(this);
-		this.loadTraktHistory = this.loadTraktHistory.bind(this);
-		this.loadTraktItemHistory = this.loadTraktItemHistory.bind(this);
 	}
 
 	async activate() {
@@ -54,10 +51,10 @@ class _ViaplayApi implements Api {
 				let historyPage: ViaplayHistoryPage;
 				if (this.HISTORY_API_NEXT_PAGE_URL === this.HISTORY_API_URL) {
 					//First initial load/page
-					const responseJson: ViaplayWatchedTopResponse = JSON.parse(responseText);
+					const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
 					historyPage = responseJson._embedded['viaplay:blocks'][0];
 				} else {
-					historyPage = JSON.parse(responseText);
+					historyPage = JSON.parse(responseText) as ViaplayHistoryPage;
 				}
 				const viaplayProducts: ViaplayProduct[] = historyPage._embedded['viaplay:products'];
 
@@ -78,17 +75,21 @@ class _ViaplayApi implements Api {
 				items = historyItems.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			ViaplayStore.update({ isLastPage, nextPage, nextVisualPage, items }).then(
-				this.loadTraktHistory
-			);
+			ViaplayStore.update({ isLastPage, nextPage, nextVisualPage, items })
+				.then(this.loadTraktHistory)
+				.catch(() => {
+					/** Do nothing */
+				});
 		} catch (err) {
 			Errors.error('Failed to load Viaplay history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {
+				error: err as Error,
+			});
 		}
 	}
 
-	parseHistoryItem(historyItem: ViaplayProduct): Item {
-		let item: Item = null;
+	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
+		let item: Item;
 		const year = historyItem.content.production.year;
 		const percentageWatched = historyItem.user.progress?.elapsedPercent || 0;
 		const watchedAt = moment(historyItem.user.progress?.updated);
@@ -116,22 +117,22 @@ class _ViaplayApi implements Api {
 			item = new Item({ id, type: 'movie', title, year, percentageWatched, watchedAt });
 		}
 		return item;
-	}
+	};
 
-	async loadTraktHistory() {
+	loadTraktHistory = async () => {
 		try {
 			let promises = [];
 			const items = ViaplayStore.data.items;
 			promises = items.map(this.loadTraktItemHistory);
 			await Promise.all(promises);
-			ViaplayStore.update(null);
+			void ViaplayStore.update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
 		}
-	}
+	};
 
-	async loadTraktItemHistory(item: Item) {
+	loadTraktItemHistory = async (item: Item) => {
 		if (!item.trakt) {
 			try {
 				item.trakt = await TraktSearch.find(item);
@@ -142,7 +143,7 @@ class _ViaplayApi implements Api {
 				};
 			}
 		}
-	}
+	};
 }
 
 const ViaplayApi = new _ViaplayApi();

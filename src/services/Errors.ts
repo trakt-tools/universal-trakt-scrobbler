@@ -5,14 +5,11 @@ import { Events, EventDispatcher } from './Events';
 import * as React from 'react';
 
 class _Errors {
-	rollbar: Rollbar;
+	rollbar?: Rollbar;
 
 	constructor() {
-		this.rollbar = null;
-
 		this.startRollbar = this.startRollbar.bind(this);
 		this.startListeners = this.startListeners.bind(this);
-		this.onSearchError = this.onSearchError.bind(this);
 		this.log = this.log.bind(this);
 		this.warning = this.warning.bind(this);
 		this.error = this.error.bind(this);
@@ -31,14 +28,14 @@ class _Errors {
 				environment: 'production',
 			},
 		});
-		(window as any).Rollbar = this.rollbar;
+		window.Rollbar = this.rollbar;
 	}
 
 	startListeners(): void {
 		EventDispatcher.subscribe(Events.SEARCH_ERROR, this.onSearchError);
 	}
 
-	async onSearchError(data: ErrorEventData): Promise<void> {
+	onSearchError = async (data: ErrorEventData): Promise<void> => {
 		if (data.error) {
 			const values = await BrowserStorage.get('auth');
 			if (values.auth && values.auth.access_token) {
@@ -47,10 +44,10 @@ class _Errors {
 				this.warning('Failed to find item.', data.error);
 			}
 		}
-	}
+	};
 
 	log(message: Error | string, details: ErrorDetails | RequestException | React.ErrorInfo): void {
-		console.log(`[UTS] ${message}`, details);
+		console.log(`[UTS] ${message.toString()}`, details);
 	}
 
 	warning(message: string, details: ErrorDetails | RequestException): void {

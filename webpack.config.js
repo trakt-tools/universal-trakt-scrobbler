@@ -7,7 +7,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const webpack = require('webpack');
+const webpack = require('webpack'); // eslint-disable-line
 
 const BASE_PATH = process.cwd();
 const packageJson = require(path.resolve(BASE_PATH, './package.json'));

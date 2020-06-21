@@ -1,6 +1,7 @@
 import { TraktAuth } from '../api/TraktAuth';
 import { BrowserStorage } from './BrowserStorage';
 import { Messaging } from './Messaging';
+import { Shared } from './Shared';
 
 class _Requests {
 	constructor() {
@@ -13,11 +14,11 @@ class _Requests {
 
 	async send(request: RequestDetails): Promise<string> {
 		let responseText = '';
-		if (browser.isBackgroundPage || request.url.includes(window.location.host)) {
+		if (Shared.isBackgroundPage || request.url.includes(window.location.host)) {
 			responseText = await this.sendDirectly(request);
 		} else {
 			const response = await Messaging.toBackground({ action: 'send-request', request });
-			responseText = (response as any) as string;
+			responseText = (response as unknown) as string;
 			if (response.error) {
 				throw response.error;
 			}
@@ -50,9 +51,9 @@ class _Requests {
 		let options = await this.getOptions(request);
 		if (window.wrappedJSObject) {
 			// Firefox wraps page objects, so if we want to send the request from a container, we have to unwrap them.
-			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch);
+			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch as Fetch);
 			window.wrappedJSObject.fetchOptions = cloneInto(options, window);
-			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions);
+			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions as GenericObject);
 		}
 		return fetch(request.url, options);
 	}

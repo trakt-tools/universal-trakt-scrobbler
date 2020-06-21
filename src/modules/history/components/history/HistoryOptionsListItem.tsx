@@ -21,7 +21,7 @@ const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option 
 		});
 	}
 
-	let component = null;
+	let component: React.ReactElement;
 	switch (typeof option.value) {
 		case 'boolean': {
 			component = (

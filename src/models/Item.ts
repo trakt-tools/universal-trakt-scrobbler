@@ -1,5 +1,5 @@
 // We use this to correct known wrong titles.
-const correctTitles: GenericObject = {
+const correctTitles: Record<string, string> = {
 	['Dynasty']: 'Dynasty reboot',
 	['Shameless (U.S.)']: 'Shameless',
 	['Star Wars: The Clone Wars']: '"Star Wars: The Clone Wars"',
@@ -22,7 +22,7 @@ class Item implements IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt: GenericObject;
+	watchedAt: import('moment').Moment;
 	percentageWatched: number;
 	trakt?: ISyncItem | TraktNotFound;
 	isSelected?: boolean;
@@ -39,9 +39,9 @@ class Item implements IItem {
 			this.episodeTitle = options.episodeTitle;
 			this.isCollection = options.isCollection;
 		}
-		this.percentageWatched = options.percentageWatched;
+		this.percentageWatched = options.percentageWatched ?? 0;
 		this.watchedAt = options.watchedAt;
-		this.trakt = options.trakt || null;
+		this.trakt = options.trakt;
 	}
 }
 

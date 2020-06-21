@@ -25,7 +25,7 @@ const OptionsActions: React.FC = () => {
 					});
 					await EventDispatcher.dispatch(Events.OPTIONS_CLEAR, {});
 					await EventDispatcher.dispatch(Events.LOGOUT_SUCCESS, {});
-					updateTraktCacheSize();
+					void updateTraktCacheSize();
 				} catch (err) {
 					Errors.error('Failed to clear storage.', err);
 					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
@@ -48,7 +48,7 @@ const OptionsActions: React.FC = () => {
 						messageName: 'clearTraktCacheSuccess',
 						severity: 'success',
 					});
-					updateTraktCacheSize();
+					void updateTraktCacheSize();
 				} catch (err) {
 					Errors.error('Failed to clear Trakt cache.', err);
 					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
@@ -61,7 +61,7 @@ const OptionsActions: React.FC = () => {
 	}
 
 	useEffect(() => {
-		updateTraktCacheSize();
+		void updateTraktCacheSize();
 	}, []);
 
 	return (

@@ -12,7 +12,7 @@ class _TraktSettings extends TraktApi {
 			url: this.SETTINGS_URL,
 			method: 'GET',
 		});
-		const settings: TraktSettingsResponse = JSON.parse(responseText);
+		const settings = JSON.parse(responseText) as TraktSettingsResponse;
 		let dateFormat = 'ddd ';
 		switch (settings.account.date_format) {
 			case 'dmy':

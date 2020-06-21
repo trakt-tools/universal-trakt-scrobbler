@@ -19,11 +19,11 @@ class _TraktSync extends TraktApi {
 			url: this.getUrl(item),
 			method: 'GET',
 		});
-		const historyItems: TraktHistoryItem[] = JSON.parse(responseText);
+		const historyItems = JSON.parse(responseText) as TraktHistoryItem[];
 		const historyItem = historyItems.find(
 			(x) => moment(x.watched_at).diff(item.watchedAt, 'days') === 0
 		);
-		(item.trakt as ISyncItem).watchedAt = historyItem ? moment(historyItem.watched_at) : null;
+		(item.trakt as ISyncItem).watchedAt = historyItem && moment(historyItem.watched_at);
 	}
 
 	getUrl(item: Item) {
@@ -57,7 +57,7 @@ class _TraktSync extends TraktApi {
 				method: 'POST',
 				body: data,
 			});
-			const responseJson: TraktSyncResponse = JSON.parse(responseText);
+			const responseJson = JSON.parse(responseText) as TraktSyncResponse;
 			const notFoundItems = {
 				episodes: responseJson.not_found.episodes.map((item) => item.ids.trakt),
 				movies: responseJson.not_found.movies.map((item) => item.ids.trakt),
@@ -80,7 +80,7 @@ class _TraktSync extends TraktApi {
 			await EventDispatcher.dispatch(Events.HISTORY_SYNC_SUCCESS, { added: responseJson.added });
 		} catch (err) {
 			Errors.error('Failed to sync history.', err);
-			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, { error: err });
+			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, { error: err as Error });
 		}
 	}
 }

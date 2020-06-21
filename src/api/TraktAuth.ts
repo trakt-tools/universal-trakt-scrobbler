@@ -11,10 +11,7 @@ class _TraktAuth extends TraktApi {
 		super();
 
 		this.isIdentityAvailable = !!browser.identity;
-		this.manualAuth = {
-			callback: null,
-			tabId: 0,
-		};
+		this.manualAuth = {};
 
 		this.getHeaders = this.getHeaders.bind(this);
 		this.getAuthorizeUrl = this.getAuthorizeUrl.bind(this);
@@ -59,11 +56,11 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async authorize(): Promise<TraktAuthDetails> {
-		let promise: Promise<TraktAuthDetails> = null;
+		let promise: Promise<TraktAuthDetails>;
 		if (this.isIdentityAvailable) {
 			promise = this.startIdentityAuth();
 		} else {
-			promise = new Promise(this.startManualAuth);
+			promise = new Promise((resolve) => void this.startManualAuth(resolve));
 		}
 		return promise;
 	}
@@ -76,7 +73,7 @@ class _TraktAuth extends TraktApi {
 		return this.getToken(redirectUrl);
 	}
 
-	async startManualAuth(callback: Function): Promise<void> {
+	async startManualAuth(callback: PromiseResolve<TraktAuthDetails>): Promise<void> {
 		this.manualAuth.callback = callback;
 		const tabs = await browser.tabs.query({
 			active: true,
@@ -90,13 +87,12 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async finishManualAuth(redirectUrl: string): Promise<void> {
-		await browser.tabs.remove(this.manualAuth.tabId);
+		if (typeof this.manualAuth.tabId !== 'undefined') {
+			await browser.tabs.remove(this.manualAuth.tabId);
+		}
 		const auth = await this.getToken(redirectUrl);
-		this.manualAuth.callback(auth);
-		this.manualAuth = {
-			callback: null,
-			tabId: 0,
-		};
+		this.manualAuth.callback?.(auth);
+		this.manualAuth = {};
 	}
 
 	getToken(redirectUrl: string): Promise<TraktAuthDetails> {
@@ -120,14 +116,14 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async requestToken(data: GenericObject): Promise<TraktAuthDetails> {
-		let auth: TraktAuthDetails = null;
+		let auth: TraktAuthDetails;
 		try {
 			const responseText = await Requests.send({
 				url: this.REQUEST_TOKEN_URL,
 				method: 'POST',
 				body: data,
 			});
-			auth = JSON.parse(responseText);
+			auth = JSON.parse(responseText) as TraktAuthDetails;
 			await BrowserStorage.set({ auth }, true);
 		} catch (err) {
 			await BrowserStorage.remove('auth', true);
@@ -142,7 +138,7 @@ class _TraktAuth extends TraktApi {
 			url: this.REVOKE_TOKEN_URL,
 			method: 'POST',
 			body: {
-				access_token: values.auth.access_token,
+				access_token: values.auth?.access_token,
 				client_id: secrets.clientId,
 				client_secret: secrets.clientSecret,
 			},
@@ -150,8 +146,8 @@ class _TraktAuth extends TraktApi {
 		await BrowserStorage.remove('auth', true);
 	}
 
-	async validateToken(): Promise<TraktAuthDetails> {
-		let auth: TraktAuthDetails = null;
+	async validateToken(): Promise<TraktAuthDetails | undefined> {
+		let auth: TraktAuthDetails | undefined;
 		const values = await BrowserStorage.get('auth');
 		if (values.auth && values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
 			auth = await this.refreshToken(values.auth.refresh_token);

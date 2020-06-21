@@ -39,7 +39,9 @@ interface Content {
 	items: Item[];
 }
 
-export const Page: React.FC<PageProps> = ({ serviceName, store, api }) => {
+export const Page: React.FC<PageProps> = (props: PageProps) => {
+	const { serviceName, store, api } = props;
+
 	const [optionsContent, setOptionsContent] = useState<OptionsContent>({
 		hasLoaded: false,
 		options: {} as SyncOptions,
@@ -62,9 +64,9 @@ export const Page: React.FC<PageProps> = ({ serviceName, store, api }) => {
 				...prevContent,
 				isLoading: true,
 			}));
-			api.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
+			void api.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
 		} else {
-			store.update({
+			void store.update({
 				nextVisualPage: content.nextVisualPage + 1,
 			});
 		}
@@ -164,8 +166,7 @@ export const Page: React.FC<PageProps> = ({ serviceName, store, api }) => {
 				},
 			};
 			for (const option of Object.values(options)) {
-				// @ts-ignore
-				optionsToSave[option.id] = option.value;
+				optionsToSave[option.id] = option.value as never;
 			}
 			BrowserStorage.set({ syncOptions: optionsToSave }, true)
 				.then(async () => {
@@ -199,14 +200,15 @@ export const Page: React.FC<PageProps> = ({ serviceName, store, api }) => {
 			});
 		}
 
-		getOptions();
+		void getOptions();
 	}, []);
 
 	useEffect(() => {
 		async function getDateFormat() {
 			setDateFormat(await TraktSettings.getTimeAndDateFormat());
 		}
-		getDateFormat();
+
+		void getDateFormat();
 	}, []);
 
 	useEffect(() => {

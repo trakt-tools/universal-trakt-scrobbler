@@ -11,7 +11,9 @@ interface HistoryListItemProps {
 	serviceName: string;
 }
 
-const HistoryListItem: React.FC<HistoryListItemProps> = ({ dateFormat, item, serviceName }) => {
+const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
+	const { dateFormat, item, serviceName } = props;
+
 	async function onCheckboxChange() {
 		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
 			index: item.index,

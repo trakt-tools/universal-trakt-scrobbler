@@ -9,17 +9,20 @@ interface HistoryListProps {
 	serviceName: string;
 }
 
-const HistoryList: React.FC<HistoryListProps> = ({ dateFormat, items, serviceName }) => (
-	<List>
-		{items.map((item) => (
-			<HistoryListItem
-				key={item.index}
-				dateFormat={dateFormat}
-				item={item}
-				serviceName={serviceName}
-			/>
-		))}
-	</List>
-);
+const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
+	const { dateFormat, items, serviceName } = props;
+	return (
+		<List>
+			{items.map((item) => (
+				<HistoryListItem
+					key={item.index}
+					dateFormat={dateFormat}
+					item={item}
+					serviceName={serviceName}
+				/>
+			))}
+		</List>
+	);
+};
 
 export { HistoryList };
