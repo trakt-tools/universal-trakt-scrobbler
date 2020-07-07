@@ -17,7 +17,7 @@
 		"prettier": "prettier '**/*.{js,jsx,ts,tsx}'",
 		"format-check": "npm run prettier -- --check",
 		"format": "npm run prettier -- --write",
-		"prettier-other": "prettier '**/*.{html,json,md}'",
+		"prettier-other": "prettier '**/*.{json,css,html,md,yml,yaml}'",
 		"format-check-other": "npm run prettier-other -- --check",
 		"format-other": "npm run prettier-other -- --write",
 		"eslint": "eslint '**/*.{js,jsx,ts,tsx}'",
@@ -28,8 +28,8 @@
 		"lint-all-typed": "npm run lint-all -- -c ./.eslintrc.typed.js --no-eslintrc",
 		"lint-typed": "npm run lint -- -c ./.eslintrc.typed.js --no-eslintrc",
 		"tsc": "tsc --noEmit",
-		"check": "run-s format-check-json tsc lint-check-typed",
-		"fix": "run-s format-json tsc lint-typed"
+		"check": "run-s format-check-other tsc lint-check-typed",
+		"fix": "run-s format-other tsc lint-typed"
 	},
 	"dependencies": {
 		"@material-ui/core": "^4.9.1",
@@ -97,7 +97,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.{html,json,md}": "prettier --write",
+		"*.{json,css,html,md,yml,yaml}": "prettier --write",
 		"*.{js,jsx,ts,tsx}": [
 			"tsc --noEmit",
 			"eslint --fix --quiet -c ./.eslintrc.typed.js --no-eslintrc"
