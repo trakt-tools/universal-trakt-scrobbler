@@ -3,6 +3,20 @@ import { BrowserStorage } from '../services/BrowserStorage';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
+export type TraktManualAuth = {
+	callback?: PromiseResolve<TraktAuthDetails>;
+	tabId?: number;
+};
+
+export type TraktAuthDetails = {
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	refresh_token: string;
+	scope: string;
+	created_at: number;
+};
+
 class _TraktAuth extends TraktApi {
 	isIdentityAvailable: boolean;
 	manualAuth: TraktManualAuth;
@@ -29,7 +43,7 @@ class _TraktAuth extends TraktApi {
 		this.validateToken = this.validateToken.bind(this);
 	}
 
-	getHeaders(): GenericObject {
+	getHeaders(): Record<string, unknown> {
 		return {
 			'trakt-api-key': secrets.clientId,
 			'trakt-api-version': this.API_VERSION,
@@ -115,7 +129,7 @@ class _TraktAuth extends TraktApi {
 		});
 	}
 
-	async requestToken(data: GenericObject): Promise<TraktAuthDetails> {
+	async requestToken(data: Record<string, unknown>): Promise<TraktAuthDetails> {
 		let auth: TraktAuthDetails;
 		try {
 			const responseText = await Requests.send({
@@ -158,6 +172,4 @@ class _TraktAuth extends TraktApi {
 	}
 }
 
-const TraktAuth = new _TraktAuth();
-
-export { TraktAuth };
+export const TraktAuth = new _TraktAuth();

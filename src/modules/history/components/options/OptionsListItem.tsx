@@ -1,6 +1,7 @@
 import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
 import * as React from 'react';
 import { Events, EventDispatcher } from '../../../../services/Events';
+import { Option } from '../../../../services/BrowserStorage';
 
 interface OptionsListItemProps {
 	option: Option;

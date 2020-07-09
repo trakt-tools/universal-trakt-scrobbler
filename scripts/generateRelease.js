@@ -1,5 +1,5 @@
 const fs = require('fs');
-const Octokit = require('@octokit/rest');
+const { Octokit } = require('@octokit/rest');
 const path = require('path');
 
 const { getArguments } = require(path.resolve(__dirname, './common'));

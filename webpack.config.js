@@ -2,7 +2,19 @@
  * @typedef {Object} Environment
  * @property {boolean} development
  * @property {boolean} production
+ * @property {boolean} test
  * @property {boolean} watch
+ */
+
+/**
+ * @typedef {Object} Config
+ * @property {string} clientId
+ * @property {string} clientSecret
+ * @property {string} rollbarToken
+ * @property {string} tmdbApiKey
+ * @property {string} [chromeExtensionId]
+ * @property {string} [chromeExtensionKey]
+ * @property {string} [firefoxExtensionId]
  */
 
 const fs = require('fs-extra');
@@ -23,14 +35,29 @@ const loaders = {
 		},
 	},
 };
+
+class RunAfterBuildPlugin extends webpack.Plugin {
+	/**
+	 * @param {() => void} callback
+	 */
+	constructor(callback) {
+		super();
+		this.callback = callback;
+	}
+
+	/**
+	 *
+	 * @param {import('webpack').Compiler} compiler
+	 */
+	apply(compiler) {
+		compiler.hooks.afterEmit.tap('RunAfterBuild', this.callback);
+	}
+}
+
 const plugins = {
 	clean: require('clean-webpack-plugin').CleanWebpackPlugin,
 	progressBar: require('progress-bar-webpack-plugin'),
-	runAfterBuild: function (callback) {
-		this.apply = (compiler) => {
-			compiler.hooks.afterEmit.tap('RunAfterBuild', callback);
-		};
-	},
+	runAfterBuild: RunAfterBuildPlugin,
 };
 
 /**
@@ -45,6 +72,7 @@ function getWebpackConfig(env) {
 	} else {
 		mode = 'none';
 	}
+	/** @type {Config} */
 	const configJson = require(path.resolve(BASE_PATH, 'config.json'))[mode];
 	return {
 		devtool: env.production ? false : 'source-map',
@@ -126,11 +154,12 @@ function getWebpackConfig(env) {
 }
 
 /**
- * @param {Object} configJson
+ * @param {Config} configJson
  * @param {string} browserName
  * @returns {string}
  */
 function getManifest(configJson, browserName) {
+	/** @type {browser.runtime.Manifest} */
 	const manifest = {
 		manifest_version: 2,
 		name: '__MSG_appName__',
@@ -140,6 +169,7 @@ function getManifest(configJson, browserName) {
 			16: 'images/uts-icon-16.png',
 			128: 'images/uts-icon-128.png',
 		},
+		// @ts-expect-error
 		background: {
 			scripts: ['js/lib/browser-polyfill.js', 'js/background.js'],
 			persistent: true,
@@ -153,8 +183,11 @@ function getManifest(configJson, browserName) {
 		],
 		default_locale: 'en',
 		optional_permissions: [
+			// @ts-expect-error
 			'*://api.rollbar.com/*',
+			// @ts-expect-error
 			'*://script.google.com/*',
+			// @ts-expect-error
 			'*://script.googleusercontent.com/*',
 		],
 		browser_action: {
@@ -168,9 +201,13 @@ function getManifest(configJson, browserName) {
 			'storage',
 			'tabs',
 			'unlimitedStorage',
+			// @ts-expect-error
 			'*://*.trakt.tv/*',
+			// @ts-expect-error
 			'*://*.netflix.com/*',
+			// @ts-expect-error
 			'*://tv.nrk.no/*',
+			// @ts-expect-error
 			'*://*.viaplay.no/*',
 		],
 		web_accessible_resources: [
@@ -201,7 +238,7 @@ function getManifest(configJson, browserName) {
 }
 
 /**
- * @param {Object} configJson
+ * @param {Config} configJson
  */
 async function runFinalSteps(configJson) {
 	if (!fs.existsSync('./build/chrome/js/lib')) {

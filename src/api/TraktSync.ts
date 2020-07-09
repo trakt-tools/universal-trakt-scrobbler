@@ -4,6 +4,28 @@ import { Events, EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 import { Item } from '../models/Item';
+import { ISyncItem } from '../models/SyncItem';
+
+export interface TraktHistoryItem {
+	watched_at: string;
+}
+
+export interface TraktSyncResponse {
+	added: {
+		episodes: number;
+		movies: number;
+	};
+	not_found: {
+		episodes: TraktSyncNotFound[];
+		movies: TraktSyncNotFound[];
+	};
+}
+
+export interface TraktSyncNotFound {
+	ids: {
+		trakt: number;
+	};
+}
 
 class _TraktSync extends TraktApi {
 	constructor() {
@@ -85,6 +107,4 @@ class _TraktSync extends TraktApi {
 	}
 }
 
-const TraktSync = new _TraktSync();
-
-export { TraktSync };
+export const TraktSync = new _TraktSync();

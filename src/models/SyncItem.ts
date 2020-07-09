@@ -1,4 +1,15 @@
-class SyncItem implements ISyncItem {
+export interface ISyncItem {
+	id: number;
+	type: 'show' | 'movie';
+	title: string;
+	year: number;
+	season?: number;
+	episode?: number;
+	episodeTitle?: string;
+	watchedAt?: import('moment').Moment;
+}
+
+export class SyncItem implements ISyncItem {
 	id: number;
 	type: 'show' | 'movie';
 	title: string;
@@ -21,5 +32,3 @@ class SyncItem implements ISyncItem {
 		this.watchedAt = options.watchedAt;
 	}
 }
-
-export { SyncItem };

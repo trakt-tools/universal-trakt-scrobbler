@@ -1,3 +1,5 @@
+import { ISyncItem } from './SyncItem';
+
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {
 	['Dynasty']: 'Dynasty reboot',
@@ -10,6 +12,24 @@ const correctTitles: Record<string, string> = {
 	['The Office (U.S.)']: 'The Office (US)',
 	['The Seven Deadly Sins']: '"The Seven Deadly Sins"',
 	['Young and Hungry']: '"Young and Hungry"',
+};
+
+export interface IItem {
+	id: number;
+	type: 'show' | 'movie';
+	title: string;
+	year: number;
+	season?: number;
+	episode?: number;
+	episodeTitle?: string;
+	isCollection?: boolean;
+	watchedAt: import('moment').Moment;
+	percentageWatched?: number;
+	trakt?: ISyncItem | TraktNotFound;
+}
+
+export type TraktNotFound = {
+	notFound: true;
 };
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.

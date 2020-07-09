@@ -2,6 +2,7 @@ import { Button, ButtonGroup, FormGroup, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { HistoryOptionsListItem } from './HistoryOptionsListItem';
 import { Store } from '../../streaming-services/common/Store';
+import { SyncOption } from '../../../../services/BrowserStorage';
 
 interface HistoryOptionsListProps {
 	options: SyncOption[];

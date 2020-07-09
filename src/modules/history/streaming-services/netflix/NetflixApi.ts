@@ -8,6 +8,63 @@ import { Requests } from '../../../../services/Requests';
 import { NetflixStore } from './NetflixStore';
 import { Api } from '../common/api';
 
+export interface NetflixHistoryResponse {
+	viewedItems: NetflixHistoryItem[];
+}
+
+export type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
+
+export interface NetflixHistoryShowItem {
+	date: number;
+	duration: number;
+	episodeTitle: string;
+	movieID: number;
+	seasonDescriptor: string;
+	series: number;
+	seriesTitle: string;
+	title: string;
+}
+
+export interface NetflixHistoryMovieItem {
+	date: number;
+	duration: number;
+	movieID: number;
+	title: string;
+}
+
+export interface NetflixMetadataResponse {
+	value: {
+		videos: { [key: number]: NetflixMetadataItem };
+	};
+}
+
+export type NetflixMetadataItem = NetflixMetadataShowItem | NetflixMetadataMovieItem;
+
+export interface NetflixMetadataShowItem {
+	releaseYear: number;
+	summary: {
+		episode: number;
+		id: number;
+		season: number;
+	};
+}
+
+export interface NetflixMetadataMovieItem {
+	releaseYear: number;
+	summary: {
+		id: number;
+	};
+}
+
+export type NetflixHistoryItemWithMetadata =
+	| NetflixHistoryShowItemWithMetadata
+	| NetflixHistoryMovieItemWithMetadata;
+
+export type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & NetflixMetadataShowItem;
+
+export type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem &
+	NetflixMetadataMovieItem;
+
 interface ApiParams {
 	authUrl: string;
 	buildIdentifier: string;
@@ -202,6 +259,4 @@ class _NetflixApi implements Api {
 	};
 }
 
-const NetflixApi = new _NetflixApi();
-
-export { NetflixApi };
+export const NetflixApi = new _NetflixApi();

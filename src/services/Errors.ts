@@ -3,6 +3,15 @@ import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
 import { Events, EventDispatcher } from './Events';
 import * as React from 'react';
+import { RequestException } from './Requests';
+
+export type ErrorEventData = {
+	error: ErrorDetails | RequestException;
+};
+
+export type ErrorDetails = {
+	message?: string;
+};
 
 class _Errors {
 	rollbar?: Rollbar;
@@ -65,6 +74,4 @@ class _Errors {
 	}
 }
 
-const Errors = new _Errors();
-
-export { Errors };
+export const Errors = new _Errors();

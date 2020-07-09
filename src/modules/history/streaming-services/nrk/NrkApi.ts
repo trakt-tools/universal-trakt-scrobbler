@@ -8,6 +8,32 @@ import { Requests } from '../../../../services/Requests';
 import { NrkStore } from './NrkStore';
 import { Api } from '../common/api';
 
+export interface NrkHistoryItem {
+	lastSeen: NrkLastSeen;
+	program: NrkProgramInfo;
+}
+
+export interface NrkLastSeen {
+	at: string;
+	percentageWatched: string;
+	percentageAssumedFinished: string;
+}
+
+export interface NrkProgramInfo {
+	id: string;
+	title: string;
+	mainTitle: string;
+	viewCount: number;
+	description: string;
+	programType: 'Program' | 'Episode';
+	seriesId: string;
+	episodeNumber: string;
+	totalEpisodesInSeason: string;
+	episodeNumberOrDate: string;
+	seasonNumber: string;
+	productionYear: number;
+}
+
 class _NrkApi implements Api {
 	HOST_URL: string;
 	HISTORY_API_URL: string;
@@ -143,6 +169,4 @@ class _NrkApi implements Api {
 	}
 }
 
-const NrkApi = new _NrkApi();
-
-export { NrkApi };
+export const NrkApi = new _NrkApi();

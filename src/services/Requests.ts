@@ -3,6 +3,20 @@ import { BrowserStorage } from './BrowserStorage';
 import { Messaging } from './Messaging';
 import { Shared } from './Shared';
 
+export type RequestException = {
+	request: RequestDetails;
+	status: number;
+	text: string;
+};
+
+export type RequestDetails = {
+	url: string;
+	method: string;
+	body?: string | Record<string, unknown>;
+};
+
+export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+
 class _Requests {
 	constructor() {
 		this.send = this.send.bind(this);
@@ -53,12 +67,12 @@ class _Requests {
 			// Firefox wraps page objects, so if we want to send the request from a container, we have to unwrap them.
 			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch as Fetch);
 			window.wrappedJSObject.fetchOptions = cloneInto(options, window);
-			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions as GenericObject);
+			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions as Record<string, unknown>);
 		}
 		return fetch(request.url, options);
 	}
 
-	async getOptions(request: RequestDetails): Promise<GenericObject> {
+	async getOptions(request: RequestDetails): Promise<Record<string, unknown>> {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request),
@@ -66,8 +80,8 @@ class _Requests {
 		};
 	}
 
-	async getHeaders(request: RequestDetails): Promise<GenericObject> {
-		const headers: GenericObject = {
+	async getHeaders(request: RequestDetails): Promise<Record<string, unknown>> {
+		const headers: Record<string, unknown> = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
 		};
@@ -82,6 +96,4 @@ class _Requests {
 	}
 }
 
-const Requests = new _Requests();
-
-export { Requests };
+export const Requests = new _Requests();

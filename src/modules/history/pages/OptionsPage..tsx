@@ -2,9 +2,9 @@ import { CircularProgress } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { BrowserStorage } from '../../../services/BrowserStorage';
+import { BrowserStorage, StorageValuesOptions, Options } from '../../../services/BrowserStorage';
 import { Errors } from '../../../services/Errors';
-import { Events, EventDispatcher } from '../../../services/Events';
+import { Events, EventDispatcher, OptionEventData } from '../../../services/Events';
 import { OptionsActions } from '../components/options/OptionsActions';
 import { OptionsList } from '../components/options/OptionsList';
 

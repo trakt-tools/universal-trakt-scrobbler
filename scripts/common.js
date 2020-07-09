@@ -1,4 +1,8 @@
+/**
+ * @param {import('process')} process
+ */
 function getArguments(process) {
+	/** @type {Record<string, unknown>} */
 	const args = {};
 	const argv = process.argv.slice(2);
 	for (const arg of argv) {

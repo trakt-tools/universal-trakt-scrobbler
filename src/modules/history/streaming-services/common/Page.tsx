@@ -1,8 +1,13 @@
 import { Box, CircularProgress } from '@material-ui/core';
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
-import { BrowserStorage } from '../../../../services/BrowserStorage';
+import {
+	BrowserStorage,
+	StorageValuesSyncOptions,
+	SyncOptions,
+} from '../../../../services/BrowserStorage';
 import {
 	Events,
 	EventDispatcher,
@@ -19,6 +24,7 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { Api } from './api';
 import { TraktSettings } from '../../../../api/TraktSettings';
+import { ISyncItem } from '../../../../models/SyncItem';
 
 interface PageProps {
 	serviceName: string;
@@ -245,4 +251,10 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 			<HistoryActions onNextPageClick={onNextPageClick} onSyncClick={onSyncClick} />
 		</>
 	);
+};
+
+Page.propTypes = {
+	serviceName: PropTypes.string.isRequired,
+	store: PropTypes.instanceOf(Store).isRequired,
+	api: PropTypes.any.isRequired,
 };

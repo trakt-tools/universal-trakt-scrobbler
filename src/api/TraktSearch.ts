@@ -4,6 +4,47 @@ import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 import { Item } from '../models/Item';
 
+export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
+
+export type TraktSearchEpisodeItem = TraktEpisodeItem & TraktSearchShowItem;
+
+export interface TraktEpisodeItem {
+	episode: TraktEpisodeItemEpisode;
+}
+
+export interface TraktEpisodeItemEpisode {
+	season: number;
+	number: number;
+	title: string;
+	ids: {
+		trakt: number;
+	};
+}
+
+export interface TraktSearchShowItem {
+	show: TraktSearchShowItemShow;
+}
+
+export interface TraktSearchShowItemShow {
+	title: string;
+	year: number;
+	ids: {
+		trakt: number;
+	};
+}
+
+export interface TraktSearchMovieItem {
+	movie: TraktSearchMovieItemMovie;
+}
+
+export interface TraktSearchMovieItemMovie {
+	title: string;
+	year: number;
+	ids: {
+		trakt: number;
+	};
+}
+
 class _TraktSearch extends TraktApi {
 	constructor() {
 		super();
@@ -142,6 +183,4 @@ class _TraktSearch extends TraktApi {
 	}
 }
 
-const TraktSearch = new _TraktSearch();
-
-export { TraktSearch };
+export const TraktSearch = new _TraktSearch();

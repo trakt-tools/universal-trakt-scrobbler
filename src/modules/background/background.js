@@ -14,11 +14,13 @@ async function init() {
 		Errors.startRollbar();
 	}
 	browser.browserAction.onClicked.addListener(onBrowserActionClicked);
-	browser.runtime.onMessage.addListener(onMessage);
+	browser.runtime.onMessage.addListener(
+		/** @type {browser.runtime.onMessageEvent} */ (/** @type {unknown} */ (onMessage))
+	);
 }
 
 /**
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 async function onBrowserActionClicked() {
 	const tabs = await browser.tabs.query({
@@ -36,25 +38,26 @@ async function onBrowserActionClicked() {
 
 /**
  * @param {string} request
- * @returns {Promise}
+ * @returns {Promise<string>}
  */
 function onMessage(request) {
-	let executingAction = null;
-	request = JSON.parse(request);
-	switch (request.action) {
+	/** @type {Promise<unknown>} */
+	let executingAction;
+	const parsedRequest = JSON.parse(request);
+	switch (parsedRequest.action) {
 		case 'check-login': {
 			executingAction = TraktAuth.validateToken();
 			break;
 		}
 		case 'create-tab': {
 			executingAction = browser.tabs.create({
-				url: request.url,
+				url: parsedRequest.url,
 				active: true,
 			});
 			break;
 		}
 		case 'finish-login': {
-			executingAction = TraktAuth.finishManualAuth(request.redirectUrl);
+			executingAction = TraktAuth.finishManualAuth(parsedRequest.redirectUrl);
 			break;
 		}
 		case 'login': {
@@ -66,7 +69,7 @@ function onMessage(request) {
 			break;
 		}
 		case 'send-request': {
-			executingAction = Requests.send(request.request);
+			executingAction = Requests.send(parsedRequest.request);
 			break;
 		}
 	}

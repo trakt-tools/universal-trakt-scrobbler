@@ -1,6 +1,9 @@
 const gulp = require('gulp');
 const zip = require('gulp-zip');
 
+/**
+ * @param {string} browserName
+ */
 function zipExtension(browserName) {
 	return gulp
 		.src([`build/${browserName}/**`])

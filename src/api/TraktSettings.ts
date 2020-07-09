@@ -1,6 +1,16 @@
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
+export interface TraktSettingsResponse {
+	account: TraktAccount;
+}
+
+export interface TraktAccount {
+	timezone: string;
+	date_format: 'mdy' | 'dmy' | 'ymd' | 'ydm';
+	time_24hr: boolean;
+}
+
 class _TraktSettings extends TraktApi {
 	constructor() {
 		super();
@@ -40,6 +50,4 @@ class _TraktSettings extends TraktApi {
 	}
 }
 
-const TraktSettings = new _TraktSettings();
-
-export { TraktSettings };
+export const TraktSettings = new _TraktSettings();

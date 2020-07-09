@@ -1,7 +1,8 @@
 import { Errors } from './Errors';
 import { StoreData } from '../modules/history/streaming-services/common/Store';
+import { StorageValuesSyncOptions } from './BrowserStorage';
 
-enum Events {
+export enum Events {
 	LOGIN_SUCCESS,
 	LOGIN_ERROR,
 	LOGOUT_SUCCESS,
@@ -48,6 +49,11 @@ export interface HistorySyncSuccessData {
 	};
 }
 
+export interface OptionEventData {
+	id: string;
+	checked: boolean;
+}
+
 class _EventDispatcher {
 	listeners: EventDispatcherListeners;
 
@@ -72,7 +78,7 @@ class _EventDispatcher {
 		}
 	}
 
-	async dispatch(eventType: Events, data: GenericObject): Promise<void> {
+	async dispatch(eventType: Events, data: Record<string, unknown>): Promise<void> {
 		if (this.listeners[eventType]) {
 			for (const listener of this.listeners[eventType]) {
 				try {
@@ -85,6 +91,4 @@ class _EventDispatcher {
 	}
 }
 
-const EventDispatcher = new _EventDispatcher();
-
-export { Events, EventDispatcher };
+export const EventDispatcher = new _EventDispatcher();

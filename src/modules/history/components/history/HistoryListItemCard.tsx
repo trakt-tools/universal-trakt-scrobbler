@@ -2,7 +2,7 @@ import { Card, CardContent, CircularProgress, Divider, Typography } from '@mater
 import * as React from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
 import { HistoryInfo } from '../HistoryInfo';
-import { Item } from '../../../../models/Item';
+import { Item, IItem } from '../../../../models/Item';
 
 interface HistoryListItemCardProps {
 	dateFormat: string;

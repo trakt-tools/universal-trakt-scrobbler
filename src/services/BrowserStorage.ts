@@ -1,3 +1,48 @@
+import { TraktAuthDetails } from '../api/TraktAuth';
+
+export type StorageValues = {
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptions;
+	syncOptions?: StorageValuesSyncOptions;
+	traktCache?: {
+		[key: string]: string;
+	};
+};
+
+export type StorageValuesOptions = {
+	allowRollbar: boolean;
+	sendReceiveSuggestions: boolean;
+};
+
+export type StorageValuesSyncOptions = {
+	addWithReleaseDate: boolean;
+	hideSynced: boolean;
+	itemsPerLoad: number;
+};
+
+export type Options = {
+	[key: string]: Option;
+};
+
+export type Option = {
+	id: keyof StorageValuesOptions;
+	name: string;
+	description: string;
+	value: boolean;
+	origins: string[];
+	permissions: browser.permissions.Permission[];
+};
+
+export type SyncOptions = {
+	[K in keyof StorageValuesSyncOptions]: {
+		id: K;
+		value: StorageValuesSyncOptions[K];
+		name: string;
+	};
+};
+
+export type SyncOption = SyncOptions[keyof SyncOptions];
+
 class _BrowserStorage {
 	isSyncAvailable: boolean;
 
@@ -121,6 +166,4 @@ class _BrowserStorage {
 	}
 }
 
-const BrowserStorage = new _BrowserStorage();
-
-export { BrowserStorage };
+export const BrowserStorage = new _BrowserStorage();

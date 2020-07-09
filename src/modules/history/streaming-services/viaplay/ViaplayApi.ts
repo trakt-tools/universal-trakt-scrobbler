@@ -8,6 +8,78 @@ import { Requests } from '../../../../services/Requests';
 import { ViaplayStore } from './ViaplayStore';
 import { Api } from '../common/api';
 
+export interface ViaplayWatchedTopResponse {
+	_embedded: {
+		'viaplay:blocks': [ViaplayHistoryPage];
+	};
+}
+
+export interface ViaplayHistoryPage {
+	currentPage: number;
+	pageCount: number;
+	productsPerPage: number;
+	totalProductCount: number;
+	_embedded: {
+		'viaplay:products': ViaplayProduct[];
+	};
+	_links: {
+		next: {
+			href: string;
+		};
+	};
+}
+
+export type ViaplayProduct = ViaplayEpisode | ViaplayMovie;
+
+export interface ViaplayProductBase {
+	type: string;
+	publicPath: string;
+	system: {
+		guid: string;
+	};
+	user: ViaplayProductUserInfo;
+}
+
+export interface ViaplayEpisode extends ViaplayProductBase {
+	type: 'episode';
+	content: {
+		originalTitle?: string; //Show title
+		title: string; //Usually Episode title, sometimes Show title :-(
+		production: {
+			year: number;
+		};
+		series: {
+			episodeNumber: number;
+			episodeTitle: string; //Sometimes prefixed with episodeNumber
+			title: string; //Show title
+			season: {
+				seasonNumber: 1;
+			};
+		};
+	};
+}
+
+export interface ViaplayMovie extends ViaplayProductBase {
+	type: 'movie';
+	content: {
+		title: string;
+		imdb: {
+			id: string;
+		};
+		production: {
+			year: number;
+		};
+	};
+}
+
+export interface ViaplayProductUserInfo {
+	progress: {
+		elapsedPercent?: number;
+		watched?: boolean;
+		updated?: number;
+	};
+}
+
 class _ViaplayApi implements Api {
 	HOST_URL: string;
 	HISTORY_API_URL: string;
@@ -146,6 +218,4 @@ class _ViaplayApi implements Api {
 	};
 }
 
-const ViaplayApi = new _ViaplayApi();
-
-export { ViaplayApi };
+export const ViaplayApi = new _ViaplayApi();
