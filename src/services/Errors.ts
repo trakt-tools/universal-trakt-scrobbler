@@ -1,8 +1,8 @@
+import * as React from 'react';
 import * as Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
-import { Events, EventDispatcher } from './Events';
-import * as React from 'react';
+import { EventDispatcher, Events } from './Events';
 import { RequestException } from './Requests';
 
 export type ErrorEventData = {

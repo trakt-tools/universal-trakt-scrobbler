@@ -5,8 +5,8 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { ViaplayStore } from './ViaplayStore';
 import { Api } from '../common/api';
+import { ViaplayStore } from './ViaplayStore';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {

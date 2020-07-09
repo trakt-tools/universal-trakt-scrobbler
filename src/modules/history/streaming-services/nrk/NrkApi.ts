@@ -5,8 +5,8 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { NrkStore } from './NrkStore';
 import { Api } from '../common/api';
+import { NrkStore } from './NrkStore';
 
 export interface NrkHistoryItem {
 	lastSeen: NrkLastSeen;

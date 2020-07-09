@@ -1,7 +1,7 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import * as React from 'react';
-import { EventDispatcher, Events } from '../../../../services/Events';
 import { SyncOption } from '../../../../services/BrowserStorage';
+import { EventDispatcher, Events } from '../../../../services/Events';
 
 interface HistoryOptionsListItemProps {
 	option: SyncOption;

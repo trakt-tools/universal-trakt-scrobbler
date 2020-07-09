@@ -1,10 +1,10 @@
 import * as moment from 'moment';
-import { Errors } from '../services/Errors';
-import { Events, EventDispatcher } from '../services/Events';
-import { Requests } from '../services/Requests';
-import { TraktApi } from './TraktApi';
 import { Item } from '../models/Item';
 import { ISyncItem } from '../models/SyncItem';
+import { Errors } from '../services/Errors';
+import { EventDispatcher, Events } from '../services/Events';
+import { Requests } from '../services/Requests';
+import { TraktApi } from './TraktApi';
 
 export interface TraktHistoryItem {
 	watched_at: string;

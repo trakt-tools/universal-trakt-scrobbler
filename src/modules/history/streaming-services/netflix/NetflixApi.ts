@@ -3,10 +3,10 @@ import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
-import { Events, EventDispatcher } from '../../../../services/Events';
+import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { NetflixStore } from './NetflixStore';
 import { Api } from '../common/api';
+import { NetflixStore } from './NetflixStore';
 
 export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];

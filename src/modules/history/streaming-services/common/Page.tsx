@@ -1,30 +1,30 @@
 import { Box, CircularProgress } from '@material-ui/core';
-import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { TraktSettings } from '../../../../api/TraktSettings';
+import { TraktSync } from '../../../../api/TraktSync';
 import { UtsCenter } from '../../../../components/UtsCenter';
+import { Item } from '../../../../models/Item';
+import { ISyncItem } from '../../../../models/SyncItem';
 import {
 	BrowserStorage,
 	StorageValuesSyncOptions,
 	SyncOptions,
 } from '../../../../services/BrowserStorage';
+import { Errors } from '../../../../services/Errors';
 import {
-	Events,
 	EventDispatcher,
-	StreamingServiceStoreUpdateData,
+	Events,
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
+	StreamingServiceStoreUpdateData,
 } from '../../../../services/Events';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
-import { TraktSync } from '../../../../api/TraktSync';
-import { Store } from './Store';
-import { Item } from '../../../../models/Item';
-import { Errors } from '../../../../services/Errors';
 import { Api } from './api';
-import { TraktSettings } from '../../../../api/TraktSettings';
-import { ISyncItem } from '../../../../models/SyncItem';
+import { Store } from './Store';
 
 interface PageProps {
 	serviceName: string;

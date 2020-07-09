@@ -1,5 +1,5 @@
 import { Errors } from './Errors';
-import { Events, EventDispatcher } from './Events';
+import { EventDispatcher, Events } from './Events';
 import { Messaging } from './Messaging';
 
 class _Session {

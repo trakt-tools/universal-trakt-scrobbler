@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { Events, EventDispatcher } from '../../../services/Events';
+import { EventDispatcher, Events } from '../../../services/Events';
 import { Session } from '../../../services/Session';
 
 const LoginPage: React.FC = () => {

@@ -1,8 +1,8 @@
+import { Item } from '../models/Item';
 import { SyncItem } from '../models/SyncItem';
-import { Events, EventDispatcher } from '../services/Events';
+import { EventDispatcher, Events } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
-import { Item } from '../models/Item';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
 

@@ -1,8 +1,8 @@
 import { Card, CardContent, CircularProgress, Divider, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
+import { IItem, Item } from '../../../../models/Item';
 import { HistoryInfo } from '../HistoryInfo';
-import { Item, IItem } from '../../../../models/Item';
 
 interface HistoryListItemCardProps {
 	dateFormat: string;

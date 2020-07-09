@@ -1,8 +1,8 @@
 import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { History } from 'history';
 import * as React from 'react';
 import { UtsLeftRight } from '../../../components/UtsLeftRight';
 import { Session } from '../../../services/Session';
-import { History } from 'history';
 
 interface HistoryHeaderProps {
 	history: History;

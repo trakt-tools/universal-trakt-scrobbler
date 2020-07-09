@@ -6,7 +6,7 @@ import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { Events, EventDispatcher } from '../../services/Events';
+import { EventDispatcher, Events } from '../../services/Events';
 import { Session } from '../../services/Session';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';

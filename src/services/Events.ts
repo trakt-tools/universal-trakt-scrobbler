@@ -1,6 +1,6 @@
-import { Errors } from './Errors';
 import { StoreData } from '../modules/history/streaming-services/common/Store';
 import { StorageValuesSyncOptions } from './BrowserStorage';
+import { Errors } from './Errors';
 
 export enum Events {
 	LOGIN_SUCCESS,

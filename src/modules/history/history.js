@@ -3,8 +3,8 @@ import * as ReactDOM from 'react-dom';
 import '../../assets/assets';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { HistoryApp } from './HistoryApp';
 import { Shared } from '../../services/Shared';
+import { HistoryApp } from './HistoryApp';
 
 init();
 

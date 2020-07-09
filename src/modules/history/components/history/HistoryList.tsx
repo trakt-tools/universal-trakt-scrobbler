@@ -1,7 +1,7 @@
 import { List } from '@material-ui/core';
 import * as React from 'react';
-import { HistoryListItem } from './HistoryListItem';
 import { Item } from '../../../../models/Item';
+import { HistoryListItem } from './HistoryListItem';
 
 interface HistoryListProps {
 	dateFormat: string;

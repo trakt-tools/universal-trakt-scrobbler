@@ -1,9 +1,9 @@
 import { Box, Button, Checkbox } from '@material-ui/core';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
-import { Events, EventDispatcher } from '../../../../services/Events';
-import { HistoryListItemCard } from './HistoryListItemCard';
 import { Item } from '../../../../models/Item';
+import { EventDispatcher, Events } from '../../../../services/Events';
+import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
 	dateFormat: string;
