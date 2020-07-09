@@ -8,8 +8,6 @@
 		"outDir": "./build",
 		"sourceMap": true,
 		"target": "ES2020",
-		"noImplicitAny": true,
-		"noImplicitThis": true,
 		"strict": true,
 		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
 		"skipLibCheck": true

@@ -101,7 +101,7 @@
 	"lint-staged": {
 		"*.{json,css,html,md,yml,yaml}": "prettier --write",
 		"*.{js,jsx,ts,tsx}": [
-			"tsc --noEmit",
+			"tsc --allowJs --checkJs --jsx 'react' --module 'CommonJS' --target 'ES2020' --strict --typeRoots ./node_modules/@types,./node_modules/web-ext-types --skipLibCheck --noEmit ./src/global.d.ts",
 			"eslint --fix --quiet -c ./.eslintrc.typed.js --no-eslintrc"
 		]
 	}
