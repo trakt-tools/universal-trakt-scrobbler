@@ -2,6 +2,7 @@
 	"exclude": ["./node_modules", "./build"],
 	"compilerOptions": {
 		"allowJs": true,
+		"checkJs": true,
 		"jsx": "react",
 		"module": "CommonJS",
 		"outDir": "./build",
@@ -10,6 +11,7 @@
 		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"strict": true,
-		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"]
+		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
+		"skipLibCheck": true
 	}
 }

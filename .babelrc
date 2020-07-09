@@ -8,5 +8,5 @@
 		"@babel/proposal-class-properties",
 		["@babel/plugin-transform-runtime", { "regenerator": true }]
 	],
-	"presets": ["@babel/typescript", "@babel/preset-env", "@babel/preset-flow", "@babel/preset-react"]
+	"presets": ["@babel/typescript", "@babel/preset-env", "@babel/preset-react"]
 }
