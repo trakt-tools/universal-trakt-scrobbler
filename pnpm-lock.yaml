@@ -40,6 +40,7 @@ devDependencies:
   css-loader: 3.6.0_webpack@4.43.0
   eslint: 7.4.0
   eslint-config-prettier: 6.11.0_eslint@7.4.0
+  eslint-plugin-local-rules: 0.1.1
   eslint-plugin-prettier: 3.1.4_eslint@7.4.0+prettier@2.0.5
   eslint-plugin-react: 7.20.3_eslint@7.4.0
   file-loader: 5.1.0_webpack@4.43.0
@@ -3602,6 +3603,10 @@ packages:
       eslint: '>=3.14.1'
     resolution:
       integrity: sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
+  /eslint-plugin-local-rules/0.1.1:
+    dev: true
+    resolution:
+      integrity: sha512-+Wlic7MSxhVeGJT7a8vf7thVnzlRiessyHNaaOFT7PFlQS6Ff1oMO9vD803CSI5y6Nhu/+f+bVWGUDf8SRDxvg==
   /eslint-plugin-prettier/3.1.4_eslint@7.4.0+prettier@2.0.5:
     dependencies:
       eslint: 7.4.0
@@ -8436,6 +8441,7 @@ specifiers:
   css-loader: ^3.4.2
   eslint: ^7.4.0
   eslint-config-prettier: ^6.11.0
+  eslint-plugin-local-rules: ^0.1.1
   eslint-plugin-prettier: ^3.1.4
   eslint-plugin-react: ^7.20.3
   file-loader: ^5.0.2
