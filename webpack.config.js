@@ -36,12 +36,11 @@ const loaders = {
 	},
 };
 
-class RunAfterBuildPlugin extends webpack.Plugin {
+class RunAfterBuildPlugin {
 	/**
 	 * @param {() => void} callback
 	 */
 	constructor(callback) {
-		super();
 		this.callback = callback;
 	}
 
