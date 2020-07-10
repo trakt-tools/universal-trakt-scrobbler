@@ -5,6 +5,16 @@ module.exports = {
 		node: true,
 		webextensions: true,
 	},
+	plugins: ['local-rules'],
+	rules: {
+		'local-rules/prefer-arrow-functions': [
+			'error',
+			{
+				disallowPrototype: true,
+				classPropertiesAllowed: true,
+			},
+		],
+	},
 	overrides: [
 		{
 			files: ['**/*.{js,jsx}'],
