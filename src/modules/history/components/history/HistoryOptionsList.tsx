@@ -9,7 +9,9 @@ interface HistoryOptionsListProps {
 	store: Store;
 }
 
-const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (props: HistoryOptionsListProps) => {
+export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (
+	props: HistoryOptionsListProps
+) => {
 	const { options, store } = props;
 	return (
 		<FormGroup className="history-options-list-container">
@@ -25,5 +27,3 @@ const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (props: HistoryOpt
 		</FormGroup>
 	);
 };
-
-export { HistoryOptionsList };

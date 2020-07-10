@@ -7,7 +7,7 @@ interface OptionsListProps {
 	options: Option[];
 }
 
-const OptionsList: React.FC<OptionsListProps> = (props: OptionsListProps) => {
+export const OptionsList: React.FC<OptionsListProps> = (props: OptionsListProps) => {
 	const { options } = props;
 	return (
 		<List>
@@ -17,5 +17,3 @@ const OptionsList: React.FC<OptionsListProps> = (props: OptionsListProps) => {
 		</List>
 	);
 };
-
-export { OptionsList };

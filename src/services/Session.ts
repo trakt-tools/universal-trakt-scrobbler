@@ -60,6 +60,4 @@ class _Session {
 	};
 }
 
-const Session = new _Session();
-
-export { Session };
+export const Session = new _Session();

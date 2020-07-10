@@ -17,7 +17,7 @@ import { streamingServices } from './streaming-services/streamingServices';
 
 const history = createBrowserHistory();
 
-const HistoryApp: React.FC = () => {
+export const HistoryApp: React.FC = () => {
 	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
 
 	useEffect(() => {
@@ -66,5 +66,3 @@ const HistoryApp: React.FC = () => {
 		</ErrorBoundary>
 	);
 };
-
-export { HistoryApp };

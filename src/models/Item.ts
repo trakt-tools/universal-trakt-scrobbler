@@ -33,7 +33,7 @@ export type TraktNotFound = {
 };
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
-class Item implements IItem {
+export class Item implements IItem {
 	id: number;
 	type: 'show' | 'movie';
 	title: string;
@@ -64,5 +64,3 @@ class Item implements IItem {
 		this.trakt = options.trakt;
 	}
 }
-
-export { Item };

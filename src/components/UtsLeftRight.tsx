@@ -8,7 +8,7 @@ interface UtsLeftRightProps {
 	right?: React.ReactElement;
 }
 
-const UtsLeftRight: React.FC<UtsLeftRightProps> = (props: UtsLeftRightProps) => {
+export const UtsLeftRight: React.FC<UtsLeftRightProps> = (props: UtsLeftRightProps) => {
 	const { centerVertically, className, left, right } = props;
 	return (
 		<Box
@@ -19,5 +19,3 @@ const UtsLeftRight: React.FC<UtsLeftRightProps> = (props: UtsLeftRightProps) => 
 		</Box>
 	);
 };
-
-export { UtsLeftRight };

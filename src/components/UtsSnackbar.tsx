@@ -16,7 +16,7 @@ interface SnackBarState {
 	severity: Color;
 }
 
-const UtsSnackbar: React.FC = () => {
+export const UtsSnackbar: React.FC = () => {
 	const [snackbar, setSnackbar] = useState<SnackBarState>({
 		isOpen: false,
 		message: '',
@@ -59,5 +59,3 @@ const UtsSnackbar: React.FC = () => {
 		</Snackbar>
 	);
 };
-
-export { UtsSnackbar };

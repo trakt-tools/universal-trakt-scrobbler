@@ -6,7 +6,7 @@ import { UtsCenter } from '../../../components/UtsCenter';
 import { EventDispatcher, Events } from '../../../services/Events';
 import { Session } from '../../../services/Session';
 
-const LoginPage: React.FC = () => {
+export const LoginPage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
@@ -55,5 +55,3 @@ const LoginPage: React.FC = () => {
 		</UtsCenter>
 	);
 };
-
-export { LoginPage };

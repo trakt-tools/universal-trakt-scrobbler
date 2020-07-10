@@ -5,6 +5,4 @@ class _Messaging {
 	};
 }
 
-const Messaging = new _Messaging();
-
-export { Messaging };
+export const Messaging = new _Messaging();

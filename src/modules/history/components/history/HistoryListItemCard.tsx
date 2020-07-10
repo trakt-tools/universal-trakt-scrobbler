@@ -10,7 +10,7 @@ interface HistoryListItemCardProps {
 	name: string;
 }
 
-const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
+export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
 	const { dateFormat, item, name } = props;
@@ -71,5 +71,3 @@ const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		</Card>
 	);
 };
-
-export { HistoryListItemCard };

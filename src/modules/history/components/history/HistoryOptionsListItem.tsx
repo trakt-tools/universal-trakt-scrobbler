@@ -7,7 +7,7 @@ interface HistoryOptionsListItemProps {
 	option: SyncOption;
 }
 
-const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
+export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
 	const onSwitchChange = async (): Promise<void> => {
 		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
 			id: option.id,
@@ -47,5 +47,3 @@ const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option 
 	}
 	return component;
 };
-
-export { HistoryOptionsListItem };

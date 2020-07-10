@@ -5,7 +5,7 @@ import { BrowserStorage } from '../../../../services/BrowserStorage';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 
-const OptionsActions: React.FC = () => {
+export const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');
 
 	const updateTraktCacheSize = async () => {
@@ -78,5 +78,3 @@ const OptionsActions: React.FC = () => {
 		</Box>
 	);
 };
-
-export { OptionsActions };

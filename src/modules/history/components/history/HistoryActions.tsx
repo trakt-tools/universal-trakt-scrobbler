@@ -6,7 +6,7 @@ interface HistoryActionsProps {
 	onSyncClick: () => void;
 }
 
-const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProps) => {
+export const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProps) => {
 	const { onNextPageClick, onSyncClick } = props;
 	return (
 		<Box className="history-actions--container">
@@ -22,5 +22,3 @@ const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProp
 		</Box>
 	);
 };
-
-export { HistoryActions };

@@ -1,4 +1,4 @@
-class TraktApi {
+export class TraktApi {
 	API_VERSION: string;
 	HOST_URL: string;
 	API_URL: string;
@@ -25,5 +25,3 @@ class TraktApi {
 		this.SETTINGS_URL = `${this.API_URL}/users/settings`;
 	}
 }
-
-export { TraktApi };

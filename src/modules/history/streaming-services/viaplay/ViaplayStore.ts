@@ -1,5 +1,3 @@
 import { Store } from '../common/Store';
 
-const ViaplayStore = new Store();
-
-export { ViaplayStore };
+export const ViaplayStore = new Store();

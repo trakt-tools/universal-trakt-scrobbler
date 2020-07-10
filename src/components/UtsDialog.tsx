@@ -21,7 +21,7 @@ interface DialogState extends DialogData {
 	isOpen: boolean;
 }
 
-const UtsDialog: React.FC = () => {
+export const UtsDialog: React.FC = () => {
 	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
 		title: '',
@@ -79,5 +79,3 @@ const UtsDialog: React.FC = () => {
 		</Dialog>
 	);
 };
-
-export { UtsDialog };

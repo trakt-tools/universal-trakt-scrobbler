@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Messaging } from '../../../services/Messaging';
 import { HistoryInfo } from '../components/HistoryInfo';
 
-const AboutPage: React.FC = () => {
+export const AboutPage: React.FC = () => {
 	const onLinkClick = async (url: string) => {
 		await Messaging.toBackground({ action: 'create-tab', url });
 	};
@@ -21,5 +21,3 @@ const AboutPage: React.FC = () => {
 		</HistoryInfo>
 	);
 };
-
-export { AboutPage };

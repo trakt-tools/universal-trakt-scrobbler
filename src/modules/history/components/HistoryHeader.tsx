@@ -9,7 +9,7 @@ interface HistoryHeaderProps {
 	isLoggedIn: boolean;
 }
 
-const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
+export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
 	const { history, isLoggedIn } = props;
 
 	const onRouteClick = (path: string) => {
@@ -50,5 +50,3 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) 
 		</AppBar>
 	);
 };
-
-export { HistoryHeader };

@@ -7,7 +7,7 @@ interface OptionsListItemProps {
 	option: Option;
 }
 
-const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
+export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
 	const { option } = props;
 
 	const onChange = async () => {
@@ -26,5 +26,3 @@ const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemP
 		</ListItem>
 	);
 };
-
-export { OptionsListItem };

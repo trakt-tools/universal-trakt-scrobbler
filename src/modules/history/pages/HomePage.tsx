@@ -7,7 +7,7 @@ import { Session } from '../../../services/Session';
 import { HistoryInfo } from '../components/HistoryInfo';
 import { streamingServices } from '../streaming-services/streamingServices';
 
-const HomePage: React.FC = () => {
+export const HomePage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
@@ -50,5 +50,3 @@ const HomePage: React.FC = () => {
 		</HistoryInfo>
 	);
 };
-
-export { HomePage };

@@ -6,9 +6,7 @@ interface UtsCenterProps {
 	className?: string;
 }
 
-const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
+export const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
 	const { children, className } = props;
 	return <Box className={`container--center ${className || ''}`}>{children}</Box>;
 };
-
-export { UtsCenter };

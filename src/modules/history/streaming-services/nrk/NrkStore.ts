@@ -1,5 +1,3 @@
 import { Store } from '../common/Store';
 
-const NrkStore = new Store();
-
-export { NrkStore };
+export const NrkStore = new Store();

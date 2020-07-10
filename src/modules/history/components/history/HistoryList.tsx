@@ -9,7 +9,7 @@ interface HistoryListProps {
 	serviceName: string;
 }
 
-const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
+export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
 	const { dateFormat, items, serviceName } = props;
 	return (
 		<List>
@@ -24,5 +24,3 @@ const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
 		</List>
 	);
 };
-
-export { HistoryList };

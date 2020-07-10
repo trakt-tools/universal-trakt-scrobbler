@@ -13,7 +13,7 @@ interface ContentProps {
 	options: Options;
 }
 
-const OptionsPage: React.FC = () => {
+export const OptionsPage: React.FC = () => {
 	const [content, setContent] = useState<ContentProps>({
 		isLoading: true,
 		options: {},
@@ -102,5 +102,3 @@ const OptionsPage: React.FC = () => {
 		</>
 	);
 };
-
-export { OptionsPage };

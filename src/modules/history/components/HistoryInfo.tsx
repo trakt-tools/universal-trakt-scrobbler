@@ -6,7 +6,7 @@ interface HistoryInfoProps {
 	children?: React.ReactNode;
 }
 
-const HistoryInfo: React.FC = (props: HistoryInfoProps) => {
+export const HistoryInfo: React.FC = (props: HistoryInfoProps) => {
 	const { children } = props;
 	return (
 		<UtsCenter>
@@ -14,5 +14,3 @@ const HistoryInfo: React.FC = (props: HistoryInfoProps) => {
 		</UtsCenter>
 	);
 };
-
-export { HistoryInfo };

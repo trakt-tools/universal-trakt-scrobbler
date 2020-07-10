@@ -11,7 +11,7 @@ interface HistoryListItemProps {
 	serviceName: string;
 }
 
-const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
+export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
 	const { dateFormat, item, serviceName } = props;
 
 	const onCheckboxChange = async () => {
@@ -48,5 +48,3 @@ const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemP
 		</Box>
 	);
 };
-
-export { HistoryListItem };

@@ -9,7 +9,7 @@ interface StreamingService {
 	page: () => React.ReactElement | null;
 }
 
-const streamingServices: StreamingService[] = [
+export const streamingServices: StreamingService[] = [
 	{
 		id: 'netflix',
 		name: 'Netflix',
@@ -29,5 +29,3 @@ const streamingServices: StreamingService[] = [
 		page: ViaplayPage,
 	},
 ];
-
-export { streamingServices };
