@@ -8,11 +8,11 @@ import { EventDispatcher, Events } from '../../../../services/Events';
 const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');
 
-	async function updateTraktCacheSize() {
+	const updateTraktCacheSize = async () => {
 		setCacheSize(await BrowserStorage.getSize('traktCache'));
-	}
+	};
 
-	async function onClearStorageClick() {
+	const onClearStorageClick = async () => {
 		await EventDispatcher.dispatch(Events.DIALOG_SHOW, {
 			title: browser.i18n.getMessage('confirmClearStorageTitle'),
 			message: browser.i18n.getMessage('confirmClearStorageMessage'),
@@ -35,9 +35,9 @@ const OptionsActions: React.FC = () => {
 				}
 			},
 		});
-	}
+	};
 
-	async function onClearTraktCacheClick() {
+	const onClearTraktCacheClick = async () => {
 		await EventDispatcher.dispatch(Events.DIALOG_SHOW, {
 			title: browser.i18n.getMessage('confirmClearTraktCacheTitle'),
 			message: browser.i18n.getMessage('confirmClearTraktCacheMessage'),
@@ -58,7 +58,7 @@ const OptionsActions: React.FC = () => {
 				}
 			},
 		});
-	}
+	};
 
 	useEffect(() => {
 		void updateTraktCacheSize();

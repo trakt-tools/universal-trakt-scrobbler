@@ -10,30 +10,30 @@ const LoginPage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
-	async function onLoginClick() {
+	const onLoginClick = async () => {
 		setLoading(true);
 		await Session.login();
-	}
+	};
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, onLoginSuccess);
 			EventDispatcher.subscribe(Events.LOGIN_ERROR, onLoginError);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, onLoginSuccess);
 			EventDispatcher.unsubscribe(Events.LOGIN_ERROR, onLoginError);
-		}
+		};
 
-		function onLoginSuccess() {
+		const onLoginSuccess = () => {
 			setLoading(false);
 			history.push('/home');
-		}
+		};
 
-		function onLoginError() {
+		const onLoginError = () => {
 			setLoading(false);
-		}
+		};
 
 		startListeners();
 		return stopListeners;

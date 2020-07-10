@@ -95,14 +95,14 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
 			EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
 			EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
 			EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
 			EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
 			store.startListeners();
-		}
+		};
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
@@ -113,56 +113,56 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 			store.stopListeners();
 		};
 
-		function onStoreUpdate(data: StreamingServiceStoreUpdateData) {
+		const onStoreUpdate = (data: StreamingServiceStoreUpdateData) => {
 			setContent({
 				isLoading: false,
 				...data.data,
 			});
-		}
+		};
 
-		async function onHistoryLoadError() {
+		const onHistoryLoadError = async () => {
 			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
 				messageName: 'loadHistoryError',
 				severity: 'error',
 			});
-		}
+		};
 
-		async function onTraktHistoryLoadError() {
+		const onTraktHistoryLoadError = async () => {
 			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
 				messageName: 'loadTraktHistoryError',
 				severity: 'error',
 			});
-		}
+		};
 
-		async function onHistorySyncSuccess(data: HistorySyncSuccessData) {
+		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
 			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
 				messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
 				messageName: 'historySyncSuccess',
 				severity: 'success',
 			});
-		}
+		};
 
-		async function onHistorySyncError() {
+		const onHistorySyncError = async () => {
 			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
 				messageName: 'historySyncError',
 				severity: 'error',
 			});
-		}
+		};
 
 		startListeners();
 		return stopListeners;
 	}, []);
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
-		}
+		};
 
-		function onOptionsChange(data: HistoryOptionsChangeData) {
+		const onOptionsChange = (data: HistoryOptionsChangeData) => {
 			const optionsToSave = {} as StorageValuesSyncOptions;
 			const options = {
 				...optionsContent.options,
@@ -192,37 +192,37 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 						severity: 'error',
 					});
 				});
-		}
+		};
 
 		startListeners();
 		return stopListeners;
 	}, [optionsContent.options]);
 
 	useEffect(() => {
-		async function getOptions() {
+		const getOptions = async () => {
 			setOptionsContent({
 				hasLoaded: true,
 				options: await BrowserStorage.getSyncOptions(),
 			});
-		}
+		};
 
 		void getOptions();
 	}, []);
 
 	useEffect(() => {
-		async function getDateFormat() {
+		const getDateFormat = async () => {
 			setDateFormat(await TraktSettings.getTimeAndDateFormat());
-		}
+		};
 
 		void getDateFormat();
 	}, []);
 
 	useEffect(() => {
-		function loadFirstPage() {
+		const loadFirstPage = () => {
 			if (optionsContent.hasLoaded) {
 				loadNextPage();
 			}
-		}
+		};
 
 		loadFirstPage();
 	}, [optionsContent.hasLoaded]);

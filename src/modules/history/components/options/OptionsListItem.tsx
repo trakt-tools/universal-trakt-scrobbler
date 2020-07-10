@@ -10,12 +10,12 @@ interface OptionsListItemProps {
 const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
 	const { option } = props;
 
-	async function onChange() {
+	const onChange = async () => {
 		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
 			id: option.id,
 			checked: !option.value,
 		});
-	}
+	};
 
 	return (
 		<ListItem classes={{ secondaryAction: 'options-list-item' }}>

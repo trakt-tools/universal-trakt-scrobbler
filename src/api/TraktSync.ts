@@ -30,13 +30,9 @@ export interface TraktSyncNotFound {
 class _TraktSync extends TraktApi {
 	constructor() {
 		super();
-
-		this.loadHistory = this.loadHistory.bind(this);
-		this.getUrl = this.getUrl.bind(this);
-		this.sync = this.sync.bind(this);
 	}
 
-	async loadHistory(item: Item): Promise<void> {
+	loadHistory = async (item: Item): Promise<void> => {
 		const responseText = await Requests.send({
 			url: this.getUrl(item),
 			method: 'GET',
@@ -46,9 +42,9 @@ class _TraktSync extends TraktApi {
 			(x) => moment(x.watched_at).diff(item.watchedAt, 'days') === 0
 		);
 		(item.trakt as ISyncItem).watchedAt = historyItem && moment(historyItem.watched_at);
-	}
+	};
 
-	getUrl(item: Item) {
+	getUrl = (item: Item) => {
 		let url = '';
 		if (item.type === 'show') {
 			url = `${this.SYNC_URL}/episodes/${(item.trakt as ISyncItem).id}`;
@@ -56,9 +52,9 @@ class _TraktSync extends TraktApi {
 			url = `${this.SYNC_URL}/movies/${(item.trakt as ISyncItem).id}`;
 		}
 		return url;
-	}
+	};
 
-	async sync(items: Item[], addWithReleaseDate: boolean) {
+	sync = async (items: Item[], addWithReleaseDate: boolean) => {
 		try {
 			const data = {
 				episodes: items
@@ -104,7 +100,7 @@ class _TraktSync extends TraktApi {
 			Errors.error('Failed to sync history.', err);
 			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, { error: err as Error });
 		}
-	}
+	};
 }
 
 export const TraktSync = new _TraktSync();

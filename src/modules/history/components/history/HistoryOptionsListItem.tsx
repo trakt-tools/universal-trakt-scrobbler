@@ -8,19 +8,19 @@ interface HistoryOptionsListItemProps {
 }
 
 const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
-	async function onSwitchChange(): Promise<void> {
+	const onSwitchChange = async (): Promise<void> => {
 		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
 			id: option.id,
 			value: !option.value,
 		});
-	}
+	};
 
-	async function onNumberInputChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
 			id: option.id,
 			value: parseInt(event.currentTarget.value),
 		});
-	}
+	};
 
 	let component: React.ReactElement;
 	switch (typeof option.value) {

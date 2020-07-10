@@ -12,13 +12,13 @@ interface HistoryHeaderProps {
 const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
 	const { history, isLoggedIn } = props;
 
-	function onRouteClick(path: string) {
+	const onRouteClick = (path: string) => {
 		history.push(path);
-	}
+	};
 
-	async function onLogoutClick() {
+	const onLogoutClick = async () => {
 		await Session.logout();
-	}
+	};
 
 	return (
 		<AppBar className="history-header" position="sticky">

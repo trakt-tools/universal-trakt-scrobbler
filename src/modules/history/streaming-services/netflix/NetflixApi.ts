@@ -87,23 +87,17 @@ class _NetflixApi implements Api {
 
 		this.isActivated = false;
 		this.apiParams = {};
-
-		this.extractAuthUrl = this.extractAuthUrl.bind(this);
-		this.extractBuildIdentifier = this.extractBuildIdentifier.bind(this);
-		this.activate = this.activate.bind(this);
-		this.loadHistory = this.loadHistory.bind(this);
-		this.getHistoryMetadata = this.getHistoryMetadata.bind(this);
 	}
 
-	extractAuthUrl(text: string): string | undefined {
+	extractAuthUrl = (text: string): string | undefined => {
 		return this.AUTH_REGEX.exec(text)?.[1];
-	}
+	};
 
-	extractBuildIdentifier(text: string): string | undefined {
+	extractBuildIdentifier = (text: string): string | undefined => {
 		return this.BUILD_IDENTIFIER_REGEX.exec(text)?.[1];
-	}
+	};
 
-	async activate() {
+	activate = async () => {
 		const responseText = await Requests.send({
 			url: this.ACTIVATE_URL,
 			method: 'GET',
@@ -111,7 +105,7 @@ class _NetflixApi implements Api {
 		this.apiParams.authUrl = this.extractAuthUrl(responseText);
 		this.apiParams.buildIdentifier = this.extractBuildIdentifier(responseText);
 		this.isActivated = true;
-	}
+	};
 
 	checkParams = (apiParams: Partial<ApiParams>): apiParams is ApiParams => {
 		return (
@@ -119,7 +113,7 @@ class _NetflixApi implements Api {
 		);
 	};
 
-	async loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number) {
+	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -160,9 +154,9 @@ class _NetflixApi implements Api {
 				error: err as Error,
 			});
 		}
-	}
+	};
 
-	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
+	getHistoryMetadata = async (historyItems: NetflixHistoryItem[]) => {
 		if (!this.checkParams(this.apiParams)) {
 			throw new Error('Invalid API params');
 		}
@@ -190,13 +184,13 @@ class _NetflixApi implements Api {
 			throw responseText;
 		}
 		return historyItemsWithMetadata;
-	}
+	};
 
-	isShow(
+	isShow = (
 		historyItem: NetflixHistoryItemWithMetadata
-	): historyItem is NetflixHistoryShowItemWithMetadata {
+	): historyItem is NetflixHistoryShowItemWithMetadata => {
 		return 'series' in historyItem;
-	}
+	};
 
 	parseHistoryItem = (historyItem: NetflixHistoryItemWithMetadata) => {
 		let item: Item;

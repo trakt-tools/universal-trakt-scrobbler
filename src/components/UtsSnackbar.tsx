@@ -23,29 +23,29 @@ const UtsSnackbar: React.FC = () => {
 		severity: 'info',
 	});
 
-	function closeSnackbar() {
+	const closeSnackbar = () => {
 		setSnackbar((prevSnackbar) => ({
 			...prevSnackbar,
 			isOpen: false,
 		}));
-	}
+	};
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.SNACKBAR_SHOW, showSnackbar);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.SNACKBAR_SHOW, showSnackbar);
-		}
+		};
 
-		function showSnackbar(data: SnackbarData) {
+		const showSnackbar = (data: SnackbarData) => {
 			setSnackbar({
 				isOpen: true,
 				message: browser.i18n.getMessage(data.messageName, data.messageArgs || []),
 				severity: data.severity,
 			});
-		}
+		};
 
 		startListeners();
 		return stopListeners;

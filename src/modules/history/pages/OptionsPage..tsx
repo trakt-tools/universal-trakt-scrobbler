@@ -19,25 +19,25 @@ const OptionsPage: React.FC = () => {
 		options: {},
 	});
 
-	async function resetOptions() {
+	const resetOptions = async () => {
 		setContent({
 			isLoading: false,
 			options: await BrowserStorage.getOptions(),
 		});
-	}
+	};
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.OPTIONS_CLEAR, resetOptions);
 			EventDispatcher.subscribe(Events.OPTIONS_CHANGE, onOptionChange);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.OPTIONS_CLEAR, resetOptions);
 			EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, onOptionChange);
-		}
+		};
 
-		function onOptionChange(data: OptionEventData) {
+		const onOptionChange = (data: OptionEventData) => {
 			const optionsToSave = {} as StorageValuesOptions;
 			const options = {
 				...content.options,
@@ -81,7 +81,7 @@ const OptionsPage: React.FC = () => {
 						severity: 'error',
 					});
 				});
-		}
+		};
 
 		startListeners();
 		return stopListeners;

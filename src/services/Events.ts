@@ -59,26 +59,22 @@ class _EventDispatcher {
 
 	constructor() {
 		this.listeners = {};
-
-		this.subscribe = this.subscribe.bind(this);
-		this.unsubscribe = this.unsubscribe.bind(this);
-		this.dispatch = this.dispatch.bind(this);
 	}
 
-	subscribe<T>(eventType: Events, listener: EventDispatcherListener<T>): void {
+	subscribe = <T>(eventType: Events, listener: EventDispatcherListener<T>): void => {
 		if (!this.listeners[eventType]) {
 			this.listeners[eventType] = [];
 		}
 		this.listeners[eventType].push(listener);
-	}
+	};
 
-	unsubscribe<T>(eventType: Events, listener: EventDispatcherListener<T>): void {
+	unsubscribe = <T>(eventType: Events, listener: EventDispatcherListener<T>): void => {
 		if (this.listeners[eventType]) {
 			this.listeners[eventType] = this.listeners[eventType].filter((fn) => fn !== listener);
 		}
-	}
+	};
 
-	async dispatch(eventType: Events, data: Record<string, unknown>): Promise<void> {
+	dispatch = async (eventType: Events, data: Record<string, unknown>): Promise<void> => {
 		if (this.listeners[eventType]) {
 			for (const listener of this.listeners[eventType]) {
 				try {
@@ -88,7 +84,7 @@ class _EventDispatcher {
 				}
 			}
 		}
-	}
+	};
 }
 
 export const EventDispatcher = new _EventDispatcher();

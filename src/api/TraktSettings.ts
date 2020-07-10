@@ -14,10 +14,9 @@ export interface TraktAccount {
 class _TraktSettings extends TraktApi {
 	constructor() {
 		super();
-		this.getTimeAndDateFormat = this.getTimeAndDateFormat.bind(this);
 	}
 
-	async getTimeAndDateFormat() {
+	getTimeAndDateFormat = async () => {
 		const responseText = await Requests.send({
 			url: this.SETTINGS_URL,
 			method: 'GET',
@@ -47,7 +46,7 @@ class _TraktSettings extends TraktApi {
 			dateFormat += ', h:mm:ss a';
 		}
 		return dateFormat;
-	}
+	};
 }
 
 export const TraktSettings = new _TraktSettings();

@@ -21,24 +21,24 @@ const HistoryApp: React.FC = () => {
 	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, onLogin);
 			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, onLogout);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, onLogin);
 			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, onLogout);
-		}
+		};
 
-		function onLogin() {
+		const onLogin = () => {
 			setLoggedIn(true);
-		}
+		};
 
-		function onLogout() {
+		const onLogout = () => {
 			setLoggedIn(false);
 			history.push('/login');
-		}
+		};
 
 		startListeners();
 		return stopListeners;

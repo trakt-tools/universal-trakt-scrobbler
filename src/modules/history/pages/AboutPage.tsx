@@ -4,9 +4,9 @@ import { Messaging } from '../../../services/Messaging';
 import { HistoryInfo } from '../components/HistoryInfo';
 
 const AboutPage: React.FC = () => {
-	async function onLinkClick(url: string) {
+	const onLinkClick = async (url: string) => {
 		await Messaging.toBackground({ action: 'create-tab', url });
-	}
+	};
 
 	return (
 		<HistoryInfo>

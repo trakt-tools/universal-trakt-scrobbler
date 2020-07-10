@@ -11,19 +11,19 @@ const HomePage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
-	function onRouteClick(path: string) {
+	const onRouteClick = (path: string) => {
 		history.push(path);
-	}
+	};
 
 	useEffect(() => {
-		function checkLogin() {
+		const checkLogin = () => {
 			if (Session.isLoggedIn) {
 				setLoading(false);
 			} else {
 				setLoading(true);
 				history.push('/login');
 			}
-		}
+		};
 
 		checkLogin();
 	}, []);

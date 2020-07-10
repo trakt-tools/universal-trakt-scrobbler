@@ -16,15 +16,7 @@ export type ErrorDetails = {
 class _Errors {
 	rollbar?: Rollbar;
 
-	constructor() {
-		this.startRollbar = this.startRollbar.bind(this);
-		this.startListeners = this.startListeners.bind(this);
-		this.log = this.log.bind(this);
-		this.warning = this.warning.bind(this);
-		this.error = this.error.bind(this);
-	}
-
-	startRollbar(): void {
+	startRollbar = (): void => {
 		this.rollbar = Rollbar.init({
 			accessToken: secrets.rollbarToken,
 			autoInstrument: {
@@ -38,11 +30,11 @@ class _Errors {
 			},
 		});
 		window.Rollbar = this.rollbar;
-	}
+	};
 
-	startListeners(): void {
+	startListeners = (): void => {
 		EventDispatcher.subscribe(Events.SEARCH_ERROR, this.onSearchError);
-	}
+	};
 
 	onSearchError = async (data: ErrorEventData): Promise<void> => {
 		if (data.error) {
@@ -55,23 +47,26 @@ class _Errors {
 		}
 	};
 
-	log(message: Error | string, details: ErrorDetails | RequestException | React.ErrorInfo): void {
+	log = (
+		message: Error | string,
+		details: ErrorDetails | RequestException | React.ErrorInfo
+	): void => {
 		console.log(`[UTS] ${message.toString()}`, details);
-	}
+	};
 
-	warning(message: string, details: ErrorDetails | RequestException): void {
+	warning = (message: string, details: ErrorDetails | RequestException): void => {
 		console.warn(`[UTS] ${message}`, details);
 		if (this.rollbar) {
 			this.rollbar.warning(message, 'message' in details ? { message: details.message } : details);
 		}
-	}
+	};
 
-	error(message: string, details: ErrorDetails | RequestException): void {
+	error = (message: string, details: ErrorDetails | RequestException): void => {
 		console.error(`[UTS] ${message}`, details);
 		if (this.rollbar) {
 			this.rollbar.error(message, 'message' in details ? { message: details.message } : details);
 		}
-	}
+	};
 }
 
 export const Errors = new _Errors();

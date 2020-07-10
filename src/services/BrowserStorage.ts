@@ -48,52 +48,43 @@ class _BrowserStorage {
 
 	constructor() {
 		this.isSyncAvailable = !!browser.storage.sync;
-
-		this.sync = this.sync.bind(this);
-		this.set = this.set.bind(this);
-		this.get = this.get.bind(this);
-		this.remove = this.remove.bind(this);
-		this.clear = this.clear.bind(this);
-		this.getSize = this.getSize.bind(this);
-		this.getOptions = this.getOptions.bind(this);
-		this.getSyncOptions = this.getSyncOptions.bind(this);
 	}
 
-	async sync(): Promise<void> {
+	sync = async (): Promise<void> => {
 		if (this.isSyncAvailable) {
 			const values = await browser.storage.sync.get();
 			for (const key of Object.keys(values)) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
 		}
-	}
+	};
 
-	async set(values: StorageValues, doSync: boolean): Promise<void> {
+	set = async (values: StorageValues, doSync: boolean): Promise<void> => {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.set(values);
 		}
 		await browser.storage.local.set(values);
-	}
+	};
 
-	get(keys?: string | string[]): Promise<StorageValues> {
+	get = (keys?: string | string[]): Promise<StorageValues> => {
 		return browser.storage.local.get(keys);
-	}
+	};
 
-	async remove(keys: string | string[], doSync = false): Promise<void> {
+	remove = async (keys: string | string[], doSync = false): Promise<void> => {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.remove(keys);
 		}
 		await browser.storage.local.remove(keys);
-	}
+	};
 
-	async clear(doSync: boolean): Promise<void> {
+	clear = async (doSync: boolean): Promise<void> => {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.clear();
 		}
 		await browser.storage.local.clear();
-	}
+	};
 
-	async getSize(keys?: string | string[]): Promise<string> {
+	getSize = async (keys?: string | string[]): Promise<string> => {
 		let size = '';
 		const values = await this.get(keys);
 		let bytes = (JSON.stringify(values) || '').length;
@@ -109,9 +100,9 @@ class _BrowserStorage {
 			}
 		}
 		return size;
-	}
+	};
 
-	async getOptions(): Promise<Options> {
+	getOptions = async (): Promise<Options> => {
 		const options: Options = {
 			sendReceiveSuggestions: {
 				id: 'sendReceiveSuggestions',
@@ -137,9 +128,9 @@ class _BrowserStorage {
 			option.value = (values.options && values.options[option.id]) || option.value;
 		}
 		return options;
-	}
+	};
 
-	async getSyncOptions(): Promise<SyncOptions> {
+	getSyncOptions = async (): Promise<SyncOptions> => {
 		const options: SyncOptions = {
 			hideSynced: {
 				id: 'hideSynced',
@@ -163,7 +154,7 @@ class _BrowserStorage {
 			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
 		}
 		return options;
-	}
+	};
 }
 
 export const BrowserStorage = new _BrowserStorage();

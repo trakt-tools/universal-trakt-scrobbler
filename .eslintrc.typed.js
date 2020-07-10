@@ -5,16 +5,7 @@ module.exports = {
 		node: true,
 		webextensions: true,
 	},
-	plugins: ['local-rules'],
-	rules: {
-		'local-rules/prefer-arrow-functions': [
-			'error',
-			{
-				disallowPrototype: true,
-				classPropertiesAllowed: true,
-			},
-		],
-	},
+	rules: {},
 	overrides: [
 		{
 			files: ['**/*.{js,jsx}'],
@@ -36,6 +27,7 @@ module.exports = {
 				tsconfigRootDir: __dirname,
 				project: ['./tsconfig.json'],
 			},
+			plugins: ['local-rules'],
 			extends: [
 				'eslint:recommended',
 				'plugin:react/recommended',
@@ -44,7 +36,15 @@ module.exports = {
 				'prettier/@typescript-eslint', // Disables TypeScript rules that conflict with Prettier.
 				'plugin:prettier/recommended', // Displays Prettier errors as ESLint errors. **Make sure this is always the last configuration.**
 			],
-			rules: {},
+			rules: {
+				'local-rules/prefer-arrow-functions': [
+					'error',
+					{
+						disallowPrototype: true,
+						classPropertiesAllowed: true,
+					},
+				],
+			},
 		},
 	],
 	settings: {

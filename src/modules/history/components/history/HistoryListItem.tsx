@@ -14,16 +14,16 @@ interface HistoryListItemProps {
 const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
 	const { dateFormat, item, serviceName } = props;
 
-	async function onCheckboxChange() {
+	const onCheckboxChange = async () => {
 		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
 			index: item.index,
 			checked: !item.isSelected,
 		});
-	}
+	};
 
-	function onButtonClick() {
+	const onButtonClick = () => {
 		// TODO: Implement option to correct item.
-	}
+	};
 
 	return (
 		<Box className="history-list-item">

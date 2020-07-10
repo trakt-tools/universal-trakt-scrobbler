@@ -48,16 +48,9 @@ export interface TraktSearchMovieItemMovie {
 class _TraktSearch extends TraktApi {
 	constructor() {
 		super();
-
-		this.find = this.find.bind(this);
-		this.findItem = this.findItem.bind(this);
-		this.findEpisode = this.findEpisode.bind(this);
-		this.findEpisodeByTitle = this.findEpisodeByTitle.bind(this);
-		this.getEpisodeUrl = this.getEpisodeUrl.bind(this);
-		this.formatEpisodeTitle = this.formatEpisodeTitle.bind(this);
 	}
 
-	async find(item: Item): Promise<SyncItem | undefined> {
+	find = async (item: Item): Promise<SyncItem | undefined> => {
 		let syncItem: SyncItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
@@ -95,9 +88,9 @@ class _TraktSearch extends TraktApi {
 			await EventDispatcher.dispatch(Events.SEARCH_ERROR, { error: err as Error });
 		}
 		return syncItem;
-	}
+	};
 
-	async findItem(item: Item): Promise<TraktSearchItem> {
+	findItem = async (item: Item): Promise<TraktSearchItem> => {
 		let searchItem: TraktSearchItem | undefined;
 		const responseText = await Requests.send({
 			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}`,
@@ -120,9 +113,9 @@ class _TraktSearch extends TraktApi {
 			};
 		}
 		return searchItem;
-	}
+	};
 
-	async findEpisode(item: Item): Promise<TraktSearchEpisodeItem> {
+	findEpisode = async (item: Item): Promise<TraktSearchEpisodeItem> => {
 		let episodeItem: TraktEpisodeItem;
 		const showItem = (await this.findItem(item)) as TraktSearchShowItem;
 		const responseText = await Requests.send({
@@ -138,13 +131,13 @@ class _TraktSearch extends TraktApi {
 			episodeItem = this.findEpisodeByTitle(item, showItem, episodeItems);
 		}
 		return Object.assign({}, episodeItem, showItem);
-	}
+	};
 
-	findEpisodeByTitle(
+	findEpisodeByTitle = (
 		item: Item,
 		showItem: TraktSearchShowItem,
 		episodeItems: TraktSearchEpisodeItem[]
-	): TraktEpisodeItem {
+	): TraktEpisodeItem => {
 		const episodeItem: TraktEpisodeItemEpisode | undefined = episodeItems
 			.map((x) => x.episode) //TODO figure out removed || x
 			.find(
@@ -161,9 +154,9 @@ class _TraktSearch extends TraktApi {
 			};
 		}
 		return { episode: episodeItem };
-	}
+	};
 
-	getEpisodeUrl(item: Item, traktId: number): string {
+	getEpisodeUrl = (item: Item, traktId: number): string => {
 		let url = '';
 		if (typeof item.season !== 'undefined' && typeof item.episode !== 'undefined') {
 			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}`;
@@ -173,14 +166,14 @@ class _TraktSearch extends TraktApi {
 			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}`;
 		}
 		return url;
-	}
+	};
 
-	formatEpisodeTitle(title: string): string {
+	formatEpisodeTitle = (title: string): string => {
 		return title
 			.toLowerCase()
 			.replace(/(^|\s)(a|an|the)(\s)/g, '$1$3')
 			.replace(/\s/g, '');
-	}
+	};
 }
 
 export const TraktSearch = new _TraktSearch();

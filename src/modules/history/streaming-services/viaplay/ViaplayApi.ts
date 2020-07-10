@@ -94,19 +94,17 @@ class _ViaplayApi implements Api {
 		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
 
 		this.isActivated = false;
-
-		this.loadHistory = this.loadHistory.bind(this);
 	}
 
-	async activate() {
+	activate = async () => {
 		await Requests.send({
 			url: this.AUTH_URL,
 			method: 'GET',
 		});
 		this.isActivated = true;
-	}
+	};
 
-	async loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number) {
+	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -158,7 +156,7 @@ class _ViaplayApi implements Api {
 				error: err as Error,
 			});
 		}
-	}
+	};
 
 	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
 		let item: Item;

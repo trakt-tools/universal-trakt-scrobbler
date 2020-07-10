@@ -21,14 +21,14 @@ interface DialogState extends DialogData {
 	isOpen: boolean;
 }
 
-function UtsDialog(): React.ReactElement {
+const UtsDialog: React.FC = () => {
 	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
 		title: '',
 		message: '',
 	});
 
-	function closeDialog(didConfirm: boolean) {
+	const closeDialog = (didConfirm: boolean) => {
 		const callback = didConfirm ? dialog.onConfirm : dialog.onDeny;
 		setDialog((prevDialog) => ({
 			...prevDialog,
@@ -37,18 +37,18 @@ function UtsDialog(): React.ReactElement {
 		if (callback) {
 			callback();
 		}
-	}
+	};
 
 	useEffect(() => {
-		function startListeners() {
+		const startListeners = () => {
 			EventDispatcher.subscribe(Events.DIALOG_SHOW, showDialog);
-		}
+		};
 
-		function stopListeners() {
+		const stopListeners = () => {
 			EventDispatcher.unsubscribe(Events.DIALOG_SHOW, showDialog);
-		}
+		};
 
-		function showDialog(data: DialogData) {
+		const showDialog = (data: DialogData) => {
 			setDialog({
 				isOpen: true,
 				title: data.title,
@@ -56,7 +56,7 @@ function UtsDialog(): React.ReactElement {
 				onConfirm: data.onConfirm,
 				onDeny: data.onDeny,
 			});
-		}
+		};
 
 		startListeners();
 		return stopListeners;
@@ -78,6 +78,6 @@ function UtsDialog(): React.ReactElement {
 			</DialogActions>
 		</Dialog>
 	);
-}
+};
 
 export { UtsDialog };

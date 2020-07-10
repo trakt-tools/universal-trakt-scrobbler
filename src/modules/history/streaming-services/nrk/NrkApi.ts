@@ -46,19 +46,17 @@ class _NrkApi implements Api {
 		this.AUTH_URL = `${this.HOST_URL}/auth/token`;
 
 		this.isActivated = false;
-
-		this.loadHistory = this.loadHistory.bind(this);
 	}
 
-	async activate() {
+	activate = async () => {
 		await Requests.send({
 			url: this.AUTH_URL,
 			method: 'GET',
 		});
 		this.isActivated = true;
-	}
+	};
 
-	async loadHistory(nextPage: number, nextVisualPage: number, itemsToLoad: number) {
+	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -95,7 +93,7 @@ class _NrkApi implements Api {
 				error: err as Error,
 			});
 		}
-	}
+	};
 
 	parseHistoryItem = (historyItem: NrkHistoryItem): Item => {
 		const program: NrkProgramInfo = historyItem.program;
@@ -155,7 +153,7 @@ class _NrkApi implements Api {
 		}
 	};
 
-	convertAspNetJSONDateToDateObject(value: string): Date {
+	convertAspNetJSONDateToDateObject = (value: string): Date => {
 		const dateRegexp = /^\/?Date\((-?\d+)/i;
 		if (dateRegexp.exec(value) !== null) {
 			const dateInMs = parseInt(value.slice(6, 19), 10);
@@ -166,7 +164,7 @@ class _NrkApi implements Api {
 			return new Date(dateWithOffset);
 		}
 		return new Date();
-	}
+	};
 }
 
 export const NrkApi = new _NrkApi();

@@ -18,15 +18,7 @@ export type RequestDetails = {
 export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 class _Requests {
-	constructor() {
-		this.send = this.send.bind(this);
-		this.sendDirectly = this.sendDirectly.bind(this);
-		this.fetch = this.fetch.bind(this);
-		this.getOptions = this.getOptions.bind(this);
-		this.getHeaders = this.getHeaders.bind(this);
-	}
-
-	async send(request: RequestDetails): Promise<string> {
+	send = async (request: RequestDetails): Promise<string> => {
 		let responseText = '';
 		if (Shared.isBackgroundPage || request.url.includes(window.location.host)) {
 			responseText = await this.sendDirectly(request);
@@ -38,9 +30,9 @@ class _Requests {
 			}
 		}
 		return responseText;
-	}
+	};
 
-	async sendDirectly(request: RequestDetails): Promise<string> {
+	sendDirectly = async (request: RequestDetails): Promise<string> => {
 		let responseStatus = 0;
 		let responseText = '';
 		try {
@@ -58,9 +50,9 @@ class _Requests {
 			};
 		}
 		return responseText;
-	}
+	};
 
-	async fetch(request: RequestDetails): Promise<Response> {
+	fetch = async (request: RequestDetails): Promise<Response> => {
 		let fetch = window.fetch;
 		let options = await this.getOptions(request);
 		if (window.wrappedJSObject) {
@@ -70,17 +62,17 @@ class _Requests {
 			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions as Record<string, unknown>);
 		}
 		return fetch(request.url, options);
-	}
+	};
 
-	async getOptions(request: RequestDetails): Promise<Record<string, unknown>> {
+	getOptions = async (request: RequestDetails): Promise<Record<string, unknown>> => {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request),
 			body: typeof request.body === 'string' ? request.body : JSON.stringify(request.body),
 		};
-	}
+	};
 
-	async getHeaders(request: RequestDetails): Promise<Record<string, unknown>> {
+	getHeaders = async (request: RequestDetails): Promise<Record<string, unknown>> => {
 		const headers: Record<string, unknown> = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
@@ -93,7 +85,7 @@ class _Requests {
 			}
 		}
 		return headers;
-	}
+	};
 }
 
 export const Requests = new _Requests();

@@ -7,14 +7,9 @@ class _Session {
 
 	constructor() {
 		this.isLoggedIn = false;
-
-		this.checkLogin = this.checkLogin.bind(this);
-		this.login = this.login.bind(this);
-		this.logout = this.logout.bind(this);
-		this.finishLogin = this.finishLogin.bind(this);
 	}
 
-	async checkLogin(): Promise<void> {
+	checkLogin = async (): Promise<void> => {
 		try {
 			const auth = await Messaging.toBackground({ action: 'check-login' });
 			if (auth && auth.access_token) {
@@ -27,9 +22,9 @@ class _Session {
 			this.isLoggedIn = false;
 			await EventDispatcher.dispatch(Events.LOGIN_ERROR, {});
 		}
-	}
+	};
 
-	async login(): Promise<void> {
+	login = async (): Promise<void> => {
 		try {
 			const auth = await Messaging.toBackground({ action: 'login' });
 			if (auth && auth.access_token) {
@@ -43,9 +38,9 @@ class _Session {
 			this.isLoggedIn = false;
 			await EventDispatcher.dispatch(Events.LOGIN_ERROR, { error: err as Error });
 		}
-	}
+	};
 
-	async logout(): Promise<void> {
+	logout = async (): Promise<void> => {
 		try {
 			await Messaging.toBackground({ action: 'logout' });
 			this.isLoggedIn = false;
@@ -55,14 +50,14 @@ class _Session {
 			this.isLoggedIn = true;
 			await EventDispatcher.dispatch(Events.LOGOUT_ERROR, { error: err as Error });
 		}
-	}
+	};
 
-	async finishLogin(): Promise<void> {
+	finishLogin = async (): Promise<void> => {
 		const redirectUrl = window.location.search;
 		if (redirectUrl.includes('code')) {
 			await Messaging.toBackground({ action: 'finish-login', redirectUrl });
 		}
-	}
+	};
 }
 
 const Session = new _Session();
