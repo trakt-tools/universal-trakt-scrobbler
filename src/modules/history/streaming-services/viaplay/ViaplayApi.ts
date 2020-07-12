@@ -90,7 +90,7 @@ class _ViaplayApi implements Api {
 	constructor() {
 		this.HOST_URL = 'https://content.viaplay.no';
 		this.HISTORY_API_URL = `${this.HOST_URL}/pcdash-no/watched`;
-		this.AUTH_URL = `https://login.viaplay.no/api/persistentLogin/v1?deviceKey=pcdash-no`;
+		this.AUTH_URL = 'https://login.viaplay.no/api/persistentLogin/v1?deviceKey=pcdash-no';
 		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
 
 		this.isActivated = false;
