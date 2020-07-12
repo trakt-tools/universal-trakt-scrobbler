@@ -18,7 +18,14 @@ module.exports = {
 				'plugin:prettier/recommended', // Displays Prettier errors as ESLint errors. **Make sure this is always the last configuration.**
 			],
 			rules: {
-				'@typescript-eslint/no-var-requires': 'off',
+				quotes: [
+					'error',
+					'single',
+					{
+						avoidEscape: true,
+						allowTemplateLiterals: false,
+					},
+				],
 			},
 		},
 		{
@@ -37,6 +44,15 @@ module.exports = {
 				'plugin:prettier/recommended', // Displays Prettier errors as ESLint errors. **Make sure this is always the last configuration.**
 			],
 			rules: {
+				quotes: 'off',
+				'@typescript-eslint/quotes': [
+					'error',
+					'single',
+					{
+						avoidEscape: true,
+						allowTemplateLiterals: false,
+					},
+				],
 				'local-rules/prefer-arrow-functions': [
 					'error',
 					{
