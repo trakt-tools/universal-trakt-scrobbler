@@ -1,11 +1,11 @@
 import { Button, Typography } from '@material-ui/core';
 import * as React from 'react';
-import { Messaging } from '../../../services/Messaging';
+import { Tabs } from '../../../services/Tabs';
 import { HistoryInfo } from '../components/HistoryInfo';
 
 export const AboutPage: React.FC = () => {
 	const onLinkClick = async (url: string) => {
-		await Messaging.toBackground({ action: 'create-tab', url });
+		await Tabs.open(url);
 	};
 
 	return (

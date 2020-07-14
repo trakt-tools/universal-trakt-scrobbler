@@ -180,6 +180,9 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://api.rollbar.com/*',
 			'*://script.google.com/*',
 			'*://script.googleusercontent.com/*',
+			'cookies',
+			'webRequest',
+			'webRequestBlocking',
 		],
 		browser_action: {
 			default_icon: {
