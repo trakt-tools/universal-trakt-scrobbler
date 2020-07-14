@@ -1,5 +1,6 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { Shared } from './Shared';
+import { StreamingServiceId, streamingServices } from '../streaming-services';
 
 export type StorageValues = {
 	auth?: TraktAuthDetails;
@@ -11,6 +12,7 @@ export type StorageValues = {
 };
 
 export type StorageValuesOptions = {
+	streamingServices: Record<StreamingServiceId, boolean>;
 	allowRollbar: boolean;
 	sendReceiveSuggestions: boolean;
 	grantCookies: boolean;
@@ -23,16 +25,17 @@ export type StorageValuesSyncOptions = {
 };
 
 export type Options = {
-	[key: string]: Option;
+	[K in keyof StorageValuesOptions]: Option<K>;
 };
 
-export type Option = {
-	id: keyof StorageValuesOptions;
+export type Option<K extends keyof StorageValuesOptions> = {
+	id: K;
 	name: string;
 	description: string;
-	value: boolean;
+	value: StorageValuesOptions[K];
 	origins: string[];
 	permissions: browser.permissions.Permission[];
+	doShow: boolean;
 };
 
 export type SyncOptions = {
@@ -106,6 +109,17 @@ class _BrowserStorage {
 
 	getOptions = async (): Promise<Options> => {
 		const options: Options = {
+			streamingServices: {
+				id: 'streamingServices',
+				name: '',
+				description: '',
+				value: Object.fromEntries(
+					Object.keys(streamingServices).map((serviceId) => [serviceId, false])
+				) as Record<StreamingServiceId, boolean>,
+				origins: [],
+				permissions: [],
+				doShow: true,
+			},
 			sendReceiveSuggestions: {
 				id: 'sendReceiveSuggestions',
 				name: '',
@@ -113,6 +127,7 @@ class _BrowserStorage {
 				value: false,
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 				permissions: [],
+				doShow: true,
 			},
 			allowRollbar: {
 				id: 'allowRollbar',
@@ -121,18 +136,18 @@ class _BrowserStorage {
 				value: false,
 				origins: ['*://api.rollbar.com/*'],
 				permissions: [],
+				doShow: true,
 			},
-		};
-		if (Shared.browser === 'firefox') {
-			options.grantCookies = {
+			grantCookies: {
 				id: 'grantCookies',
 				name: '',
 				description: '',
 				value: false,
 				origins: [],
 				permissions: ['cookies', 'webRequest', 'webRequestBlocking'],
-			};
-		}
+				doShow: Shared.browser === 'firefox',
+			},
+		};
 		const values = await BrowserStorage.get('options');
 		for (const option of Object.values(options)) {
 			option.name = browser.i18n.getMessage(`${option.id}Name`);

@@ -20,6 +20,20 @@
 	padding-top: 16px;
 }
 
+.options-option--streaming-service {
+	flex-direction: column;
+}
+
+.options-option--streaming-service > * {
+	width: 100%;
+}
+
+.options--streaming-service {
+	display: grid;
+	grid-gap: 0 50px;
+	grid-template-columns: repeat(5, min-content);
+}
+
 .options-list-item {
 	padding-right: 64px;
 }

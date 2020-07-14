@@ -23,7 +23,7 @@ import {
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
-import { Api } from './api';
+import { Api } from './Api';
 import { Store } from './Store';
 
 interface PageProps {

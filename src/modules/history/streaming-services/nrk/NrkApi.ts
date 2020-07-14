@@ -5,8 +5,8 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { Api } from '../common/api';
-import { NrkStore } from './NrkStore';
+import { Api } from '../common/Api';
+import { getStore, registerApi } from '../common/common';
 
 export interface NrkHistoryItem {
 	lastSeen: NrkLastSeen;
@@ -82,7 +82,8 @@ class _NrkApi implements Api {
 				items = historyItems.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			NrkStore.update({ isLastPage, nextPage, nextVisualPage, items })
+			getStore('nrk')
+				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
 				.catch(() => {
 					/** Do nothing */
@@ -130,10 +131,10 @@ class _NrkApi implements Api {
 	loadTraktHistory = async () => {
 		try {
 			let promises = [];
-			const items = NrkStore.data.items;
+			const items = getStore('nrk').data.items;
 			promises = items.map(this.loadTraktItemHistory);
 			await Promise.all(promises);
-			void NrkStore.update();
+			void getStore('nrk').update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
 			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
@@ -168,3 +169,5 @@ class _NrkApi implements Api {
 }
 
 export const NrkApi = new _NrkApi();
+
+registerApi('nrk', NrkApi);

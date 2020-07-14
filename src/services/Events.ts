@@ -1,5 +1,6 @@
 import { StoreData } from '../modules/history/streaming-services/common/Store';
-import { StorageValuesSyncOptions } from './BrowserStorage';
+import { StreamingService, StreamingServiceId } from '../streaming-services';
+import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
 
 export enum Events {
@@ -10,6 +11,7 @@ export enum Events {
 	SEARCH_SUCCESS,
 	SEARCH_ERROR,
 	OPTIONS_CHANGE,
+	STREAMING_SERVICE_OPTIONS_CHANGE,
 	OPTIONS_CLEAR,
 	DIALOG_SHOW,
 	SNACKBAR_SHOW,
@@ -49,9 +51,14 @@ export interface HistorySyncSuccessData {
 	};
 }
 
-export interface OptionEventData {
-	id: string;
-	checked: boolean;
+export interface OptionEventData<K extends keyof StorageValuesOptions> {
+	id: K;
+	value: StorageValuesOptions[K];
+}
+
+export interface StreamingServiceOptionEventData<K extends StreamingServiceId> {
+	id: K;
+	value: boolean;
 }
 
 class _EventDispatcher {

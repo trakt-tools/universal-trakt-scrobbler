@@ -5,11 +5,13 @@ import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Session } from '../../../services/Session';
 import { HistoryInfo } from '../components/HistoryInfo';
-import { streamingServices } from '../streaming-services/streamingServices';
+import { StreamingServicePage, streamingServicePages } from '../streaming-services/pages';
+import { BrowserStorage } from '../../../services/BrowserStorage';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
+	const [services, setServices] = useState([] as StreamingServicePage[]);
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -28,25 +30,50 @@ export const HomePage: React.FC = () => {
 		checkLogin();
 	}, []);
 
+	useEffect(() => {
+		const checkEnabledServices = async () => {
+			const storage = await BrowserStorage.get('options');
+			const serviceOptions = storage.options?.streamingServices;
+			if (!serviceOptions) {
+				return;
+			}
+			const enabledServices = [];
+			for (const service of streamingServicePages) {
+				if (serviceOptions[service.id]) {
+					enabledServices.push(service);
+				}
+			}
+			setServices(enabledServices);
+		};
+
+		void checkEnabledServices();
+	}, []);
+
 	return isLoading ? (
 		<UtsCenter>
 			<CircularProgress />
 		</UtsCenter>
 	) : (
 		<HistoryInfo>
-			<Typography variant="h6">{browser.i18n.getMessage('selectStreamingService')}</Typography>
-			<List>
-				{streamingServices.map((service) => (
-					<ListItem
-						key={service.id}
-						button={true}
-						divider={true}
-						onClick={() => onRouteClick(service.path)}
-					>
-						<ListItemText primary={service.name} />
-					</ListItem>
-				))}
-			</List>
+			{services.length > 0 ? (
+				<>
+					<Typography variant="h6">{browser.i18n.getMessage('selectStreamingService')}</Typography>
+					<List>
+						{services.map((service) => (
+							<ListItem
+								key={service.id}
+								button={true}
+								divider={true}
+								onClick={() => onRouteClick(service.path)}
+							>
+								<ListItemText primary={service.name} />
+							</ListItem>
+						))}
+					</List>
+				</>
+			) : (
+				<Typography variant="body1">{browser.i18n.getMessage('noStreamingServices')}</Typography>
+			)}
 		</HistoryInfo>
 	);
 };

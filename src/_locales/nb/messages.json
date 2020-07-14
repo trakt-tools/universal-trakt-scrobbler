@@ -118,6 +118,9 @@
 	"no": {
 		"message": "Nei"
 	},
+	"noStreamingServices": {
+		"message": "No streaming services enabled. You can enable streaming services in the options page."
+	},
 	"notFound": {
 		"message": "Ikke funnet"
 	},
@@ -159,6 +162,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"streamingServicesDescription": {
+		"message": "Choose which streaming services to enable."
+	},
+	"streamingServicesName": {
+		"message": "Streaming services"
 	},
 	"sync": {
 		"message": "Synkroniser historikk"
