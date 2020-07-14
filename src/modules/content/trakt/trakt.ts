@@ -1,7 +1,7 @@
 import { Session } from '../../../services/Session';
 
-init();
-
-async function init() {
+const init = async () => {
 	await Session.finishLogin();
-}
+};
+
+void init();

@@ -6,9 +6,7 @@ import { Errors } from '../../services/Errors';
 import { Shared } from '../../services/Shared';
 import { HistoryApp } from './HistoryApp';
 
-init();
-
-async function init() {
+const init = async () => {
 	Shared.isBackgroundPage = false;
 	await BrowserStorage.sync();
 	const values = await BrowserStorage.get('options');
@@ -17,4 +15,6 @@ async function init() {
 	}
 	const root = document.querySelector('#root');
 	ReactDOM.render(<HistoryApp />, root);
-}
+};
+
+void init();
