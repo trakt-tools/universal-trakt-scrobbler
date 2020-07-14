@@ -33,7 +33,6 @@ import * as webpack from 'webpack';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
 import * as packageJson from './package.json';
-import * as configJson from './config.json';
 
 const BASE_PATH = process.cwd();
 const loaders = {
@@ -67,13 +66,14 @@ const plugins = {
 	runAfterBuild: RunAfterBuildPlugin,
 };
 
-const getWebpackConfig = (env: Environment) => {
+const getWebpackConfig = async (env: Environment): Promise<webpack.Configuration> => {
 	let mode: 'production' | 'development';
 	if (env.production) {
 		mode = 'production';
 	} else {
 		mode = 'development';
 	}
+	const configJson = await import('./config.json');
 	const config = configJson[mode];
 	return {
 		devtool: env.production ? false : 'source-map',
