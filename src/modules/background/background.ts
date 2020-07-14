@@ -1,7 +1,7 @@
 import { TraktAuth } from '../../api/TraktAuth';
-import { BrowserStorage } from '../../services/BrowserStorage';
+import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { Requests, RequestDetails } from '../../services/Requests';
+import { RequestDetails, Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
 import { Tabs } from '../../services/Tabs';
 
@@ -37,7 +37,7 @@ const onStorageChanged = (
 	if (!changes.options) {
 		return;
 	}
-	if (changes.options.newValue?.grantCookies) {
+	if ((changes.options.newValue as StorageValuesOptions)?.grantCookies) {
 		addWebRequestListener();
 	} else {
 		removeWebRequestListener();
@@ -66,7 +66,7 @@ const addWebRequestListener = () => {
 		types: ['xmlhttprequest'],
 		urls: ['*://*.trakt.tv/*', '*://*.netflix.com/*', '*://tv.nrk.no/*', '*://*.viaplay.no/*'],
 	};
-	browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders, filters, [
+	void browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders, filters, [
 		'blocking',
 		'requestHeaders',
 	]);
