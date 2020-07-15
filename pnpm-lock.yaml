@@ -31,6 +31,7 @@ devDependencies:
   '@types/react': 16.9.41
   '@types/react-dom': 16.9.8
   '@types/react-router-dom': 5.1.5
+  '@types/webpack': 4.41.21
   '@typescript-eslint/eslint-plugin': 3.6.0_1c51ade106368f8db1c65fa08c9a96ed
   '@typescript-eslint/parser': 3.6.0_eslint@7.4.0+typescript@3.9.6
   babel-eslint: 10.1.0_eslint@7.4.0
@@ -55,6 +56,7 @@ devDependencies:
   react-svg-loader: 3.0.3
   string-replace-loader: 2.3.0_webpack@4.43.0
   style-loader: 1.2.1_webpack@4.43.0
+  ts-node: 8.10.2_typescript@3.9.6
   typescript: 3.9.6
   web-ext-types: 3.2.1
   webpack: 4.43.0_webpack@4.43.0
@@ -1664,6 +1666,17 @@ packages:
     dev: true
     resolution:
       integrity: sha512-6FfeCidTSHozwKI67gIVQQ5Mp0g4X96c2IXxX75hYEQJwST/i6NyZexP//zzMOBb+wG9jJ7oO8fk9yObP2HWAw==
+  /@types/webpack/4.41.21:
+    dependencies:
+      '@types/anymatch': 1.3.1
+      '@types/node': 14.0.20
+      '@types/tapable': 1.0.6
+      '@types/uglify-js': 3.9.2
+      '@types/webpack-sources': 1.4.0
+      source-map: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha512-2j9WVnNrr/8PLAB5csW44xzQSJwS26aOnICsP3pSGCEdsu6KYtfQ6QJsVUKHWRnm1bL7HziJsfh5fHqth87yKA==
   /@typescript-eslint/eslint-plugin/3.6.0_1c51ade106368f8db1c65fa08c9a96ed:
     dependencies:
       '@typescript-eslint/experimental-utils': 3.6.0_eslint@7.4.0+typescript@3.9.6
@@ -2053,6 +2066,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-+cjBN1fMHde8N5rHeyxipcKGjEA=
+  /arg/4.1.3:
+    dev: true
+    resolution:
+      integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==
   /argparse/1.0.10:
     dependencies:
       sprintf-js: 1.0.3
@@ -3374,6 +3391,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-8NZtA2cqglyxtzvbP+YjEMjlUrc=
+  /diff/4.0.2:
+    dev: true
+    engines:
+      node: '>=0.3.1'
+    resolution:
+      integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
   /diffie-hellman/5.0.3:
     dependencies:
       bn.js: 4.11.9
@@ -5479,6 +5502,10 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==
+  /make-error/1.3.6:
+    dev: true
+    resolution:
+      integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==
   /make-iterator/1.0.1:
     dependencies:
       kind-of: 6.0.3
@@ -7828,6 +7855,22 @@ packages:
     optional: true
     resolution:
       integrity: sha1-YdvC1Ttp/2CRoSoWj9fUMxB+QPE=
+  /ts-node/8.10.2_typescript@3.9.6:
+    dependencies:
+      arg: 4.1.3
+      diff: 4.0.2
+      make-error: 1.3.6
+      source-map-support: 0.5.19
+      typescript: 3.9.6
+      yn: 3.1.1
+    dev: true
+    engines:
+      node: '>=6.0.0'
+    hasBin: true
+    peerDependencies:
+      typescript: '>=2.7'
+    resolution:
+      integrity: sha512-ISJJGgkIpDdBhWVu3jufsWpK3Rzo7bdiIXJjQc0ynKxVOVcg2oIrf2H2cejminGrptVc6q6/uynAHNCuWGbpVA==
   /tslib/1.13.0:
     dev: true
     resolution:
@@ -8409,6 +8452,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-phENi2PLiHnHb6QBVot+dJnaAZ0xosj7p3fWl+znIjBDlnMI2PsZCJZ306BPTFOaHf5qdDEI8x5qFrSOBN5vrw==
+  /yn/3.1.1:
+    dev: true
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 specifiers:
   '@babel/core': ^7.8.4
   '@babel/plugin-proposal-class-properties': ^7.5.5
@@ -8432,6 +8481,7 @@ specifiers:
   '@types/react': ^16.9.41
   '@types/react-dom': ^16.9.8
   '@types/react-router-dom': ^5.1.5
+  '@types/webpack': ^4.41.21
   '@typescript-eslint/eslint-plugin': ^3.6.0
   '@typescript-eslint/parser': ^3.6.0
   babel-eslint: ^10.0.3
@@ -8463,6 +8513,7 @@ specifiers:
   rollbar: ^2.14.4
   string-replace-loader: ^2.2.0
   style-loader: ^1.1.3
+  ts-node: ^8.10.2
   typeface-roboto: ^0.0.75
   typescript: ^3.9.6
   web-ext-types: ^3.2.1

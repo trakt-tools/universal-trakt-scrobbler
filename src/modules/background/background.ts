@@ -1,28 +1,28 @@
 import { TraktAuth } from '../../api/TraktAuth';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { Requests } from '../../services/Requests';
+import { Requests, RequestDetails } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
 
-init();
-
-async function init() {
-	Shared.isBackgroundPage = true;
-	await BrowserStorage.sync();
-	const values = await BrowserStorage.get('options');
-	if (values.options && values.options.allowRollbar) {
-		Errors.startRollbar();
-	}
-	browser.browserAction.onClicked.addListener(onBrowserActionClicked);
-	browser.runtime.onMessage.addListener(
-		/** @type {browser.runtime.onMessageEvent} */ (/** @type {unknown} */ (onMessage))
-	);
+interface MessageRequest {
+	action: 'check-login' | 'create-tab' | 'finish-login' | 'login' | 'logout' | 'send-request';
+	url: string;
+	redirectUrl: string;
+	request: RequestDetails;
 }
 
-/**
- * @returns {Promise<void>}
- */
-async function onBrowserActionClicked() {
+const init = async () => {
+	Shared.isBackgroundPage = true;
+	await BrowserStorage.sync();
+	const storage = await BrowserStorage.get('options');
+	if (storage.options?.allowRollbar) {
+		Errors.startRollbar();
+	}
+	browser.browserAction.onClicked.addListener(() => void onBrowserActionClicked());
+	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+const onBrowserActionClicked = async (): Promise<void> => {
 	const tabs = await browser.tabs.query({
 		url: `${browser.runtime.getURL('')}*`,
 	});
@@ -34,16 +34,11 @@ async function onBrowserActionClicked() {
 			active: true,
 		});
 	}
-}
+};
 
-/**
- * @param {string} request
- * @returns {Promise<string>}
- */
-function onMessage(request) {
-	/** @type {Promise<unknown>} */
-	let executingAction;
-	const parsedRequest = JSON.parse(request);
+const onMessage = (request: string, sender: browser.runtime.MessageSender): Promise<string> => {
+	let executingAction: Promise<unknown>;
+	const parsedRequest = JSON.parse(request) as MessageRequest;
 	switch (parsedRequest.action) {
 		case 'check-login': {
 			executingAction = TraktAuth.validateToken();
@@ -78,7 +73,7 @@ function onMessage(request) {
 			.then((response) => {
 				resolve(JSON.stringify(response || null));
 			})
-			.catch((err) => {
+			.catch((err: Error) => {
 				Errors.log('Failed to execute action.', err);
 				resolve(
 					JSON.stringify({
@@ -87,4 +82,6 @@ function onMessage(request) {
 				);
 			});
 	});
-}
+};
+
+void init();

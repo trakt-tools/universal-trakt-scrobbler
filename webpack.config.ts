@@ -1,28 +1,41 @@
-/**
- * @typedef {Object} Environment
- * @property {boolean} development
- * @property {boolean} production
- * @property {boolean} test
- * @property {boolean} watch
- */
+interface Environment {
+	development: boolean;
+	production: boolean;
+	test: boolean;
+	watch: boolean;
+}
 
-/**
- * @typedef {Object} Config
- * @property {string} clientId
- * @property {string} clientSecret
- * @property {string} rollbarToken
- * @property {string} tmdbApiKey
- * @property {string} [chromeExtensionId]
- * @property {string} [chromeExtensionKey]
- * @property {string} [firefoxExtensionId]
- */
+interface Config {
+	clientId: string;
+	clientSecret: string;
+	rollbarToken: string;
+	tmdbApiKey: string;
+	chromeExtensionId?: string;
+	chromeExtensionKey?: string;
+	firefoxExtensionId?: string;
+}
 
-const fs = require('fs-extra');
-const path = require('path');
-const webpack = require('webpack'); // eslint-disable-line
+type Manifest = Omit<
+	browser.runtime.Manifest,
+	'background' | 'languages' | 'optional_permissions' | 'permissions'
+> & {
+	background?: {
+		scripts: string[];
+		persistent: boolean;
+	};
+	optional_permissions?: string[];
+	permissions?: string[];
+};
+
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import * as webpack from 'webpack';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
+import * as packageJson from './package.json';
+import * as configJson from './config.json';
 
 const BASE_PATH = process.cwd();
-const packageJson = require(path.resolve(BASE_PATH, './package.json'));
 const loaders = {
 	css: {
 		loader: 'css-loader',
@@ -37,51 +50,40 @@ const loaders = {
 };
 
 class RunAfterBuildPlugin {
-	/**
-	 * @param {() => void} callback
-	 */
-	constructor(callback) {
+	callback: () => void;
+
+	constructor(callback: () => void) {
 		this.callback = callback;
 	}
 
-	/**
-	 *
-	 * @param {import('webpack').Compiler} compiler
-	 */
-	apply(compiler) {
+	apply = (compiler: webpack.Compiler) => {
 		compiler.hooks.afterEmit.tap('RunAfterBuild', this.callback);
-	}
+	};
 }
 
 const plugins = {
-	clean: require('clean-webpack-plugin').CleanWebpackPlugin,
-	progressBar: require('progress-bar-webpack-plugin'),
+	clean: CleanWebpackPlugin,
+	progressBar: ProgressBarWebpackPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
 };
 
-/**
- * @param {Environment} env
- */
-function getWebpackConfig(env) {
-	let mode;
+const getWebpackConfig = (env: Environment) => {
+	let mode: 'production' | 'development';
 	if (env.production) {
 		mode = 'production';
-	} else if (env.development) {
-		mode = 'development';
 	} else {
-		mode = 'none';
+		mode = 'development';
 	}
-	/** @type {Config} */
-	const configJson = require(path.resolve(BASE_PATH, 'config.json'))[mode];
+	const config = configJson[mode];
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
-			'./chrome/js/background': ['./src/modules/background/background.js'],
-			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.js'],
-			'./chrome/js/history': ['./src/modules/history/history.js'],
-			'./firefox/js/background': ['./src/modules/background/background.js'],
-			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.js'],
-			'./firefox/js/history': ['./src/modules/history/history.js'],
+			'./chrome/js/background': ['./src/modules/background/background.ts'],
+			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
+			'./chrome/js/history': ['./src/modules/history/history.tsx'],
+			'./firefox/js/background': ['./src/modules/background/background.ts'],
+			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
+			'./firefox/js/history': ['./src/modules/history/history.tsx'],
 		},
 		mode,
 		module: {
@@ -91,10 +93,10 @@ function getWebpackConfig(env) {
 					loader: 'string-replace-loader',
 					options: {
 						multiple: [
-							{ search: '@@clientId', replace: configJson.clientId },
-							{ search: '@@clientSecret', replace: configJson.clientSecret },
-							{ search: '@@rollbarToken', replace: configJson.rollbarToken },
-							{ search: '@@tmdbApiKey', replace: configJson.tmdbApiKey },
+							{ search: '@@clientId', replace: config.clientId },
+							{ search: '@@clientSecret', replace: config.clientSecret },
+							{ search: '@@rollbarToken', replace: config.rollbarToken },
+							{ search: '@@tmdbApiKey', replace: config.tmdbApiKey },
 						],
 					},
 				},
@@ -138,7 +140,7 @@ function getWebpackConfig(env) {
 		plugins: [
 			new plugins.clean(),
 			new plugins.progressBar(),
-			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(configJson))]),
+			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(config))]),
 		],
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
@@ -150,16 +152,10 @@ function getWebpackConfig(env) {
 			poll: 1000,
 		},
 	};
-}
+};
 
-/**
- * @param {Config} configJson
- * @param {string} browserName
- * @returns {string}
- */
-function getManifest(configJson, browserName) {
-	/** @type {browser.runtime.Manifest} */
-	const manifest = {
+const getManifest = (config: Config, browserName: string): string => {
+	const manifest: Manifest = {
 		manifest_version: 2,
 		name: '__MSG_appName__',
 		version: packageJson.version,
@@ -168,7 +164,6 @@ function getManifest(configJson, browserName) {
 			16: 'images/uts-icon-16.png',
 			128: 'images/uts-icon-128.png',
 		},
-		// @ts-expect-error
 		background: {
 			scripts: ['js/lib/browser-polyfill.js', 'js/background.js'],
 			persistent: true,
@@ -182,11 +177,8 @@ function getManifest(configJson, browserName) {
 		],
 		default_locale: 'en',
 		optional_permissions: [
-			// @ts-expect-error
 			'*://api.rollbar.com/*',
-			// @ts-expect-error
 			'*://script.google.com/*',
-			// @ts-expect-error
 			'*://script.googleusercontent.com/*',
 		],
 		browser_action: {
@@ -200,13 +192,9 @@ function getManifest(configJson, browserName) {
 			'storage',
 			'tabs',
 			'unlimitedStorage',
-			// @ts-expect-error
 			'*://*.trakt.tv/*',
-			// @ts-expect-error
 			'*://*.netflix.com/*',
-			// @ts-expect-error
 			'*://tv.nrk.no/*',
-			// @ts-expect-error
 			'*://*.viaplay.no/*',
 		],
 		web_accessible_resources: [
@@ -217,16 +205,16 @@ function getManifest(configJson, browserName) {
 	};
 	switch (browserName) {
 		case 'chrome': {
-			if (configJson.chromeExtensionKey) {
-				manifest.key = configJson.chromeExtensionKey;
+			if (config.chromeExtensionKey) {
+				manifest.key = config.chromeExtensionKey;
 			}
 			break;
 		}
 		case 'firefox': {
-			if (configJson.firefoxExtensionId) {
+			if (config.firefoxExtensionId) {
 				manifest.browser_specific_settings = {
 					gecko: {
-						id: configJson.firefoxExtensionId,
+						id: config.firefoxExtensionId,
 					},
 				};
 			}
@@ -234,12 +222,9 @@ function getManifest(configJson, browserName) {
 		}
 	}
 	return JSON.stringify(manifest, null, 2);
-}
+};
 
-/**
- * @param {Config} configJson
- */
-async function runFinalSteps(configJson) {
+const runFinalSteps = (config: Config) => {
 	if (!fs.existsSync('./build/chrome/js/lib')) {
 		fs.mkdirSync('./build/chrome/js/lib');
 	}
@@ -276,17 +261,17 @@ async function runFinalSteps(configJson) {
 	}
 	const filesToCreate = [
 		{
-			data: getManifest(configJson, 'chrome'),
+			data: getManifest(config, 'chrome'),
 			path: './build/chrome/manifest.json',
 		},
 		{
-			data: getManifest(configJson, 'firefox'),
+			data: getManifest(config, 'firefox'),
 			path: './build/firefox/manifest.json',
 		},
 	];
 	for (const fileToCreate of filesToCreate) {
 		fs.writeFileSync(fileToCreate.path, fileToCreate.data);
 	}
-}
+};
 
-module.exports = getWebpackConfig;
+export default getWebpackConfig;
