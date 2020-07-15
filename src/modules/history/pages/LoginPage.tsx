@@ -17,13 +17,13 @@ export const LoginPage: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, onLoginSuccess);
-			EventDispatcher.subscribe(Events.LOGIN_ERROR, onLoginError);
+			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLoginSuccess);
+			EventDispatcher.subscribe(Events.LOGIN_ERROR, null, onLoginError);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, onLoginSuccess);
-			EventDispatcher.unsubscribe(Events.LOGIN_ERROR, onLoginError);
+			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLoginSuccess);
+			EventDispatcher.unsubscribe(Events.LOGIN_ERROR, null, onLoginError);
 		};
 
 		const onLoginSuccess = () => {

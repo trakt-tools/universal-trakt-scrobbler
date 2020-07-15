@@ -96,20 +96,28 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
-			EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
-			EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
-			EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
-			EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
+			EventDispatcher.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, null, onStoreUpdate);
+			EventDispatcher.subscribe(
+				Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR,
+				null,
+				onHistoryLoadError
+			);
+			EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
+			EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
+			EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
 			store.startListeners();
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, onStoreUpdate);
-			EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, onHistoryLoadError);
-			EventDispatcher.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, onTraktHistoryLoadError);
-			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, onHistorySyncSuccess);
-			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_ERROR, onHistorySyncError);
+			EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, null, onStoreUpdate);
+			EventDispatcher.unsubscribe(
+				Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR,
+				null,
+				onHistoryLoadError
+			);
+			EventDispatcher.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
+			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
+			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
 			store.stopListeners();
 		};
 
@@ -121,21 +129,21 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onHistoryLoadError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 				messageName: 'loadHistoryError',
 				severity: 'error',
 			});
 		};
 
 		const onTraktHistoryLoadError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 				messageName: 'loadTraktHistoryError',
 				severity: 'error',
 			});
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 				messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
 				messageName: 'historySyncSuccess',
 				severity: 'success',
@@ -143,7 +151,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onHistorySyncError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 				messageName: 'historySyncError',
 				severity: 'error',
 			});
@@ -155,11 +163,11 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
+			EventDispatcher.subscribe(Events.HISTORY_OPTIONS_CHANGE, null, onOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, onOptionsChange);
+			EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, null, onOptionsChange);
 		};
 
 		const onOptionsChange = (data: HistoryOptionsChangeData) => {
@@ -180,14 +188,14 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 						hasLoaded: true,
 						options,
 					});
-					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
 					});
 				})
 				.catch(async (err) => {
 					Errors.error('Failed to save option.', err);
-					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',
 					});

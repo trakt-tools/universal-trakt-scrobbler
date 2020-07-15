@@ -33,7 +33,7 @@ class _Errors {
 	};
 
 	startListeners = (): void => {
-		EventDispatcher.subscribe(Events.SEARCH_ERROR, this.onSearchError);
+		EventDispatcher.subscribe(Events.SEARCH_ERROR, null, this.onSearchError);
 	};
 
 	onSearchError = async (data: ErrorEventData): Promise<void> => {

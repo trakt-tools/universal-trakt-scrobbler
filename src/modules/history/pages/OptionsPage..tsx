@@ -39,19 +39,21 @@ export const OptionsPage: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.OPTIONS_CLEAR, resetOptions);
-			EventDispatcher.subscribe(Events.OPTIONS_CHANGE, onOptionChange);
+			EventDispatcher.subscribe(Events.OPTIONS_CLEAR, null, resetOptions);
+			EventDispatcher.subscribe(Events.OPTIONS_CHANGE, null, onOptionChange);
 			EventDispatcher.subscribe(
 				Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+				null,
 				onStreamingServiceOptionChange
 			);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.OPTIONS_CLEAR, resetOptions);
-			EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, onOptionChange);
+			EventDispatcher.unsubscribe(Events.OPTIONS_CLEAR, null, resetOptions);
+			EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, null, onOptionChange);
 			EventDispatcher.unsubscribe(
 				Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+				null,
 				onStreamingServiceOptionChange
 			);
 		};
@@ -179,13 +181,13 @@ export const OptionsPage: React.FC = () => {
 					isLoading: false,
 					options,
 				});
-				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 					messageName: 'saveOptionSuccess',
 					severity: 'success',
 				});
 			} catch (err) {
 				Errors.error('Failed to save option.', err);
-				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 					messageName: 'saveOptionFailed',
 					severity: 'error',
 				});

@@ -14,13 +14,13 @@ class _Session {
 			const auth = await Messaging.toBackground({ action: 'check-login' });
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
-				await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, { auth });
+				await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, null, { auth });
 			} else {
 				throw auth;
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch(Events.LOGIN_ERROR, {});
+			await EventDispatcher.dispatch(Events.LOGIN_ERROR, null, {});
 		}
 	};
 
@@ -29,14 +29,14 @@ class _Session {
 			const auth = await Messaging.toBackground({ action: 'login' });
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
-				await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, { auth });
+				await EventDispatcher.dispatch(Events.LOGIN_SUCCESS, null, { auth });
 			} else {
 				throw auth;
 			}
 		} catch (err) {
 			Errors.error('Failed to log in.', err);
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch(Events.LOGIN_ERROR, { error: err as Error });
+			await EventDispatcher.dispatch(Events.LOGIN_ERROR, null, { error: err as Error });
 		}
 	};
 
@@ -44,11 +44,11 @@ class _Session {
 		try {
 			await Messaging.toBackground({ action: 'logout' });
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch(Events.LOGOUT_SUCCESS, {});
+			await EventDispatcher.dispatch(Events.LOGOUT_SUCCESS, null, {});
 		} catch (err) {
 			Errors.error('Failed to log out.', err);
 			this.isLoggedIn = true;
-			await EventDispatcher.dispatch(Events.LOGOUT_ERROR, { error: err as Error });
+			await EventDispatcher.dispatch(Events.LOGOUT_ERROR, null, { error: err as Error });
 		}
 	};
 

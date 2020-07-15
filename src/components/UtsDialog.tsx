@@ -41,11 +41,11 @@ export const UtsDialog: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.DIALOG_SHOW, showDialog);
+			EventDispatcher.subscribe(Events.DIALOG_SHOW, null, showDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.DIALOG_SHOW, showDialog);
+			EventDispatcher.unsubscribe(Events.DIALOG_SHOW, null, showDialog);
 		};
 
 		const showDialog = (data: DialogData) => {

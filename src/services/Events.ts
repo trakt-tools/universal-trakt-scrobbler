@@ -24,9 +24,10 @@ export enum Events {
 	HISTORY_SYNC_ERROR,
 }
 
-export type EventDispatcherListeners = {
-	[key: number]: EventDispatcherListener<any>[];
-};
+export type EventDispatcherListeners = Record<
+	string,
+	Record<string, EventDispatcherListener<any>[]>
+>;
 
 export type EventDispatcherListener<T> = (data: T) => void | Promise<void>;
 
@@ -62,33 +63,74 @@ export type StreamingServiceOptionEventData<K extends StreamingServiceId> = {
 }[];
 
 class _EventDispatcher {
+	globalSpecifier = 'all';
 	listeners: EventDispatcherListeners;
 
 	constructor() {
 		this.listeners = {};
 	}
 
-	subscribe = <T>(eventType: Events, listener: EventDispatcherListener<T>): void => {
+	subscribe = <T>(
+		eventType: Events,
+		eventSpecifier: string | null,
+		listener: EventDispatcherListener<T>
+	): void => {
 		if (!this.listeners[eventType]) {
-			this.listeners[eventType] = [];
+			this.listeners[eventType] = {};
 		}
-		this.listeners[eventType].push(listener);
+		if (!this.listeners[eventType][this.globalSpecifier]) {
+			this.listeners[eventType][this.globalSpecifier] = [];
+		}
+		this.listeners[eventType][this.globalSpecifier].push(listener);
+		if (!eventSpecifier || eventSpecifier === this.globalSpecifier) {
+			return;
+		}
+		if (!this.listeners[eventType][eventSpecifier]) {
+			this.listeners[eventType][eventSpecifier] = [];
+		}
+		this.listeners[eventType][eventSpecifier].push(listener);
 	};
 
-	unsubscribe = <T>(eventType: Events, listener: EventDispatcherListener<T>): void => {
-		if (this.listeners[eventType]) {
-			this.listeners[eventType] = this.listeners[eventType].filter((fn) => fn !== listener);
+	unsubscribe = <T>(
+		eventType: Events,
+		eventSpecifier: string | null,
+		listener: EventDispatcherListener<T>
+	): void => {
+		if (!this.listeners[eventType]) {
+			return;
+		}
+		if (this.listeners[eventType][this.globalSpecifier]) {
+			this.listeners[eventType][this.globalSpecifier] = this.listeners[eventType][
+				this.globalSpecifier
+			].filter((fn) => fn !== listener);
+		}
+		if (
+			eventSpecifier &&
+			eventSpecifier !== this.globalSpecifier &&
+			this.listeners[eventType][eventSpecifier]
+		) {
+			this.listeners[eventType][eventSpecifier] = this.listeners[eventType][eventSpecifier].filter(
+				(fn) => fn !== listener
+			);
 		}
 	};
 
-	dispatch = async (eventType: Events, data: unknown): Promise<void> => {
-		if (this.listeners[eventType]) {
-			for (const listener of this.listeners[eventType]) {
-				try {
-					await listener(data);
-				} catch (err) {
-					Errors.log('Failed to dispatch.', err);
-				}
+	dispatch = async (
+		eventType: Events,
+		eventSpecifier: string | null,
+		data: unknown
+	): Promise<void> => {
+		const listeners =
+			this.listeners[eventType] &&
+			this.listeners[eventType][eventSpecifier || this.globalSpecifier];
+		if (!listeners) {
+			return;
+		}
+		for (const listener of listeners) {
+			try {
+				await listener(data);
+			} catch (err) {
+				Errors.log('Failed to dispatch.', err);
 			}
 		}
 	};

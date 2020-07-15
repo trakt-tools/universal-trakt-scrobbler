@@ -153,7 +153,7 @@ class _ViaplayApi implements Api {
 				});
 		} catch (err) {
 			Errors.error('Failed to load Viaplay history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {
+			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, null, {
 				error: err as Error,
 			});
 		}

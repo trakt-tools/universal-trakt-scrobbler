@@ -22,13 +22,13 @@ export const HistoryApp: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, onLogin);
-			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, onLogout);
+			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLogin);
+			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, null, onLogout);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, onLogin);
-			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, onLogout);
+			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLogin);
+			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, null, onLogout);
 		};
 
 		const onLogin = () => {

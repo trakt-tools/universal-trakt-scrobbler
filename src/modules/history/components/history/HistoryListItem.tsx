@@ -15,7 +15,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 	const { dateFormat, item, serviceName } = props;
 
 	const onCheckboxChange = async () => {
-		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, {
+		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_CHANGE, null, {
 			index: item.index,
 			checked: !item.isSelected,
 		});

@@ -19,7 +19,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	const { option } = props;
 
 	const onChange = async () => {
-		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
+		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, null, {
 			id: option.id,
 			value: !option.value,
 		});

@@ -83,9 +83,9 @@ class _TraktSearch extends TraktApi {
 				const year = movieItem.movie.year;
 				syncItem = new SyncItem({ id, type: item.type, title, year });
 			}
-			await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, { searchItem });
+			await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, null, { searchItem });
 		} catch (err) {
-			await EventDispatcher.dispatch(Events.SEARCH_ERROR, { error: err as Error });
+			await EventDispatcher.dispatch(Events.SEARCH_ERROR, null, { error: err as Error });
 		}
 		return syncItem;
 	};
