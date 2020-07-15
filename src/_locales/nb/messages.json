@@ -119,7 +119,7 @@
 		"message": "Nei"
 	},
 	"noStreamingServices": {
-		"message": "No streaming services enabled. You can enable streaming services in the options page."
+		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
 	},
 	"notFound": {
 		"message": "Ikke funnet"
@@ -164,10 +164,10 @@
 		"message": "Send / motta forslag til rettelser."
 	},
 	"streamingServicesDescription": {
-		"message": "Choose which streaming services to enable."
+		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
 	"streamingServicesName": {
-		"message": "Streaming services"
+		"message": "Strømmetjenester"
 	},
 	"sync": {
 		"message": "Synkroniser historikk"
