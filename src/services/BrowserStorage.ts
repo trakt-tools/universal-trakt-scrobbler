@@ -1,4 +1,5 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
+import { Shared } from './Shared';
 
 export type StorageValues = {
 	auth?: TraktAuthDetails;
@@ -12,6 +13,7 @@ export type StorageValues = {
 export type StorageValuesOptions = {
 	allowRollbar: boolean;
 	sendReceiveSuggestions: boolean;
+	grantCookies: boolean;
 };
 
 export type StorageValuesSyncOptions = {
@@ -121,6 +123,16 @@ class _BrowserStorage {
 				permissions: [],
 			},
 		};
+		if (Shared.browser === 'firefox') {
+			options.grantCookies = {
+				id: 'grantCookies',
+				name: '',
+				description: '',
+				value: false,
+				origins: [],
+				permissions: ['cookies', 'webRequest', 'webRequestBlocking'],
+			};
+		}
 		const values = await BrowserStorage.get('options');
 		for (const option of Object.values(options)) {
 			option.name = browser.i18n.getMessage(`${option.id}Name`);

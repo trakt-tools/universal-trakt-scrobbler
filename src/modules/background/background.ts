@@ -1,11 +1,12 @@
 import { TraktAuth } from '../../api/TraktAuth';
-import { BrowserStorage } from '../../services/BrowserStorage';
+import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { Requests, RequestDetails } from '../../services/Requests';
+import { RequestDetails, Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
+import { Tabs } from '../../services/Tabs';
 
 interface MessageRequest {
-	action: 'check-login' | 'create-tab' | 'finish-login' | 'login' | 'logout' | 'send-request';
+	action: 'check-login' | 'finish-login' | 'login' | 'logout' | 'send-request';
 	url: string;
 	redirectUrl: string;
 	request: RequestDetails;
@@ -18,22 +19,85 @@ const init = async () => {
 	if (storage.options?.allowRollbar) {
 		Errors.startRollbar();
 	}
+	browser.storage.onChanged.addListener(onStorageChanged);
 	browser.browserAction.onClicked.addListener(() => void onBrowserActionClicked());
+	if (storage.options?.grantCookies) {
+		addWebRequestListener();
+	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+const onStorageChanged = (
+	changes: browser.storage.ChangeDict,
+	areaName: browser.storage.StorageName
+) => {
+	if (areaName !== 'local') {
+		return;
+	}
+	if (!changes.options) {
+		return;
+	}
+	if ((changes.options.newValue as StorageValuesOptions)?.grantCookies) {
+		addWebRequestListener();
+	} else {
+		removeWebRequestListener();
+	}
 };
 
 const onBrowserActionClicked = async (): Promise<void> => {
 	const tabs = await browser.tabs.query({
-		url: `${browser.runtime.getURL('')}*`,
+		url: `${browser.runtime.getURL('/')}*`,
 	});
-	if (tabs && tabs.length > 0) {
+	if (tabs.length > 0) {
 		await browser.tabs.update(tabs[0].id, { active: true });
 	} else {
-		await browser.tabs.create({
-			url: browser.runtime.getURL('html/history.html'),
-			active: true,
-		});
+		await Tabs.open(browser.runtime.getURL('html/history.html'));
 	}
+};
+
+const addWebRequestListener = () => {
+	if (
+		!browser.webRequest ||
+		browser.webRequest.onBeforeSendHeaders.hasListener(onBeforeSendHeaders)
+	) {
+		return;
+	}
+	const filters: browser.webRequest.RequestFilter = {
+		types: ['xmlhttprequest'],
+		urls: ['*://*.trakt.tv/*', '*://*.netflix.com/*', '*://tv.nrk.no/*', '*://*.viaplay.no/*'],
+	};
+	void browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders, filters, [
+		'blocking',
+		'requestHeaders',
+	]);
+};
+
+const removeWebRequestListener = () => {
+	if (
+		!browser.webRequest ||
+		!browser.webRequest.onBeforeSendHeaders.hasListener(onBeforeSendHeaders)
+	) {
+		return;
+	}
+	browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeaders);
+};
+
+/**
+ * Makes sure cookies are set for requests.
+ */
+const onBeforeSendHeaders = ({ requestHeaders }: browser.webRequest.BlockingResponse) => {
+	if (!requestHeaders) {
+		return;
+	}
+	const utsCookies = requestHeaders.find((header) => header.name.toLowerCase() === 'uts-cookie');
+	if (!utsCookies) {
+		return;
+	}
+	requestHeaders = requestHeaders.filter((header) => header.name.toLowerCase() !== 'cookie');
+	utsCookies.name = 'Cookie';
+	return {
+		requestHeaders: requestHeaders,
+	};
 };
 
 const onMessage = (request: string, sender: browser.runtime.MessageSender): Promise<string> => {
@@ -42,13 +106,6 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 	switch (parsedRequest.action) {
 		case 'check-login': {
 			executingAction = TraktAuth.validateToken();
-			break;
-		}
-		case 'create-tab': {
-			executingAction = browser.tabs.create({
-				url: parsedRequest.url,
-				active: true,
-			});
 			break;
 		}
 		case 'finish-login': {
@@ -64,7 +121,7 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			break;
 		}
 		case 'send-request': {
-			executingAction = Requests.send(parsedRequest.request);
+			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
 		}
 	}

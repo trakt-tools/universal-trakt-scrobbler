@@ -1,6 +1,8 @@
 import { secrets } from '../secrets';
 import { BrowserStorage } from '../services/BrowserStorage';
 import { Requests } from '../services/Requests';
+import { Shared } from '../services/Shared';
+import { Tabs } from '../services/Tabs';
 import { TraktApi } from './TraktApi';
 
 export type TraktManualAuth = {
@@ -56,7 +58,12 @@ class _TraktAuth extends TraktApi {
 
 	authorize = async (): Promise<TraktAuthDetails> => {
 		let promise: Promise<TraktAuthDetails>;
-		if (this.isIdentityAvailable) {
+		let requiresCookies = false;
+		if (Shared.browser === 'firefox') {
+			const storage = await BrowserStorage.get('options');
+			requiresCookies = !!storage.options?.grantCookies;
+		}
+		if (this.isIdentityAvailable && !requiresCookies) {
 			promise = this.startIdentityAuth();
 		} else {
 			promise = new Promise((resolve) => void this.startManualAuth(resolve));
@@ -65,24 +72,24 @@ class _TraktAuth extends TraktApi {
 	};
 
 	startIdentityAuth = async (): Promise<TraktAuthDetails> => {
-		const redirectUrl = await browser.identity.launchWebAuthFlow({
-			url: this.getAuthorizeUrl(),
-			interactive: true,
-		});
-		return this.getToken(redirectUrl);
+		try {
+			const redirectUrl = await browser.identity.launchWebAuthFlow({
+				url: this.getAuthorizeUrl(),
+				interactive: true,
+			});
+			return this.getToken(redirectUrl);
+		} catch (err) {
+			this.isIdentityAvailable = false;
+			return new Promise((resolve) => void this.startManualAuth(resolve));
+		}
 	};
 
 	startManualAuth = async (callback: PromiseResolve<TraktAuthDetails>): Promise<void> => {
 		this.manualAuth.callback = callback;
-		const tabs = await browser.tabs.query({
-			active: true,
-			currentWindow: true,
-		});
-		const tab = await browser.tabs.create({
-			url: this.getAuthorizeUrl(),
-			index: tabs[0].index,
-		});
-		this.manualAuth.tabId = tab.id;
+		const tab = await Tabs.open(this.getAuthorizeUrl());
+		if (tab) {
+			this.manualAuth.tabId = tab.id;
+		}
 	};
 
 	finishManualAuth = async (redirectUrl: string): Promise<void> => {
