@@ -6,3 +6,4 @@ config.json
 *.log
 /.idea/
 /universal-trakt-sync.iml
+package-lock.json

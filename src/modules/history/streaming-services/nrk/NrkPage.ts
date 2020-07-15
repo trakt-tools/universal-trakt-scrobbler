@@ -1,9 +1,7 @@
+import { Page } from '../common/Page';
 import { NrkApi } from './NrkApi';
-import { NrkStore } from "./NrkStore";
-import { Page } from "../common/Page";
+import { NrkStore } from './NrkStore';
 
-function NrkPage() {
-    return Page({serviceName: "NRK", store: NrkStore, api: NrkApi})
-}
-
-export { NrkPage };
+export const NrkPage = (): React.ReactElement | null => {
+	return Page({ serviceName: 'NRK', store: NrkStore, api: NrkApi });
+};

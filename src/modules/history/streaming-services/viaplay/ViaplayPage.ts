@@ -1,9 +1,7 @@
+import { Page } from '../common/Page';
 import { ViaplayApi } from './ViaplayApi';
-import { ViaplayStore } from "./ViaplayStore";
-import { Page } from "../common/Page";
+import { ViaplayStore } from './ViaplayStore';
 
-function ViaplayPage() {
-    return Page({serviceName: "Viaplay", store: ViaplayStore, api: ViaplayApi})
-}
-
-export { ViaplayPage };
+export const ViaplayPage = (): React.ReactElement | null => {
+	return Page({ serviceName: 'Viaplay', store: ViaplayStore, api: ViaplayApi });
+};

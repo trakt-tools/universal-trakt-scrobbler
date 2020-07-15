@@ -1,0 +1,3 @@
+build/*
+node_modules/*
+eslint-plugin-prefer-arrow/*
