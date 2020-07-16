@@ -149,7 +149,13 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
-			await getApi(serviceId).loadTraktItemHistory(data.item, data.url);
+			const storage = await BrowserStorage.get('traktCache');
+			let { traktCache } = storage;
+			if (!traktCache) {
+				traktCache = {};
+			}
+			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, data.url);
+			await BrowserStorage.set({ traktCache }, false);
 			await getStore(serviceId).update();
 		};
 
