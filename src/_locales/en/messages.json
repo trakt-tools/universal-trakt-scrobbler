@@ -23,6 +23,9 @@
 	"allowRollbarName": {
 		"message": "Allow Rollbar to collect information about bugs."
 	},
+	"cancel": {
+		"message": "Cancel"
+	},
 	"clearStorage": {
 		"message": "Clear Storage"
 	},
@@ -52,6 +55,16 @@
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Clear Trakt cache?"
+	},
+	"correct": {
+		"message": "Correct",
+		"description": "This is the verb, as in 'to correct'."
+	},
+	"correctWrongItem": {
+		"message": "Correct wrong item"
+	},
+	"correctWrongItemFailed": {
+		"message": "Failed to correct wrong item."
 	},
 	"errorNotification": {
 		"message": "An error has occurred. :("
@@ -95,7 +108,13 @@
 		"message": "Home"
 	},
 	"isThisWrong": {
-		"message": "Is this wrong or incomplete? "
+		"message": "Is this wrong?"
+	},
+	"itemSynced": {
+		"message": "Item synced"
+	},
+	"itemNotSynced": {
+		"message": "Item not synced"
 	},
 	"itemsPerLoadName": {
 		"message": "Items per load."
@@ -132,6 +151,14 @@
 	},
 	"options": {
 		"message": "Options"
+	},
+	"progress": {
+		"message": "Progress: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
 	},
 	"readMore": {
 		"message": "Read More"
@@ -181,13 +208,19 @@
 	"watched": {
 		"message": "Watched On"
 	},
-	"progress": {
-		"message": "Progress: $PROGRESS$%",
+	"wrongItemDialogContent": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
 		"placeholders": {
-			"progress": {
+			"title": {
 				"content": "$1"
 			}
 		}
+	},
+	"wrongItemDialogInvalidUrlLabel": {
+		"message": "Please enter a valid Trakt URL!"
+	},
+	"wrongItemDialogUrlLabel": {
+		"message": "URL"
 	},
 	"yes": {
 		"message": "Yes"

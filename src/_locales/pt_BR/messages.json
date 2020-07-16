@@ -23,6 +23,9 @@
 	"allowRollbarName": {
 		"message": "Permitir que o Rollbar colete informações sobre erros."
 	},
+	"cancel": {
+		"message": "Cancelar"
+	},
 	"clearStorage": {
 		"message": "Limpar Armazenamento"
 	},
@@ -52,6 +55,16 @@
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Limar o cache do Trakt?"
+	},
+	"correct": {
+		"message": "Corrigir",
+		"description": "This is the verb, as in 'to correct'."
+	},
+	"correctWrongItem": {
+		"message": "Corrigir item errado"
+	},
+	"correctWrongItemFailed": {
+		"message": "Ocorreu um erro ao corrigir o item errado."
 	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
@@ -95,7 +108,13 @@
 		"message": "Início"
 	},
 	"isThisWrong": {
-		"message": "Isso está errado ou incompleto? "
+		"message": "Isso está errado?"
+	},
+	"itemSynced": {
+		"message": "Item sincronizado"
+	},
+	"itemNotSynced": {
+		"message": "Item não sincronizado"
 	},
 	"itemsPerLoadName": {
 		"message": "Itens por página."
@@ -132,6 +151,14 @@
 	},
 	"options": {
 		"message": "Opções"
+	},
+	"progress": {
+		"message": "Progresso: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
 	},
 	"readMore": {
 		"message": "Ler Mais"
@@ -180,6 +207,20 @@
 	},
 	"watched": {
 		"message": "Assistido Em"
+	},
+	"wrongItemDialogContent": {
+		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"wrongItemDialogInvalidUrlLabel": {
+		"message": "Por favor, digite uma URL do Trakt válida!"
+	},
+	"wrongItemDialogUrlLabel": {
+		"message": "URL"
 	},
 	"yes": {
 		"message": "Sim"
