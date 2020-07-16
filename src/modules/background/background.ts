@@ -4,6 +4,7 @@ import { Errors } from '../../services/Errors';
 import { RequestDetails, Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
 import { Tabs } from '../../services/Tabs';
+import { streamingServices } from '../../streaming-services';
 
 interface MessageRequest {
 	action: 'check-login' | 'finish-login' | 'login' | 'logout' | 'send-request';
@@ -64,7 +65,12 @@ const addWebRequestListener = () => {
 	}
 	const filters: browser.webRequest.RequestFilter = {
 		types: ['xmlhttprequest'],
-		urls: ['*://*.trakt.tv/*', '*://*.netflix.com/*', '*://tv.nrk.no/*', '*://*.viaplay.no/*'],
+		urls: [
+			'*://*.trakt.tv/*',
+			...Object.values(streamingServices)
+				.map((service) => service.hostPatterns)
+				.flat(),
+		],
 	};
 	void browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders, filters, [
 		'blocking',

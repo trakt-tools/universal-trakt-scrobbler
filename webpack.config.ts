@@ -27,13 +27,14 @@ type Manifest = Omit<
 	permissions?: string[];
 };
 
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as webpack from 'webpack';
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
-import * as packageJson from './package.json';
+import * as webpack from 'webpack';
 import * as configJson from './config.json';
+import * as packageJson from './package.json';
+import { streamingServices } from './src/streaming-services';
 
 const BASE_PATH = process.cwd();
 const loaders = {
@@ -177,12 +178,15 @@ const getManifest = (config: Config, browserName: string): string => {
 		],
 		default_locale: 'en',
 		optional_permissions: [
-			'*://api.rollbar.com/*',
-			'*://script.google.com/*',
-			'*://script.googleusercontent.com/*',
 			'cookies',
 			'webRequest',
 			'webRequestBlocking',
+			'*://api.rollbar.com/*',
+			'*://script.google.com/*',
+			'*://script.googleusercontent.com/*',
+			...Object.values(streamingServices)
+				.map((service) => service.hostPatterns)
+				.flat(),
 		],
 		browser_action: {
 			default_icon: {
@@ -190,16 +194,7 @@ const getManifest = (config: Config, browserName: string): string => {
 				38: 'images/uts-icon-38.png',
 			},
 		},
-		permissions: [
-			'identity',
-			'storage',
-			'tabs',
-			'unlimitedStorage',
-			'*://*.trakt.tv/*',
-			'*://*.netflix.com/*',
-			'*://tv.nrk.no/*',
-			'*://*.viaplay.no/*',
-		],
+		permissions: ['identity', 'storage', 'tabs', 'unlimitedStorage', '*://*.trakt.tv/*'],
 		web_accessible_resources: [
 			'images/uts-icon-38.png',
 			'images/uts-icon-selected-38.png',

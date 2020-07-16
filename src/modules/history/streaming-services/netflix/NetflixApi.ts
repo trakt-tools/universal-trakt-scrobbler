@@ -5,8 +5,8 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { Api } from '../common/api';
-import { NetflixStore } from './NetflixStore';
+import { Api } from '../common/Api';
+import { getStore, registerApi } from '../common/common';
 
 export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];
@@ -143,7 +143,8 @@ class _NetflixApi implements Api {
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			NetflixStore.update({ isLastPage, nextPage, nextVisualPage, items })
+			getStore('netflix')
+				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
 				.catch(() => {
 					/** Do nothing */
@@ -229,10 +230,10 @@ class _NetflixApi implements Api {
 	loadTraktHistory = async () => {
 		try {
 			let promises = [];
-			const items = NetflixStore.data.items;
+			const items = getStore('netflix').data.items;
 			promises = items.map(this.loadTraktItemHistory);
 			await Promise.all(promises);
-			await NetflixStore.update();
+			await getStore('netflix').update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
 			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
@@ -254,3 +255,5 @@ class _NetflixApi implements Api {
 }
 
 export const NetflixApi = new _NetflixApi();
+
+registerApi('netflix', NetflixApi);

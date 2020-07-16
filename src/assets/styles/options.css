@@ -20,6 +20,19 @@
 	padding-top: 16px;
 }
 
+.options--streaming-service {
+	display: grid;
+	grid-gap: 0 50px;
+	grid-template-columns: repeat(5, 150px);
+	justify-content: center;
+}
+
 .options-list-item {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+}
+
+.options-list-item--secondary {
 	padding-right: 64px;
 }

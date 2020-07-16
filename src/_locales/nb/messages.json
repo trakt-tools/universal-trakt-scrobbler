@@ -118,6 +118,9 @@
 	"no": {
 		"message": "Nei"
 	},
+	"noStreamingServices": {
+		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
+	},
 	"notFound": {
 		"message": "Ikke funnet"
 	},
@@ -159,6 +162,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"streamingServicesDescription": {
+		"message": "Velg strømmetjenester som du vil ha aktive."
+	},
+	"streamingServicesName": {
+		"message": "Strømmetjenester"
 	},
 	"sync": {
 		"message": "Synkroniser historikk"

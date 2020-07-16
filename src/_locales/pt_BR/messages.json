@@ -118,6 +118,9 @@
 	"no": {
 		"message": "Não"
 	},
+	"noStreamingServices": {
+		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
+	},
 	"notFound": {
 		"message": "Não Encontrado"
 	},
@@ -159,6 +162,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Enviar / receber sugestões de correção."
+	},
+	"streamingServicesDescription": {
+		"message": "Escolha quais serviços de streaming deseja ativar."
+	},
+	"streamingServicesName": {
+		"message": "Serviços de streaming"
 	},
 	"sync": {
 		"message": "Sincronizar"

@@ -118,6 +118,9 @@
 	"no": {
 		"message": "No"
 	},
+	"noStreamingServices": {
+		"message": "No streaming services enabled. You can enable streaming services in the options page."
+	},
 	"notFound": {
 		"message": "Not Found"
 	},
@@ -159,6 +162,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / receive correction suggestions."
+	},
+	"streamingServicesDescription": {
+		"message": "Choose which streaming services to enable."
+	},
+	"streamingServicesName": {
+		"message": "Streaming services"
 	},
 	"sync": {
 		"message": "Sync"

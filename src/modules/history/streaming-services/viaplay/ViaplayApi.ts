@@ -5,8 +5,8 @@ import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { Requests } from '../../../../services/Requests';
-import { Api } from '../common/api';
-import { ViaplayStore } from './ViaplayStore';
+import { Api } from '../common/Api';
+import { getStore, registerApi } from '../common/common';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
@@ -145,7 +145,8 @@ class _ViaplayApi implements Api {
 				items = historyItems.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			ViaplayStore.update({ isLastPage, nextPage, nextVisualPage, items })
+			getStore('viaplay')
+				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
 				.catch(() => {
 					/** Do nothing */
@@ -192,10 +193,10 @@ class _ViaplayApi implements Api {
 	loadTraktHistory = async () => {
 		try {
 			let promises = [];
-			const items = ViaplayStore.data.items;
+			const items = getStore('viaplay').data.items;
 			promises = items.map(this.loadTraktItemHistory);
 			await Promise.all(promises);
-			void ViaplayStore.update();
+			void getStore('viaplay').update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
 			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
@@ -217,3 +218,5 @@ class _ViaplayApi implements Api {
 }
 
 export const ViaplayApi = new _ViaplayApi();
+
+registerApi('viaplay', ViaplayApi);

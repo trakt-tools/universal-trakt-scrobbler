@@ -13,7 +13,7 @@ import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { OptionsPage } from './pages/OptionsPage.';
-import { streamingServices } from './streaming-services/streamingServices';
+import { streamingServicePages } from './streaming-services/pages';
 
 const history = createBrowserHistory();
 
@@ -54,8 +54,8 @@ export const HistoryApp: React.FC = () => {
 						<Route component={HomePage} path="/home" />
 						<Route component={AboutPage} path="/about" />
 						<Route component={OptionsPage} path="/options" />
-						{streamingServices.map((service) => (
-							<Route key={service.id} component={service.page} path={service.path} />
+						{streamingServicePages.map((service) => (
+							<Route key={service.id} component={service.pageBuilder} path={service.path} />
 						))}
 						<Redirect to="/login" />
 					</Switch>
