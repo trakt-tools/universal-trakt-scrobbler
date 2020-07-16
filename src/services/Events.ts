@@ -1,5 +1,6 @@
+import { Item } from '../models/Item';
 import { StoreData } from '../modules/history/streaming-services/common/Store';
-import { StreamingService, StreamingServiceId } from '../streaming-services';
+import { StreamingServiceId } from '../streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
 
@@ -15,6 +16,8 @@ export enum Events {
 	OPTIONS_CLEAR,
 	DIALOG_SHOW,
 	SNACKBAR_SHOW,
+	WRONG_ITEM_DIALOG_SHOW,
+	WRONG_ITEM_CORRECTED,
 	HISTORY_OPTIONS_CHANGE,
 	STREAMING_SERVICE_STORE_UPDATE,
 	STREAMING_SERVICE_HISTORY_LOAD_ERROR,
@@ -43,6 +46,16 @@ export interface StreamingServiceStoreUpdateData {
 export interface StreamingServiceHistoryChangeData {
 	index: number;
 	checked: boolean;
+}
+
+export interface WrongItemDialogData {
+	serviceId?: StreamingServiceId;
+	item?: Item;
+}
+
+export interface WrongItemCorrectedData {
+	item: Item;
+	url: string;
 }
 
 export interface HistorySyncSuccessData {
