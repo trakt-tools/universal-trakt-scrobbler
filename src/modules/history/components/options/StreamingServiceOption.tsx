@@ -16,7 +16,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	const service = streamingServices[id];
 
 	const onChange = async () => {
-		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_OPTIONS_CHANGE, [
+		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_OPTIONS_CHANGE, null, [
 			{ id, value: !value },
 		]);
 	};

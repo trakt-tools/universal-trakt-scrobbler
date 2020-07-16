@@ -19,7 +19,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	const { option } = props;
 
 	const onChange = async () => {
-		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, {
+		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, null, {
 			id: option.id,
 			value: !option.value,
 		});
@@ -31,6 +31,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		}
 		await EventDispatcher.dispatch(
 			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			null,
 			Object.keys(option.value).map((id) => ({ id, value: true }))
 		);
 	};
@@ -41,6 +42,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		}
 		await EventDispatcher.dispatch(
 			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			null,
 			Object.keys(option.value).map((id) => ({ id, value: false }))
 		);
 	};
@@ -51,6 +53,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		}
 		await EventDispatcher.dispatch(
 			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			null,
 			Object.entries(option.value).map(([id, value]) => ({ id, value: !value }))
 		);
 	};

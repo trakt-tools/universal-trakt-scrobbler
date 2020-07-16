@@ -32,11 +32,11 @@ export const UtsSnackbar: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.SNACKBAR_SHOW, showSnackbar);
+			EventDispatcher.subscribe(Events.SNACKBAR_SHOW, null, showSnackbar);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.SNACKBAR_SHOW, showSnackbar);
+			EventDispatcher.unsubscribe(Events.SNACKBAR_SHOW, null, showSnackbar);
 		};
 
 		const showSnackbar = (data: SnackbarData) => {

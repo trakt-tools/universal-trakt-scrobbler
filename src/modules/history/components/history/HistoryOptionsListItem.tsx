@@ -9,14 +9,14 @@ interface HistoryOptionsListItemProps {
 
 export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
 	const onSwitchChange = async (): Promise<void> => {
-		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
+		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, null, {
 			id: option.id,
 			value: !option.value,
 		});
 	};
 
 	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, {
+		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, null, {
 			id: option.id,
 			value: parseInt(event.currentTarget.value),
 		});

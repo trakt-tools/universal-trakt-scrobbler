@@ -1,6 +1,4 @@
 import * as moment from 'moment';
-import { TraktSearch } from '../../../../api/TraktSearch';
-import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
@@ -80,7 +78,7 @@ export interface ViaplayProductUserInfo {
 	};
 }
 
-class _ViaplayApi implements Api {
+class _ViaplayApi extends Api {
 	HOST_URL: string;
 	HISTORY_API_URL: string;
 	HISTORY_API_NEXT_PAGE_URL: string;
@@ -88,6 +86,8 @@ class _ViaplayApi implements Api {
 	isActivated: boolean;
 
 	constructor() {
+		super('viaplay');
+
 		this.HOST_URL = 'https://content.viaplay.no';
 		this.HISTORY_API_URL = `${this.HOST_URL}/pcdash-no/watched`;
 		this.AUTH_URL = 'https://login.viaplay.no/api/persistentLogin/v1?deviceKey=pcdash-no';
@@ -153,7 +153,7 @@ class _ViaplayApi implements Api {
 				});
 		} catch (err) {
 			Errors.error('Failed to load Viaplay history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {
+			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, null, {
 				error: err as Error,
 			});
 		}
@@ -188,32 +188,6 @@ class _ViaplayApi implements Api {
 			item = new Item({ id, type: 'movie', title, year, percentageWatched, watchedAt });
 		}
 		return item;
-	};
-
-	loadTraktHistory = async () => {
-		try {
-			let promises = [];
-			const items = getStore('viaplay').data.items;
-			promises = items.map(this.loadTraktItemHistory);
-			await Promise.all(promises);
-			void getStore('viaplay').update();
-		} catch (err) {
-			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
-		}
-	};
-
-	loadTraktItemHistory = async (item: Item) => {
-		if (!item.trakt) {
-			try {
-				item.trakt = await TraktSearch.find(item);
-				await TraktSync.loadHistory(item);
-			} catch (err) {
-				item.trakt = {
-					notFound: true,
-				};
-			}
-		}
 	};
 }
 

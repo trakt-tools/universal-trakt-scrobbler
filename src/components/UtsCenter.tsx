@@ -4,9 +4,16 @@ import * as React from 'react';
 interface UtsCenterProps {
 	children: React.ReactNode;
 	className?: string;
+	isHorizontal?: boolean;
 }
 
 export const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
-	const { children, className } = props;
-	return <Box className={`container--center ${className || ''}`}>{children}</Box>;
+	const { children, className, isHorizontal = true } = props;
+	return (
+		<Box
+			className={`container--center-${isHorizontal ? 'horizontal' : 'vertical'} ${className || ''}`}
+		>
+			{children}
+		</Box>
+	);
 };

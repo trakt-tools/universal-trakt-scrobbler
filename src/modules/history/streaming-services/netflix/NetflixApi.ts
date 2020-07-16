@@ -1,6 +1,4 @@
 import * as moment from 'moment';
-import { TraktSearch } from '../../../../api/TraktSearch';
-import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
@@ -70,7 +68,7 @@ interface ApiParams {
 	buildIdentifier: string;
 }
 
-class _NetflixApi implements Api {
+class _NetflixApi extends Api {
 	HOST_URL: string;
 	API_URL: string;
 	ACTIVATE_URL: string;
@@ -79,6 +77,8 @@ class _NetflixApi implements Api {
 	isActivated: boolean;
 	apiParams: Partial<ApiParams>;
 	constructor() {
+		super('netflix');
+
 		this.HOST_URL = 'https://www.netflix.com';
 		this.API_URL = `${this.HOST_URL}/api/shakti`;
 		this.ACTIVATE_URL = `${this.HOST_URL}/Activate`;
@@ -151,7 +151,7 @@ class _NetflixApi implements Api {
 				});
 		} catch (err) {
 			Errors.error('Failed to load Netflix history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, {
+			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, null, {
 				error: err as Error,
 			});
 		}
@@ -225,32 +225,6 @@ class _NetflixApi implements Api {
 			item = new Item({ id, type, title, year, watchedAt });
 		}
 		return item;
-	};
-
-	loadTraktHistory = async () => {
-		try {
-			let promises = [];
-			const items = getStore('netflix').data.items;
-			promises = items.map(this.loadTraktItemHistory);
-			await Promise.all(promises);
-			await getStore('netflix').update();
-		} catch (err) {
-			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, { error: err as Error });
-		}
-	};
-
-	loadTraktItemHistory = async (item: Item) => {
-		if (!item.trakt) {
-			try {
-				item.trakt = await TraktSearch.find(item);
-				await TraktSync.loadHistory(item);
-			} catch (err) {
-				item.trakt = {
-					notFound: true,
-				};
-			}
-		}
 	};
 }
 

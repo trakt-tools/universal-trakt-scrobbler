@@ -6,11 +6,19 @@ body {
 	margin: 0;
 }
 
-.container--center {
+.container--center-horizontal {
 	align-items: center;
 	display: flex;
 	justify-content: center;
 	height: 100%;
+}
+
+.container--center-vertical {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
 }
 
 .container--left-right,

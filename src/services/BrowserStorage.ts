@@ -1,14 +1,14 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
-import { Shared } from './Shared';
+import { ISyncItem } from '../models/SyncItem';
 import { StreamingServiceId, streamingServices } from '../streaming-services';
+import { Shared } from './Shared';
 
 export type StorageValues = {
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
-	traktCache?: {
-		[key: string]: string;
-	};
+	traktCache?: Record<string, Omit<ISyncItem, 'watchedAt'>>;
+	correctUrls?: Record<StreamingServiceId, Record<string, string>>;
 };
 
 export type StorageValuesOptions = {

@@ -24,13 +24,17 @@ export class Store {
 	}
 
 	startListeners = (): void => {
-		EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
-		EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
+		EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, null, this.onHistoryChange);
+		EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, null, this.onHistorySyncSuccess);
 	};
 
 	stopListeners = (): void => {
-		EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, this.onHistoryChange);
-		EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, this.onHistorySyncSuccess);
+		EventDispatcher.unsubscribe(
+			Events.STREAMING_SERVICE_HISTORY_CHANGE,
+			null,
+			this.onHistoryChange
+		);
+		EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, null, this.onHistorySyncSuccess);
 	};
 
 	onHistoryChange = (data: StreamingServiceHistoryChangeData): void => {
@@ -86,6 +90,8 @@ export class Store {
 				items: [...this.data.items, ...(data.items || [])],
 			};
 		}
-		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_STORE_UPDATE, { data: this.data });
+		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_STORE_UPDATE, null, {
+			data: this.data,
+		});
 	};
 }

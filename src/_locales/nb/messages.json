@@ -23,6 +23,9 @@
 	"allowRollbarName": {
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
+	"cancel": {
+		"message": "Avbryt"
+	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
 	},
@@ -49,6 +52,16 @@
 	},
 	"confirmClearTraktCacheMessage": {
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
+	},
+	"correct": {
+		"message": "Korriger",
+		"description": "This is the verb, as in 'to correct'."
+	},
+	"correctWrongItem": {
+		"message": "Korriger feilaktig element"
+	},
+	"correctWrongItemFailed": {
+		"message": "Fikk ikke til å korrigere feilaktig element."
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Fjerne Trakt cache?"
@@ -95,10 +108,16 @@
 		"message": "Hjem"
 	},
 	"isThisWrong": {
-		"message": "Er dette feil, eller ufullstendig? "
+		"message": "Er dette feil?"
+	},
+	"itemSynced": {
+		"message": "Elementet er synkronisert"
+	},
+	"itemNotSynced": {
+		"message": "Elementer er ikke synkronisert"
 	},
 	"itemsPerLoadName": {
-		"message": "Elementer i hver innlasting."
+		"message": "Antall elementer i hver innlasting."
 	},
 	"loadHistoryError": {
 		"message": "Klarte ikke å laste inn historikken."
@@ -132,6 +151,14 @@
 	},
 	"options": {
 		"message": "Alternativer"
+	},
+	"progress": {
+		"message": "Fullført: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
 	},
 	"readMore": {
 		"message": "Les mer"
@@ -181,13 +208,19 @@
 	"watched": {
 		"message": "Dato sett"
 	},
-	"progress": {
-		"message": "Fullført: $PROGRESS$%",
+	"wrongItemDialogContent": {
+		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
 		"placeholders": {
-			"progress": {
+			"title": {
 				"content": "$1"
 			}
 		}
+	},
+	"wrongItemDialogInvalidUrlLabel": {
+		"message": "Lim inn en gyldig URL til Trakt!"
+	},
+	"wrongItemDialogUrlLabel": {
+		"message": "URL"
 	},
 	"yes": {
 		"message": "Ja"

@@ -44,12 +44,15 @@ class _TraktSync extends TraktApi {
 		(item.trakt as ISyncItem).watchedAt = historyItem && moment(historyItem.watched_at);
 	};
 
-	getUrl = (item: Item) => {
+	getUrl = (item: Item): string => {
+		if (!item.trakt || !('id' in item.trakt)) {
+			return '';
+		}
 		let url = '';
-		if (item.type === 'show') {
-			url = `${this.SYNC_URL}/episodes/${(item.trakt as ISyncItem).id}`;
+		if (item.trakt.type === 'show') {
+			url = `${this.SYNC_URL}/episodes/${item.trakt.id}`;
 		} else {
-			url = `${this.SYNC_URL}/movies/${(item.trakt as ISyncItem).id}`;
+			url = `${this.SYNC_URL}/movies/${item.trakt.id}`;
 		}
 		return url;
 	};
@@ -95,10 +98,12 @@ class _TraktSync extends TraktApi {
 					}
 				}
 			}
-			await EventDispatcher.dispatch(Events.HISTORY_SYNC_SUCCESS, { added: responseJson.added });
+			await EventDispatcher.dispatch(Events.HISTORY_SYNC_SUCCESS, null, {
+				added: responseJson.added,
+			});
 		} catch (err) {
 			Errors.error('Failed to sync history.', err);
-			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, { error: err as Error });
+			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, null, { error: err as Error });
 		}
 	};
 }
