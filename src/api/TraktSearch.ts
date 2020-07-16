@@ -50,26 +50,27 @@ class _TraktSearch extends TraktApi {
 		super();
 	}
 
-	find = async (item: Item): Promise<SyncItem | undefined> => {
+	find = async (item: Item, url?: string): Promise<SyncItem | undefined> => {
 		let syncItem: SyncItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
-			if (item.type === 'show') {
+			if (url) {
+				searchItem = await this.findItemFromUrl(url);
+			} else if (item.type === 'show') {
 				searchItem = await this.findEpisode(item);
 			} else {
 				searchItem = (await this.findItem(item)) as TraktSearchMovieItem;
 			}
-			if (item.type === 'show') {
-				const episodeItem = searchItem as TraktSearchEpisodeItem; //TODO can probably avoid assertion with clever generics
-				const id = episodeItem.episode.ids.trakt;
-				const title = episodeItem.show.title;
-				const year = episodeItem.show.year;
-				const season = episodeItem.episode.season;
-				const episode = episodeItem.episode.number;
-				const episodeTitle = episodeItem.episode.title;
+			if ('episode' in searchItem) {
+				const id = searchItem.episode.ids.trakt;
+				const title = searchItem.show.title;
+				const year = searchItem.show.year;
+				const season = searchItem.episode.season;
+				const episode = searchItem.episode.number;
+				const episodeTitle = searchItem.episode.title;
 				syncItem = new SyncItem({
 					id,
-					type: item.type,
+					type: 'show',
 					title,
 					year,
 					season,
@@ -77,17 +78,36 @@ class _TraktSearch extends TraktApi {
 					episodeTitle,
 				});
 			} else {
-				const movieItem = searchItem as TraktSearchMovieItem; //TODO can probably avoid assertion with clever generics
-				const id = movieItem.movie.ids.trakt;
-				const title = movieItem.movie.title;
-				const year = movieItem.movie.year;
-				syncItem = new SyncItem({ id, type: item.type, title, year });
+				const id = searchItem.movie.ids.trakt;
+				const title = searchItem.movie.title;
+				const year = searchItem.movie.year;
+				syncItem = new SyncItem({ id, type: 'movie', title, year });
 			}
 			await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, null, { searchItem });
 		} catch (err) {
 			await EventDispatcher.dispatch(Events.SEARCH_ERROR, null, { error: err as Error });
 		}
 		return syncItem;
+	};
+
+	findItemFromUrl = async (url: string): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {
+		const searchItemResponse = await Requests.send({
+			url: `${this.API_URL}${url}`,
+			method: 'GET',
+		});
+		const searchItem = JSON.parse(searchItemResponse) as
+			| TraktEpisodeItemEpisode
+			| TraktSearchMovieItemMovie;
+		if ('season' in searchItem) {
+			const showResponse = await Requests.send({
+				url: `${this.API_URL}${url.replace(/\/seasons\/.*/, '')}`,
+				method: 'GET',
+			});
+			const show = JSON.parse(showResponse) as TraktSearchShowItemShow;
+			return { episode: searchItem, show };
+		} else {
+			return { movie: searchItem };
+		}
 	};
 
 	findItem = async (item: Item): Promise<TraktSearchItem> => {
@@ -102,7 +122,8 @@ class _TraktSearch extends TraktApi {
 		} else {
 			// Get the exact match if there are multiple movies with the same name by checking the year.
 			searchItem = (searchItems as TraktSearchMovieItem[]).find(
-				(x) => x.movie.title === item.title && x.movie.year === item.year
+				(x) =>
+					x.movie.title.toLowerCase() === item.title.toLowerCase() && x.movie.year === item.year
 			);
 		}
 		if (!searchItem) {

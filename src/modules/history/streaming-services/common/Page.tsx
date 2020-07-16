@@ -19,12 +19,14 @@ import {
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	StreamingServiceStoreUpdateData,
+	WrongItemCorrectedData,
 } from '../../../../services/Events';
 import { StreamingServiceId } from '../../../../streaming-services';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
 import { Api } from './Api';
+import { getApi, getStore } from './common';
 import { Store } from './Store';
 
 interface PageProps {
@@ -105,6 +107,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 				onHistoryLoadError
 			);
 			EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
+			EventDispatcher.subscribe(Events.WRONG_ITEM_CORRECTED, serviceId, onWrongItemCorrected);
 			EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
 			EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
 			store.startListeners();
@@ -118,6 +121,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 				onHistoryLoadError
 			);
 			EventDispatcher.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
+			EventDispatcher.unsubscribe(Events.WRONG_ITEM_CORRECTED, serviceId, onWrongItemCorrected);
 			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
 			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
 			store.stopListeners();
@@ -142,6 +146,11 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 				messageName: 'loadTraktHistoryError',
 				severity: 'error',
 			});
+		};
+
+		const onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+			await getApi(serviceId).loadTraktItemHistory(data.item, data.url);
+			await getStore(serviceId).update();
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {

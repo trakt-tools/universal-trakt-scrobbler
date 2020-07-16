@@ -1,6 +1,7 @@
 import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
+import { BrowserStorage } from '../../../../services/BrowserStorage';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
 import { StreamingServiceId } from '../../../../streaming-services';
@@ -21,11 +22,15 @@ export abstract class Api {
 
 	loadTraktHistory = async () => {
 		try {
-			let promises = [];
-			const items = getStore('netflix').data.items;
-			promises = items.map(this.loadTraktItemHistory);
+			const storage = await BrowserStorage.get('correctUrls');
+			const { correctUrls } = storage;
+			const promises = [];
+			const items = getStore(this.id).data.items;
+			for (const item of items) {
+				promises.push(this.loadTraktItemHistory(item, correctUrls?.[this.id][item.id]));
+			}
 			await Promise.all(promises);
-			await getStore('netflix').update();
+			await getStore(this.id).update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
 			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, null, {
@@ -34,16 +39,17 @@ export abstract class Api {
 		}
 	};
 
-	loadTraktItemHistory = async (item: Item) => {
-		if (!item.trakt) {
-			try {
-				item.trakt = await TraktSearch.find(item);
-				await TraktSync.loadHistory(item);
-			} catch (err) {
-				item.trakt = {
-					notFound: true,
-				};
-			}
+	loadTraktItemHistory = async (item: Item, url?: string) => {
+		if (item.trakt && !url) {
+			return;
+		}
+		try {
+			item.trakt = await TraktSearch.find(item, url);
+			await TraktSync.loadHistory(item);
+		} catch (err) {
+			item.trakt = {
+				notFound: true,
+			};
 		}
 	};
 }
