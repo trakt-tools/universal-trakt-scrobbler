@@ -94,7 +94,7 @@ export const OptionsPage: React.FC = () => {
 					})
 					.catch(async (err) => {
 						Errors.error('Failed to save option.', err);
-						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 							messageName: 'saveOptionFailed',
 							severity: 'error',
 						});
@@ -157,7 +157,7 @@ export const OptionsPage: React.FC = () => {
 					})
 					.catch(async (err) => {
 						Errors.error('Failed to save option.', err);
-						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
 							messageName: 'saveOptionFailed',
 							severity: 'error',
 						});
