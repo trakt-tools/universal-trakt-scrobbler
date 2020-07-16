@@ -1,4 +1,5 @@
-import { Box, Button, Checkbox } from '@material-ui/core';
+import { Box, Checkbox } from '@material-ui/core';
+import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
 import { Item } from '../../../../models/Item';
@@ -30,6 +31,11 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		});
 	};
 
+	const [statusColor, statusMessageName] =
+		item.trakt && 'watchedAt' in item.trakt && item.trakt.watchedAt
+			? [green[500], 'itemSynced']
+			: [red[500], 'itemNotSynced'];
+
 	return (
 		<Box className="history-list-item">
 			{item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt && (
@@ -41,13 +47,13 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				/>
 			)}
 			<HistoryListItemCard dateFormat={dateFormat} item={item} name={serviceName} />
-			<Button
-				className="history-list-item-button"
-				color={item.trakt && 'watchedAt' in item.trakt ? 'primary' : 'default'}
-				variant="contained"
+			<Box
+				className="history-list-item-status"
+				title={browser.i18n.getMessage(statusMessageName)}
+				style={{ backgroundColor: statusColor }}
 			>
 				<SyncIcon />
-			</Button>
+			</Box>
 			<HistoryListItemCard
 				dateFormat={dateFormat}
 				item={item.trakt}
