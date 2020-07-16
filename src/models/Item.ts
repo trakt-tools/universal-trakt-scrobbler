@@ -1,4 +1,4 @@
-import { ISyncItem } from './SyncItem';
+import { TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {
@@ -25,12 +25,10 @@ export interface IItem {
 	isCollection?: boolean;
 	watchedAt: import('moment').Moment;
 	percentageWatched?: number;
-	trakt?: ISyncItem | TraktNotFound;
+	trakt?: TraktItem | null;
+	isSelected?: boolean;
+	index?: number;
 }
-
-export type TraktNotFound = {
-	notFound: true;
-};
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 export class Item implements IItem {
@@ -44,7 +42,7 @@ export class Item implements IItem {
 	isCollection?: boolean;
 	watchedAt: import('moment').Moment;
 	percentageWatched: number;
-	trakt?: ISyncItem | TraktNotFound;
+	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
 

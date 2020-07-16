@@ -31,14 +31,13 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		});
 	};
 
-	const [statusColor, statusMessageName] =
-		item.trakt && 'watchedAt' in item.trakt && item.trakt.watchedAt
-			? [green[500], 'itemSynced']
-			: [red[500], 'itemNotSynced'];
+	const [statusColor, statusMessageName] = item.trakt?.watchedAt
+		? [green[500], 'itemSynced']
+		: [red[500], 'itemNotSynced'];
 
 	return (
 		<Box className="history-list-item">
-			{item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt && (
+			{item.trakt && !item.trakt.watchedAt && (
 				<Checkbox
 					checked={item.isSelected || false}
 					className="history-list-item-checkbox"

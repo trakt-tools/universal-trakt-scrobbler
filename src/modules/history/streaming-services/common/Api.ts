@@ -1,7 +1,7 @@
 import { TraktSearch } from '../../../../api/TraktSearch';
 import { TraktSync } from '../../../../api/TraktSync';
 import { Item } from '../../../../models/Item';
-import { ISyncItem } from '../../../../models/SyncItem';
+import { TraktItem, TraktItemBase } from '../../../../models/TraktItem';
 import { BrowserStorage } from '../../../../services/BrowserStorage';
 import { Errors } from '../../../../services/Errors';
 import { EventDispatcher, Events } from '../../../../services/Events';
@@ -47,7 +47,7 @@ export abstract class Api {
 
 	loadTraktItemHistory = async (
 		item: Item,
-		traktCache: Record<string, Omit<ISyncItem, 'watchedAt'>>,
+		traktCache: Record<string, TraktItemBase>,
 		url?: string
 	) => {
 		if (item.trakt && !url) {
@@ -56,16 +56,13 @@ export abstract class Api {
 		try {
 			const cacheId = this.getTraktCacheId(item);
 			const cacheItem = traktCache[cacheId];
-			item.trakt = url || !cacheItem ? await TraktSearch.find(item, url) : cacheItem;
+			item.trakt = url || !cacheItem ? await TraktSearch.find(item, url) : new TraktItem(cacheItem);
 			await TraktSync.loadHistory(item);
 			if (item.trakt) {
-				const { watchedAt, ...cacheItem } = item.trakt;
-				traktCache[cacheId] = cacheItem;
+				traktCache[cacheId] = TraktItem.getBase(item.trakt);
 			}
 		} catch (err) {
-			item.trakt = {
-				notFound: true,
-			};
+			item.trakt = null;
 		}
 	};
 

@@ -1,5 +1,5 @@
 import { Item } from '../models/Item';
-import { SyncItem } from '../models/SyncItem';
+import { TraktItem } from '../models/TraktItem';
 import { EventDispatcher, Events } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
@@ -18,6 +18,7 @@ export interface TraktEpisodeItemEpisode {
 	title: string;
 	ids: {
 		trakt: number;
+		tmdb: number;
 	};
 }
 
@@ -30,6 +31,7 @@ export interface TraktSearchShowItemShow {
 	year: number;
 	ids: {
 		trakt: number;
+		tmdb: number;
 	};
 }
 
@@ -42,6 +44,7 @@ export interface TraktSearchMovieItemMovie {
 	year: number;
 	ids: {
 		trakt: number;
+		tmdb: number;
 	};
 }
 
@@ -50,8 +53,8 @@ class _TraktSearch extends TraktApi {
 		super();
 	}
 
-	find = async (item: Item, url?: string): Promise<SyncItem | undefined> => {
-		let syncItem: SyncItem | undefined;
+	find = async (item: Item, url?: string): Promise<TraktItem | undefined> => {
+		let traktItem: TraktItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
 			if (url) {
@@ -63,13 +66,15 @@ class _TraktSearch extends TraktApi {
 			}
 			if ('episode' in searchItem) {
 				const id = searchItem.episode.ids.trakt;
+				const tmdbId = searchItem.episode.ids.tmdb;
 				const title = searchItem.show.title;
 				const year = searchItem.show.year;
 				const season = searchItem.episode.season;
 				const episode = searchItem.episode.number;
 				const episodeTitle = searchItem.episode.title;
-				syncItem = new SyncItem({
+				traktItem = new TraktItem({
 					id,
+					tmdbId,
 					type: 'show',
 					title,
 					year,
@@ -79,15 +84,22 @@ class _TraktSearch extends TraktApi {
 				});
 			} else {
 				const id = searchItem.movie.ids.trakt;
+				const tmdbId = searchItem.movie.ids.tmdb;
 				const title = searchItem.movie.title;
 				const year = searchItem.movie.year;
-				syncItem = new SyncItem({ id, type: 'movie', title, year });
+				traktItem = new TraktItem({
+					id,
+					tmdbId,
+					type: 'movie',
+					title,
+					year,
+				});
 			}
 			await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, null, { searchItem });
 		} catch (err) {
 			await EventDispatcher.dispatch(Events.SEARCH_ERROR, null, { error: err as Error });
 		}
-		return syncItem;
+		return traktItem;
 	};
 
 	findItemFromUrl = async (url: string): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {

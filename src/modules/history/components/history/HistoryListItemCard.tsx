@@ -8,11 +8,12 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
-import { IItem, Item } from '../../../../models/Item';
+import { Item } from '../../../../models/Item';
+import { TraktItem } from '../../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
 	dateFormat: string;
-	item: Item | IItem['trakt'];
+	item?: Item | TraktItem | null;
 	name: string;
 	openWrongItemDialog?: () => Promise<void>;
 }
@@ -28,9 +29,9 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 				<UtsCenter isHorizontal={false}>
 					<Typography variant="overline">{`${browser.i18n.getMessage('on')} ${name}`}</Typography>
 					<Divider className="history-list-item-divider" />
-					{item ? (
+					{typeof item !== 'undefined' ? (
 						<>
-							{'notFound' in item ? (
+							{item === null ? (
 								<Typography variant="h6">{browser.i18n.getMessage('notFound')}</Typography>
 							) : item.type === 'show' ? (
 								<>

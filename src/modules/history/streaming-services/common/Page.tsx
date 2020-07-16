@@ -6,7 +6,6 @@ import { TraktSettings } from '../../../../api/TraktSettings';
 import { TraktSync } from '../../../../api/TraktSync';
 import { UtsCenter } from '../../../../components/UtsCenter';
 import { Item } from '../../../../models/Item';
-import { ISyncItem } from '../../../../models/SyncItem';
 import {
 	BrowserStorage,
 	StorageValuesSyncOptions,
@@ -259,7 +258,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 			content.nextVisualPage * optionsContent.options.itemsPerLoad.value
 		);
 		if (optionsContent.options.hideSynced.value) {
-			itemsToShow = itemsToShow.filter((x) => !x.trakt || !(x.trakt as ISyncItem).watchedAt);
+			itemsToShow = itemsToShow.filter((x) => !x.trakt?.watchedAt);
 		}
 	}
 

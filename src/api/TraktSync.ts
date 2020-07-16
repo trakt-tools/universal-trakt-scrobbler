@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import { Item } from '../models/Item';
-import { ISyncItem } from '../models/SyncItem';
 import { Errors } from '../services/Errors';
 import { EventDispatcher, Events } from '../services/Events';
 import { Requests } from '../services/Requests';
@@ -33,6 +32,9 @@ class _TraktSync extends TraktApi {
 	}
 
 	loadHistory = async (item: Item): Promise<void> => {
+		if (!item.trakt) {
+			return;
+		}
 		const responseText = await Requests.send({
 			url: this.getUrl(item),
 			method: 'GET',
@@ -41,11 +43,11 @@ class _TraktSync extends TraktApi {
 		const historyItem = historyItems.find(
 			(x) => moment(x.watched_at).diff(item.watchedAt, 'days') === 0
 		);
-		(item.trakt as ISyncItem).watchedAt = historyItem && moment(historyItem.watched_at);
+		item.trakt.watchedAt = historyItem && moment(historyItem.watched_at);
 	};
 
 	getUrl = (item: Item): string => {
-		if (!item.trakt || !('id' in item.trakt)) {
+		if (!item.trakt) {
 			return '';
 		}
 		let url = '';
@@ -63,13 +65,13 @@ class _TraktSync extends TraktApi {
 				episodes: items
 					.filter((item) => item.isSelected && item.type === 'show')
 					.map((item) => ({
-						ids: { trakt: (item.trakt as ISyncItem).id },
+						ids: { trakt: item.trakt?.id },
 						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
 					})),
 				movies: items
 					.filter((item) => item.isSelected && item.type === 'movie')
 					.map((item) => ({
-						ids: { trakt: (item.trakt as ISyncItem).id },
+						ids: { trakt: item.trakt?.id },
 						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
 					})),
 			};
@@ -84,17 +86,11 @@ class _TraktSync extends TraktApi {
 				movies: responseJson.not_found.movies.map((item) => item.ids.trakt),
 			};
 			for (const item of items) {
-				if (item.isSelected) {
-					if (
-						item.type === 'show' &&
-						!notFoundItems.episodes.includes((item.trakt as ISyncItem).id)
-					) {
-						(item.trakt as ISyncItem).watchedAt = item.watchedAt;
-					} else if (
-						item.type === 'movie' &&
-						!notFoundItems.movies.includes((item.trakt as ISyncItem).id)
-					) {
-						(item.trakt as ISyncItem).watchedAt = item.watchedAt;
+				if (item.isSelected && item.trakt) {
+					if (item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) {
+						item.trakt.watchedAt = item.watchedAt;
+					} else if (item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)) {
+						item.trakt.watchedAt = item.watchedAt;
 					}
 				}
 			}
