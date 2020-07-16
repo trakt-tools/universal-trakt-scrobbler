@@ -24,7 +24,7 @@
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
 	"cancel": {
-		"message": "Cancel"
+		"message": "Avbryt"
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -54,14 +54,14 @@
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
 	},
 	"correct": {
-		"message": "Correct",
+		"message": "Korriger",
 		"description": "This is the verb, as in 'to correct'."
 	},
 	"correctWrongItem": {
-		"message": "Correct wrong item"
+		"message": "Korriger feilaktig element"
 	},
 	"correctWrongItemFailed": {
-		"message": "Failed to correct wrong item."
+		"message": "Fikk ikke til å korrigere feilaktig element."
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Fjerne Trakt cache?"
@@ -111,13 +111,13 @@
 		"message": "Er dette feil?"
 	},
 	"itemSynced": {
-		"message": "Item synced"
+		"message": "Elementet er synkronisert"
 	},
 	"itemNotSynced": {
-		"message": "Item not synced"
+		"message": "Elementer er ikke synkronisert"
 	},
 	"itemsPerLoadName": {
-		"message": "Elementer i hver innlasting."
+		"message": "Antall elementer i hver innlasting."
 	},
 	"loadHistoryError": {
 		"message": "Klarte ikke å laste inn historikken."
@@ -209,7 +209,7 @@
 		"message": "Dato sett"
 	},
 	"wrongItemDialogContent": {
-		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
+		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
 		"placeholders": {
 			"title": {
 				"content": "$1"
@@ -217,7 +217,7 @@
 		}
 	},
 	"wrongItemDialogInvalidUrlLabel": {
-		"message": "Please enter a valid Trakt URL!"
+		"message": "Lim inn en gyldig URL til Trakt!"
 	},
 	"wrongItemDialogUrlLabel": {
 		"message": "URL"
