@@ -30,7 +30,7 @@ export const getPageBuilder = (
 ): (() => React.ReactElement | null) => {
 	if (!pageBuilders[serviceId]) {
 		pageBuilders[serviceId] = () =>
-			Page({ serviceName, store: getStore(serviceId), api: getApi(serviceId) });
+			Page({ serviceId, serviceName, store: getStore(serviceId), api: getApi(serviceId) });
 	}
 	return pageBuilders[serviceId];
 };

@@ -1,4 +1,11 @@
-import { Card, CardContent, CircularProgress, Divider, Typography } from '@material-ui/core';
+import {
+	Button,
+	Card,
+	CardContent,
+	CircularProgress,
+	Divider,
+	Typography,
+} from '@material-ui/core';
 import * as React from 'react';
 import { UtsCenter } from '../../../../components/UtsCenter';
 import { IItem, Item } from '../../../../models/Item';
@@ -8,12 +15,14 @@ interface HistoryListItemCardProps {
 	dateFormat: string;
 	item: Item | IItem['trakt'];
 	name: string;
+	openWrongItemDialog?: () => Promise<void>;
 }
 
 export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
-	const { dateFormat, item, name } = props;
+	const { dateFormat, item, name, openWrongItemDialog } = props;
+
 	return (
 		<Card className="history-list-item-card" variant="outlined">
 			<CardContent>
@@ -61,6 +70,11 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 								)}
 							</>
 						)}
+						{openWrongItemDialog ? (
+							<Button color="secondary" onClick={openWrongItemDialog}>
+								<Typography variant="caption">{browser.i18n.getMessage('isThisWrong')}</Typography>
+							</Button>
+						) : null}
 					</HistoryInfo>
 				) : (
 					<UtsCenter>

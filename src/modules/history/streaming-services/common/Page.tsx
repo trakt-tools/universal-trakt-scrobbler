@@ -20,6 +20,7 @@ import {
 	HistorySyncSuccessData,
 	StreamingServiceStoreUpdateData,
 } from '../../../../services/Events';
+import { StreamingServiceId } from '../../../../streaming-services';
 import { HistoryActions } from '../../components/history/HistoryActions';
 import { HistoryList } from '../../components/history/HistoryList';
 import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
@@ -27,6 +28,7 @@ import { Api } from './Api';
 import { Store } from './Store';
 
 interface PageProps {
+	serviceId: StreamingServiceId;
 	serviceName: string;
 	store: Store;
 	api: Api;
@@ -46,7 +48,7 @@ interface Content {
 }
 
 export const Page: React.FC<PageProps> = (props: PageProps) => {
-	const { serviceName, store, api } = props;
+	const { serviceId, serviceName, store, api } = props;
 
 	const [optionsContent, setOptionsContent] = useState<OptionsContent>({
 		hasLoaded: false,
@@ -254,7 +256,12 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 		<>
 			<Box className="history-content">
 				<HistoryOptionsList options={Object.values(optionsContent.options)} store={store} />
-				<HistoryList dateFormat={dateFormat} items={itemsToShow} serviceName={serviceName} />
+				<HistoryList
+					dateFormat={dateFormat}
+					items={itemsToShow}
+					serviceId={serviceId}
+					serviceName={serviceName}
+				/>
 			</Box>
 			<HistoryActions onNextPageClick={onNextPageClick} onSyncClick={onSyncClick} />
 		</>
@@ -262,6 +269,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 };
 
 Page.propTypes = {
+	serviceId: PropTypes.any.isRequired,
 	serviceName: PropTypes.string.isRequired,
 	store: PropTypes.instanceOf(Store).isRequired,
 	api: PropTypes.any.isRequired,
