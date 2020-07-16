@@ -68,28 +68,53 @@ export const OptionsPage: React.FC = () => {
 			for (const option of Object.values(options)) {
 				addOptionToSave(optionsToSave, option);
 			}
+			let permissionPromise: Promise<boolean> | undefined;
 			const option = options[data.id];
 			if (option.permissions || option.origins) {
 				if (option.value) {
-					void browser.permissions.request({
+					permissionPromise = browser.permissions.request({
 						permissions: option.permissions || [],
 						origins: option.origins || [],
 					});
 				} else {
-					void browser.permissions.remove({
+					permissionPromise = browser.permissions.remove({
 						permissions: option.permissions || [],
 						origins: option.origins || [],
 					});
 				}
 			}
-			void saveOptions(optionsToSave, options);
+			if (permissionPromise) {
+				permissionPromise
+					.then((isSuccess) => {
+						if (isSuccess) {
+							void saveOptions(optionsToSave, options);
+						}
+					})
+					.catch(async (err) => {
+						Errors.error('Failed to save option.', err);
+						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+							messageName: 'saveOptionFailed',
+							severity: 'error',
+						});
+					});
+			} else {
+				void saveOptions(optionsToSave, options);
+			}
 		};
 
 		const onStreamingServiceOptionChange = (
 			data: StreamingServiceOptionEventData<StreamingServiceId>
 		) => {
 			const optionsToSave = {} as StorageValuesOptions;
-			const options = { ...content.options };
+			const options = {
+				...content.options,
+				streamingServices: {
+					...content.options.streamingServices,
+					value: {
+						...content.options.streamingServices.value,
+					},
+				},
+			};
 			const originsToAdd = [];
 			const originsToRemove = [];
 			for (const dataOption of data) {
@@ -104,19 +129,40 @@ export const OptionsPage: React.FC = () => {
 			for (const option of Object.values(options)) {
 				addOptionToSave(optionsToSave, option);
 			}
+			const permissionPromises: Promise<boolean>[] = [];
 			if (originsToAdd.length > 0) {
-				void browser.permissions.request({
-					permissions: [],
-					origins: originsToAdd,
-				});
+				permissionPromises.push(
+					browser.permissions.request({
+						permissions: [],
+						origins: originsToAdd,
+					})
+				);
 			}
 			if (originsToRemove.length > 0) {
-				void browser.permissions.remove({
-					permissions: [],
-					origins: originsToRemove,
-				});
+				permissionPromises.push(
+					browser.permissions.remove({
+						permissions: [],
+						origins: originsToRemove,
+					})
+				);
 			}
-			void saveOptions(optionsToSave, options);
+			if (permissionPromises.length > 0) {
+				Promise.all(permissionPromises)
+					.then((isSuccessArr) => {
+						if (isSuccessArr.every((isSuccess) => isSuccess)) {
+							void saveOptions(optionsToSave, options);
+						}
+					})
+					.catch(async (err) => {
+						Errors.error('Failed to save option.', err);
+						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, {
+							messageName: 'saveOptionFailed',
+							severity: 'error',
+						});
+					});
+			} else {
+				void saveOptions(optionsToSave, options);
+			}
 		};
 
 		const addOptionToSave = <K extends keyof StorageValuesOptions>(
