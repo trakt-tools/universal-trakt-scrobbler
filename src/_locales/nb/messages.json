@@ -66,6 +66,15 @@
 	"confirmClearTraktCacheTitle": {
 		"message": "Fjerne Trakt cache?"
 	},
+	"couldNotScrobble": {
+		"message": "Scrobbling feilet."
+	},
+	"disableScrobblingDescription": {
+		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	},
+	"disableScrobblingName": {
+		"message": "Disable scrobbling."
+	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
 	},
@@ -172,6 +181,15 @@
 	"saveOptionSuccess": {
 		"message": "Alternativ lagret."
 	},
+	"scrobblePaused": {
+		"message": "Scrobbling pauset."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobbling startet."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobbling stoppet."
+	},
 	"select": {
 		"message": "Velg:"
 	},
@@ -189,6 +207,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"showNotificationsDescription": {
+		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
+	},
+	"showNotificationsName": {
+		"message": "Vis nettleservarsler"
 	},
 	"streamingServicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."

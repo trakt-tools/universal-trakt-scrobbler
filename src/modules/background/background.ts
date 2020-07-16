@@ -8,18 +8,35 @@ import { Shared } from '../../services/Shared';
 import { Tabs } from '../../services/Tabs';
 import { streamingServices } from '../../streaming-services';
 
-interface MessageRequest {
-	action:
-		| 'check-login'
-		| 'finish-login'
-		| 'login'
-		| 'logout'
-		| 'send-request'
-		| 'start-scrobble'
-		| 'stop-scrobble';
-	url: string;
+export type MessageRequest =
+	| {
+			action:
+				| 'check-login'
+				| 'login'
+				| 'logout'
+				| 'set-active-icon'
+				| 'set-inactive-icon'
+				| 'start-scrobble'
+				| 'stop-scrobble';
+	  }
+	| FinishLoginMessage
+	| SendRequestMessage
+	| ShowNotificationMessage;
+
+export interface FinishLoginMessage {
+	action: 'finish-login';
 	redirectUrl: string;
+}
+
+export interface SendRequestMessage {
+	action: 'send-request';
 	request: RequestDetails;
+}
+
+export interface ShowNotificationMessage {
+	action: 'show-notification';
+	title: string;
+	message: string;
 }
 
 const init = async () => {
@@ -139,12 +156,35 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
 		}
+		case 'set-active-icon': {
+			executingAction = setActiveIcon();
+			break;
+		}
+		case 'set-inactive-icon': {
+			executingAction = setInactiveIcon();
+			break;
+		}
 		case 'start-scrobble': {
 			executingAction = setScrobblingTabId(sender.tab?.id);
 			break;
 		}
 		case 'stop-scrobble': {
 			executingAction = removeScrobblingTabId();
+			break;
+		}
+		case 'show-notification': {
+			executingAction = browser.permissions
+				.contains({ permissions: ['notifications'] })
+				.then((hasPermissions) => {
+					if (hasPermissions) {
+						return browser.notifications.create({
+							type: 'basic',
+							iconUrl: 'images/uts-icon-128.png',
+							title: parsedRequest.title,
+							message: parsedRequest.message,
+						});
+					}
+				});
 			break;
 		}
 	}
@@ -161,6 +201,18 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 					})
 				);
 			});
+	});
+};
+
+const setActiveIcon = (): Promise<void> => {
+	return browser.browserAction.setIcon({
+		path: browser.runtime.getURL('images/uts-icon-selected-38.png'),
+	});
+};
+
+const setInactiveIcon = (): Promise<void> => {
+	return browser.browserAction.setIcon({
+		path: browser.runtime.getURL('images/uts-icon-38.png'),
 	});
 };
 

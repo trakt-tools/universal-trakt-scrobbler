@@ -33,16 +33,21 @@ class _Errors {
 	};
 
 	startListeners = (): void => {
-		EventDispatcher.subscribe(Events.SEARCH_ERROR, null, this.onSearchError);
+		EventDispatcher.subscribe(Events.SCROBBLE_ERROR, null, (data: ErrorEventData) =>
+			this.onItemError(data, 'scrobble')
+		);
+		EventDispatcher.subscribe(Events.SEARCH_ERROR, null, (data: ErrorEventData) =>
+			this.onItemError(data, 'find')
+		);
 	};
 
-	onSearchError = async (data: ErrorEventData): Promise<void> => {
+	onItemError = async (data: ErrorEventData, type: 'scrobble' | 'find'): Promise<void> => {
 		if (data.error) {
 			const values = await BrowserStorage.get('auth');
 			if (values.auth && values.auth.access_token) {
-				this.error('Failed to find item.', data.error);
+				this.error(`Failed to ${type} item.`, data.error);
 			} else {
-				this.warning('Failed to find item.', data.error);
+				this.warning(`Failed to ${type} item.`, data.error);
 			}
 		}
 	};

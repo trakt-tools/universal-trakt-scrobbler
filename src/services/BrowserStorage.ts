@@ -15,6 +15,8 @@ export type StorageValues = {
 
 export type StorageValuesOptions = {
 	streamingServices: Record<StreamingServiceId, boolean>;
+	disableScrobbling: boolean;
+	showNotifications: boolean;
 	allowRollbar: boolean;
 	sendReceiveSuggestions: boolean;
 	grantCookies: boolean;
@@ -120,6 +122,24 @@ class _BrowserStorage {
 				) as Record<StreamingServiceId, boolean>,
 				origins: [],
 				permissions: [],
+				doShow: true,
+			},
+			disableScrobbling: {
+				id: 'disableScrobbling',
+				name: '',
+				description: '',
+				value: false,
+				origins: [],
+				permissions: [],
+				doShow: true,
+			},
+			showNotifications: {
+				id: 'showNotifications',
+				name: '',
+				description: '',
+				value: false,
+				origins: [],
+				permissions: ['notifications'],
 				doShow: true,
 			},
 			sendReceiveSuggestions: {

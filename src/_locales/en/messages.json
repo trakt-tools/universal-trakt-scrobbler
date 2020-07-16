@@ -66,6 +66,15 @@
 	"correctWrongItemFailed": {
 		"message": "Failed to correct wrong item."
 	},
+	"couldNotScrobble": {
+		"message": "Could not scrobble."
+	},
+	"disableScrobblingDescription": {
+		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	},
+	"disableScrobblingName": {
+		"message": "Disable scrobbling."
+	},
 	"errorNotification": {
 		"message": "An error has occurred. :("
 	},
@@ -172,6 +181,15 @@
 	"saveOptionSuccess": {
 		"message": "Option saved."
 	},
+	"scrobblePaused": {
+		"message": "Scrobble paused."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobble started."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobble stopped."
+	},
 	"select": {
 		"message": "Select:"
 	},
@@ -189,6 +207,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / receive correction suggestions."
+	},
+	"showNotificationsDescription": {
+		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
+	},
+	"showNotificationsName": {
+		"message": "Show browser notifications."
 	},
 	"streamingServicesDescription": {
 		"message": "Choose which streaming services to enable."

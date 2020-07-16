@@ -45,7 +45,7 @@ export type EventDispatcherListeners = Record<
 export type EventDispatcherListener<T> = (data: T) => void | Promise<void>;
 
 export interface ScrobbleEventData {
-	item: TraktItem;
+	item?: TraktItem;
 	scrobbleType: number;
 	error: RequestException;
 }
