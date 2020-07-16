@@ -184,7 +184,9 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://api.rollbar.com/*',
 			'*://script.google.com/*',
 			'*://script.googleusercontent.com/*',
-			...Object.values(streamingServices).map((service) => service.hostPattern),
+			...Object.values(streamingServices)
+				.map((service) => service.hostPatterns)
+				.flat(),
 		],
 		browser_action: {
 			default_icon: {

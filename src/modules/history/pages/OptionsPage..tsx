@@ -96,9 +96,9 @@ export const OptionsPage: React.FC = () => {
 				options.streamingServices.value[dataOption.id] = dataOption.value;
 				const service = streamingServices[dataOption.id];
 				if (dataOption.value) {
-					originsToAdd.push(service.hostPattern);
+					originsToAdd.push(...service.hostPatterns);
 				} else {
-					originsToRemove.push(service.hostPattern);
+					originsToRemove.push(...service.hostPatterns);
 				}
 			}
 			for (const option of Object.values(options)) {

@@ -67,7 +67,9 @@ const addWebRequestListener = () => {
 		types: ['xmlhttprequest'],
 		urls: [
 			'*://*.trakt.tv/*',
-			...Object.values(streamingServices).map((service) => service.hostPattern),
+			...Object.values(streamingServices)
+				.map((service) => service.hostPatterns)
+				.flat(),
 		],
 	};
 	void browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders, filters, [

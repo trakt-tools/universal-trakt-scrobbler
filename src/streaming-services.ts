@@ -4,7 +4,7 @@ export interface StreamingService {
 	id: StreamingServiceId;
 	name: string;
 	homePage: string;
-	hostPattern: string;
+	hostPatterns: string[];
 }
 
 export const streamingServices: Record<StreamingServiceId, StreamingService> = {
@@ -12,18 +12,18 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		id: 'netflix',
 		name: 'Netflix',
 		homePage: 'https://www.netflix.com/',
-		hostPattern: '*://*.netflix.com/*',
+		hostPatterns: ['*://*.netflix.com/*'],
 	},
 	nrk: {
 		id: 'nrk',
 		name: 'NRK',
 		homePage: 'https://tv.nrk.no/',
-		hostPattern: '*://*.tv.nrk.no/*',
+		hostPatterns: ['*://*.tv.nrk.no/*'],
 	},
 	viaplay: {
 		id: 'viaplay',
 		name: 'Viaplay',
 		homePage: 'https://viaplay.no/',
-		hostPattern: '*://*.viaplay.no/*',
+		hostPatterns: ['*://*.viaplay.no/*'],
 	},
 };
