@@ -1,4 +1,11 @@
-import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
+import {
+	Button,
+	ButtonGroup,
+	ListItem,
+	ListItemSecondaryAction,
+	ListItemText,
+	Switch,
+} from '@material-ui/core';
 import * as React from 'react';
 import { Option, StorageValuesOptions } from '../../../../services/BrowserStorage';
 import { EventDispatcher, Events } from '../../../../services/Events';
@@ -18,6 +25,36 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		});
 	};
 
+	const onSelectAllClick = async () => {
+		if (!isStreamingServiceOption(option)) {
+			return;
+		}
+		await EventDispatcher.dispatch(
+			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			Object.keys(option.value).map((id) => ({ id, value: true }))
+		);
+	};
+
+	const onSelectNoneClick = async () => {
+		if (!isStreamingServiceOption(option)) {
+			return;
+		}
+		await EventDispatcher.dispatch(
+			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			Object.keys(option.value).map((id) => ({ id, value: false }))
+		);
+	};
+
+	const onToggleAllClick = async () => {
+		if (!isStreamingServiceOption(option)) {
+			return;
+		}
+		await EventDispatcher.dispatch(
+			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			Object.entries(option.value).map(([id, value]) => ({ id, value: !value }))
+		);
+	};
+
 	const isStreamingServiceOption = (
 		option: Option<keyof StorageValuesOptions>
 	): option is Option<'streamingServices'> => {
@@ -25,22 +62,26 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	return (
-		<ListItem
-			classes={{
-				root: `options-option${
-					isStreamingServiceOption(option) ? ' options-option--streaming-service' : ''
-				}`,
-				secondaryAction: 'options-list-item',
-			}}
-		>
-			<ListItemText primary={option.name} secondary={option.description} />
-			{isStreamingServiceOption(option) ? (
-				<StreamingServiceOptions options={option.value} />
-			) : (
-				<ListItemSecondaryAction>
-					<Switch checked={!!option.value} color="primary" edge="end" onChange={onChange} />
-				</ListItemSecondaryAction>
-			)}
-		</ListItem>
+		<>
+			<ListItem
+				classes={{ root: 'options-list-item', secondaryAction: 'options-list-item--secondary' }}
+			>
+				<ListItemText primary={option.name} secondary={option.description} />
+				{isStreamingServiceOption(option) ? (
+					<ListItemSecondaryAction>
+						<ButtonGroup variant="contained">
+							<Button onClick={onSelectAllClick}>{browser.i18n.getMessage('selectAll')}</Button>
+							<Button onClick={onSelectNoneClick}>{browser.i18n.getMessage('selectNone')}</Button>
+							<Button onClick={onToggleAllClick}>{browser.i18n.getMessage('toggleAll')}</Button>
+						</ButtonGroup>
+					</ListItemSecondaryAction>
+				) : (
+					<ListItemSecondaryAction>
+						<Switch checked={!!option.value} color="primary" edge="end" onChange={onChange} />
+					</ListItemSecondaryAction>
+				)}
+			</ListItem>
+			{isStreamingServiceOption(option) && <StreamingServiceOptions options={option.value} />}
+		</>
 	);
 };

@@ -89,29 +89,31 @@ export const OptionsPage: React.FC = () => {
 			data: StreamingServiceOptionEventData<StreamingServiceId>
 		) => {
 			const optionsToSave = {} as StorageValuesOptions;
-			const options = {
-				...content.options,
-				streamingServices: {
-					...content.options.streamingServices,
-					value: {
-						...content.options.streamingServices.value,
-						[data.id]: data.value,
-					},
-				},
-			};
+			const options = { ...content.options };
+			const originsToAdd = [];
+			const originsToRemove = [];
+			for (const dataOption of data) {
+				options.streamingServices.value[dataOption.id] = dataOption.value;
+				const service = streamingServices[dataOption.id];
+				if (dataOption.value) {
+					originsToAdd.push(service.hostPattern);
+				} else {
+					originsToRemove.push(service.hostPattern);
+				}
+			}
 			for (const option of Object.values(options)) {
 				addOptionToSave(optionsToSave, option);
 			}
-			const service = streamingServices[data.id];
-			if (data.value) {
+			if (originsToAdd.length > 0) {
 				void browser.permissions.request({
 					permissions: [],
-					origins: [service.hostPattern],
+					origins: originsToAdd,
 				});
-			} else {
+			}
+			if (originsToRemove.length > 0) {
 				void browser.permissions.remove({
 					permissions: [],
-					origins: [service.hostPattern],
+					origins: originsToRemove,
 				});
 			}
 			void saveOptions(optionsToSave, options);

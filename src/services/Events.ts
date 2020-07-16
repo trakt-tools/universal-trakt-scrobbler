@@ -56,10 +56,10 @@ export interface OptionEventData<K extends keyof StorageValuesOptions> {
 	value: StorageValuesOptions[K];
 }
 
-export interface StreamingServiceOptionEventData<K extends StreamingServiceId> {
+export type StreamingServiceOptionEventData<K extends StreamingServiceId> = {
 	id: K;
 	value: boolean;
-}
+}[];
 
 class _EventDispatcher {
 	listeners: EventDispatcherListeners;
@@ -81,7 +81,7 @@ class _EventDispatcher {
 		}
 	};
 
-	dispatch = async (eventType: Events, data: Record<string, unknown>): Promise<void> => {
+	dispatch = async (eventType: Events, data: unknown): Promise<void> => {
 		if (this.listeners[eventType]) {
 			for (const listener of this.listeners[eventType]) {
 				try {
