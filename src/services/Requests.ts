@@ -13,7 +13,7 @@ export type RequestDetails = {
 	url: string;
 	method: string;
 	headers?: Record<string, string>;
-	body?: string | Record<string, unknown>;
+	body?: unknown;
 };
 
 export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;

@@ -1,14 +1,24 @@
 import { Item } from '../models/Item';
+import { TraktItem } from '../models/TraktItem';
 import { StoreData } from '../modules/history/streaming-services/common/Store';
 import { StreamingServiceId } from '../streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
+import { RequestException } from './Requests';
 
 export enum Events {
 	LOGIN_SUCCESS,
 	LOGIN_ERROR,
 	LOGOUT_SUCCESS,
 	LOGOUT_ERROR,
+	SCROBBLE_SUCCESS,
+	SCROBBLE_ERROR,
+	SCROBBLE_ACTIVE,
+	SCROBBLE_INACTIVE,
+	SCROBBLE_START,
+	SCROBBLE_PAUSE,
+	SCROBBLE_STOP,
+	SCROBBLE_PROGRESS,
 	SEARCH_SUCCESS,
 	SEARCH_ERROR,
 	OPTIONS_CHANGE,
@@ -33,6 +43,12 @@ export type EventDispatcherListeners = Record<
 >;
 
 export type EventDispatcherListener<T> = (data: T) => void | Promise<void>;
+
+export interface ScrobbleEventData {
+	item: TraktItem;
+	scrobbleType: number;
+	error: RequestException;
+}
 
 export interface HistoryOptionsChangeData {
 	id: keyof StorageValuesSyncOptions;

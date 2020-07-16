@@ -1,4 +1,6 @@
 import { TraktAuth } from '../../api/TraktAuth';
+import { TraktScrobble } from '../../api/TraktScrobble';
+import { TraktItem } from '../../models/TraktItem';
 import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
 import { RequestDetails, Requests } from '../../services/Requests';
@@ -7,7 +9,14 @@ import { Tabs } from '../../services/Tabs';
 import { streamingServices } from '../../streaming-services';
 
 interface MessageRequest {
-	action: 'check-login' | 'finish-login' | 'login' | 'logout' | 'send-request';
+	action:
+		| 'check-login'
+		| 'finish-login'
+		| 'login'
+		| 'logout'
+		| 'send-request'
+		| 'start-scrobble'
+		| 'stop-scrobble';
 	url: string;
 	redirectUrl: string;
 	request: RequestDetails;
@@ -130,6 +139,14 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
 		}
+		case 'start-scrobble': {
+			executingAction = setScrobblingTabId(sender.tab?.id);
+			break;
+		}
+		case 'stop-scrobble': {
+			executingAction = removeScrobblingTabId();
+			break;
+		}
 	}
 	return new Promise((resolve) => {
 		executingAction
@@ -145,6 +162,23 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				);
 			});
 	});
+};
+
+const setScrobblingTabId = async (tabId?: number): Promise<void> => {
+	const { scrobblingItem, scrobblingTabId } = await BrowserStorage.get([
+		'scrobblingItem',
+		'scrobblingTabId',
+	]);
+	if (scrobblingItem && tabId !== scrobblingTabId) {
+		// Stop the previous scrobble if it exists.
+		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await BrowserStorage.remove('scrobblingItem');
+	}
+	await BrowserStorage.set({ scrobblingTabId: tabId }, false);
+};
+
+const removeScrobblingTabId = (): Promise<void> => {
+	return BrowserStorage.remove('scrobblingTabId');
 };
 
 void init();

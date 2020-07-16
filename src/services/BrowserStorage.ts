@@ -9,6 +9,8 @@ export type StorageValues = {
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
 	correctUrls?: Record<StreamingServiceId, Record<string, string>>;
+	scrobblingItem?: Omit<TraktItemBase, ''>;
+	scrobblingTabId?: number;
 };
 
 export type StorageValuesOptions = {
