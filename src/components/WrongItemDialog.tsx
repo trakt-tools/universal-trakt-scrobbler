@@ -125,7 +125,7 @@ export const WrongItemDialog: React.FC = () => {
 	}, []);
 
 	const [urlLabel, urlError] =
-		dialog.url && isValidUrl(dialog.url)
+		!dialog.url || isValidUrl(dialog.url)
 			? [browser.i18n.getMessage('wrongItemDialogUrlLabel'), false]
 			: [browser.i18n.getMessage('wrongItemDialogInvalidUrlLabel'), true];
 
@@ -137,7 +137,7 @@ export const WrongItemDialog: React.FC = () => {
 			onClose={closeDialog}
 		>
 			<DialogTitle id="wrong-item-dialog-title">
-				{browser.i18n.getMessage('wrongItemDialogTitle')}
+				{browser.i18n.getMessage('correctWrongItem')}
 			</DialogTitle>
 			{dialog.isLoading ? (
 				<UtsCenter>
@@ -165,6 +165,7 @@ export const WrongItemDialog: React.FC = () => {
 							id="wrong-item-dialog-url"
 							label={urlLabel}
 							error={urlError}
+							placeholder="https://trakt.tv/shows/dark/seasons/1/episodes/1"
 							value={dialog.url}
 							autoFocus
 							fullWidth
@@ -178,7 +179,7 @@ export const WrongItemDialog: React.FC = () => {
 						</Button>
 						<Button
 							color="primary"
-							disabled={urlError}
+							disabled={!dialog.url || urlError}
 							variant="contained"
 							onClick={onCorrectButtonClick}
 						>
