@@ -9,10 +9,10 @@ export interface StreamingServicePage extends StreamingService {
 	pageBuilder: () => React.ReactElement | null;
 }
 
-export const streamingServicePages: StreamingServicePage[] = Object.values(streamingServices).map(
-	(service) => ({
+export const streamingServicePages: StreamingServicePage[] = Object.values(streamingServices)
+	.filter((service) => service.hasSync)
+	.map((service) => ({
 		...service,
 		path: `/${service.id}`,
 		pageBuilder: getPageBuilder(service.id, service.name),
-	})
-);
+	}));

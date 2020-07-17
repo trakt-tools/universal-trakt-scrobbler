@@ -76,6 +76,15 @@ const getWebpackConfig = (env: Environment) => {
 		mode = 'development';
 	}
 	const config = configJson[mode];
+	const streamingServiceEntries = Object.fromEntries(
+		Object.values(streamingServices)
+			.filter((service) => service.hasScrobbler)
+			.map((service) => [
+				[`./chrome/js/${service.id}`, [`./src/modules/content/${service.id}/${service.id}.ts`]],
+				[`./firefox/js/${service.id}`, [`./src/modules/content/${service.id}/${service.id}.ts`]],
+			])
+			.flat()
+	) as Record<string, string[]>;
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
@@ -89,6 +98,7 @@ const getWebpackConfig = (env: Environment) => {
 			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./firefox/js/history': ['./src/modules/history/history.tsx'],
 			'./firefox/js/options': ['./src/modules/options/options.tsx'],
+			...streamingServiceEntries,
 		},
 		mode,
 		module: {
@@ -160,6 +170,13 @@ const getWebpackConfig = (env: Environment) => {
 };
 
 const getManifest = (config: Config, browserName: string): string => {
+	const streamingServiceScripts: Manifest['content_scripts'] = Object.values(streamingServices)
+		.filter((service) => service.hasScrobbler)
+		.map((service) => ({
+			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
+			matches: service.hostPatterns,
+			run_at: 'document_idle',
+		}));
 	const manifest: Manifest = {
 		manifest_version: 2,
 		name: '__MSG_appName__',
@@ -179,6 +196,7 @@ const getManifest = (config: Config, browserName: string): string => {
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
+			...streamingServiceScripts,
 		],
 		default_locale: 'en',
 		optional_permissions: [
