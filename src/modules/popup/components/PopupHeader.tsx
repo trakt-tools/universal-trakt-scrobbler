@@ -56,7 +56,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 							<Button color="inherit" onClick={onLogoutClick}>
 								{browser.i18n.getMessage('logout')}
 							</Button>
-						) : null
+						) : undefined
 					}
 				/>
 			</Toolbar>

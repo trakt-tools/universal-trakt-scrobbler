@@ -9,23 +9,32 @@ import { Shared } from '../../services/Shared';
 import { streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
-	| {
-			action:
-				| 'check-login'
-				| 'login'
-				| 'logout'
-				| 'set-active-icon'
-				| 'set-inactive-icon'
-				| 'start-scrobble'
-				| 'stop-scrobble';
-	  }
+	| CheckLoginMessage
 	| FinishLoginMessage
+	| LoginMessage
+	| LogoutMessage
+	| SetActiveIconMessage
+	| SetInactiveIconMessage
+	| StartScrobbleMessage
+	| StopScrobbleMessage
 	| SendRequestMessage
 	| ShowNotificationMessage;
+
+export interface CheckLoginMessage {
+	action: 'check-login';
+}
 
 export interface FinishLoginMessage {
 	action: 'finish-login';
 	redirectUrl: string;
+}
+
+export interface LoginMessage {
+	action: 'login';
+}
+
+export interface LogoutMessage {
+	action: 'logout';
 }
 
 export interface SendRequestMessage {
@@ -33,10 +42,26 @@ export interface SendRequestMessage {
 	request: RequestDetails;
 }
 
+export interface SetActiveIconMessage {
+	action: 'set-active-icon';
+}
+
+export interface SetInactiveIconMessage {
+	action: 'set-inactive-icon';
+}
+
 export interface ShowNotificationMessage {
 	action: 'show-notification';
 	title: string;
 	message: string;
+}
+
+export interface StartScrobbleMessage {
+	action: 'start-scrobble';
+}
+
+export interface StopScrobbleMessage {
+	action: 'stop-scrobble';
 }
 
 const init = async () => {
