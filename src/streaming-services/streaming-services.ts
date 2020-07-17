@@ -15,7 +15,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		name: 'Netflix',
 		homePage: 'https://www.netflix.com/',
 		hostPatterns: ['*://*.netflix.com/*'],
-		hasScrobbler: false,
+		hasScrobbler: true,
 		hasSync: true,
 	},
 	nrk: {

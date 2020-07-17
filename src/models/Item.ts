@@ -23,7 +23,7 @@ export interface IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt: import('moment').Moment;
+	watchedAt?: import('moment').Moment;
 	percentageWatched?: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
@@ -40,7 +40,7 @@ export class Item implements IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt: import('moment').Moment;
+	watchedAt?: import('moment').Moment;
 	percentageWatched: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;

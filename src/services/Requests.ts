@@ -58,9 +58,9 @@ class _Requests {
 		let options = await this.getOptions(request, tabId);
 		if (window.wrappedJSObject) {
 			// Firefox wraps page objects, so if we want to send the request from a container, we have to unwrap them.
-			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch as Fetch);
+			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch);
 			window.wrappedJSObject.fetchOptions = cloneInto(options, window);
-			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions as Record<string, unknown>);
+			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions);
 		}
 		return fetch(request.url, options);
 	};

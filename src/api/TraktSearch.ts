@@ -66,7 +66,7 @@ class _TraktSearch extends TraktApi {
 			}
 			if ('episode' in searchItem) {
 				const id = searchItem.episode.ids.trakt;
-				const tmdbId = searchItem.episode.ids.tmdb;
+				const tmdbId = searchItem.show.ids.tmdb;
 				const title = searchItem.show.title;
 				const year = searchItem.show.year;
 				const season = searchItem.episode.season;

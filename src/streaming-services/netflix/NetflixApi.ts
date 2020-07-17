@@ -3,8 +3,52 @@ import { Item } from '../../models/Item';
 import { Errors } from '../../services/Errors';
 import { EventDispatcher, Events } from '../../services/Events';
 import { Requests } from '../../services/Requests';
+import { Shared } from '../../services/Shared';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
+
+export interface NetflixGlobalObject {
+	appContext: {
+		state: {
+			playerApp: {
+				getState: () => NetflixPlayerState;
+			};
+		};
+	};
+	reactContext: {
+		models: {
+			userInfo: {
+				data: {
+					authURL: string;
+				};
+			};
+			serverDefs: {
+				data: {
+					BUILD_IDENTIFIER: string;
+				};
+			};
+		};
+	};
+}
+
+export interface NetflixPlayerState {
+	videoPlayer: {
+		playbackStateBySessionId: Record<string, NetflixScrobbleSession | null>;
+	};
+}
+
+export interface NetflixApiParams {
+	authUrl: string;
+	buildIdentifier: string;
+}
+
+export interface NetflixScrobbleSession {
+	currentTime: number;
+	duration: number;
+	paused: boolean;
+	playing: boolean;
+	videoId: number;
+}
 
 export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];
@@ -54,6 +98,38 @@ export interface NetflixMetadataMovieItem {
 	};
 }
 
+export interface NetflixSingleMetadataItem {
+	video: NetflixMetadataShow | NetflixMetadataMovie;
+}
+
+export interface NetflixMetadataGeneric {
+	id: number;
+	title: string;
+	year: number;
+}
+
+export type NetflixMetadataShow = NetflixMetadataGeneric & {
+	type: 'show';
+	currentEpisode: number;
+	seasons: NetflixMetadataShowSeason[];
+};
+
+export interface NetflixMetadataShowSeason {
+	episodes: NetflixMetadataShowEpisode[];
+	seq: number;
+	shortName: string;
+}
+
+export interface NetflixMetadataShowEpisode {
+	id: number;
+	seq: number;
+	title: string;
+}
+
+export type NetflixMetadataMovie = NetflixMetadataGeneric & {
+	type: 'movie';
+};
+
 export type NetflixHistoryItemWithMetadata =
 	| NetflixHistoryShowItemWithMetadata
 	| NetflixHistoryMovieItemWithMetadata;
@@ -63,11 +139,6 @@ export type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & Netfli
 export type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem &
 	NetflixMetadataMovieItem;
 
-interface ApiParams {
-	authUrl: string;
-	buildIdentifier: string;
-}
-
 class _NetflixApi extends Api {
 	HOST_URL: string;
 	API_URL: string;
@@ -75,7 +146,12 @@ class _NetflixApi extends Api {
 	AUTH_REGEX: RegExp;
 	BUILD_IDENTIFIER_REGEX: RegExp;
 	isActivated: boolean;
-	apiParams: Partial<ApiParams>;
+	apiParams: Partial<NetflixApiParams>;
+	hasInjectedApiParamsScript: boolean;
+	hasInjectedSessionScript: boolean;
+	apiParamsListener: ((event: Event) => void) | undefined;
+	sessionListener: ((event: Event) => void) | undefined;
+
 	constructor() {
 		super('netflix');
 
@@ -87,6 +163,8 @@ class _NetflixApi extends Api {
 
 		this.isActivated = false;
 		this.apiParams = {};
+		this.hasInjectedApiParamsScript = false;
+		this.hasInjectedSessionScript = false;
 	}
 
 	extractAuthUrl = (text: string): string | undefined => {
@@ -98,16 +176,26 @@ class _NetflixApi extends Api {
 	};
 
 	activate = async () => {
-		const responseText = await Requests.send({
-			url: this.ACTIVATE_URL,
-			method: 'GET',
-		});
-		this.apiParams.authUrl = this.extractAuthUrl(responseText);
-		this.apiParams.buildIdentifier = this.extractBuildIdentifier(responseText);
+		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the API params.
+		let apiParams;
+		if (!Shared.isBackgroundPage) {
+			apiParams = await this.getApiParams();
+		}
+		if (apiParams && this.checkParams(apiParams)) {
+			this.apiParams.authUrl = apiParams.authUrl;
+			this.apiParams.buildIdentifier = apiParams.buildIdentifier;
+		} else {
+			const responseText = await Requests.send({
+				url: this.ACTIVATE_URL,
+				method: 'GET',
+			});
+			this.apiParams.authUrl = this.extractAuthUrl(responseText);
+			this.apiParams.buildIdentifier = this.extractBuildIdentifier(responseText);
+		}
 		this.isActivated = true;
 	};
 
-	checkParams = (apiParams: Partial<ApiParams>): apiParams is ApiParams => {
+	checkParams = (apiParams: Partial<NetflixApiParams>): apiParams is NetflixApiParams => {
 		return (
 			typeof apiParams.authUrl !== 'undefined' && typeof apiParams.buildIdentifier !== 'undefined'
 		);
@@ -225,6 +313,145 @@ class _NetflixApi extends Api {
 			item = new Item({ id, type, title, year, watchedAt });
 		}
 		return item;
+	};
+
+	getItem = async (id: string): Promise<Item | undefined> => {
+		let item: Item | undefined;
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		if (!this.checkParams(this.apiParams)) {
+			throw new Error('Invalid API params');
+		}
+		try {
+			const responseText = await Requests.send({
+				url: `${this.API_URL}/${this.apiParams.buildIdentifier}/metadata?languages=en-US&movieid=${id}`,
+				method: 'GET',
+			});
+			item = this.parseMetadata(JSON.parse(responseText));
+		} catch (err) {
+			Errors.error('Failed to get item.', err);
+		}
+		return item;
+	};
+
+	parseMetadata = (metadata: NetflixSingleMetadataItem): Item => {
+		let item: Item;
+		const { video } = metadata;
+		const { id, type, title, year } = video;
+		if (video.type === 'show') {
+			let episodeInfo: NetflixMetadataShowEpisode | undefined;
+			const seasonInfo = video.seasons.find((season) =>
+				season.episodes.find((episode) => {
+					const isMatch = episode.id === video.currentEpisode;
+					if (isMatch) {
+						episodeInfo = episode;
+					}
+					return isMatch;
+				})
+			);
+			if (!seasonInfo || !episodeInfo) {
+				throw new Error('Could not find item');
+			}
+			const isCollection = seasonInfo.shortName.includes('C');
+			const season = seasonInfo.seq;
+			const episode = episodeInfo.seq;
+			const episodeTitle = episodeInfo.title;
+			item = new Item({ id, type, title, year, isCollection, season, episode, episodeTitle });
+		} else {
+			item = new Item({ id, type, title, year });
+		}
+		return item;
+	};
+
+	getApiParams = (): Promise<Partial<NetflixApiParams>> => {
+		return new Promise((resolve) => {
+			if ('wrappedJSObject' in window && window.wrappedJSObject) {
+				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
+				let authUrl = '';
+				let buildIdentifier = '';
+				const { netflix } = window.wrappedJSObject;
+				if (netflix) {
+					authUrl = netflix.reactContext.models.userInfo.data.authURL;
+					buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+				}
+				resolve({ authUrl, buildIdentifier });
+			} else {
+				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
+				if (!this.hasInjectedApiParamsScript) {
+					const script = document.createElement('script');
+					script.textContent = `
+						window.addEventListener('uts-getApiParams', () => {
+							let authUrl = '';
+							let buildIdentifier = '';
+							if (netflix) {
+								authUrl = netflix.reactContext.models.userInfo.data.authURL;
+								buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+							}
+							const event = new CustomEvent('uts-onApiParamsReceived', {
+								detail: { authUrl, buildIdentifier },
+							});
+							window.dispatchEvent(event);
+						});
+					`;
+					document.body.appendChild(script);
+				}
+				if (this.apiParamsListener) {
+					window.removeEventListener('uts-onApiParamsReceived', this.apiParamsListener);
+				}
+				this.apiParamsListener = (event: Event) =>
+					resolve((event as CustomEvent<Partial<NetflixApiParams>>).detail);
+				window.addEventListener('uts-onApiParamsReceived', this.apiParamsListener, false);
+				const event = new CustomEvent('uts-getApiParams');
+				window.dispatchEvent(event);
+			}
+		});
+	};
+
+	getSession = (): Promise<NetflixScrobbleSession | undefined | null> => {
+		return new Promise((resolve) => {
+			if ('wrappedJSObject' in window && window.wrappedJSObject) {
+				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
+				let session: NetflixScrobbleSession | undefined | null;
+				const { netflix } = window.wrappedJSObject;
+				if (netflix) {
+					const sessions = netflix.appContext.state.playerApp.getState().videoPlayer
+						.playbackStateBySessionId;
+					const currentId = Object.keys(sessions).find((id) => id.startsWith('watch'));
+					session = currentId ? sessions[currentId] : undefined;
+				}
+				resolve(session);
+			} else {
+				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
+				if (!this.hasInjectedSessionScript) {
+					const script = document.createElement('script');
+					script.textContent = `
+						window.addEventListener('uts-getSession', () => {
+							let session;
+							if (netflix) {
+								const sessions = netflix.appContext.state.playerApp.getState().videoPlayer.playbackStateBySessionId;
+								const currentId = Object.keys(sessions)
+									.find(id => id.startsWith('watch'));
+								session = currentId ? sessions[currentId] : undefined;
+							}
+							const event = new CustomEvent('uts-onSessionReceived', {
+								detail: session,
+							});
+							window.dispatchEvent(event);
+						});
+					`;
+					document.body.appendChild(script);
+				}
+				if (this.sessionListener) {
+					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
+				}
+				this.sessionListener = (event: Event) =>
+					resolve((event as CustomEvent<NetflixScrobbleSession>).detail);
+				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
+				const event = new CustomEvent('uts-getSession');
+				window.dispatchEvent(event);
+			}
+		});
 	};
 }
 

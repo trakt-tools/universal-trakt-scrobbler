@@ -1,5 +1,6 @@
 import { EventDispatcher, Events } from './Events';
 import { Messaging } from './Messaging';
+import { Shared } from './Shared';
 
 class _BrowserAction {
 	startListeners = () => {
@@ -8,11 +9,23 @@ class _BrowserAction {
 	};
 
 	setActiveIcon = async (): Promise<void> => {
-		await Messaging.toBackground({ action: 'set-active-icon' });
+		if (Shared.isBackgroundPage) {
+			await browser.browserAction.setIcon({
+				path: browser.runtime.getURL('images/uts-icon-selected-38.png'),
+			});
+		} else {
+			await Messaging.toBackground({ action: 'set-active-icon' });
+		}
 	};
 
 	setInactiveIcon = async (): Promise<void> => {
-		await Messaging.toBackground({ action: 'set-inactive-icon' });
+		if (Shared.isBackgroundPage) {
+			await browser.browserAction.setIcon({
+				path: browser.runtime.getURL('images/uts-icon-38.png'),
+			});
+		} else {
+			await Messaging.toBackground({ action: 'set-inactive-icon' });
+		}
 	};
 }
 

@@ -1,6 +1,7 @@
 import { TraktAuth } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { TraktItem } from '../../models/TraktItem';
+import { BrowserAction } from '../../services/BrowserAction';
 import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
 import { RequestDetails, Requests } from '../../services/Requests';
@@ -67,7 +68,7 @@ const onTabRemoved = async (tabId: number) => {
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.remove('scrobblingTabId');
-	await setInactiveIcon();
+	await BrowserAction.setInactiveIcon();
 };
 
 const onStorageChanged = (
@@ -162,11 +163,11 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			break;
 		}
 		case 'set-active-icon': {
-			executingAction = setActiveIcon();
+			executingAction = BrowserAction.setActiveIcon();
 			break;
 		}
 		case 'set-inactive-icon': {
-			executingAction = setInactiveIcon();
+			executingAction = BrowserAction.setInactiveIcon();
 			break;
 		}
 		case 'start-scrobble': {
@@ -206,18 +207,6 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 					})
 				);
 			});
-	});
-};
-
-const setActiveIcon = (): Promise<void> => {
-	return browser.browserAction.setIcon({
-		path: browser.runtime.getURL('images/uts-icon-selected-38.png'),
-	});
-};
-
-const setInactiveIcon = (): Promise<void> => {
-	return browser.browserAction.setIcon({
-		path: browser.runtime.getURL('images/uts-icon-38.png'),
 	});
 };
 
