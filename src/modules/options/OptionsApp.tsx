@@ -1,30 +1,34 @@
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Container } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { UtsCenter } from '../../../components/UtsCenter';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { UtsCenter } from '../../components/UtsCenter';
+import { UtsDialog } from '../../components/UtsDialog';
+import { UtsSnackbar } from '../../components/UtsSnackbar';
 import {
 	BrowserStorage,
 	Option,
 	Options,
 	StorageValuesOptions,
-} from '../../../services/BrowserStorage';
-import { Errors } from '../../../services/Errors';
+} from '../../services/BrowserStorage';
+import { Errors } from '../../services/Errors';
 import {
 	EventDispatcher,
 	Events,
 	OptionEventData,
 	StreamingServiceOptionEventData,
-} from '../../../services/Events';
-import { StreamingServiceId, streamingServices } from '../../../streaming-services';
-import { OptionsActions } from '../components/options/OptionsActions';
-import { OptionsList } from '../components/options/OptionsList';
+} from '../../services/Events';
+import { StreamingServiceId, streamingServices } from '../../streaming-services';
+import { OptionsActions } from './components/OptionsActions';
+import { OptionsHeader } from './components/OptionsHeader';
+import { OptionsList } from './components/OptionsList';
 
 interface ContentProps {
 	isLoading: boolean;
 	options: Options;
 }
 
-export const OptionsPage: React.FC = () => {
+export const OptionsApp: React.FC = () => {
 	const [content, setContent] = useState<ContentProps>({
 		isLoading: true,
 		options: {} as Options,
@@ -202,14 +206,23 @@ export const OptionsPage: React.FC = () => {
 		void resetOptions();
 	}, []);
 
-	return content.isLoading ? (
-		<UtsCenter>
-			<CircularProgress />
-		</UtsCenter>
-	) : (
-		<>
-			<OptionsList options={Object.values(content.options)} />
-			<OptionsActions />
-		</>
+	return (
+		<ErrorBoundary>
+			<OptionsHeader />
+			<Container className="options-container">
+				{content.isLoading ? (
+					<UtsCenter>
+						<CircularProgress />
+					</UtsCenter>
+				) : (
+					<>
+						<OptionsList options={Object.values(content.options)} />
+						<OptionsActions />
+					</>
+				)}
+				<UtsDialog />
+				<UtsSnackbar />
+			</Container>
+		</ErrorBoundary>
 	);
 };

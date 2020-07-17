@@ -7,8 +7,8 @@ import {
 	Switch,
 } from '@material-ui/core';
 import * as React from 'react';
-import { Option, StorageValuesOptions } from '../../../../services/BrowserStorage';
-import { EventDispatcher, Events } from '../../../../services/Events';
+import { Option, StorageValuesOptions } from '../../../services/BrowserStorage';
+import { EventDispatcher, Events } from '../../../services/Events';
 import { StreamingServiceOptions } from './StreamingServiceOptions';
 
 interface OptionsListItemProps {

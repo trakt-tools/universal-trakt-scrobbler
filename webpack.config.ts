@@ -83,10 +83,12 @@ const getWebpackConfig = (env: Environment) => {
 			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
 			'./chrome/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./chrome/js/history': ['./src/modules/history/history.tsx'],
+			'./chrome/js/options': ['./src/modules/options/options.tsx'],
 			'./firefox/js/background': ['./src/modules/background/background.ts'],
 			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
 			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./firefox/js/history': ['./src/modules/history/history.tsx'],
+			'./firefox/js/options': ['./src/modules/options/options.tsx'],
 		},
 		mode,
 		module: {

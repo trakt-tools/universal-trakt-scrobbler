@@ -1,6 +1,6 @@
 import { List } from '@material-ui/core';
 import * as React from 'react';
-import { Option, StorageValuesOptions } from '../../../../services/BrowserStorage';
+import { Option, StorageValuesOptions } from '../../../services/BrowserStorage';
 import { OptionsListItem } from './OptionsListItem';
 
 interface OptionsListProps {
