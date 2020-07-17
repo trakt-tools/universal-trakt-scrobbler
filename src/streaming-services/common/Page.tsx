@@ -2,16 +2,16 @@ import { Box, CircularProgress } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { TraktSettings } from '../../../../api/TraktSettings';
-import { TraktSync } from '../../../../api/TraktSync';
-import { UtsCenter } from '../../../../components/UtsCenter';
-import { Item } from '../../../../models/Item';
+import { TraktSettings } from '../../api/TraktSettings';
+import { TraktSync } from '../../api/TraktSync';
+import { UtsCenter } from '../../components/UtsCenter';
+import { Item } from '../../models/Item';
 import {
 	BrowserStorage,
 	StorageValuesSyncOptions,
 	SyncOptions,
-} from '../../../../services/BrowserStorage';
-import { Errors } from '../../../../services/Errors';
+} from '../../services/BrowserStorage';
+import { Errors } from '../../services/Errors';
 import {
 	EventDispatcher,
 	Events,
@@ -19,11 +19,11 @@ import {
 	HistorySyncSuccessData,
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
-} from '../../../../services/Events';
-import { StreamingServiceId } from '../../../../streaming-services';
-import { HistoryActions } from '../../components/history/HistoryActions';
-import { HistoryList } from '../../components/history/HistoryList';
-import { HistoryOptionsList } from '../../components/history/HistoryOptionsList';
+} from '../../services/Events';
+import { StreamingServiceId } from '../streaming-services';
+import { HistoryActions } from '../../modules/history/components/history/HistoryActions';
+import { HistoryList } from '../../modules/history/components/history/HistoryList';
+import { HistoryOptionsList } from '../../modules/history/components/history/HistoryOptionsList';
 import { Api } from './Api';
 import { getApi, getStore } from './common';
 import { Store } from './Store';

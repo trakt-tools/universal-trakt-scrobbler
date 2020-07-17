@@ -13,7 +13,7 @@ import { Item } from '../models/Item';
 import { BrowserStorage } from '../services/BrowserStorage';
 import { Errors } from '../services/Errors';
 import { EventDispatcher, Events, WrongItemDialogData } from '../services/Events';
-import { StreamingServiceId, streamingServices } from '../streaming-services';
+import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
 interface WrongItemDialogState {

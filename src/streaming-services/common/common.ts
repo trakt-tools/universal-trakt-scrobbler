@@ -1,6 +1,6 @@
 import { Page } from './Page';
 import { Store } from './Store';
-import { StreamingServiceId } from '../../../../streaming-services';
+import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
 
 const stores = {} as Record<StreamingServiceId, Store>;

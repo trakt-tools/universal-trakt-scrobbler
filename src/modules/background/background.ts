@@ -5,7 +5,7 @@ import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStor
 import { Errors } from '../../services/Errors';
 import { RequestDetails, Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
-import { streamingServices } from '../../streaming-services';
+import { streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
 	| {

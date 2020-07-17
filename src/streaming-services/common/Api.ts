@@ -1,11 +1,11 @@
-import { TraktSearch } from '../../../../api/TraktSearch';
-import { TraktSync } from '../../../../api/TraktSync';
-import { Item } from '../../../../models/Item';
-import { TraktItem, TraktItemBase } from '../../../../models/TraktItem';
-import { BrowserStorage } from '../../../../services/BrowserStorage';
-import { Errors } from '../../../../services/Errors';
-import { EventDispatcher, Events } from '../../../../services/Events';
-import { StreamingServiceId } from '../../../../streaming-services';
+import { TraktSearch } from '../../api/TraktSearch';
+import { TraktSync } from '../../api/TraktSync';
+import { Item } from '../../models/Item';
+import { TraktItem, TraktItemBase } from '../../models/TraktItem';
+import { BrowserStorage } from '../../services/BrowserStorage';
+import { Errors } from '../../services/Errors';
+import { EventDispatcher, Events } from '../../services/Events';
+import { StreamingServiceId } from '../streaming-services';
 import { getStore } from './common';
 
 export abstract class Api {

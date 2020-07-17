@@ -1,4 +1,4 @@
-import { StreamingService, streamingServices } from '../../../streaming-services';
+import { StreamingService, streamingServices } from './streaming-services';
 import { getPageBuilder } from './common/common';
 import './netflix/NetflixApi';
 import './nrk/NrkApi';

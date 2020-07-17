@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Session } from '../../../services/Session';
 import { HistoryInfo } from '../components/HistoryInfo';
-import { StreamingServicePage, streamingServicePages } from '../streaming-services/pages';
+import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
 import { BrowserStorage } from '../../../services/BrowserStorage';
 
 export const HomePage: React.FC = () => {

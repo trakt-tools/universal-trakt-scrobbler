@@ -4,7 +4,7 @@ import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
 import { Item } from '../../../../models/Item';
 import { EventDispatcher, Events } from '../../../../services/Events';
-import { StreamingServiceId } from '../../../../streaming-services';
+import { StreamingServiceId } from '../../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {

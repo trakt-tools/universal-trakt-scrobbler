@@ -1,9 +1,5 @@
-import { Item } from '../../../../models/Item';
-import {
-	EventDispatcher,
-	Events,
-	StreamingServiceHistoryChangeData,
-} from '../../../../services/Events';
+import { Item } from '../../models/Item';
+import { EventDispatcher, Events, StreamingServiceHistoryChangeData } from '../../services/Events';
 
 export interface StoreData {
 	isLastPage: boolean;

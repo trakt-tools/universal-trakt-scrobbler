@@ -1,8 +1,8 @@
 import * as moment from 'moment';
-import { Item } from '../../../../models/Item';
-import { Errors } from '../../../../services/Errors';
-import { EventDispatcher, Events } from '../../../../services/Events';
-import { Requests } from '../../../../services/Requests';
+import { Item } from '../../models/Item';
+import { Errors } from '../../services/Errors';
+import { EventDispatcher, Events } from '../../services/Events';
+import { Requests } from '../../services/Requests';
 import { Api } from '../common/Api';
 import { getStore, registerApi } from '../common/common';
 

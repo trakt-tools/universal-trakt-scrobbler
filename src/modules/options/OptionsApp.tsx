@@ -18,7 +18,7 @@ import {
 	OptionEventData,
 	StreamingServiceOptionEventData,
 } from '../../services/Events';
-import { StreamingServiceId, streamingServices } from '../../streaming-services';
+import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 import { OptionsActions } from './components/OptionsActions';
 import { OptionsHeader } from './components/OptionsHeader';
 import { OptionsList } from './components/OptionsList';

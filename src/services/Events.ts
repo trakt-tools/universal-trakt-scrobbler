@@ -1,7 +1,7 @@
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { StoreData } from '../modules/history/streaming-services/common/Store';
-import { StreamingServiceId } from '../streaming-services';
+import { StoreData } from '../streaming-services/common/Store';
+import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
 import { RequestException } from './Requests';

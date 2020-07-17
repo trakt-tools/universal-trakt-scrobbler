@@ -12,7 +12,7 @@ import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
-import { streamingServicePages } from './streaming-services/pages';
+import { streamingServicePages } from '../../streaming-services/pages';
 
 const history = createBrowserHistory();
 

@@ -34,7 +34,7 @@ import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
 import * as webpack from 'webpack';
 import * as configJson from './config.json';
 import * as packageJson from './package.json';
-import { streamingServices } from './src/streaming-services';
+import { streamingServices } from './src/streaming-services/streaming-services';
 
 const BASE_PATH = process.cwd();
 const loaders = {

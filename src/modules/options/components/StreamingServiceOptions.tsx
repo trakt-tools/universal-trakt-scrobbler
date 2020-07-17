@@ -1,7 +1,7 @@
 import { List } from '@material-ui/core';
 import * as React from 'react';
 import { StreamingServiceOption } from './StreamingServiceOption';
-import { StreamingServiceId } from '../../../streaming-services';
+import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 
 interface StreamingServiceOptionsProps {
 	options: Record<StreamingServiceId, boolean>;

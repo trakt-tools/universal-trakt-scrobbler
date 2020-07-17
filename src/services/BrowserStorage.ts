@@ -1,6 +1,6 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { TraktItemBase } from '../models/TraktItem';
-import { StreamingServiceId, streamingServices } from '../streaming-services';
+import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { Shared } from './Shared';
 
 export type StorageValues = {
@@ -75,11 +75,14 @@ class _BrowserStorage {
 		await browser.storage.local.set(values);
 	};
 
-	get = (keys?: string | string[]): Promise<StorageValues> => {
+	get = (keys?: keyof StorageValues | (keyof StorageValues)[] | null): Promise<StorageValues> => {
 		return browser.storage.local.get(keys);
 	};
 
-	remove = async (keys: string | string[], doSync = false): Promise<void> => {
+	remove = async (
+		keys: keyof StorageValues | (keyof StorageValues)[],
+		doSync = false
+	): Promise<void> => {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.remove(keys);
 		}
@@ -93,7 +96,9 @@ class _BrowserStorage {
 		await browser.storage.local.clear();
 	};
 
-	getSize = async (keys?: string | string[]): Promise<string> => {
+	getSize = async (
+		keys?: keyof StorageValues | (keyof StorageValues)[] | null
+	): Promise<string> => {
 		let size = '';
 		const values = await this.get(keys);
 		let bytes = (JSON.stringify(values) || '').length;
