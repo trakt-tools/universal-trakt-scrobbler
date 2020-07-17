@@ -396,6 +396,7 @@ class _NetflixApi extends Api {
 						});
 					`;
 					document.body.appendChild(script);
+					this.hasInjectedApiParamsScript = true;
 				}
 				if (this.apiParamsListener) {
 					window.removeEventListener('uts-onApiParamsReceived', this.apiParamsListener);
@@ -442,6 +443,7 @@ class _NetflixApi extends Api {
 						});
 					`;
 					document.body.appendChild(script);
+					this.hasInjectedSessionScript = true;
 				}
 				if (this.sessionListener) {
 					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
