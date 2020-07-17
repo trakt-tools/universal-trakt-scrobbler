@@ -13,9 +13,11 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 	const { options } = props;
 	return (
 		<List classes={{ root: 'options--streaming-service' }}>
-			{(Object.entries(options) as [StreamingServiceId, boolean][]).map(([id, value]) => (
-				<StreamingServiceOption key={id} id={id} value={value} />
-			))}
+			{(Object.entries(options) as [StreamingServiceId, boolean][])
+				.sort(([idA], [idB]) => idA.localeCompare(idB))
+				.map(([id, value]) => (
+					<StreamingServiceOption key={id} id={id} value={value} />
+				))}
 		</List>
 	);
 };

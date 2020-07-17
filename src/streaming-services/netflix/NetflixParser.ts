@@ -8,7 +8,7 @@ class _NetflixParser implements ScrobbleParser {
 		return window.location.href;
 	};
 
-	parseItem = (): Promise<Item> => {
+	parseItem = (): Promise<Item | undefined> => {
 		return new Promise((resolve) => void this.checkId(resolve));
 	};
 

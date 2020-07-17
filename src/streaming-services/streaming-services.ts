@@ -1,4 +1,4 @@
-export type StreamingServiceId = 'netflix' | 'nrk' | 'viaplay';
+export type StreamingServiceId = 'amazon-prime' | 'netflix' | 'nrk' | 'viaplay';
 
 export interface StreamingService {
 	id: StreamingServiceId;
@@ -10,6 +10,14 @@ export interface StreamingService {
 }
 
 export const streamingServices: Record<StreamingServiceId, StreamingService> = {
+	'amazon-prime': {
+		id: 'amazon-prime',
+		name: 'Amazon Prime',
+		homePage: 'https://www.primevideo.com/',
+		hostPatterns: ['*://*.primevideo.com/*'],
+		hasScrobbler: true,
+		hasSync: false,
+	},
 	netflix: {
 		id: 'netflix',
 		name: 'Netflix',

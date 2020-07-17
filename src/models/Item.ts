@@ -15,7 +15,7 @@ const correctTitles: Record<string, string> = {
 };
 
 export interface IItem {
-	id: number;
+	id: string;
 	type: 'show' | 'movie';
 	title: string;
 	year: number;
@@ -32,7 +32,7 @@ export interface IItem {
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 export class Item implements IItem {
-	id: number;
+	id: string;
 	type: 'show' | 'movie';
 	title: string;
 	year: number;

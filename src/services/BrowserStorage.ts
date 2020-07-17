@@ -180,6 +180,14 @@ class _BrowserStorage {
 			option.name = browser.i18n.getMessage(`${option.id}Name`);
 			option.description = browser.i18n.getMessage(`${option.id}Description`);
 			option.value = (values.options && values.options[option.id]) || option.value;
+			if (option.id === 'streamingServices') {
+				const missingServices = Object.fromEntries(
+					Object.keys(streamingServices)
+						.filter((serviceId) => !(serviceId in option.value))
+						.map((serviceId) => [serviceId, false])
+				) as Record<StreamingServiceId, boolean>;
+				option.value = { ...option.value, ...missingServices };
+			}
 		}
 		return options;
 	};

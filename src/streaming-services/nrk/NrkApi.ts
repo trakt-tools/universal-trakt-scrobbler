@@ -99,7 +99,7 @@ class _NrkApi extends Api {
 	parseHistoryItem = (historyItem: NrkHistoryItem): Item => {
 		const program: NrkProgramInfo = historyItem.program;
 		let item: Item;
-		const id = parseInt(program.id, 10);
+		const id = program.id;
 		const type = program.programType === 'Episode' ? 'show' : 'movie';
 		const year = program.productionYear;
 		const percentageWatched = parseInt(historyItem.lastSeen.percentageWatched, 10);

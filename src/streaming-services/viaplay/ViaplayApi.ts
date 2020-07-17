@@ -164,7 +164,7 @@ class _ViaplayApi extends Api {
 		const year = historyItem.content.production.year;
 		const percentageWatched = historyItem.user.progress?.elapsedPercent || 0;
 		const watchedAt = moment(historyItem.user.progress?.updated);
-		const id = parseInt(historyItem.system.guid, 10);
+		const id = historyItem.system.guid;
 		if (historyItem.type === 'episode') {
 			const content = historyItem.content;
 			const title = content.originalTitle ?? content.series.title;

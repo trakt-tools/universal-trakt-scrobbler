@@ -283,7 +283,7 @@ class _NetflixApi extends Api {
 
 	parseHistoryItem = (historyItem: NetflixHistoryItemWithMetadata) => {
 		let item: Item;
-		const id = historyItem.movieID;
+		const id = historyItem.movieID.toString();
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
 		const watchedAt = moment(historyItem.date);
@@ -338,7 +338,8 @@ class _NetflixApi extends Api {
 	parseMetadata = (metadata: NetflixSingleMetadataItem): Item => {
 		let item: Item;
 		const { video } = metadata;
-		const { id, type, title, year } = video;
+		const id = video.id.toString();
+		const { type, title, year } = video;
 		if (video.type === 'show') {
 			let episodeInfo: NetflixMetadataShowEpisode | undefined;
 			const seasonInfo = video.seasons.find((season) =>
