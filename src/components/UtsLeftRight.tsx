@@ -5,7 +5,7 @@ interface UtsLeftRightProps {
 	centerVertically: boolean;
 	className?: string;
 	left: React.ReactElement;
-	right?: React.ReactElement;
+	right?: React.ReactElement | null;
 }
 
 export const UtsLeftRight: React.FC<UtsLeftRightProps> = (props: UtsLeftRightProps) => {

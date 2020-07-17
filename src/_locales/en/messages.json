@@ -15,7 +15,7 @@
 		"message": "Add with release date."
 	},
 	"aboutMessage": {
-		"message": "Sync the history from your favorite streaming services to Trakt.tv!"
+		"message": "Scrobble / sync the history from your favorite streaming services to Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
@@ -99,6 +99,9 @@
 	"hideSyncedName": {
 		"message": "Hide synced."
 	},
+	"history": {
+		"message": "History"
+	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
 		"placeholders": {
@@ -154,6 +157,12 @@
 	},
 	"notWatched": {
 		"message": "Not Watched"
+	},
+	"notWatching": {
+		"message": "Watch something!"
+	},
+	"nowScrobbling": {
+		"message": "Now Scrobbling"
 	},
 	"on": {
 		"message": "On"

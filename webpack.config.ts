@@ -81,9 +81,11 @@ const getWebpackConfig = (env: Environment) => {
 		entry: {
 			'./chrome/js/background': ['./src/modules/background/background.ts'],
 			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
+			'./chrome/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./chrome/js/history': ['./src/modules/history/history.tsx'],
 			'./firefox/js/background': ['./src/modules/background/background.ts'],
 			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
+			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./firefox/js/history': ['./src/modules/history/history.tsx'],
 		},
 		mode,
@@ -193,6 +195,8 @@ const getManifest = (config: Config, browserName: string): string => {
 				19: 'images/uts-icon-19.png',
 				38: 'images/uts-icon-38.png',
 			},
+			default_popup: 'html/popup.html',
+			default_title: 'Universal Trakt Scrobbler',
 		},
 		permissions: ['identity', 'storage', 'tabs', 'unlimitedStorage', '*://*.trakt.tv/*'],
 		web_accessible_resources: [

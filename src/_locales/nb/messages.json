@@ -15,7 +15,7 @@
 		"message": "Legg til med utgivelsesdato."
 	},
 	"aboutMessage": {
-		"message": "Synkroniser historikken fra dine favorittstrømmetjenester til Trakt.tv!"
+		"message": "Scrobble / synkroniser historikken fra dine favorittstrømmetjenester til Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
@@ -96,6 +96,9 @@
 	"grantCookiesName": {
 		"message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
 	},
+	"history": {
+		"message": "History"
+	},
 	"hideSyncedName": {
 		"message": "Skjul allerede synkroniserte elementer."
 	},
@@ -154,6 +157,12 @@
 	},
 	"notWatched": {
 		"message": "Ikke registrert som sett"
+	},
+	"notWatching": {
+		"message": "Se på noe!"
+	},
+	"nowScrobbling": {
+		"message": "Scrobbler nå"
 	},
 	"on": {
 		"message": "På"

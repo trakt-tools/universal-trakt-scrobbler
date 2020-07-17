@@ -5,7 +5,6 @@ import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStor
 import { Errors } from '../../services/Errors';
 import { RequestDetails, Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
-import { Tabs } from '../../services/Tabs';
 import { streamingServices } from '../../streaming-services';
 
 export type MessageRequest =
@@ -46,12 +45,29 @@ const init = async () => {
 	if (storage.options?.allowRollbar) {
 		Errors.startRollbar();
 	}
+	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
-	browser.browserAction.onClicked.addListener(() => void onBrowserActionClicked());
 	if (storage.options?.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+/**
+ * Checks if the tab that was closed was the tab that was scrobbling and, if that's the case, stops the scrobble.
+ */
+const onTabRemoved = async (tabId: number) => {
+	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
+	if (tabId !== scrobblingTabId) {
+		return;
+	}
+	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
+	if (scrobblingItem) {
+		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await BrowserStorage.remove('scrobblingItem');
+	}
+	await BrowserStorage.remove('scrobblingTabId');
+	await setInactiveIcon();
 };
 
 const onStorageChanged = (
@@ -68,17 +84,6 @@ const onStorageChanged = (
 		addWebRequestListener();
 	} else {
 		removeWebRequestListener();
-	}
-};
-
-const onBrowserActionClicked = async (): Promise<void> => {
-	const tabs = await browser.tabs.query({
-		url: `${browser.runtime.getURL('/')}*`,
-	});
-	if (tabs.length > 0) {
-		await browser.tabs.update(tabs[0].id, { active: true });
-	} else {
-		await Tabs.open(browser.runtime.getURL('html/history.html'));
 	}
 };
 
