@@ -4,7 +4,7 @@ import { Errors } from '../../services/Errors';
 import { EventDispatcher, Events } from '../../services/Events';
 import { Requests } from '../../services/Requests';
 import { Api } from '../common/Api';
-import { getStore, registerApi } from '../common/common';
+import { getSyncStore, registerApi } from '../common/common';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
@@ -145,7 +145,7 @@ class _ViaplayApi extends Api {
 				items = historyItems.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			getStore('viaplay')
+			getSyncStore('viaplay')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
 				.catch(() => {

@@ -4,7 +4,7 @@ import { Errors } from '../../services/Errors';
 import { EventDispatcher, Events } from '../../services/Events';
 import { Requests } from '../../services/Requests';
 import { Api } from '../common/Api';
-import { getStore, registerApi } from '../common/common';
+import { getSyncStore, registerApi } from '../common/common';
 
 export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];
@@ -143,7 +143,7 @@ class _NetflixApi extends Api {
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
 			nextVisualPage += 1;
-			getStore('netflix')
+			getSyncStore('netflix')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
 				.catch(() => {

@@ -1,16 +1,8 @@
-import { Page } from './Page';
-import { Store } from './Store';
 import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
-
-const stores = {} as Record<StreamingServiceId, Store>;
-
-export const getStore = (serviceId: StreamingServiceId) => {
-	if (!stores[serviceId]) {
-		stores[serviceId] = new Store();
-	}
-	return stores[serviceId];
-};
+import { ScrobbleController, ScrobbleParser } from './ScrobbleController';
+import { SyncPage } from './SyncPage';
+import { SyncStore } from './SyncStore';
 
 const apis = {} as Record<StreamingServiceId, Api>;
 
@@ -22,15 +14,39 @@ export const getApi = (serviceId: StreamingServiceId) => {
 	return apis[serviceId];
 };
 
-const pageBuilders = {} as Record<StreamingServiceId, () => React.ReactElement | null>;
+const scrobbleParsers = {} as Record<StreamingServiceId, ScrobbleParser>;
 
-export const getPageBuilder = (
+export const registerScrobbleParser = (serviceId: StreamingServiceId, parser: ScrobbleParser) => {
+	scrobbleParsers[serviceId] = parser;
+};
+
+const scrobbleControllers = {} as Record<StreamingServiceId, ScrobbleController>;
+
+export const getScrobbleController = (serviceId: StreamingServiceId) => {
+	if (!scrobbleControllers[serviceId]) {
+		scrobbleControllers[serviceId] = new ScrobbleController(scrobbleParsers[serviceId]);
+	}
+	return scrobbleControllers[serviceId];
+};
+
+const syncStores = {} as Record<StreamingServiceId, SyncStore>;
+
+export const getSyncStore = (serviceId: StreamingServiceId) => {
+	if (!syncStores[serviceId]) {
+		syncStores[serviceId] = new SyncStore();
+	}
+	return syncStores[serviceId];
+};
+
+const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactElement | null>;
+
+export const getSyncPageBuilder = (
 	serviceId: StreamingServiceId,
 	serviceName: string
 ): (() => React.ReactElement | null) => {
-	if (!pageBuilders[serviceId]) {
-		pageBuilders[serviceId] = () =>
-			Page({ serviceId, serviceName, store: getStore(serviceId), api: getApi(serviceId) });
+	if (!syncPageBuilders[serviceId]) {
+		syncPageBuilders[serviceId] = () =>
+			SyncPage({ serviceId, serviceName, store: getSyncStore(serviceId), api: getApi(serviceId) });
 	}
-	return pageBuilders[serviceId];
+	return syncPageBuilders[serviceId];
 };

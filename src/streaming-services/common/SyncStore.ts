@@ -8,7 +8,7 @@ export interface StoreData {
 	items: Item[];
 }
 
-export class Store {
+export class SyncStore {
 	data: StoreData;
 	constructor() {
 		this.data = {

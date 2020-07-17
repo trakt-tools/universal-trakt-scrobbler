@@ -6,7 +6,7 @@ import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
 import { EventDispatcher, Events } from '../../services/Events';
 import { StreamingServiceId } from '../streaming-services';
-import { getStore } from './common';
+import { getSyncStore } from './common';
 
 export abstract class Api {
 	id: StreamingServiceId;
@@ -30,13 +30,13 @@ export abstract class Api {
 				traktCache = {};
 			}
 			const promises = [];
-			const items = getStore(this.id).data.items;
+			const items = getSyncStore(this.id).data.items;
 			for (const item of items) {
 				promises.push(this.loadTraktItemHistory(item, traktCache, correctUrls?.[this.id][item.id]));
 			}
 			await Promise.all(promises);
 			await BrowserStorage.set({ traktCache }, false);
-			await getStore(this.id).update();
+			await getSyncStore(this.id).update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
 			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, null, {

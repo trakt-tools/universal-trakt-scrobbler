@@ -1,5 +1,5 @@
 import { StreamingService, streamingServices } from './streaming-services';
-import { getPageBuilder } from './common/common';
+import { getSyncPageBuilder } from './common/common';
 import './netflix/NetflixApi';
 import './nrk/NrkApi';
 import './viaplay/ViaplayApi';
@@ -14,5 +14,5 @@ export const streamingServicePages: StreamingServicePage[] = Object.values(strea
 	.map((service) => ({
 		...service,
 		path: `/${service.id}`,
-		pageBuilder: getPageBuilder(service.id, service.name),
+		pageBuilder: getSyncPageBuilder(service.id, service.name),
 	}));

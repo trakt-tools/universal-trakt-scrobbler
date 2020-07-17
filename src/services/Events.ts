@@ -1,6 +1,6 @@
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { StoreData } from '../streaming-services/common/Store';
+import { StoreData } from '../streaming-services/common/SyncStore';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
@@ -48,6 +48,10 @@ export interface ScrobbleEventData {
 	item?: TraktItem;
 	scrobbleType: number;
 	error: RequestException;
+}
+
+export interface ScrobbleProgressEventData {
+	progress: number;
 }
 
 export interface HistoryOptionsChangeData {

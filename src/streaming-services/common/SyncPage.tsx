@@ -25,13 +25,13 @@ import { HistoryActions } from '../../modules/history/components/history/History
 import { HistoryList } from '../../modules/history/components/history/HistoryList';
 import { HistoryOptionsList } from '../../modules/history/components/history/HistoryOptionsList';
 import { Api } from './Api';
-import { getApi, getStore } from './common';
-import { Store } from './Store';
+import { getApi, getSyncStore } from './common';
+import { SyncStore } from './SyncStore';
 
 interface PageProps {
 	serviceId: StreamingServiceId;
 	serviceName: string;
-	store: Store;
+	store: SyncStore;
 	api: Api;
 }
 
@@ -48,7 +48,7 @@ interface Content {
 	items: Item[];
 }
 
-export const Page: React.FC<PageProps> = (props: PageProps) => {
+export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const { serviceId, serviceName, store, api } = props;
 
 	const [optionsContent, setOptionsContent] = useState<OptionsContent>({
@@ -155,7 +155,7 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 			}
 			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, data.url);
 			await BrowserStorage.set({ traktCache }, false);
-			await getStore(serviceId).update();
+			await getSyncStore(serviceId).update();
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
@@ -282,9 +282,9 @@ export const Page: React.FC<PageProps> = (props: PageProps) => {
 	);
 };
 
-Page.propTypes = {
+SyncPage.propTypes = {
 	serviceId: PropTypes.any.isRequired,
 	serviceName: PropTypes.string.isRequired,
-	store: PropTypes.instanceOf(Store).isRequired,
+	store: PropTypes.instanceOf(SyncStore).isRequired,
 	api: PropTypes.any.isRequired,
 };
