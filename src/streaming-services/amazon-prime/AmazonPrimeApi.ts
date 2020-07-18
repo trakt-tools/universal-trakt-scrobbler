@@ -1,6 +1,6 @@
 import { Item } from '../../models/Item';
-import { Errors } from '../../services/Errors';
-import { Requests } from '../../services/Requests';
+import { Errors } from '../../common/Errors';
+import { Requests } from '../../common/Requests';
 import { Api } from '../common/Api';
 import { registerApi } from '../common/common';
 

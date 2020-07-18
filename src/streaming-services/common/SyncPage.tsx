@@ -6,19 +6,15 @@ import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
 import { UtsCenter } from '../../components/UtsCenter';
 import { Item } from '../../models/Item';
-import {
-	BrowserStorage,
-	StorageValuesSyncOptions,
-	SyncOptions,
-} from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
+import { BrowserStorage, StorageValuesSyncOptions, SyncOptions } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
 import {
 	EventDispatcher,
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
-} from '../../services/Events';
+} from '../../common/Events';
 import { StreamingServiceId } from '../streaming-services';
 import { HistoryActions } from '../../modules/history/components/history/HistoryActions';
 import { HistoryList } from '../../modules/history/components/history/HistoryList';

@@ -1,4 +1,4 @@
-import { EventDispatcher } from '../../services/Events';
+import { EventDispatcher } from '../../common/Events';
 
 export abstract class ScrobbleEvents {
 	changeListenerId: number | null;

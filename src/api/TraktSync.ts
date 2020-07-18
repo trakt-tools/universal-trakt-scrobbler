@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 import { Item } from '../models/Item';
-import { Errors } from '../services/Errors';
-import { EventDispatcher } from '../services/Events';
-import { Requests } from '../services/Requests';
+import { Errors } from '../common/Errors';
+import { EventDispatcher } from '../common/Events';
+import { Requests } from '../common/Requests';
 import { TraktApi } from './TraktApi';
 
 export interface TraktHistoryItem {

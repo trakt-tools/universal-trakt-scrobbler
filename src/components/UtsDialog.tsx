@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { EventDispatcher, DialogShowData } from '../services/Events';
+import { EventDispatcher, DialogShowData } from '../common/Events';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;

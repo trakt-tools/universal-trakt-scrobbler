@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { EventDispatcher } from '../../../services/Events';
-import { Session } from '../../../services/Session';
+import { EventDispatcher } from '../../../common/Events';
+import { Session } from '../../../common/Session';
 
 export const LoginPage: React.FC = () => {
 	const history = useHistory();

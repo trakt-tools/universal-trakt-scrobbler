@@ -1,8 +1,8 @@
-import { BrowserAction } from '../../services/BrowserAction';
-import { BrowserStorage } from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
-import { Notifications } from '../../services/Notifications';
-import { Shared } from '../../services/Shared';
+import { BrowserAction } from '../../common/BrowserAction';
+import { BrowserStorage } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { Notifications } from '../../common/Notifications';
+import { Shared } from '../../common/Shared';
 import { StreamingServiceId } from '../streaming-services';
 import { getScrobbleController, getScrobbleEvents } from './common';
 

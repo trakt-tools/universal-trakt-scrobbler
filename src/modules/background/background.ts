@@ -1,11 +1,11 @@
 import { TraktAuth } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { TraktItem } from '../../models/TraktItem';
-import { BrowserAction } from '../../services/BrowserAction';
-import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
-import { RequestDetails, Requests } from '../../services/Requests';
-import { Shared } from '../../services/Shared';
+import { BrowserAction } from '../../common/BrowserAction';
+import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { RequestDetails, Requests } from '../../common/Requests';
+import { Shared } from '../../common/Shared';
 import { streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =

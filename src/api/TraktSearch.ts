@@ -1,7 +1,7 @@
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { EventDispatcher } from '../services/Events';
-import { Requests } from '../services/Requests';
+import { EventDispatcher } from '../common/Events';
+import { Requests } from '../common/Requests';
 import { TraktApi } from './TraktApi';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;

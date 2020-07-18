@@ -1,6 +1,6 @@
 import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
 import * as React from 'react';
-import { EventDispatcher } from '../../../services/Events';
+import { EventDispatcher } from '../../../common/Events';
 import {
 	StreamingServiceId,
 	streamingServices,

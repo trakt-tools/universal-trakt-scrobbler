@@ -5,18 +5,13 @@ import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsCenter } from '../../components/UtsCenter';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import {
-	BrowserStorage,
-	Option,
-	Options,
-	StorageValuesOptions,
-} from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
+import { BrowserStorage, Option, Options, StorageValuesOptions } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
 import {
 	EventDispatcher,
 	OptionsChangeData,
 	StreamingServiceOptionsChangeData,
-} from '../../services/Events';
+} from '../../common/Events';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 import { OptionsActions } from './components/OptionsActions';
 import { OptionsHeader } from './components/OptionsHeader';

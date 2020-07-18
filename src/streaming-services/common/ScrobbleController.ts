@@ -2,9 +2,9 @@ import { TraktScrobble } from '../../api/TraktScrobble';
 import { TraktSearch } from '../../api/TraktSearch';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
-import { BrowserStorage } from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
-import { EventDispatcher, ScrobbleProgressData } from '../../services/Events';
+import { BrowserStorage } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { EventDispatcher, ScrobbleProgressData } from '../../common/Events';
 
 export interface ScrobbleParser {
 	parseItem(): Promise<Item | undefined>;

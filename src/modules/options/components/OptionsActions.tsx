@@ -1,9 +1,9 @@
 import { Box, Button, Divider } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { BrowserStorage } from '../../../services/BrowserStorage';
-import { Errors } from '../../../services/Errors';
-import { EventDispatcher } from '../../../services/Events';
+import { BrowserStorage } from '../../../common/BrowserStorage';
+import { Errors } from '../../../common/Errors';
+import { EventDispatcher } from '../../../common/Events';
 
 export const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');

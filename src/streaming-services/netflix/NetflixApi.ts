@@ -1,9 +1,9 @@
 import * as moment from 'moment';
 import { Item } from '../../models/Item';
-import { Errors } from '../../services/Errors';
-import { EventDispatcher } from '../../services/Events';
-import { Requests } from '../../services/Requests';
-import { Shared } from '../../services/Shared';
+import { Errors } from '../../common/Errors';
+import { EventDispatcher } from '../../common/Events';
+import { Requests } from '../../common/Requests';
+import { Shared } from '../../common/Shared';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 

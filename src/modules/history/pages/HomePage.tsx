@@ -3,10 +3,10 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { Session } from '../../../services/Session';
+import { Session } from '../../../common/Session';
 import { HistoryInfo } from '../components/HistoryInfo';
 import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
-import { BrowserStorage } from '../../../services/BrowserStorage';
+import { BrowserStorage } from '../../../common/BrowserStorage';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();

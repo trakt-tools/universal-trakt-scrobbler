@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Errors } from '../services/Errors';
+import { Errors } from '../common/Errors';
 
 interface ErrorBoundaryProps {
 	children: React.ReactNode;

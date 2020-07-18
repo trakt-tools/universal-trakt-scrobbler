@@ -1,8 +1,8 @@
 import { TraktItem } from '../models/TraktItem';
-import { EventDispatcher } from '../services/Events';
-import { Messaging } from '../services/Messaging';
-import { RequestException, Requests } from '../services/Requests';
-import { Shared } from '../services/Shared';
+import { EventDispatcher } from '../common/Events';
+import { Messaging } from '../common/Messaging';
+import { RequestException, Requests } from '../common/Requests';
+import { Shared } from '../common/Shared';
 import { TraktApi } from './TraktApi';
 
 export interface TraktScrobbleData {

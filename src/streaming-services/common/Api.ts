@@ -2,9 +2,9 @@ import { TraktSearch } from '../../api/TraktSearch';
 import { TraktSync } from '../../api/TraktSync';
 import { Item } from '../../models/Item';
 import { TraktItem, TraktItemBase } from '../../models/TraktItem';
-import { BrowserStorage } from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
-import { EventDispatcher } from '../../services/Events';
+import { BrowserStorage } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { EventDispatcher } from '../../common/Events';
 import { StreamingServiceId } from '../streaming-services';
 import { getSyncStore } from './common';
 

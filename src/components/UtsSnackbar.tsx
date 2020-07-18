@@ -2,7 +2,7 @@ import { Snackbar } from '@material-ui/core';
 import { Alert, Color } from '@material-ui/lab';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { EventDispatcher, SnackbarShowData } from '../services/Events';
+import { EventDispatcher, SnackbarShowData } from '../common/Events';
 
 interface SnackBarState {
 	isOpen: boolean;

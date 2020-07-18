@@ -4,8 +4,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { TraktItem } from '../../../models/TraktItem';
 import { secrets } from '../../../secrets';
-import { Errors } from '../../../services/Errors';
-import { Requests } from '../../../services/Requests';
+import { Errors } from '../../../common/Errors';
+import { Requests } from '../../../common/Requests';
 
 interface IPopupTmdbImage {
 	item: TraktItem;

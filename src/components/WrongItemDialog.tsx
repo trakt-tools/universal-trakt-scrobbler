@@ -10,9 +10,9 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { Item } from '../models/Item';
-import { BrowserStorage } from '../services/BrowserStorage';
-import { Errors } from '../services/Errors';
-import { EventDispatcher, WrongItemDialogShowData } from '../services/Events';
+import { BrowserStorage } from '../common/BrowserStorage';
+import { Errors } from '../common/Errors';
+import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
