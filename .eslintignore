@@ -1,2 +1,5 @@
 build/*
 eslint-plugin-prefer-arrow/*
+!.eslintrc.js
+!.eslintrc.typed.js
+!.lintstagedrc.js
