@@ -51,11 +51,14 @@ export interface HboGoSettingsResponse {
 }
 
 export interface HboGoHistoryResponse {
-	Container: {
-		Contents: {
-			Items: HboGoHistoryItem[];
-		};
-	}[];
+	Container: (
+		| {
+				Contents: {
+					Items: HboGoHistoryItem[];
+				};
+		  }
+		| undefined
+	)[];
 }
 
 export type HboGoHistoryItem = HboGoHistoryShowItem | HboGoHistoryMovieItem;
@@ -184,15 +187,14 @@ class _HboGoApi extends Api {
 	};
 
 	getHistoryUrl = (nextPage: number) => {
-		// TODO: Try to fix the pagination. It's currently in an endless loop, where no matter what number we pass as the pageindex parameter, it always returns the same page.
 		return this.groupUrl
-			.replace('{groupId}', this.historyGroupId)
-			.replace('{filter}', '-')
-			.replace('{sort}', '-')
-			.replace('{pageindex}', nextPage.toString())
-			.replace('{pagesize}', '-')
-			.replace('{parameter}', '-')
-			.replace('{ageRating}', '-');
+			.replace(/{groupId}/i, this.historyGroupId)
+			.replace('{filter}', '0')
+			.replace('{sort}', '0')
+			.replace(/{pageIndex}/i, (nextPage + 1).toString())
+			.replace(/{pageSize}/i, '20')
+			.replace('{parameter}', '0')
+			.replace(/{ageRating}/i, '0');
 	};
 
 	loadHistory = async (
@@ -220,8 +222,8 @@ class _HboGoApi extends Api {
 				});
 				const responseJson = JSON.parse(responseText) as HboGoHistoryResponse;
 				if (responseJson) {
-					const responseItems = responseJson.Container[0].Contents.Items;
-					if (responseItems.length > 0) {
+					const responseItems = responseJson.Container[0]?.Contents.Items;
+					if (responseItems && responseItems.length > 0) {
 						itemsToLoad -= responseItems.length;
 						historyItems.push(...responseItems);
 					} else {
