@@ -8,36 +8,6 @@ import { RequestException } from './Requests';
 import { TraktSearchItem } from '../api/TraktSearch';
 import { Color } from '@material-ui/lab';
 
-export type Event =
-	| 'LOGIN_SUCCESS'
-	| 'LOGIN_ERROR'
-	| 'LOGOUT_SUCCESS'
-	| 'LOGOUT_ERROR'
-	| 'SCROBBLE_SUCCESS'
-	| 'SCROBBLE_ERROR'
-	| 'SCROBBLE_ACTIVE'
-	| 'SCROBBLE_INACTIVE'
-	| 'SCROBBLE_START'
-	| 'SCROBBLE_PAUSE'
-	| 'SCROBBLE_STOP'
-	| 'SCROBBLE_PROGRESS'
-	| 'SEARCH_SUCCESS'
-	| 'SEARCH_ERROR'
-	| 'OPTIONS_CHANGE'
-	| 'STREAMING_SERVICE_OPTIONS_CHANGE'
-	| 'OPTIONS_CLEAR'
-	| 'DIALOG_SHOW'
-	| 'SNACKBAR_SHOW'
-	| 'WRONG_ITEM_DIALOG_SHOW'
-	| 'WRONG_ITEM_CORRECTED'
-	| 'HISTORY_OPTIONS_CHANGE'
-	| 'STREAMING_SERVICE_STORE_UPDATE'
-	| 'STREAMING_SERVICE_HISTORY_LOAD_ERROR'
-	| 'STREAMING_SERVICE_HISTORY_CHANGE'
-	| 'TRAKT_HISTORY_LOAD_ERROR'
-	| 'HISTORY_SYNC_SUCCESS'
-	| 'HISTORY_SYNC_ERROR';
-
 export interface EventData {
 	LOGIN_SUCCESS: LoginSuccessData;
 	LOGIN_ERROR: ErrorData;
@@ -68,6 +38,8 @@ export interface EventData {
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
 }
+
+export type Event = keyof EventData;
 
 export type SuccessData = Record<string, unknown>;
 
