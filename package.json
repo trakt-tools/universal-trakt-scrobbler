@@ -1,12 +1,12 @@
 {
-	"name": "universal-trakt-sync",
+	"name": "universal-trakt-scrobbler",
 	"version": "1.0.0",
 	"description": "A universal sync for Trakt.tv.",
 	"author": "trakt-tools",
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/trakt-tools/universal-trakt-sync.git"
+		"url": "git://github.com/trakt-tools/universal-trakt-scrobbler.git"
 	},
 	"scripts": {
 		"build": "webpack --env.production",

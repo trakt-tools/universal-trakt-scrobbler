@@ -13,7 +13,7 @@ export const AboutPage: React.FC = () => {
 			<Typography variant="h6">{browser.i18n.getMessage('aboutMessage')}</Typography>
 			<Button
 				color="secondary"
-				onClick={() => onLinkClick('https://github.com/trakt-tools/universal-trakt-sync')}
+				onClick={() => onLinkClick('https://github.com/trakt-tools/universal-trakt-scrobbler')}
 				variant="contained"
 			>
 				{browser.i18n.getMessage('readMore')}

@@ -7,7 +7,7 @@ const packageJson = require(path.resolve(__dirname, '../package.json'));
 const args = getArguments(process);
 const octokit = new Octokit({
 	auth: args.token,
-	userAgent: 'universal-trakt-sync',
+	userAgent: 'universal-trakt-scrobbler',
 });
 const defaultParams = {
 	owner: packageJson.author,
