@@ -30,6 +30,14 @@
 	color: #fff;
 }
 
+.history-info {
+	text-align: center;
+}
+
+.history-info > * {
+	margin: 8px 0;
+}
+
 .history-list-item {
 	display: flex;
 	justify-content: end;
