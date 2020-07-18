@@ -1,5 +1,10 @@
 {
-	"exclude": ["./node_modules", "./build"],
+	"exclude": [
+		"./node_modules",
+		"./build",
+		"./src/streaming-services/scrobbler-template",
+		"./src/streaming-services/sync-template"
+	],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,
