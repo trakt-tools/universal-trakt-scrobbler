@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
 	env: {
 		browser: true,
@@ -7,6 +9,18 @@ module.exports = {
 	},
 	rules: {},
 	overrides: [
+		{
+			files: ['**/_locales/**/*.json'],
+			extends: ['plugin:i18n-json/recommended'],
+			rules: {
+				'i18n-json/identical-keys': [
+					'error',
+					{
+						filePath: path.resolve('./src/_locales/en/messages.json'),
+					},
+				],
+			},
+		},
 		{
 			files: ['**/*.{js,jsx}'],
 			parserOptions: {
