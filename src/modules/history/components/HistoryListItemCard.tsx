@@ -7,9 +7,9 @@ import {
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
-import { UtsCenter } from '../../../../components/UtsCenter';
-import { Item } from '../../../../models/Item';
-import { TraktItem } from '../../../../models/TraktItem';
+import { UtsCenter } from '../../../components/UtsCenter';
+import { Item } from '../../../models/Item';
+import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
 	dateFormat: string;

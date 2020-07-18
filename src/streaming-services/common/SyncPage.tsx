@@ -16,9 +16,9 @@ import {
 	WrongItemCorrectedData,
 } from '../../common/Events';
 import { StreamingServiceId } from '../streaming-services';
-import { HistoryActions } from '../../modules/history/components/history/HistoryActions';
-import { HistoryList } from '../../modules/history/components/history/HistoryList';
-import { HistoryOptionsList } from '../../modules/history/components/history/HistoryOptionsList';
+import { HistoryActions } from '../../modules/history/components/HistoryActions';
+import { HistoryList } from '../../modules/history/components/HistoryList';
+import { HistoryOptionsList } from '../../modules/history/components/HistoryOptionsList';
 import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
 import { SyncStore } from './SyncStore';

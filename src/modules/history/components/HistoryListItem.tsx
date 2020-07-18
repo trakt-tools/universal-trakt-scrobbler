@@ -2,9 +2,9 @@ import { Box, Checkbox } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
-import { Item } from '../../../../models/Item';
-import { EventDispatcher } from '../../../../common/Events';
-import { StreamingServiceId } from '../../../../streaming-services/streaming-services';
+import { Item } from '../../../models/Item';
+import { EventDispatcher } from '../../../common/Events';
+import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
