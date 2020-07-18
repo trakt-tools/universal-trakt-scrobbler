@@ -14,9 +14,8 @@ import {
 import { Errors } from '../../services/Errors';
 import {
 	EventDispatcher,
-	Events,
-	OptionEventData,
-	StreamingServiceOptionEventData,
+	OptionsChangeData,
+	StreamingServiceOptionsChangeData,
 } from '../../services/Events';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 import { OptionsActions } from './components/OptionsActions';
@@ -43,26 +42,26 @@ export const OptionsApp: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.OPTIONS_CLEAR, null, resetOptions);
-			EventDispatcher.subscribe(Events.OPTIONS_CHANGE, null, onOptionChange);
+			EventDispatcher.subscribe('OPTIONS_CLEAR', null, resetOptions);
+			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionChange);
 			EventDispatcher.subscribe(
-				Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+				'STREAMING_SERVICE_OPTIONS_CHANGE',
 				null,
 				onStreamingServiceOptionChange
 			);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.OPTIONS_CLEAR, null, resetOptions);
-			EventDispatcher.unsubscribe(Events.OPTIONS_CHANGE, null, onOptionChange);
+			EventDispatcher.unsubscribe('OPTIONS_CLEAR', null, resetOptions);
+			EventDispatcher.unsubscribe('OPTIONS_CHANGE', null, onOptionChange);
 			EventDispatcher.unsubscribe(
-				Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+				'STREAMING_SERVICE_OPTIONS_CHANGE',
 				null,
 				onStreamingServiceOptionChange
 			);
 		};
 
-		const onOptionChange = (data: OptionEventData<keyof StorageValuesOptions>) => {
+		const onOptionChange = (data: OptionsChangeData<keyof StorageValuesOptions>) => {
 			const optionsToSave = {} as StorageValuesOptions;
 			const options = {
 				...content.options,
@@ -98,7 +97,7 @@ export const OptionsApp: React.FC = () => {
 					})
 					.catch(async (err) => {
 						Errors.error('Failed to save option.', err);
-						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 							messageName: 'saveOptionFailed',
 							severity: 'error',
 						});
@@ -109,7 +108,7 @@ export const OptionsApp: React.FC = () => {
 		};
 
 		const onStreamingServiceOptionChange = (
-			data: StreamingServiceOptionEventData<StreamingServiceId>
+			data: StreamingServiceOptionsChangeData<StreamingServiceId>
 		) => {
 			const optionsToSave = {} as StorageValuesOptions;
 			const options = {
@@ -161,7 +160,7 @@ export const OptionsApp: React.FC = () => {
 					})
 					.catch(async (err) => {
 						Errors.error('Failed to save option.', err);
-						await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 							messageName: 'saveOptionFailed',
 							severity: 'error',
 						});
@@ -185,13 +184,13 @@ export const OptionsApp: React.FC = () => {
 					isLoading: false,
 					options,
 				});
-				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'saveOptionSuccess',
 					severity: 'success',
 				});
 			} catch (err) {
 				Errors.error('Failed to save option.', err);
-				await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'saveOptionFailed',
 					severity: 'error',
 				});

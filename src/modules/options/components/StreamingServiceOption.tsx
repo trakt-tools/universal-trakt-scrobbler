@@ -1,6 +1,6 @@
 import { ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
 import * as React from 'react';
-import { EventDispatcher, Events } from '../../../services/Events';
+import { EventDispatcher } from '../../../services/Events';
 import {
 	StreamingServiceId,
 	streamingServices,
@@ -19,7 +19,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	const service = streamingServices[id];
 
 	const onChange = async () => {
-		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_OPTIONS_CHANGE, null, [
+		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
 			{ id, value: !value },
 		]);
 	};

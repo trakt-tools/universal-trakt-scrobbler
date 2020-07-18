@@ -6,7 +6,7 @@ import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 import { Session } from '../../services/Session';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
@@ -21,13 +21,13 @@ export const HistoryApp: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.subscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const onLogin = () => {

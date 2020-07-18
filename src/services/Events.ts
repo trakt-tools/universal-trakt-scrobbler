@@ -5,53 +5,128 @@ import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
 import { RequestException } from './Requests';
+import { TraktSearchItem } from '../api/TraktSearch';
+import { Color } from '@material-ui/lab';
 
-export enum Events {
-	LOGIN_SUCCESS,
-	LOGIN_ERROR,
-	LOGOUT_SUCCESS,
-	LOGOUT_ERROR,
-	SCROBBLE_SUCCESS,
-	SCROBBLE_ERROR,
-	SCROBBLE_ACTIVE,
-	SCROBBLE_INACTIVE,
-	SCROBBLE_START,
-	SCROBBLE_PAUSE,
-	SCROBBLE_STOP,
-	SCROBBLE_PROGRESS,
-	SEARCH_SUCCESS,
-	SEARCH_ERROR,
-	OPTIONS_CHANGE,
-	STREAMING_SERVICE_OPTIONS_CHANGE,
-	OPTIONS_CLEAR,
-	DIALOG_SHOW,
-	SNACKBAR_SHOW,
-	WRONG_ITEM_DIALOG_SHOW,
-	WRONG_ITEM_CORRECTED,
-	HISTORY_OPTIONS_CHANGE,
-	STREAMING_SERVICE_STORE_UPDATE,
-	STREAMING_SERVICE_HISTORY_LOAD_ERROR,
-	STREAMING_SERVICE_HISTORY_CHANGE,
-	TRAKT_HISTORY_LOAD_ERROR,
-	HISTORY_SYNC_SUCCESS,
-	HISTORY_SYNC_ERROR,
+export type Event =
+	| 'LOGIN_SUCCESS'
+	| 'LOGIN_ERROR'
+	| 'LOGOUT_SUCCESS'
+	| 'LOGOUT_ERROR'
+	| 'SCROBBLE_SUCCESS'
+	| 'SCROBBLE_ERROR'
+	| 'SCROBBLE_ACTIVE'
+	| 'SCROBBLE_INACTIVE'
+	| 'SCROBBLE_START'
+	| 'SCROBBLE_PAUSE'
+	| 'SCROBBLE_STOP'
+	| 'SCROBBLE_PROGRESS'
+	| 'SEARCH_SUCCESS'
+	| 'SEARCH_ERROR'
+	| 'OPTIONS_CHANGE'
+	| 'STREAMING_SERVICE_OPTIONS_CHANGE'
+	| 'OPTIONS_CLEAR'
+	| 'DIALOG_SHOW'
+	| 'SNACKBAR_SHOW'
+	| 'WRONG_ITEM_DIALOG_SHOW'
+	| 'WRONG_ITEM_CORRECTED'
+	| 'HISTORY_OPTIONS_CHANGE'
+	| 'STREAMING_SERVICE_STORE_UPDATE'
+	| 'STREAMING_SERVICE_HISTORY_LOAD_ERROR'
+	| 'STREAMING_SERVICE_HISTORY_CHANGE'
+	| 'TRAKT_HISTORY_LOAD_ERROR'
+	| 'HISTORY_SYNC_SUCCESS'
+	| 'HISTORY_SYNC_ERROR';
+
+export interface EventData {
+	LOGIN_SUCCESS: LoginSuccessData;
+	LOGIN_ERROR: ErrorData;
+	LOGOUT_SUCCESS: SuccessData;
+	LOGOUT_ERROR: ErrorData;
+	SCROBBLE_SUCCESS: ScrobbleSuccessData;
+	SCROBBLE_ERROR: ScrobbleErrorData;
+	SCROBBLE_ACTIVE: SuccessData;
+	SCROBBLE_INACTIVE: SuccessData;
+	SCROBBLE_START: SuccessData;
+	SCROBBLE_PAUSE: SuccessData;
+	SCROBBLE_STOP: SuccessData;
+	SCROBBLE_PROGRESS: ScrobbleProgressData;
+	SEARCH_SUCCESS: SearchSuccessData;
+	SEARCH_ERROR: ErrorData;
+	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
+	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<StreamingServiceId>;
+	OPTIONS_CLEAR: SuccessData;
+	DIALOG_SHOW: DialogShowData;
+	SNACKBAR_SHOW: SnackbarShowData;
+	WRONG_ITEM_DIALOG_SHOW: WrongItemDialogShowData;
+	WRONG_ITEM_CORRECTED: WrongItemCorrectedData;
+	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
+	STREAMING_SERVICE_STORE_UPDATE: StreamingServiceStoreUpdateData;
+	STREAMING_SERVICE_HISTORY_LOAD_ERROR: ErrorData;
+	STREAMING_SERVICE_HISTORY_CHANGE: StreamingServiceHistoryChangeData;
+	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
+	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
+	HISTORY_SYNC_ERROR: ErrorData;
 }
 
-export type EventDispatcherListeners = Record<
-	string,
-	Record<string, EventDispatcherListener<any>[]>
->;
+export type SuccessData = Record<string, unknown>;
 
-export type EventDispatcherListener<T> = (data: T) => void | Promise<void>;
+export interface ErrorData {
+	error: Error;
+}
 
-export interface ScrobbleEventData {
+export interface LoginSuccessData {
+	auth: Record<string, unknown>;
+}
+
+export interface ScrobbleSuccessData {
 	item?: TraktItem;
 	scrobbleType: number;
-	error: RequestException;
 }
 
-export interface ScrobbleProgressEventData {
+export type ScrobbleErrorData = ScrobbleSuccessData & {
+	error: RequestException;
+};
+
+export interface ScrobbleProgressData {
 	progress: number;
+}
+
+export interface SearchSuccessData {
+	searchItem: TraktSearchItem;
+}
+
+export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
+	id: K;
+	value: StorageValuesOptions[K];
+}
+
+export type StreamingServiceOptionsChangeData<K extends StreamingServiceId> = {
+	id: K;
+	value: boolean;
+}[];
+
+export interface DialogShowData {
+	title: string;
+	message: string;
+	onConfirm?: () => void;
+	onDeny?: () => void;
+}
+
+export interface SnackbarShowData {
+	messageName: string;
+	messageArgs?: string[];
+	severity: Color;
+}
+
+export interface WrongItemDialogShowData {
+	serviceId?: StreamingServiceId;
+	item?: Item;
+}
+
+export interface WrongItemCorrectedData {
+	item: Item;
+	url: string;
 }
 
 export interface HistoryOptionsChangeData {
@@ -64,18 +139,8 @@ export interface StreamingServiceStoreUpdateData {
 }
 
 export interface StreamingServiceHistoryChangeData {
-	index: number;
+	index?: number;
 	checked: boolean;
-}
-
-export interface WrongItemDialogData {
-	serviceId?: StreamingServiceId;
-	item?: Item;
-}
-
-export interface WrongItemCorrectedData {
-	item: Item;
-	url: string;
 }
 
 export interface HistorySyncSuccessData {
@@ -85,15 +150,12 @@ export interface HistorySyncSuccessData {
 	};
 }
 
-export interface OptionEventData<K extends keyof StorageValuesOptions> {
-	id: K;
-	value: StorageValuesOptions[K];
-}
+export type EventDispatcherListeners = Record<
+	string,
+	Record<string, EventDispatcherListener<any>[]>
+>;
 
-export type StreamingServiceOptionEventData<K extends StreamingServiceId> = {
-	id: K;
-	value: boolean;
-}[];
+export type EventDispatcherListener<K extends Event> = (data: EventData[K]) => void | Promise<void>;
 
 class _EventDispatcher {
 	globalSpecifier = 'all';
@@ -103,10 +165,10 @@ class _EventDispatcher {
 		this.listeners = {};
 	}
 
-	subscribe = <T>(
-		eventType: Events,
+	subscribe = <K extends Event>(
+		eventType: K,
 		eventSpecifier: string | null,
-		listener: EventDispatcherListener<T>
+		listener: EventDispatcherListener<K>
 	): void => {
 		if (!this.listeners[eventType]) {
 			this.listeners[eventType] = {};
@@ -124,10 +186,10 @@ class _EventDispatcher {
 		this.listeners[eventType][eventSpecifier].push(listener);
 	};
 
-	unsubscribe = <T>(
-		eventType: Events,
+	unsubscribe = <K extends Event>(
+		eventType: K,
 		eventSpecifier: string | null,
-		listener: EventDispatcherListener<T>
+		listener: EventDispatcherListener<K>
 	): void => {
 		if (!this.listeners[eventType]) {
 			return;
@@ -148,10 +210,10 @@ class _EventDispatcher {
 		}
 	};
 
-	dispatch = async (
-		eventType: Events,
+	dispatch = async <K extends Event>(
+		eventType: K,
 		eventSpecifier: string | null,
-		data: unknown
+		data: EventData[K]
 	): Promise<void> => {
 		const listeners =
 			this.listeners[eventType] &&

@@ -2,16 +2,8 @@ import * as React from 'react';
 import * as Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, Events } from './Events';
+import { ErrorData, EventDispatcher, ScrobbleErrorData } from './Events';
 import { RequestException } from './Requests';
-
-export type ErrorEventData = {
-	error: ErrorDetails | RequestException;
-};
-
-export type ErrorDetails = {
-	message?: string;
-};
 
 class _Errors {
 	rollbar?: Rollbar;
@@ -33,15 +25,18 @@ class _Errors {
 	};
 
 	startListeners = (): void => {
-		EventDispatcher.subscribe(Events.SCROBBLE_ERROR, null, (data: ErrorEventData) =>
+		EventDispatcher.subscribe('SCROBBLE_ERROR', null, (data: ScrobbleErrorData) =>
 			this.onItemError(data, 'scrobble')
 		);
-		EventDispatcher.subscribe(Events.SEARCH_ERROR, null, (data: ErrorEventData) =>
+		EventDispatcher.subscribe('SEARCH_ERROR', null, (data: ErrorData) =>
 			this.onItemError(data, 'find')
 		);
 	};
 
-	onItemError = async (data: ErrorEventData, type: 'scrobble' | 'find'): Promise<void> => {
+	onItemError = async (
+		data: ScrobbleErrorData | ErrorData,
+		type: 'scrobble' | 'find'
+	): Promise<void> => {
 		if (data.error) {
 			const values = await BrowserStorage.get('auth');
 			if (values.auth && values.auth.access_token) {
@@ -52,21 +47,18 @@ class _Errors {
 		}
 	};
 
-	log = (
-		message: Error | string,
-		details: ErrorDetails | RequestException | React.ErrorInfo
-	): void => {
+	log = (message: Error | string, details: Error | RequestException | React.ErrorInfo): void => {
 		console.log(`[UTS] ${message.toString()}`, details);
 	};
 
-	warning = (message: string, details: ErrorDetails | RequestException): void => {
+	warning = (message: string, details: Error | RequestException): void => {
 		console.warn(`[UTS] ${message}`, details);
 		if (this.rollbar) {
 			this.rollbar.warning(message, 'message' in details ? { message: details.message } : details);
 		}
 	};
 
-	error = (message: string, details: ErrorDetails | RequestException): void => {
+	error = (message: string, details: Error | RequestException): void => {
 		console.error(`[UTS] ${message}`, details);
 		if (this.rollbar) {
 			this.rollbar.error(message, 'message' in details ? { message: details.message } : details);

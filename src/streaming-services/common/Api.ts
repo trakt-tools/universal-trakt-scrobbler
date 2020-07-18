@@ -4,7 +4,7 @@ import { Item } from '../../models/Item';
 import { TraktItem, TraktItemBase } from '../../models/TraktItem';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 import { StreamingServiceId } from '../streaming-services';
 import { getSyncStore } from './common';
 
@@ -39,7 +39,7 @@ export abstract class Api {
 			await getSyncStore(this.id).update();
 		} catch (err) {
 			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch(Events.TRAKT_HISTORY_LOAD_ERROR, null, {
+			await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
 		}

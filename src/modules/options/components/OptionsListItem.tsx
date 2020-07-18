@@ -8,8 +8,9 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { Option, StorageValuesOptions } from '../../../services/BrowserStorage';
-import { EventDispatcher, Events } from '../../../services/Events';
+import { EventDispatcher } from '../../../services/Events';
 import { StreamingServiceOptions } from './StreamingServiceOptions';
+import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 
 interface OptionsListItemProps {
 	option: Option<keyof StorageValuesOptions>;
@@ -19,7 +20,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	const { option } = props;
 
 	const onChange = async () => {
-		await EventDispatcher.dispatch(Events.OPTIONS_CHANGE, null, {
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
 			id: option.id,
 			value: !option.value,
 		});
@@ -30,9 +31,9 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 			return;
 		}
 		await EventDispatcher.dispatch(
-			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			Object.keys(option.value).map((id) => ({ id, value: true }))
+			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({ id, value: true }))
 		);
 	};
 
@@ -41,9 +42,9 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 			return;
 		}
 		await EventDispatcher.dispatch(
-			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			Object.keys(option.value).map((id) => ({ id, value: false }))
+			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({ id, value: false }))
 		);
 	};
 
@@ -52,9 +53,12 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 			return;
 		}
 		await EventDispatcher.dispatch(
-			Events.STREAMING_SERVICE_OPTIONS_CHANGE,
+			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			Object.entries(option.value).map(([id, value]) => ({ id, value: !value }))
+			(Object.entries(option.value) as [StreamingServiceId, boolean][]).map(([id, value]) => ({
+				id,
+				value: !value,
+			}))
 		);
 	};
 

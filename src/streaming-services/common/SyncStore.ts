@@ -1,5 +1,5 @@
 import { Item } from '../../models/Item';
-import { EventDispatcher, Events, StreamingServiceHistoryChangeData } from '../../services/Events';
+import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../services/Events';
 
 export interface StoreData {
 	isLastPage: boolean;
@@ -20,20 +20,19 @@ export class SyncStore {
 	}
 
 	startListeners = (): void => {
-		EventDispatcher.subscribe(Events.STREAMING_SERVICE_HISTORY_CHANGE, null, this.onHistoryChange);
-		EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, null, this.onHistorySyncSuccess);
+		EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
+		EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
 	};
 
 	stopListeners = (): void => {
-		EventDispatcher.unsubscribe(
-			Events.STREAMING_SERVICE_HISTORY_CHANGE,
-			null,
-			this.onHistoryChange
-		);
-		EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, null, this.onHistorySyncSuccess);
+		EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
+		EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
 	};
 
 	onHistoryChange = (data: StreamingServiceHistoryChangeData): void => {
+		if (typeof data.index === 'undefined') {
+			return;
+		}
 		const item = this.data.items[data.index];
 		if (item) {
 			item.isSelected = data.checked;
@@ -86,7 +85,7 @@ export class SyncStore {
 				items: [...this.data.items, ...(data.items || [])],
 			};
 		}
-		await EventDispatcher.dispatch(Events.STREAMING_SERVICE_STORE_UPDATE, null, {
+		await EventDispatcher.dispatch('STREAMING_SERVICE_STORE_UPDATE', null, {
 			data: this.data,
 		});
 	};

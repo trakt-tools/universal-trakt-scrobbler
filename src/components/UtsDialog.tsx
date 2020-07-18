@@ -8,16 +8,9 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { EventDispatcher, Events } from '../services/Events';
+import { EventDispatcher, DialogShowData } from '../services/Events';
 
-interface DialogData {
-	title: string;
-	message: string;
-	onConfirm?: () => void;
-	onDeny?: () => void;
-}
-
-interface DialogState extends DialogData {
+interface DialogState extends DialogShowData {
 	isOpen: boolean;
 }
 
@@ -41,14 +34,14 @@ export const UtsDialog: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.DIALOG_SHOW, null, showDialog);
+			EventDispatcher.subscribe('DIALOG_SHOW', null, showDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.DIALOG_SHOW, null, showDialog);
+			EventDispatcher.unsubscribe('DIALOG_SHOW', null, showDialog);
 		};
 
-		const showDialog = (data: DialogData) => {
+		const showDialog = (data: DialogShowData) => {
 			setDialog({
 				isOpen: true,
 				title: data.title,

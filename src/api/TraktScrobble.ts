@@ -1,7 +1,7 @@
 import { TraktItem } from '../models/TraktItem';
-import { EventDispatcher, Events } from '../services/Events';
+import { EventDispatcher } from '../services/Events';
 import { Messaging } from '../services/Messaging';
-import { Requests } from '../services/Requests';
+import { RequestException, Requests } from '../services/Requests';
 import { Shared } from '../services/Shared';
 import { TraktApi } from './TraktApi';
 
@@ -81,12 +81,12 @@ class _TraktScrobble extends TraktApi {
 				method: 'POST',
 				body: data,
 			});
-			await EventDispatcher.dispatch(Events.SCROBBLE_SUCCESS, null, { item, scrobbleType });
+			await EventDispatcher.dispatch('SCROBBLE_SUCCESS', null, { item, scrobbleType });
 		} catch (err) {
-			await EventDispatcher.dispatch(Events.SCROBBLE_ERROR, null, {
+			await EventDispatcher.dispatch('SCROBBLE_ERROR', null, {
 				item,
 				scrobbleType,
-				error: err as Error,
+				error: err as RequestException,
 			});
 		}
 	};

@@ -1,7 +1,7 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import * as React from 'react';
 import { SyncOption } from '../../../../services/BrowserStorage';
-import { EventDispatcher, Events } from '../../../../services/Events';
+import { EventDispatcher } from '../../../../services/Events';
 
 interface HistoryOptionsListItemProps {
 	option: SyncOption;
@@ -9,14 +9,14 @@ interface HistoryOptionsListItemProps {
 
 export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
 	const onSwitchChange = async (): Promise<void> => {
-		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, null, {
+		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
 			id: option.id,
 			value: !option.value,
 		});
 	};
 
 	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-		await EventDispatcher.dispatch(Events.HISTORY_OPTIONS_CHANGE, null, {
+		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
 			id: option.id,
 			value: parseInt(event.currentTarget.value),
 		});

@@ -1,11 +1,11 @@
-import { EventDispatcher, Events } from './Events';
+import { EventDispatcher } from './Events';
 import { Messaging } from './Messaging';
 import { Shared } from './Shared';
 
 class _BrowserAction {
 	startListeners = () => {
-		EventDispatcher.subscribe(Events.SCROBBLE_ACTIVE, null, this.setActiveIcon);
-		EventDispatcher.subscribe(Events.SCROBBLE_INACTIVE, null, this.setInactiveIcon);
+		EventDispatcher.subscribe('SCROBBLE_ACTIVE', null, this.setActiveIcon);
+		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.setInactiveIcon);
 	};
 
 	setActiveIcon = async (): Promise<void> => {

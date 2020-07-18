@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Item } from '../models/Item';
 import { Errors } from '../services/Errors';
-import { EventDispatcher, Events } from '../services/Events';
+import { EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
@@ -94,12 +94,12 @@ class _TraktSync extends TraktApi {
 					}
 				}
 			}
-			await EventDispatcher.dispatch(Events.HISTORY_SYNC_SUCCESS, null, {
+			await EventDispatcher.dispatch('HISTORY_SYNC_SUCCESS', null, {
 				added: responseJson.added,
 			});
 		} catch (err) {
 			Errors.error('Failed to sync history.', err);
-			await EventDispatcher.dispatch(Events.HISTORY_SYNC_ERROR, null, { error: err as Error });
+			await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
 		}
 	};
 }

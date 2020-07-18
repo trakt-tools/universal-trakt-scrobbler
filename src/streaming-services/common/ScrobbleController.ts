@@ -4,7 +4,7 @@ import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { BrowserStorage } from '../../services/BrowserStorage';
 import { Errors } from '../../services/Errors';
-import { EventDispatcher, Events, ScrobbleProgressEventData } from '../../services/Events';
+import { EventDispatcher, ScrobbleProgressData } from '../../services/Events';
 
 export interface ScrobbleParser {
 	parseItem(): Promise<Item | undefined>;
@@ -23,10 +23,10 @@ export class ScrobbleController {
 	}
 
 	startListeners = () => {
-		EventDispatcher.subscribe(Events.SCROBBLE_START, null, this.onStart);
-		EventDispatcher.subscribe(Events.SCROBBLE_PAUSE, null, this.onPause);
-		EventDispatcher.subscribe(Events.SCROBBLE_STOP, null, this.onStop);
-		EventDispatcher.subscribe(Events.SCROBBLE_PROGRESS, null, this.onProgress);
+		EventDispatcher.subscribe('SCROBBLE_START', null, this.onStart);
+		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onPause);
+		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onStop);
+		EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, this.onProgress);
 	};
 
 	onStart = async (): Promise<void> => {
@@ -64,7 +64,7 @@ export class ScrobbleController {
 		this.reachedScrobbleThreshold = false;
 	};
 
-	onProgress = async (data: ScrobbleProgressEventData): Promise<void> => {
+	onProgress = async (data: ScrobbleProgressData): Promise<void> => {
 		if (!this.item?.trakt) {
 			return;
 		}

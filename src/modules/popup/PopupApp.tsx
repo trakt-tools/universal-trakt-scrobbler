@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 import { Session } from '../../services/Session';
 import { PopupHeader } from './components/PopupHeader';
 import { AboutPage } from './pages/AboutPage';
@@ -18,13 +18,13 @@ export const PopupApp: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.subscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const onLogin = () => {

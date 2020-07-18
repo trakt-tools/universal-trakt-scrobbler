@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { EventDispatcher, Events } from '../../../services/Events';
+import { EventDispatcher } from '../../../services/Events';
 import { Session } from '../../../services/Session';
 
 export const LoginPage: React.FC = () => {
@@ -17,13 +17,13 @@ export const LoginPage: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLoginSuccess);
-			EventDispatcher.subscribe(Events.LOGIN_ERROR, null, onLoginError);
+			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLoginSuccess);
+			EventDispatcher.subscribe('LOGIN_ERROR', null, onLoginError);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLoginSuccess);
-			EventDispatcher.unsubscribe(Events.LOGIN_ERROR, null, onLoginError);
+			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLoginSuccess);
+			EventDispatcher.unsubscribe('LOGIN_ERROR', null, onLoginError);
 		};
 
 		const onLoginSuccess = () => {

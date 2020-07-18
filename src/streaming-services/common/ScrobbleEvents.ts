@@ -1,4 +1,4 @@
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 
 export abstract class ScrobbleEvents {
 	changeListenerId: number | null;
@@ -37,23 +37,23 @@ export abstract class ScrobbleEvents {
 	abstract async checkForChanges(): Promise<void>;
 
 	start = async (): Promise<void> => {
-		await EventDispatcher.dispatch(Events.SCROBBLE_START, null, {});
-		await EventDispatcher.dispatch(Events.SCROBBLE_ACTIVE, null, {});
+		await EventDispatcher.dispatch('SCROBBLE_START', null, {});
+		await EventDispatcher.dispatch('SCROBBLE_ACTIVE', null, {});
 	};
 
 	pause = async (): Promise<void> => {
-		await EventDispatcher.dispatch(Events.SCROBBLE_PAUSE, null, {});
-		await EventDispatcher.dispatch(Events.SCROBBLE_INACTIVE, null, {});
+		await EventDispatcher.dispatch('SCROBBLE_PAUSE', null, {});
+		await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
 	};
 
 	stop = async (): Promise<void> => {
-		await EventDispatcher.dispatch(Events.SCROBBLE_STOP, null, {});
+		await EventDispatcher.dispatch('SCROBBLE_STOP', null, {});
 		if (!this.isPaused) {
-			await EventDispatcher.dispatch(Events.SCROBBLE_INACTIVE, null, {});
+			await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
 		}
 	};
 
 	updateProgress = async (newProgress: number): Promise<void> => {
-		await EventDispatcher.dispatch(Events.SCROBBLE_PROGRESS, null, { progress: newProgress });
+		await EventDispatcher.dispatch('SCROBBLE_PROGRESS', null, { progress: newProgress });
 	};
 }

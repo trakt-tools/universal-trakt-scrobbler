@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Item } from '../../models/Item';
 import { Errors } from '../../services/Errors';
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 import { Requests } from '../../services/Requests';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -90,7 +90,7 @@ class _NrkApi extends Api {
 				});
 		} catch (err) {
 			Errors.error('Failed to load NRK history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, null, {
+			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
 		}

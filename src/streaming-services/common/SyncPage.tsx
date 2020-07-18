@@ -14,7 +14,6 @@ import {
 import { Errors } from '../../services/Errors';
 import {
 	EventDispatcher,
-	Events,
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	StreamingServiceStoreUpdateData,
@@ -99,30 +98,22 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.STREAMING_SERVICE_STORE_UPDATE, null, onStoreUpdate);
-			EventDispatcher.subscribe(
-				Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR,
-				null,
-				onHistoryLoadError
-			);
-			EventDispatcher.subscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
-			EventDispatcher.subscribe(Events.WRONG_ITEM_CORRECTED, serviceId, onWrongItemCorrected);
-			EventDispatcher.subscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
-			EventDispatcher.subscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
+			EventDispatcher.subscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
+			EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
+			EventDispatcher.subscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.startListeners();
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.STREAMING_SERVICE_STORE_UPDATE, null, onStoreUpdate);
-			EventDispatcher.unsubscribe(
-				Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR,
-				null,
-				onHistoryLoadError
-			);
-			EventDispatcher.unsubscribe(Events.TRAKT_HISTORY_LOAD_ERROR, null, onTraktHistoryLoadError);
-			EventDispatcher.unsubscribe(Events.WRONG_ITEM_CORRECTED, serviceId, onWrongItemCorrected);
-			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_SUCCESS, null, onHistorySyncSuccess);
-			EventDispatcher.unsubscribe(Events.HISTORY_SYNC_ERROR, null, onHistorySyncError);
+			EventDispatcher.unsubscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
+			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
+			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.stopListeners();
 		};
 
@@ -134,14 +125,14 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onHistoryLoadError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'loadHistoryError',
 				severity: 'error',
 			});
 		};
 
 		const onTraktHistoryLoadError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'loadTraktHistoryError',
 				severity: 'error',
 			});
@@ -159,7 +150,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
 				messageName: 'historySyncSuccess',
 				severity: 'success',
@@ -167,7 +158,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onHistorySyncError = async () => {
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'historySyncError',
 				severity: 'error',
 			});
@@ -179,11 +170,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.HISTORY_OPTIONS_CHANGE, null, onOptionsChange);
+			EventDispatcher.subscribe('HISTORY_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.HISTORY_OPTIONS_CHANGE, null, onOptionsChange);
+			EventDispatcher.unsubscribe('HISTORY_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const onOptionsChange = (data: HistoryOptionsChangeData) => {
@@ -204,14 +195,14 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						hasLoaded: true,
 						options,
 					});
-					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
 					});
 				})
 				.catch(async (err) => {
 					Errors.error('Failed to save option.', err);
-					await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',
 					});

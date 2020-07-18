@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Item } from '../../models/Item';
 import { Errors } from '../../services/Errors';
-import { EventDispatcher, Events } from '../../services/Events';
+import { EventDispatcher } from '../../services/Events';
 import { Requests } from '../../services/Requests';
 import { Shared } from '../../services/Shared';
 import { Api } from '../common/Api';
@@ -239,7 +239,7 @@ class _NetflixApi extends Api {
 				});
 		} catch (err) {
 			Errors.error('Failed to load Netflix history.', err);
-			await EventDispatcher.dispatch(Events.STREAMING_SERVICE_HISTORY_LOAD_ERROR, null, {
+			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
 		}

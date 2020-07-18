@@ -1,6 +1,6 @@
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { EventDispatcher, Events } from '../services/Events';
+import { EventDispatcher } from '../services/Events';
 import { Requests } from '../services/Requests';
 import { TraktApi } from './TraktApi';
 
@@ -95,9 +95,9 @@ class _TraktSearch extends TraktApi {
 					year,
 				});
 			}
-			await EventDispatcher.dispatch(Events.SEARCH_SUCCESS, null, { searchItem });
+			await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
 		} catch (err) {
-			await EventDispatcher.dispatch(Events.SEARCH_ERROR, null, { error: err as Error });
+			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as Error });
 		}
 		return traktItem;
 	};

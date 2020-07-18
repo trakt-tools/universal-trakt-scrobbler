@@ -1,6 +1,6 @@
 import { TraktScrobble } from '../api/TraktScrobble';
 import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, Events, ScrobbleEventData } from './Events';
+import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData } from './Events';
 import { Messaging } from './Messaging';
 import { RequestException } from './Requests';
 
@@ -16,30 +16,22 @@ class _Notifications {
 	}
 
 	startListeners = () => {
-		EventDispatcher.subscribe(Events.SCROBBLE_SUCCESS, null, this.onScrobbleSuccess);
-		EventDispatcher.subscribe(Events.SCROBBLE_ERROR, null, this.onScrobbleError);
+		EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
+		EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
 	};
 
-	onScrobbleSuccess = async (data: ScrobbleEventData): Promise<void> => {
-		await this.onScrobble(data, true);
-	};
-
-	onScrobbleError = async (data: ScrobbleEventData): Promise<void> => {
-		await this.onScrobble(data, false);
-	};
-
-	onScrobble = async (data: ScrobbleEventData, isSuccess: boolean): Promise<void> => {
+	onScrobble = async (data: ScrobbleSuccessData | ScrobbleErrorData): Promise<void> => {
 		if (!data.item?.title) {
 			return;
 		}
 		let title = '';
 		let message = '';
-		if (isSuccess) {
-			title = data.item.title;
-			message = browser.i18n.getMessage(this.messageNames[data.scrobbleType]);
-		} else {
+		if ('error' in data) {
 			title = await this.getTitleFromException(data.error);
 			message = `${browser.i18n.getMessage('couldNotScrobble')} ${data.item.title}`;
+		} else {
+			title = data.item.title;
+			message = browser.i18n.getMessage(this.messageNames[data.scrobbleType]);
 		}
 		await this.show(title, message);
 	};
