@@ -1,5 +1,5 @@
-import { StreamingService, streamingServices } from './streaming-services';
 import { getSyncPageBuilder } from './common/common';
+import { StreamingService, streamingServices } from './streaming-services';
 import './netflix/NetflixApi';
 import './nrk/NrkApi';
 import './viaplay/ViaplayApi';

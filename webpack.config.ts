@@ -80,8 +80,8 @@ const getWebpackConfig = (env: Environment) => {
 		Object.values(streamingServices)
 			.filter((service) => service.hasScrobbler)
 			.map((service) => [
-				[`./chrome/js/${service.id}`, [`./src/modules/content/${service.id}/${service.id}.ts`]],
-				[`./firefox/js/${service.id}`, [`./src/modules/content/${service.id}/${service.id}.ts`]],
+				[`./chrome/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
+				[`./firefox/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
 			])
 			.flat()
 	) as Record<string, string[]>;

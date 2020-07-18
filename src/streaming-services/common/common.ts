@@ -1,6 +1,7 @@
 import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
 import { ScrobbleController, ScrobbleParser } from './ScrobbleController';
+import { ScrobbleEvents } from './ScrobbleEvents';
 import { SyncPage } from './SyncPage';
 import { SyncStore } from './SyncStore';
 
@@ -27,6 +28,16 @@ export const getScrobbleController = (serviceId: StreamingServiceId) => {
 		scrobbleControllers[serviceId] = new ScrobbleController(scrobbleParsers[serviceId]);
 	}
 	return scrobbleControllers[serviceId];
+};
+
+const scrobbleEvents = {} as Record<StreamingServiceId, ScrobbleEvents>;
+
+export const registerScrobbleEvents = (serviceId: StreamingServiceId, events: ScrobbleEvents) => {
+	scrobbleEvents[serviceId] = events;
+};
+
+export const getScrobbleEvents = (serviceId: StreamingServiceId) => {
+	return scrobbleEvents[serviceId];
 };
 
 const syncStores = {} as Record<StreamingServiceId, SyncStore>;
