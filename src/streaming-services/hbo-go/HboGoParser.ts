@@ -1,4 +1,5 @@
 import { Item } from '../../models/Item';
+import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleController';
 import { HboGoApi, HboGoMetadataItem, HboGoSession } from './HboGoApi';
 
@@ -48,3 +49,5 @@ class _HboGoParser implements ScrobbleParser {
 }
 
 export const HboGoParser = new _HboGoParser();
+
+registerScrobbleParser('hbo-go', HboGoParser);
