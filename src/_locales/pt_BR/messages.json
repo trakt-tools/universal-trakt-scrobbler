@@ -15,7 +15,7 @@
 		"message": "Adicionar com data de lançamento."
 	},
 	"aboutMessage": {
-		"message": "Faça scrobble / sincronize o histórico dos seus serviços de streaming favoritos para o Trakt.tv!"
+		"message": "Envie sua atividade nos seus serviços de streaming favoritos para o Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
