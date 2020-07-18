@@ -1,27 +1,27 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "En universell sync-tjeneste for Trakt.tv."
-	},
 	"about": {
 		"message": "Om"
 	},
-	"addWithReleaseDateName": {
-		"message": "Legg til med utgivelsesdato."
-	},
 	"aboutMessage": {
 		"message": "Send aktiviteten fra dine favorittstrømmetjenester til Trakt.tv!"
+	},
+	"addWithReleaseDateName": {
+		"message": "Legg til med utgivelsesdato."
 	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
 	},
 	"allowRollbarName": {
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
+	},
+	"appDescription": {
+		"message": "En universell sync-tjeneste for Trakt.tv."
+	},
+	"appName": {
+		"message": "Universal Trakt Scrobbler"
+	},
+	"appShortName": {
+		"message": "UTS"
 	},
 	"cancel": {
 		"message": "Avbryt"
@@ -53,18 +53,18 @@
 	"confirmClearTraktCacheMessage": {
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
 	},
+	"confirmClearTraktCacheTitle": {
+		"message": "Fjerne Trakt cache?"
+	},
 	"correct": {
-		"message": "Korriger",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Korriger"
 	},
 	"correctWrongItem": {
 		"message": "Korriger feilaktig element"
 	},
 	"correctWrongItemFailed": {
 		"message": "Fikk ikke til å korrigere feilaktig element."
-	},
-	"confirmClearTraktCacheTitle": {
-		"message": "Fjerne Trakt cache?"
 	},
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
@@ -96,11 +96,14 @@
 	"grantCookiesName": {
 		"message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
 	},
+	"hideSyncedName": {
+		"message": "Skjul allerede synkroniserte elementer."
+	},
 	"history": {
 		"message": "Historikk"
 	},
-	"hideSyncedName": {
-		"message": "Skjul allerede synkroniserte elementer."
+	"historySyncError": {
+		"message": "Klarte ikke å synkronisere historikken."
 	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episoder og $MOVIES$ filmer ble sendt til trakt.",
@@ -113,20 +116,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Klarte ikke å synkronisere historikken."
-	},
 	"home": {
 		"message": "Hjem"
 	},
 	"isThisWrong": {
 		"message": "Er dette feil?"
 	},
-	"itemSynced": {
-		"message": "Elementet er synkronisert"
-	},
 	"itemNotSynced": {
 		"message": "Elementer er ikke synkronisert"
+	},
+	"itemSynced": {
+		"message": "Elementet er synkronisert"
 	},
 	"itemsPerLoadName": {
 		"message": "Antall elementer i hver innlasting."

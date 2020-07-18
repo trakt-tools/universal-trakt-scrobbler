@@ -1,27 +1,27 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "A universal sync for Trakt.tv."
-	},
 	"about": {
 		"message": "About"
 	},
-	"addWithReleaseDateName": {
-		"message": "Add with release date."
-	},
 	"aboutMessage": {
 		"message": "Send your activity from your favorite streaming services to Trakt.tv!"
+	},
+	"addWithReleaseDateName": {
+		"message": "Add with release date."
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
 	},
 	"allowRollbarName": {
 		"message": "Allow Rollbar to collect information about bugs."
+	},
+	"appDescription": {
+		"message": "A universal sync for Trakt.tv."
+	},
+	"appName": {
+		"message": "Universal Trakt Scrobbler"
+	},
+	"appShortName": {
+		"message": "UTS"
 	},
 	"cancel": {
 		"message": "Cancel"
@@ -57,8 +57,8 @@
 		"message": "Clear Trakt cache?"
 	},
 	"correct": {
-		"message": "Correct",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Correct"
 	},
 	"correctWrongItem": {
 		"message": "Correct wrong item"
@@ -102,6 +102,9 @@
 	"history": {
 		"message": "History"
 	},
+	"historySyncError": {
+		"message": "Failed to sync history."
+	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
 		"placeholders": {
@@ -113,20 +116,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Failed to sync history."
-	},
 	"home": {
 		"message": "Home"
 	},
 	"isThisWrong": {
 		"message": "Is this wrong?"
 	},
-	"itemSynced": {
-		"message": "Item synced"
-	},
 	"itemNotSynced": {
 		"message": "Item not synced"
+	},
+	"itemSynced": {
+		"message": "Item synced"
 	},
 	"itemsPerLoadName": {
 		"message": "Items per load."

@@ -1,27 +1,27 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "Um sincronizador universal para o Trakt.tv."
-	},
 	"about": {
 		"message": "Sobre"
 	},
-	"addWithReleaseDateName": {
-		"message": "Adicionar com data de lançamento."
-	},
 	"aboutMessage": {
 		"message": "Envie sua atividade nos seus serviços de streaming favoritos para o Trakt.tv!"
+	},
+	"addWithReleaseDateName": {
+		"message": "Adicionar com data de lançamento."
 	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
 	},
 	"allowRollbarName": {
 		"message": "Permitir que o Rollbar colete informações sobre erros."
+	},
+	"appDescription": {
+		"message": "Um sincronizador universal para o Trakt.tv."
+	},
+	"appName": {
+		"message": "Universal Trakt Scrobbler"
+	},
+	"appShortName": {
+		"message": "UTS"
 	},
 	"cancel": {
 		"message": "Cancelar"
@@ -57,8 +57,8 @@
 		"message": "Limar o cache do Trakt?"
 	},
 	"correct": {
-		"message": "Corrigir",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Corrigir"
 	},
 	"correctWrongItem": {
 		"message": "Corrigir item errado"
@@ -102,6 +102,9 @@
 	"history": {
 		"message": "Histórico"
 	},
+	"historySyncError": {
+		"message": "Ocorreu um erro ao sincronizar o histórico."
+	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episódios e $MOVIES$ filmes sincronizados.",
 		"placeholders": {
@@ -113,20 +116,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Ocorreu um erro ao sincronizar o histórico."
-	},
 	"home": {
 		"message": "Início"
 	},
 	"isThisWrong": {
 		"message": "Isso está errado?"
 	},
-	"itemSynced": {
-		"message": "Item sincronizado"
-	},
 	"itemNotSynced": {
 		"message": "Item não sincronizado"
+	},
+	"itemSynced": {
+		"message": "Item sincronizado"
 	},
 	"itemsPerLoadName": {
 		"message": "Itens por página."
