@@ -9,7 +9,7 @@ export type StorageValues = {
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
-	correctUrls?: Record<StreamingServiceId, Record<string, string>>;
+	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
 	scrobblingItem?: Omit<TraktItemBase, ''>;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
