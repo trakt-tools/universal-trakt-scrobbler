@@ -179,7 +179,7 @@ const getManifest = (config: Config, browserName: string): string => {
 		}));
 	const manifest: Manifest = {
 		manifest_version: 2,
-		name: '__MSG_appName__',
+		name: 'Universal Trakt Scrobbler',
 		version: packageJson.version,
 		description: '__MSG_appDescription__',
 		icons: {

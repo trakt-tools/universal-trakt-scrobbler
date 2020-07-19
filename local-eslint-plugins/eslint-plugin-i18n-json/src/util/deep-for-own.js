@@ -11,7 +11,21 @@ const isPlainObject = require('lodash.isplainobject');
   // calls iteratee with the path to the object.
 */
 
-const shouldIgnorePath = (ignoreList, keyPath) => ignoreList.includes(keyPath.join('.'));
+const shouldIgnorePath = (ignoreList, keyPath) => {
+	if (ignoreList.includes(keyPath.join('.'))) {
+		return true;
+	}
+	let partialPath = '';
+	const reversedPath = keyPath.slice().reverse();
+	for (const key of reversedPath) {
+		partialPath = partialPath ? `${key}.${partialPath}` : key;
+		if (ignoreList.includes(`*.${partialPath}`)) {
+			return true;
+		}
+	}
+	return false;
+};
+
 const defaultTraversal = obj => Object.keys(obj);
 
 const deepForOwn = (obj, iteratee, {

@@ -17,12 +17,6 @@
 	"appDescription": {
 		"message": "A universal sync for Trakt.tv."
 	},
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
 	"cancel": {
 		"message": "Cancel"
 	},
@@ -254,9 +248,6 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Please enter a valid Trakt URL!"
-	},
-	"wrongItemDialogUrlLabel": {
-		"message": "URL"
 	},
 	"yes": {
 		"message": "Yes"

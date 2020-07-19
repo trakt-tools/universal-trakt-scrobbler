@@ -17,12 +17,6 @@
 	"appDescription": {
 		"message": "Um sincronizador universal para o Trakt.tv."
 	},
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
 	"cancel": {
 		"message": "Cancelar"
 	},
@@ -70,10 +64,10 @@
 		"message": "Não foi possível realizar o scrobble."
 	},
 	"disableScrobblingDescription": {
-		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil se você quiser usar apenas a sincronização de histórico."
 	},
 	"disableScrobblingName": {
-		"message": "Disable scrobbling."
+		"message": "Desativar scrobbling."
 	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
@@ -254,9 +248,6 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"
-	},
-	"wrongItemDialogUrlLabel": {
-		"message": "URL"
 	},
 	"yes": {
 		"message": "Sim"

@@ -23,11 +23,7 @@ module.exports = {
 				],
 			},
 			settings: {
-				'@rafaelgssa/local/ignore-keys': [
-					'historySyncSuccess.placeholders',
-					'progress.placeholders',
-					'wrongItemDialogContent.placeholders',
-				],
+				'@rafaelgssa/local/ignore-keys': ['*.description', '*.placeholders'],
 			},
 		},
 		{

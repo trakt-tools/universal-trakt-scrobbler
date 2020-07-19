@@ -132,7 +132,7 @@ export const WrongItemDialog: React.FC = () => {
 
 	const [urlLabel, urlError] =
 		!dialog.url || isValidUrl(dialog.url)
-			? [browser.i18n.getMessage('wrongItemDialogUrlLabel'), false]
+			? ['URL', false]
 			: [browser.i18n.getMessage('wrongItemDialogInvalidUrlLabel'), true];
 
 	return (
