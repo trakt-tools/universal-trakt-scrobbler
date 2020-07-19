@@ -201,6 +201,7 @@ const getManifest = (config: Config, browserName: string): string => {
 		default_locale: 'en',
 		optional_permissions: [
 			'cookies',
+			'notifications',
 			'webRequest',
 			'webRequestBlocking',
 			'*://api.rollbar.com/*',
