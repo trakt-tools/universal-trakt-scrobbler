@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Typography } from '@material-ui/core';
+import * as moment from 'moment';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import {
 	EventDispatcher,
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
+	MissingWatchedDateAddedData,
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
@@ -106,6 +108,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			EventDispatcher.subscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
 			EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
 			EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.subscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
@@ -116,6 +119,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			EventDispatcher.unsubscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			EventDispatcher.unsubscribe(
+				'MISSING_WATCHED_DATE_ADDED',
+				serviceId,
+				onMissingWatchedDateAdded
+			);
 			EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
@@ -151,6 +159,18 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, data.url);
 			await BrowserStorage.set({ traktCache }, false);
+			await getSyncStore(serviceId).update();
+		};
+
+		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
+			if (data.dateType === 'release-date') {
+				const releaseDate = data.item.trakt?.releaseDate;
+				if (releaseDate) {
+					data.item.watchedAt = moment(releaseDate);
+				}
+			} else if (data.date) {
+				data.item.watchedAt = data.date;
+			}
 			await getSyncStore(serviceId).update();
 		};
 

@@ -11,6 +11,7 @@ export interface TraktItemBase {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
+	releaseDate: string | null;
 }
 
 export interface TraktItemExtra {
@@ -29,6 +30,7 @@ export class TraktItem implements ITraktItem {
 	episodeTitle?: string;
 	watchedAt?: Moment;
 	progress: number;
+	releaseDate: string | null;
 
 	constructor(options: ITraktItem) {
 		this.id = options.id;
@@ -41,6 +43,7 @@ export class TraktItem implements ITraktItem {
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
 		}
+		this.releaseDate = options.releaseDate;
 		this.watchedAt = options.watchedAt;
 		this.progress = options.progress ?? 0;
 	}
@@ -55,6 +58,7 @@ export class TraktItem implements ITraktItem {
 			season: item.season,
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
+			releaseDate: item.releaseDate,
 		};
 	};
 }

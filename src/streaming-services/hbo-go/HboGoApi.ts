@@ -254,8 +254,6 @@ class _HboGoApi extends Api {
 
 	parseHistoryItem = (metadata: HboGoHistoryItem) => {
 		const item = this.parseMetadata(metadata);
-		// TODO: HBO Go doesn't offer the date where an item was watched. Implement a solution.
-		item.watchedAt = undefined;
 		item.percentageWatched = metadata.ElapsedPercentage;
 		return item;
 	};
