@@ -11,13 +11,22 @@ module.exports = {
 	overrides: [
 		{
 			files: ['**/_locales/**/*.json'],
-			extends: ['plugin:i18n-json/recommended'],
+			plugins: ['@rafaelgssa/local'],
+			extends: ['plugin:@rafaelgssa/local/recommended'],
 			rules: {
-				'i18n-json/identical-keys': [
+				'@rafaelgssa/local/identical-keys': [
 					'error',
 					{
 						filePath: path.resolve('./src/_locales/en/messages.json'),
+						checkDuplicateValues: true,
 					},
+				],
+			},
+			settings: {
+				'@rafaelgssa/local/ignore-keys': [
+					'historySyncSuccess.placeholders',
+					'progress.placeholders',
+					'wrongItemDialogContent.placeholders',
 				],
 			},
 		},
@@ -48,7 +57,7 @@ module.exports = {
 				tsconfigRootDir: __dirname,
 				project: ['./tsconfig.json'],
 			},
-			plugins: ['local-rules'],
+			plugins: ['@rafaelgssa/local'],
 			extends: [
 				'eslint:recommended',
 				'plugin:react/recommended',
@@ -67,7 +76,7 @@ module.exports = {
 						allowTemplateLiterals: false,
 					},
 				],
-				'local-rules/prefer-arrow-functions': [
+				'@rafaelgssa/local/prefer-arrow-functions': [
 					'error',
 					{
 						disallowPrototype: true,

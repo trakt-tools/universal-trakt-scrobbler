@@ -20,6 +20,7 @@ devDependencies:
   '@babel/preset-typescript': 7.10.1_@babel+core@7.10.3
   '@babel/runtime': 7.10.3
   '@octokit/rest': 16.43.1
+  '@rafaelgssa/eslint-plugin-local': 1.1.0
   '@svgr/webpack': 5.4.0
   '@types/fs-extra': 9.0.1
   '@types/gulp': 4.0.6
@@ -37,12 +38,11 @@ devDependencies:
   babel-eslint: 10.1.0_eslint@7.4.0
   babel-loader: 8.1.0_99bd12dc383be8ac23fae4d2d3606e9d
   babel-preset-minify: 0.5.1
+  chalk: 2.4.2
   clean-webpack-plugin: 3.0.0_webpack@4.43.0
   css-loader: 3.6.0_webpack@4.43.0
   eslint: 7.4.0
   eslint-config-prettier: 6.11.0_eslint@7.4.0
-  eslint-plugin-i18n-json: 2.4.4_eslint@7.4.0
-  eslint-plugin-local-rules: 0.1.1
   eslint-plugin-prettier: 3.1.4_eslint@7.4.0+prettier@2.0.5
   eslint-plugin-react: 7.20.3_eslint@7.4.0
   file-loader: 5.1.0_webpack@4.43.0
@@ -50,9 +50,20 @@ devDependencies:
   gulp: 4.0.2
   gulp-zip: 5.0.1_gulp@4.0.2
   husky: 4.2.5
+  indent-string: 3.2.0
+  intl-messageformat-parser: 3.6.4
+  jest-diff: 22.4.3
+  jsonlint: 1.6.3
   lint-staged: 10.2.11
+  lodash.get: 4.4.2
+  lodash.isequal: 4.5.0
+  lodash.isplainobject: 4.0.6
+  lodash.set: 4.3.2
+  log-symbols: 2.2.0
   npm-run-all: 4.1.5
+  plur: 2.1.2
   prettier: 2.0.5
+  pretty-format: 22.4.3
   progress-bar-webpack-plugin: 2.1.0_webpack@4.43.0
   react-svg-loader: 3.0.3
   string-replace-loader: 2.3.0_webpack@4.43.0
@@ -1356,6 +1367,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-GorvORVwp244fGKEt3cgt/P+M0MGy4xEDbckw+K5ojEezxyMDgCaYPKVct+/eWQfZXOT7uq0xRpmrl/+hliabA==
+  /@rafaelgssa/eslint-plugin-local/1.1.0:
+    dev: true
+    resolution:
+      integrity: sha512-IpQhUwMMVTUbPs6VOv53pcDWVdorVpLih9+8HOt/4Dcay06XGxNwtGDsyx4R235s9BwQ5c6pvwnHzCJbHiNREA==
   /@svgr/babel-plugin-add-jsx-attribute/5.4.0:
     dev: true
     engines:
@@ -3670,32 +3685,6 @@ packages:
       eslint: '>=3.14.1'
     resolution:
       integrity: sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
-  /eslint-plugin-i18n-json/2.4.4_eslint@7.4.0:
-    dependencies:
-      chalk: 2.4.2
-      eslint: 7.4.0
-      indent-string: 3.2.0
-      intl-messageformat-parser: 3.6.4
-      jest-diff: 22.4.3
-      jsonlint: 1.6.3
-      lodash.get: 4.4.2
-      lodash.isequal: 4.5.0
-      lodash.isplainobject: 4.0.6
-      lodash.set: 4.3.2
-      log-symbols: 2.2.0
-      plur: 2.1.2
-      pretty-format: 22.4.3
-    dev: true
-    engines:
-      node: '>=6.0.0'
-    peerDependencies:
-      eslint: '>=4.0.0'
-    resolution:
-      integrity: sha512-zozlUCssJe7Jy2RZ84M/++p6o90NQLGLwZSt/fz2myJNptivC9ltaQ748OMcvg5su7i4t4mt6Ecn8Yl2JrLAlA==
-  /eslint-plugin-local-rules/0.1.1:
-    dev: true
-    resolution:
-      integrity: sha512-+Wlic7MSxhVeGJT7a8vf7thVnzlRiessyHNaaOFT7PFlQS6Ff1oMO9vD803CSI5y6Nhu/+f+bVWGUDf8SRDxvg==
   /eslint-plugin-prettier/3.1.4_eslint@7.4.0+prettier@2.0.5:
     dependencies:
       eslint: 7.4.0
@@ -8629,6 +8618,7 @@ specifiers:
   '@material-ui/icons': ^4.9.1
   '@material-ui/lab': ^4.0.0-alpha.41
   '@octokit/rest': ^16.43.1
+  '@rafaelgssa/eslint-plugin-local': ^1.1.0
   '@svgr/webpack': ^5.1.0
   '@types/fs-extra': ^9.0.1
   '@types/gulp': ^4.0.6
@@ -8646,12 +8636,11 @@ specifiers:
   babel-eslint: ^10.0.3
   babel-loader: ^8.0.6
   babel-preset-minify: ^0.5.1
+  chalk: ^2.3.2
   clean-webpack-plugin: ^3.0.0
   css-loader: ^3.4.2
   eslint: ^7.4.0
   eslint-config-prettier: ^6.11.0
-  eslint-plugin-i18n-json: ^2.4.4
-  eslint-plugin-local-rules: ^0.1.1
   eslint-plugin-prettier: ^3.1.4
   eslint-plugin-react: ^7.20.3
   file-loader: ^5.0.2
@@ -8660,10 +8649,21 @@ specifiers:
   gulp-zip: ^5.0.1
   history: ^4.10.1
   husky: ^4.2.5
+  indent-string: ^3.2.0
+  intl-messageformat-parser: ^3.0.7
+  jest-diff: ^22.0.3
+  jsonlint: ^1.6.2
   lint-staged: ^10.2.11
+  lodash.get: ^4.4.2
+  lodash.isequal: ^4.5.0
+  lodash.isplainobject: ^4.0.6
+  lodash.set: ^4.3.2
+  log-symbols: ^2.2.0
   moment: ^2.24.0
   npm-run-all: ^4.1.5
+  plur: ^2.1.2
   prettier: ^2.0.5
+  pretty-format: ^22.0.3
   progress-bar-webpack-plugin: ^2.1.0
   prop-types: ^15.7.2
   react: ^16.13.1
