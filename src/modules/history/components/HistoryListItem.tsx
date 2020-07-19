@@ -24,6 +24,13 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		});
 	};
 
+	const openMissingWatchedDateDialog = async () => {
+		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
+			serviceId,
+			item,
+		});
+	};
+
 	const openWrongItemDialog = async () => {
 		await EventDispatcher.dispatch('WRONG_ITEM_DIALOG_SHOW', null, {
 			serviceId,
@@ -45,7 +52,12 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 					onChange={onCheckboxChange}
 				/>
 			)}
-			<HistoryListItemCard dateFormat={dateFormat} item={item} name={serviceName} />
+			<HistoryListItemCard
+				dateFormat={dateFormat}
+				item={item}
+				name={serviceName}
+				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
+			/>
 			<Box
 				className="history-list-item-status"
 				title={browser.i18n.getMessage(statusMessageName)}

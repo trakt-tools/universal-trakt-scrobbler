@@ -5,6 +5,12 @@
 	"aboutMessage": {
 		"message": "Send your activity from your favorite streaming services to Trakt.tv!"
 	},
+	"add": {
+		"message": "Add"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Failed to add missing watched date."
+	},
 	"addWithReleaseDateName": {
 		"message": "Add with release date."
 	},
@@ -147,6 +153,23 @@
 	"logout": {
 		"message": "Logout"
 	},
+	"missingWatchedDate": {
+		"message": "Missing watched date"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Select the date"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Please enter a valid date!"
+	},
 	"nextPage": {
 		"message": "Next Page"
 	},
@@ -244,6 +267,12 @@
 	},
 	"use24ClockName": {
 		"message": "Use 24-hour clock."
+	},
+	"useCustomDate": {
+		"message": "Use custom date."
+	},
+	"useReleaseDate": {
+		"message": "Use release date."
 	},
 	"watched": {
 		"message": "Watched On"
