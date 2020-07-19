@@ -268,6 +268,9 @@
 	"use24ClockName": {
 		"message": "Usar relógio de 24 horas."
 	},
+	"useCurrentDate": {
+		"message": "Usar data atual."
+	},
 	"useCustomDate": {
 		"message": "Usar data customizada."
 	},

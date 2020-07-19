@@ -30,7 +30,7 @@ interface MissingWatchedDateDialogState {
 	dateError: React.ReactNode | null;
 }
 
-export type MissingWatchedDateType = 'release-date' | 'custom-date';
+export type MissingWatchedDateType = 'release-date' | 'current-date' | 'custom-date';
 
 export const MissingWatchedDateDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<MissingWatchedDateDialogState>({
@@ -180,6 +180,11 @@ export const MissingWatchedDateDialog: React.FC = () => {
 							<FormControlLabel
 								label={browser.i18n.getMessage('useReleaseDate')}
 								value="release-date"
+								control={<Radio />}
+							/>
+							<FormControlLabel
+								label={browser.i18n.getMessage('useCurrentDate')}
+								value="current-date"
 								control={<Radio />}
 							/>
 							<FormControlLabel

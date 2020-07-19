@@ -163,13 +163,23 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
-			if (data.dateType === 'release-date') {
-				const releaseDate = data.item.trakt?.releaseDate;
-				if (releaseDate) {
-					data.item.watchedAt = moment(releaseDate);
+			switch (data.dateType) {
+				case 'release-date': {
+					const releaseDate = data.item.trakt?.releaseDate;
+					if (releaseDate) {
+						data.item.watchedAt = moment(releaseDate);
+					}
+					break;
 				}
-			} else if (data.date) {
-				data.item.watchedAt = data.date;
+				case 'current-date':
+					data.item.watchedAt = moment();
+					break;
+				case 'custom-date':
+					if (data.date) {
+						data.item.watchedAt = data.date;
+					}
+					break;
+				// no-default
 			}
 			await getSyncStore(serviceId).update();
 		};
