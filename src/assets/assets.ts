@@ -9,3 +9,4 @@ import './images/uts-icon-selected-38.png';
 import './styles/history.css';
 import './styles/layout.css';
 import './styles/options.css';
+import './styles/popup.css';

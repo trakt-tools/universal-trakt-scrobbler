@@ -1,12 +1,12 @@
 import { Button, ButtonGroup, FormGroup, Typography } from '@material-ui/core';
 import * as React from 'react';
-import { SyncOption } from '../../../../services/BrowserStorage';
-import { Store } from '../../streaming-services/common/Store';
+import { SyncOption } from '../../../../common/BrowserStorage';
+import { SyncStore } from '../../../../streaming-services/common/SyncStore';
 import { HistoryOptionsListItem } from './HistoryOptionsListItem';
 
 interface HistoryOptionsListProps {
 	options: SyncOption[];
-	store: Store;
+	store: SyncStore;
 }
 
 export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (

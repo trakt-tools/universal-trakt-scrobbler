@@ -1,6 +1,6 @@
 {
 	"appName": {
-		"message": "Universal Trakt Sync"
+		"message": "Universal Trakt Scrobbler"
 	},
 	"appShortName": {
 		"message": "UTS"
@@ -15,7 +15,7 @@
 		"message": "Legg til med utgivelsesdato."
 	},
 	"aboutMessage": {
-		"message": "Synkroniser historikken fra dine favorittstrømmetjenester til Trakt.tv!"
+		"message": "Send aktiviteten fra dine favorittstrømmetjenester til Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
@@ -66,6 +66,15 @@
 	"confirmClearTraktCacheTitle": {
 		"message": "Fjerne Trakt cache?"
 	},
+	"couldNotScrobble": {
+		"message": "Scrobbling feilet."
+	},
+	"disableScrobblingDescription": {
+		"message": "Dersom dette valget er aktivert vil utvidelsen ikke automatisk scrobble det du ser på. Dette er nyttig om du bare ønsker å bruke sync av historikk."
+	},
+	"disableScrobblingName": {
+		"message": "Deaktiver scrobbling."
+	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
 	},
@@ -86,6 +95,9 @@
 	},
 	"grantCookiesName": {
 		"message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
+	},
+	"history": {
+		"message": "Historikk"
 	},
 	"hideSyncedName": {
 		"message": "Skjul allerede synkroniserte elementer."
@@ -146,6 +158,12 @@
 	"notWatched": {
 		"message": "Ikke registrert som sett"
 	},
+	"notWatching": {
+		"message": "Se på noe!"
+	},
+	"nowScrobbling": {
+		"message": "Scrobbler nå"
+	},
 	"on": {
 		"message": "På"
 	},
@@ -172,6 +190,15 @@
 	"saveOptionSuccess": {
 		"message": "Alternativ lagret."
 	},
+	"scrobblePaused": {
+		"message": "Scrobbling pauset."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobbling startet."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobbling stoppet."
+	},
 	"select": {
 		"message": "Velg:"
 	},
@@ -189,6 +216,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"showNotificationsDescription": {
+		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
+	},
+	"showNotificationsName": {
+		"message": "Vis nettleservarsler"
 	},
 	"streamingServicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."

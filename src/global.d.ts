@@ -1,5 +1,10 @@
 declare interface Window {
-	wrappedJSObject?: Record<string, unknown>;
+	wrappedJSObject?: {
+		fetch: import('./common/Requests').Fetch;
+		fetchOptions: Record<string, unknown>;
+		netflix?: import('./streaming-services/netflix/NetflixApi').NetflixGlobalObject;
+		sdk?: import('./streaming-services/hbo-go/HboGoApi').HboGoGlobalObject;
+	};
 	Rollbar?: import('rollbar');
 }
 

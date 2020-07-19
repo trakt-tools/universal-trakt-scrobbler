@@ -1,12 +1,12 @@
 {
-	"name": "universal-trakt-sync",
+	"name": "universal-trakt-scrobbler",
 	"version": "1.0.0",
 	"description": "A universal sync for Trakt.tv.",
 	"author": "trakt-tools",
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/trakt-tools/universal-trakt-sync.git"
+		"url": "git://github.com/trakt-tools/universal-trakt-scrobbler.git"
 	},
 	"scripts": {
 		"build": "webpack --env.production",
@@ -100,12 +100,5 @@
 		"hooks": {
 			"pre-commit": "lint-staged"
 		}
-	},
-	"lint-staged": {
-		"*.{json,css,html,md,yml,yaml}": "prettier --write",
-		"*.{js,jsx,ts,tsx}": [
-			"tsc --allowJs --checkJs --jsx 'react' --module 'CommonJS' --target 'ES2020' --strict --typeRoots ./node_modules/@types,./node_modules/web-ext-types --resolveJsonModule --skipLibCheck --noEmit ./src/global.d.ts",
-			"eslint --fix --quiet -c ./.eslintrc.typed.js --no-eslintrc"
-		]
 	}
 }

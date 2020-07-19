@@ -1,16 +1,67 @@
 import { TraktAuth } from '../../api/TraktAuth';
-import { BrowserStorage, StorageValuesOptions } from '../../services/BrowserStorage';
-import { Errors } from '../../services/Errors';
-import { RequestDetails, Requests } from '../../services/Requests';
-import { Shared } from '../../services/Shared';
-import { Tabs } from '../../services/Tabs';
-import { streamingServices } from '../../streaming-services';
+import { TraktScrobble } from '../../api/TraktScrobble';
+import { TraktItem } from '../../models/TraktItem';
+import { BrowserAction } from '../../common/BrowserAction';
+import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { RequestDetails, Requests } from '../../common/Requests';
+import { Shared } from '../../common/Shared';
+import { streamingServices } from '../../streaming-services/streaming-services';
 
-interface MessageRequest {
-	action: 'check-login' | 'finish-login' | 'login' | 'logout' | 'send-request';
-	url: string;
+export type MessageRequest =
+	| CheckLoginMessage
+	| FinishLoginMessage
+	| LoginMessage
+	| LogoutMessage
+	| SetActiveIconMessage
+	| SetInactiveIconMessage
+	| StartScrobbleMessage
+	| StopScrobbleMessage
+	| SendRequestMessage
+	| ShowNotificationMessage;
+
+export interface CheckLoginMessage {
+	action: 'check-login';
+}
+
+export interface FinishLoginMessage {
+	action: 'finish-login';
 	redirectUrl: string;
+}
+
+export interface LoginMessage {
+	action: 'login';
+}
+
+export interface LogoutMessage {
+	action: 'logout';
+}
+
+export interface SendRequestMessage {
+	action: 'send-request';
 	request: RequestDetails;
+}
+
+export interface SetActiveIconMessage {
+	action: 'set-active-icon';
+}
+
+export interface SetInactiveIconMessage {
+	action: 'set-inactive-icon';
+}
+
+export interface ShowNotificationMessage {
+	action: 'show-notification';
+	title: string;
+	message: string;
+}
+
+export interface StartScrobbleMessage {
+	action: 'start-scrobble';
+}
+
+export interface StopScrobbleMessage {
+	action: 'stop-scrobble';
 }
 
 const init = async () => {
@@ -20,12 +71,29 @@ const init = async () => {
 	if (storage.options?.allowRollbar) {
 		Errors.startRollbar();
 	}
+	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
-	browser.browserAction.onClicked.addListener(() => void onBrowserActionClicked());
 	if (storage.options?.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+/**
+ * Checks if the tab that was closed was the tab that was scrobbling and, if that's the case, stops the scrobble.
+ */
+const onTabRemoved = async (tabId: number) => {
+	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
+	if (tabId !== scrobblingTabId) {
+		return;
+	}
+	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
+	if (scrobblingItem) {
+		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await BrowserStorage.remove('scrobblingItem');
+	}
+	await BrowserStorage.remove('scrobblingTabId');
+	await BrowserAction.setInactiveIcon();
 };
 
 const onStorageChanged = (
@@ -42,17 +110,6 @@ const onStorageChanged = (
 		addWebRequestListener();
 	} else {
 		removeWebRequestListener();
-	}
-};
-
-const onBrowserActionClicked = async (): Promise<void> => {
-	const tabs = await browser.tabs.query({
-		url: `${browser.runtime.getURL('/')}*`,
-	});
-	if (tabs.length > 0) {
-		await browser.tabs.update(tabs[0].id, { active: true });
-	} else {
-		await Tabs.open(browser.runtime.getURL('html/history.html'));
 	}
 };
 
@@ -130,6 +187,37 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
 		}
+		case 'set-active-icon': {
+			executingAction = BrowserAction.setActiveIcon();
+			break;
+		}
+		case 'set-inactive-icon': {
+			executingAction = BrowserAction.setInactiveIcon();
+			break;
+		}
+		case 'start-scrobble': {
+			executingAction = setScrobblingTabId(sender.tab?.id);
+			break;
+		}
+		case 'stop-scrobble': {
+			executingAction = removeScrobblingTabId();
+			break;
+		}
+		case 'show-notification': {
+			executingAction = browser.permissions
+				.contains({ permissions: ['notifications'] })
+				.then((hasPermissions) => {
+					if (hasPermissions) {
+						return browser.notifications.create({
+							type: 'basic',
+							iconUrl: 'images/uts-icon-128.png',
+							title: parsedRequest.title,
+							message: parsedRequest.message,
+						});
+					}
+				});
+			break;
+		}
 	}
 	return new Promise((resolve) => {
 		executingAction
@@ -145,6 +233,23 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				);
 			});
 	});
+};
+
+const setScrobblingTabId = async (tabId?: number): Promise<void> => {
+	const { scrobblingItem, scrobblingTabId } = await BrowserStorage.get([
+		'scrobblingItem',
+		'scrobblingTabId',
+	]);
+	if (scrobblingItem && tabId !== scrobblingTabId) {
+		// Stop the previous scrobble if it exists.
+		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await BrowserStorage.remove('scrobblingItem');
+	}
+	await BrowserStorage.set({ scrobblingTabId: tabId }, false);
+};
+
+const removeScrobblingTabId = (): Promise<void> => {
+	return BrowserStorage.remove('scrobblingTabId');
 };
 
 void init();

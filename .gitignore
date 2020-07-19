@@ -5,5 +5,5 @@ dist/
 config.json
 *.log
 /.idea/
-/universal-trakt-sync.iml
+/universal-trakt-scrobbler.iml
 package-lock.json

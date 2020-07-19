@@ -8,6 +8,7 @@ export class TraktApi {
 	REVOKE_TOKEN_URL: string;
 	SEARCH_URL: string;
 	SHOWS_URL: string;
+	SCROBBLE_URL: string;
 	SYNC_URL: string;
 	SETTINGS_URL: string;
 
@@ -21,6 +22,7 @@ export class TraktApi {
 		this.REVOKE_TOKEN_URL = `${this.API_URL}/oauth/revoke`;
 		this.SEARCH_URL = `${this.API_URL}/search`;
 		this.SHOWS_URL = `${this.API_URL}/shows`;
+		this.SCROBBLE_URL = `${this.API_URL}/scrobble`;
 		this.SYNC_URL = `${this.API_URL}/sync/history`;
 		this.SETTINGS_URL = `${this.API_URL}/users/settings`;
 	}

@@ -1,8 +1,8 @@
 import { secrets } from '../secrets';
-import { BrowserStorage } from '../services/BrowserStorage';
-import { Requests } from '../services/Requests';
-import { Shared } from '../services/Shared';
-import { Tabs } from '../services/Tabs';
+import { BrowserStorage } from '../common/BrowserStorage';
+import { Requests } from '../common/Requests';
+import { Shared } from '../common/Shared';
+import { Tabs } from '../common/Tabs';
 import { TraktApi } from './TraktApi';
 
 export type TraktManualAuth = {

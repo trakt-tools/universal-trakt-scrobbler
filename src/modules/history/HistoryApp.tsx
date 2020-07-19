@@ -6,14 +6,13 @@ import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { EventDispatcher, Events } from '../../services/Events';
-import { Session } from '../../services/Session';
+import { EventDispatcher } from '../../common/Events';
+import { Session } from '../../common/Session';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
-import { OptionsPage } from './pages/OptionsPage.';
-import { streamingServicePages } from './streaming-services/pages';
+import { streamingServicePages } from '../../streaming-services/pages';
 
 const history = createBrowserHistory();
 
@@ -22,13 +21,13 @@ export const HistoryApp: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.subscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.subscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.LOGIN_SUCCESS, null, onLogin);
-			EventDispatcher.unsubscribe(Events.LOGOUT_SUCCESS, null, onLogout);
+			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLogin);
+			EventDispatcher.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const onLogin = () => {
@@ -53,7 +52,6 @@ export const HistoryApp: React.FC = () => {
 						<Route component={LoginPage} path="/login" />
 						<Route component={HomePage} path="/home" />
 						<Route component={AboutPage} path="/about" />
-						<Route component={OptionsPage} path="/options" />
 						{streamingServicePages.map((service) => (
 							<Route key={service.id} component={service.pageBuilder} path={service.path} />
 						))}

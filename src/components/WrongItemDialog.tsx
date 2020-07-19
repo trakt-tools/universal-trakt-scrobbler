@@ -10,10 +10,10 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { Item } from '../models/Item';
-import { BrowserStorage } from '../services/BrowserStorage';
-import { Errors } from '../services/Errors';
-import { EventDispatcher, Events, WrongItemDialogData } from '../services/Events';
-import { StreamingServiceId, streamingServices } from '../streaming-services';
+import { BrowserStorage } from '../common/BrowserStorage';
+import { Errors } from '../common/Errors';
+import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
+import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
 interface WrongItemDialogState {
@@ -68,13 +68,13 @@ export const WrongItemDialog: React.FC = () => {
 			}
 			correctUrls[dialog.serviceId][dialog.item.id] = url;
 			await BrowserStorage.set({ correctUrls }, true);
-			await EventDispatcher.dispatch(Events.WRONG_ITEM_CORRECTED, dialog.serviceId, {
+			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
 				item: dialog.item,
 				url,
 			});
 		} catch (err) {
 			Errors.error('Failed to correct item.', err);
-			await EventDispatcher.dispatch(Events.SNACKBAR_SHOW, null, {
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'correctWrongItemFailed',
 				severity: 'error',
 			});
@@ -104,14 +104,14 @@ export const WrongItemDialog: React.FC = () => {
 
 	React.useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe(Events.WRONG_ITEM_DIALOG_SHOW, null, openDialog);
+			EventDispatcher.subscribe('WRONG_ITEM_DIALOG_SHOW', null, openDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe(Events.WRONG_ITEM_DIALOG_SHOW, null, openDialog);
+			EventDispatcher.unsubscribe('WRONG_ITEM_DIALOG_SHOW', null, openDialog);
 		};
 
-		const openDialog = (data: WrongItemDialogData) => {
+		const openDialog = (data: WrongItemDialogShowData) => {
 			setDialog({
 				isOpen: true,
 				isLoading: false,

@@ -1,6 +1,6 @@
 {
 	"appName": {
-		"message": "Universal Trakt Sync"
+		"message": "Universal Trakt Scrobbler"
 	},
 	"appShortName": {
 		"message": "UTS"
@@ -15,7 +15,7 @@
 		"message": "Adicionar com data de lançamento."
 	},
 	"aboutMessage": {
-		"message": "Sincronize o histórico dos seus serviços de streaming favoritos para o Trakt.tv!"
+		"message": "Envie sua atividade nos seus serviços de streaming favoritos para o Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
@@ -66,6 +66,15 @@
 	"correctWrongItemFailed": {
 		"message": "Ocorreu um erro ao corrigir o item errado."
 	},
+	"couldNotScrobble": {
+		"message": "Não foi possível realizar o scrobble."
+	},
+	"disableScrobblingDescription": {
+		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	},
+	"disableScrobblingName": {
+		"message": "Disable scrobbling."
+	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
 	},
@@ -89,6 +98,9 @@
 	},
 	"hideSyncedName": {
 		"message": "Esconder itens sincronizados."
+	},
+	"history": {
+		"message": "Histórico"
 	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episódios e $MOVIES$ filmes sincronizados.",
@@ -146,6 +158,12 @@
 	"notWatched": {
 		"message": "Não Assistido"
 	},
+	"notWatching": {
+		"message": "Assista algo!"
+	},
+	"nowScrobbling": {
+		"message": "Fazendo Scrobbling"
+	},
 	"on": {
 		"message": "No"
 	},
@@ -172,6 +190,15 @@
 	"saveOptionSuccess": {
 		"message": "Opção salva."
 	},
+	"scrobblePaused": {
+		"message": "O scrobble foi pausado."
+	},
+	"scrobbleStarted": {
+		"message": "O scrobble começou."
+	},
+	"scrobbleStopped": {
+		"message": "O scrobble parou."
+	},
 	"select": {
 		"message": "Selecionar:"
 	},
@@ -189,6 +216,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Enviar / receber sugestões de correção."
+	},
+	"showNotificationsDescription": {
+		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
+	},
+	"showNotificationsName": {
+		"message": "Mostrar notificações no navegador."
 	},
 	"streamingServicesDescription": {
 		"message": "Escolha quais serviços de streaming deseja ativar."

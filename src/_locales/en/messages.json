@@ -1,6 +1,6 @@
 {
 	"appName": {
-		"message": "Universal Trakt Sync"
+		"message": "Universal Trakt Scrobbler"
 	},
 	"appShortName": {
 		"message": "UTS"
@@ -15,7 +15,7 @@
 		"message": "Add with release date."
 	},
 	"aboutMessage": {
-		"message": "Sync the history from your favorite streaming services to Trakt.tv!"
+		"message": "Send your activity from your favorite streaming services to Trakt.tv!"
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
@@ -66,6 +66,15 @@
 	"correctWrongItemFailed": {
 		"message": "Failed to correct wrong item."
 	},
+	"couldNotScrobble": {
+		"message": "Could not scrobble."
+	},
+	"disableScrobblingDescription": {
+		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	},
+	"disableScrobblingName": {
+		"message": "Disable scrobbling."
+	},
 	"errorNotification": {
 		"message": "An error has occurred. :("
 	},
@@ -89,6 +98,9 @@
 	},
 	"hideSyncedName": {
 		"message": "Hide synced."
+	},
+	"history": {
+		"message": "History"
 	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
@@ -146,6 +158,12 @@
 	"notWatched": {
 		"message": "Not Watched"
 	},
+	"notWatching": {
+		"message": "Watch something!"
+	},
+	"nowScrobbling": {
+		"message": "Now Scrobbling"
+	},
 	"on": {
 		"message": "On"
 	},
@@ -172,6 +190,15 @@
 	"saveOptionSuccess": {
 		"message": "Option saved."
 	},
+	"scrobblePaused": {
+		"message": "Scrobble paused."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobble started."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobble stopped."
+	},
 	"select": {
 		"message": "Select:"
 	},
@@ -189,6 +216,12 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / receive correction suggestions."
+	},
+	"showNotificationsDescription": {
+		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
+	},
+	"showNotificationsName": {
+		"message": "Show browser notifications."
 	},
 	"streamingServicesDescription": {
 		"message": "Choose which streaming services to enable."
