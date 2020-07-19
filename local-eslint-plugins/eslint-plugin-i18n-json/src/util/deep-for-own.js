@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 const isPlainObject = require('lodash.isplainobject');
+const micromatch = require('micromatch');
 
 /*
   deep level order traversal.
@@ -11,21 +12,7 @@ const isPlainObject = require('lodash.isplainobject');
   // calls iteratee with the path to the object.
 */
 
-const shouldIgnorePath = (ignoreList, keyPath) => {
-	if (ignoreList.includes(keyPath.join('.'))) {
-		return true;
-	}
-	let partialPath = '';
-	const reversedPath = keyPath.slice().reverse();
-	for (const key of reversedPath) {
-		partialPath = partialPath ? `${key}.${partialPath}` : key;
-		if (ignoreList.includes(`*.${partialPath}`)) {
-			return true;
-		}
-	}
-	return false;
-};
-
+const shouldIgnorePath = (ignoreList, keyPath) => micromatch.isMatch(keyPath.join('.'), ignoreList);
 const defaultTraversal = obj => Object.keys(obj);
 
 const deepForOwn = (obj, iteratee, {
