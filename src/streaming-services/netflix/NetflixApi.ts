@@ -412,7 +412,11 @@ class _NetflixApi extends Api {
 					window.removeEventListener('uts-onApiParamsReceived', this.apiParamsListener);
 				}
 				this.apiParamsListener = (event: Event) =>
-					resolve((event as CustomEvent<Partial<NetflixApiParams>>).detail);
+					resolve(
+						JSON.parse(
+							(event as CustomEvent<Record<'apiParams', string>>).detail.apiParams
+						) as Partial<NetflixApiParams>
+					);
 				window.addEventListener('uts-onApiParamsReceived', this.apiParamsListener, false);
 				const event = new CustomEvent('uts-getApiParams');
 				window.dispatchEvent(event);
