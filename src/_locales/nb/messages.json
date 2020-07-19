@@ -5,6 +5,12 @@
 	"aboutMessage": {
 		"message": "Send aktiviteten fra dine favorittstrømmetjenester til Trakt.tv!"
 	},
+	"add": {
+		"message": "Add"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Failed to add missing watched date."
+	},
 	"addWithReleaseDateName": {
 		"message": "Legg til med utgivelsesdato."
 	},
@@ -19,6 +25,12 @@
 	},
 	"cancel": {
 		"message": "Avbryt"
+	},
+	"cannotSync": {
+		"message": "Cannot sync items"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -37,6 +49,10 @@
 	},
 	"clearTraktCacheSuccess": {
 		"message": "Trakt cache er fjernet."
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Close"
 	},
 	"confirmClearStorageMessage": {
 		"message": "Alle valgene vil bli tilbakestilt til standardvalgene og du blir nødt til å logge inn på nytt."
@@ -137,6 +153,23 @@
 	"logout": {
 		"message": "Logg ut"
 	},
+	"missingWatchedDate": {
+		"message": "Missing watched date"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Select the date"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Please enter a valid date!"
+	},
 	"nextPage": {
 		"message": "Neste side"
 	},
@@ -234,6 +267,12 @@
 	},
 	"use24ClockName": {
 		"message": "Bruk 24-timers klokke."
+	},
+	"useCustomDate": {
+		"message": "Use custom date."
+	},
+	"useReleaseDate": {
+		"message": "Use release date."
 	},
 	"watched": {
 		"message": "Dato sett"

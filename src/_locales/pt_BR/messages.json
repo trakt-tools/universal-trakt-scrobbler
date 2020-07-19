@@ -5,6 +5,12 @@
 	"aboutMessage": {
 		"message": "Envie sua atividade nos seus serviços de streaming favoritos para o Trakt.tv!"
 	},
+	"add": {
+		"message": "Adicionar"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
+	},
 	"addWithReleaseDateName": {
 		"message": "Adicionar com data de lançamento."
 	},
@@ -19,6 +25,12 @@
 	},
 	"cancel": {
 		"message": "Cancelar"
+	},
+	"cannotSync": {
+		"message": "Não é possível sincronizar os itens"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
 	"clearStorage": {
 		"message": "Limpar Armazenamento"
@@ -37,6 +49,10 @@
 	},
 	"clearTraktCacheSuccess": {
 		"message": "Cache do Trakt limpado."
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Fechar"
 	},
 	"confirmClearStorageMessage": {
 		"message": "Todas as opções serão resetadas para seus valores padrões e você precisará entrar com o Trakt novamente."
@@ -137,6 +153,23 @@
 	"logout": {
 		"message": "Sair"
 	},
+	"missingWatchedDate": {
+		"message": "Faltando data em que foi assistido"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Escolha como deseja adicionar a data em que $TITLE$ foi assistido.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Selecione a data"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Por favor, selecione uma data válida!"
+	},
 	"nextPage": {
 		"message": "Próxima Página"
 	},
@@ -234,6 +267,12 @@
 	},
 	"use24ClockName": {
 		"message": "Usar relógio de 24 horas."
+	},
+	"useCustomDate": {
+		"message": "Usar data customizada."
+	},
+	"useReleaseDate": {
+		"message": "Usar data de lançamento."
 	},
 	"watched": {
 		"message": "Assistido Em"
