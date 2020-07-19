@@ -106,7 +106,7 @@ class _HboGoApi extends Api {
 								session = typeof progress !== 'undefined' && content ? { content, playing, paused, progress } : null;
 							}
 							const event = new CustomEvent('uts-onSessionReceived', {
-								detail: session,
+								detail: { session: JSON.stringify(session) },
 							});
 							window.dispatchEvent(event);
 						});
@@ -117,8 +117,15 @@ class _HboGoApi extends Api {
 				if (this.sessionListener) {
 					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
 				}
-				this.sessionListener = (event: Event) =>
-					resolve((event as CustomEvent<HboGoSession>).detail);
+				this.sessionListener = (event: Event) => {
+					const session = (event as CustomEvent<Record<'session', string | undefined>>).detail
+						.session;
+					if (typeof session === 'undefined') {
+						resolve(session);
+					} else {
+						resolve(JSON.parse(session) as HboGoSession | null);
+					}
+				};
 				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
 				const event = new CustomEvent('uts-getSession');
 				window.dispatchEvent(event);

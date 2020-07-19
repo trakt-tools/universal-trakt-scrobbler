@@ -369,28 +369,38 @@ class _NetflixApi extends Api {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
-				let authUrl = '';
-				let buildIdentifier = '';
+				const apiParams: Partial<NetflixApiParams> = {};
 				const { netflix } = window.wrappedJSObject;
 				if (netflix) {
-					authUrl = netflix.reactContext.models.userInfo.data.authURL;
-					buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+					const authUrl = netflix.reactContext.models.userInfo.data.authURL;
+					if (authUrl) {
+						apiParams.authUrl = authUrl;
+					}
+					const buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+					if (buildIdentifier) {
+						apiParams.buildIdentifier = buildIdentifier;
+					}
 				}
-				resolve({ authUrl, buildIdentifier });
+				resolve(apiParams);
 			} else {
 				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
 				if (!this.hasInjectedApiParamsScript) {
 					const script = document.createElement('script');
 					script.textContent = `
 						window.addEventListener('uts-getApiParams', () => {
-							let authUrl = '';
-							let buildIdentifier = '';
+							let apiParams = {};
 							if (netflix) {
-								authUrl = netflix.reactContext.models.userInfo.data.authURL;
-								buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+								const authUrl = netflix.reactContext.models.userInfo.data.authURL;
+								if (authUrl) {
+									apiParams.authUrl = authUrl;
+								}
+								const buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
+								if (buildIdentifier) {
+									apiParams.buildIdentifier = buildIdentifier;
+								}
 							}
 							const event = new CustomEvent('uts-onApiParamsReceived', {
-								detail: { authUrl, buildIdentifier },
+								detail: { apiParams: JSON.stringify(apiParams) },
 							});
 							window.dispatchEvent(event);
 						});
@@ -437,7 +447,7 @@ class _NetflixApi extends Api {
 								session = currentId ? sessions[currentId] : undefined;
 							}
 							const event = new CustomEvent('uts-onSessionReceived', {
-								detail: session,
+								detail: { session: JSON.stringify(session) },
 							});
 							window.dispatchEvent(event);
 						});
@@ -448,8 +458,15 @@ class _NetflixApi extends Api {
 				if (this.sessionListener) {
 					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
 				}
-				this.sessionListener = (event: Event) =>
-					resolve((event as CustomEvent<NetflixScrobbleSession>).detail);
+				this.sessionListener = (event: Event) => {
+					const session = (event as CustomEvent<Record<'session', string | undefined>>).detail
+						.session;
+					if (typeof session === 'undefined') {
+						resolve(session);
+					} else {
+						resolve(JSON.parse(session) as NetflixScrobbleSession | null);
+					}
+				};
 				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
 				const event = new CustomEvent('uts-getSession');
 				window.dispatchEvent(event);
