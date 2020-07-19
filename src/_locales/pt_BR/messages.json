@@ -64,7 +64,7 @@
 		"message": "Não foi possível realizar o scrobble."
 	},
 	"disableScrobblingDescription": {
-		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil se você quiser usar apenas a sincronização de histórico."
+		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil caso você queira usar apenas a sincronização de histórico."
 	},
 	"disableScrobblingName": {
 		"message": "Desativar scrobbling."
