@@ -20,6 +20,12 @@
 	"cancel": {
 		"message": "Cancel"
 	},
+	"cannotSync": {
+		"message": "Cannot sync items"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
+	},
 	"clearStorage": {
 		"message": "Clear Storage"
 	},
@@ -37,6 +43,10 @@
 	},
 	"clearTraktCacheSuccess": {
 		"message": "Trakt cache cleared."
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Close"
 	},
 	"confirmClearStorageMessage": {
 		"message": "All of the options will be reset to their default values and you will have to login again."

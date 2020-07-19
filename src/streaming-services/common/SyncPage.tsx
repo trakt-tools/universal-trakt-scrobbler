@@ -4,8 +4,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
-import { UtsCenter } from '../../components/UtsCenter';
-import { Item } from '../../models/Item';
 import { BrowserStorage, StorageValuesSyncOptions, SyncOptions } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import {
@@ -15,10 +13,12 @@ import {
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
-import { StreamingServiceId } from '../streaming-services';
+import { UtsCenter } from '../../components/UtsCenter';
+import { Item } from '../../models/Item';
 import { HistoryActions } from '../../modules/history/components/HistoryActions';
 import { HistoryList } from '../../modules/history/components/HistoryList';
 import { HistoryOptionsList } from '../../modules/history/components/HistoryOptionsList';
+import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
 import { SyncStore } from './SyncStore';
@@ -81,6 +81,15 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	const onSyncClick = async () => {
+		if (!optionsContent.options.addWithReleaseDate.value) {
+			const missingWatchedDate = store.data.items.find((item) => !item.watchedAt);
+			if (missingWatchedDate) {
+				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
+					title: browser.i18n.getMessage('cannotSync'),
+					message: browser.i18n.getMessage('cannotSyncMissingWatchedDate'),
+				});
+			}
+		}
 		setContent((prevContent) => ({
 			...prevContent,
 			isLoading: true,

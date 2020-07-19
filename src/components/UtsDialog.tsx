@@ -63,11 +63,13 @@ export const UtsDialog: React.FC = () => {
 			</DialogContent>
 			<DialogActions>
 				<Button color="primary" onClick={() => closeDialog(false)}>
-					{browser.i18n.getMessage('no')}
+					{browser.i18n.getMessage(dialog.onConfirm || dialog.onDeny ? 'no' : 'close')}
 				</Button>
-				<Button color="primary" onClick={() => closeDialog(true)} variant="contained">
-					{browser.i18n.getMessage('yes')}
-				</Button>
+				{dialog.onConfirm && (
+					<Button color="primary" onClick={() => closeDialog(true)} variant="contained">
+						{browser.i18n.getMessage('yes')}
+					</Button>
+				)}
 			</DialogActions>
 		</Dialog>
 	);
