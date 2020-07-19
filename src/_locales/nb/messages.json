@@ -1,21 +1,18 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "En universell sync-tjeneste for Trakt.tv."
-	},
 	"about": {
 		"message": "Om"
 	},
-	"addWithReleaseDateName": {
-		"message": "Legg til med utgivelsesdato."
-	},
 	"aboutMessage": {
 		"message": "Send aktiviteten fra dine favorittstrømmetjenester til Trakt.tv!"
+	},
+	"add": {
+		"message": "Add"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Failed to add missing watched date."
+	},
+	"addWithReleaseDateName": {
+		"message": "Legg til med utgivelsesdato."
 	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
@@ -23,8 +20,17 @@
 	"allowRollbarName": {
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
+	"appDescription": {
+		"message": "En universell sync-tjeneste for Trakt.tv."
+	},
 	"cancel": {
 		"message": "Avbryt"
+	},
+	"cannotSync": {
+		"message": "Cannot sync items"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -44,6 +50,10 @@
 	"clearTraktCacheSuccess": {
 		"message": "Trakt cache er fjernet."
 	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Close"
+	},
 	"confirmClearStorageMessage": {
 		"message": "Alle valgene vil bli tilbakestilt til standardvalgene og du blir nødt til å logge inn på nytt."
 	},
@@ -53,18 +63,18 @@
 	"confirmClearTraktCacheMessage": {
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
 	},
+	"confirmClearTraktCacheTitle": {
+		"message": "Fjerne Trakt cache?"
+	},
 	"correct": {
-		"message": "Korriger",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Korriger"
 	},
 	"correctWrongItem": {
 		"message": "Korriger feilaktig element"
 	},
 	"correctWrongItemFailed": {
 		"message": "Fikk ikke til å korrigere feilaktig element."
-	},
-	"confirmClearTraktCacheTitle": {
-		"message": "Fjerne Trakt cache?"
 	},
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
@@ -96,11 +106,14 @@
 	"grantCookiesName": {
 		"message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
 	},
+	"hideSyncedName": {
+		"message": "Skjul allerede synkroniserte elementer."
+	},
 	"history": {
 		"message": "Historikk"
 	},
-	"hideSyncedName": {
-		"message": "Skjul allerede synkroniserte elementer."
+	"historySyncError": {
+		"message": "Klarte ikke å synkronisere historikken."
 	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episoder og $MOVIES$ filmer ble sendt til trakt.",
@@ -113,20 +126,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Klarte ikke å synkronisere historikken."
-	},
 	"home": {
 		"message": "Hjem"
 	},
 	"isThisWrong": {
 		"message": "Er dette feil?"
 	},
-	"itemSynced": {
-		"message": "Elementet er synkronisert"
-	},
 	"itemNotSynced": {
 		"message": "Elementer er ikke synkronisert"
+	},
+	"itemSynced": {
+		"message": "Elementet er synkronisert"
 	},
 	"itemsPerLoadName": {
 		"message": "Antall elementer i hver innlasting."
@@ -143,11 +153,31 @@
 	"logout": {
 		"message": "Logg ut"
 	},
+	"missingWatchedDate": {
+		"message": "Missing watched date"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Select the date"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Please enter a valid date!"
+	},
 	"nextPage": {
 		"message": "Neste side"
 	},
 	"no": {
 		"message": "Nei"
+	},
+	"noMoreHistory": {
+		"message": "Reached the end of the history."
 	},
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
@@ -238,6 +268,15 @@
 	"use24ClockName": {
 		"message": "Bruk 24-timers klokke."
 	},
+	"useCurrentDate": {
+		"message": "Use current date."
+	},
+	"useCustomDate": {
+		"message": "Use custom date."
+	},
+	"useReleaseDate": {
+		"message": "Use release date."
+	},
 	"watched": {
 		"message": "Dato sett"
 	},
@@ -251,9 +290,6 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"
-	},
-	"wrongItemDialogUrlLabel": {
-		"message": "URL"
 	},
 	"yes": {
 		"message": "Ja"

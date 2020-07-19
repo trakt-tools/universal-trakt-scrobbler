@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
 	env: {
 		browser: true,
@@ -7,6 +9,23 @@ module.exports = {
 	},
 	rules: {},
 	overrides: [
+		{
+			files: ['**/_locales/**/*.json'],
+			plugins: ['@rafaelgssa/local'],
+			extends: ['plugin:@rafaelgssa/local/recommended'],
+			rules: {
+				'@rafaelgssa/local/identical-keys': [
+					'error',
+					{
+						filePath: path.resolve('./src/_locales/en/messages.json'),
+						checkDuplicateValues: true,
+					},
+				],
+			},
+			settings: {
+				'@rafaelgssa/local/ignore-keys': ['*.description', '*.placeholders'],
+			},
+		},
 		{
 			files: ['**/*.{js,jsx}'],
 			parserOptions: {
@@ -30,7 +49,7 @@ module.exports = {
 		},
 		{
 			files: ['**/*.{ts,tsx}'],
-			plugins: ['local-rules'],
+			plugins: ['@rafaelgssa/local'],
 			extends: [
 				'eslint:recommended',
 				'plugin:react/recommended',
@@ -48,7 +67,7 @@ module.exports = {
 						allowTemplateLiterals: false,
 					},
 				],
-				'local-rules/prefer-arrow-functions': [
+				'@rafaelgssa/local/prefer-arrow-functions': [
 					'error',
 					{
 						disallowPrototype: true,

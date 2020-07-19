@@ -1,5 +1,5 @@
 build/*
-eslint-plugin-prefer-arrow/*
+local-eslint-plugins/*
 src/streaming-services/scrobbler-template/*
 src/streaming-services/sync-template/*
 !.eslintrc.js

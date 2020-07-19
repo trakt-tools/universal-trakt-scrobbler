@@ -6,7 +6,7 @@ on:
       - master
   pull_request:
     branches:
-      - master
+      - '**'
 
 jobs:
   format_lint:
@@ -23,3 +23,4 @@ jobs:
           pnpm install
           cp config.dev.json config.json
           pnpm run check
+          pnpm run lint-translations

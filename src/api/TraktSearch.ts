@@ -20,6 +20,7 @@ export interface TraktEpisodeItemEpisode {
 		trakt: number;
 		tmdb: number;
 	};
+	first_aired: string | null;
 }
 
 export interface TraktSearchShowItem {
@@ -46,6 +47,7 @@ export interface TraktSearchMovieItemMovie {
 		trakt: number;
 		tmdb: number;
 	};
+	released: string;
 }
 
 class _TraktSearch extends TraktApi {
@@ -72,6 +74,7 @@ class _TraktSearch extends TraktApi {
 				const season = searchItem.episode.season;
 				const episode = searchItem.episode.number;
 				const episodeTitle = searchItem.episode.title;
+				const releaseDate = searchItem.episode.first_aired;
 				traktItem = new TraktItem({
 					id,
 					tmdbId,
@@ -81,18 +84,21 @@ class _TraktSearch extends TraktApi {
 					season,
 					episode,
 					episodeTitle,
+					releaseDate,
 				});
 			} else {
 				const id = searchItem.movie.ids.trakt;
 				const tmdbId = searchItem.movie.ids.tmdb;
 				const title = searchItem.movie.title;
 				const year = searchItem.movie.year;
+				const releaseDate = searchItem.movie.released;
 				traktItem = new TraktItem({
 					id,
 					tmdbId,
 					type: 'movie',
 					title,
 					year,
+					releaseDate,
 				});
 			}
 			await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
@@ -104,7 +110,7 @@ class _TraktSearch extends TraktApi {
 
 	findItemFromUrl = async (url: string): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {
 		const searchItemResponse = await Requests.send({
-			url: `${this.API_URL}${url}`,
+			url: `${this.API_URL}${url}?extended=full`,
 			method: 'GET',
 		});
 		const searchItem = JSON.parse(searchItemResponse) as
@@ -125,7 +131,7 @@ class _TraktSearch extends TraktApi {
 	findItem = async (item: Item): Promise<TraktSearchItem> => {
 		let searchItem: TraktSearchItem | undefined;
 		const responseText = await Requests.send({
-			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}`,
+			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}&extended=full`,
 			method: 'GET',
 		});
 		const searchItems = JSON.parse(responseText) as TraktSearchItem[];
@@ -192,11 +198,13 @@ class _TraktSearch extends TraktApi {
 	getEpisodeUrl = (item: Item, traktId: number): string => {
 		let url = '';
 		if (typeof item.season !== 'undefined' && typeof item.episode !== 'undefined') {
-			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}`;
+			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}?extended=full`;
 		} else if (item.isCollection && item.episodeTitle) {
-			url = `${this.SEARCH_URL}/episode?query=${encodeURIComponent(item.episodeTitle)}`;
+			url = `${this.SEARCH_URL}/episode?query=${encodeURIComponent(
+				item.episodeTitle
+			)}&extended=full`;
 		} else if (typeof item.season !== 'undefined') {
-			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}`;
+			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}?extended=full`;
 		}
 		return url;
 	};

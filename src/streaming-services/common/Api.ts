@@ -32,7 +32,9 @@ export abstract class Api {
 			const promises = [];
 			const items = getSyncStore(this.id).data.items;
 			for (const item of items) {
-				promises.push(this.loadTraktItemHistory(item, traktCache, correctUrls?.[this.id][item.id]));
+				promises.push(
+					this.loadTraktItemHistory(item, traktCache, correctUrls?.[this.id]?.[item.id])
+				);
 			}
 			await Promise.all(promises);
 			await BrowserStorage.set({ traktCache }, false);

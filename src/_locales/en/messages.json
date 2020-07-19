@@ -1,21 +1,18 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "A universal sync for Trakt.tv."
-	},
 	"about": {
 		"message": "About"
 	},
-	"addWithReleaseDateName": {
-		"message": "Add with release date."
-	},
 	"aboutMessage": {
 		"message": "Send your activity from your favorite streaming services to Trakt.tv!"
+	},
+	"add": {
+		"message": "Add"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Failed to add missing watched date."
+	},
+	"addWithReleaseDateName": {
+		"message": "Add with release date."
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
@@ -23,8 +20,17 @@
 	"allowRollbarName": {
 		"message": "Allow Rollbar to collect information about bugs."
 	},
+	"appDescription": {
+		"message": "A universal sync for Trakt.tv."
+	},
 	"cancel": {
 		"message": "Cancel"
+	},
+	"cannotSync": {
+		"message": "Cannot sync items"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"clearStorage": {
 		"message": "Clear Storage"
@@ -44,6 +50,10 @@
 	"clearTraktCacheSuccess": {
 		"message": "Trakt cache cleared."
 	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Close"
+	},
 	"confirmClearStorageMessage": {
 		"message": "All of the options will be reset to their default values and you will have to login again."
 	},
@@ -57,8 +67,8 @@
 		"message": "Clear Trakt cache?"
 	},
 	"correct": {
-		"message": "Correct",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Correct"
 	},
 	"correctWrongItem": {
 		"message": "Correct wrong item"
@@ -102,6 +112,9 @@
 	"history": {
 		"message": "History"
 	},
+	"historySyncError": {
+		"message": "Failed to sync history."
+	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
 		"placeholders": {
@@ -113,20 +126,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Failed to sync history."
-	},
 	"home": {
 		"message": "Home"
 	},
 	"isThisWrong": {
 		"message": "Is this wrong?"
 	},
-	"itemSynced": {
-		"message": "Item synced"
-	},
 	"itemNotSynced": {
 		"message": "Item not synced"
+	},
+	"itemSynced": {
+		"message": "Item synced"
 	},
 	"itemsPerLoadName": {
 		"message": "Items per load."
@@ -143,11 +153,31 @@
 	"logout": {
 		"message": "Logout"
 	},
+	"missingWatchedDate": {
+		"message": "Missing watched date"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Select the date"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Please enter a valid date!"
+	},
 	"nextPage": {
 		"message": "Next Page"
 	},
 	"no": {
 		"message": "No"
+	},
+	"noMoreHistory": {
+		"message": "Reached the end of the history."
 	},
 	"noStreamingServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
@@ -238,6 +268,15 @@
 	"use24ClockName": {
 		"message": "Use 24-hour clock."
 	},
+	"useCurrentDate": {
+		"message": "Use current date."
+	},
+	"useCustomDate": {
+		"message": "Use custom date."
+	},
+	"useReleaseDate": {
+		"message": "Use release date."
+	},
 	"watched": {
 		"message": "Watched On"
 	},
@@ -251,9 +290,6 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Please enter a valid Trakt URL!"
-	},
-	"wrongItemDialogUrlLabel": {
-		"message": "URL"
 	},
 	"yes": {
 		"message": "Yes"

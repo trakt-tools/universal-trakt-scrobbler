@@ -2,6 +2,7 @@
 	"exclude": [
 		"./node_modules",
 		"./build",
+		"./local-eslint-plugins",
 		"./src/streaming-services/scrobbler-template",
 		"./src/streaming-services/sync-template"
 	],

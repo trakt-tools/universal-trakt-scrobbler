@@ -1,21 +1,18 @@
 {
-	"appName": {
-		"message": "Universal Trakt Scrobbler"
-	},
-	"appShortName": {
-		"message": "UTS"
-	},
-	"appDescription": {
-		"message": "Um sincronizador universal para o Trakt.tv."
-	},
 	"about": {
 		"message": "Sobre"
 	},
-	"addWithReleaseDateName": {
-		"message": "Adicionar com data de lançamento."
-	},
 	"aboutMessage": {
 		"message": "Envie sua atividade nos seus serviços de streaming favoritos para o Trakt.tv!"
+	},
+	"add": {
+		"message": "Adicionar"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
+	},
+	"addWithReleaseDateName": {
+		"message": "Adicionar com data de lançamento."
 	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
@@ -23,8 +20,17 @@
 	"allowRollbarName": {
 		"message": "Permitir que o Rollbar colete informações sobre erros."
 	},
+	"appDescription": {
+		"message": "Um sincronizador universal para o Trakt.tv."
+	},
 	"cancel": {
 		"message": "Cancelar"
+	},
+	"cannotSync": {
+		"message": "Não é possível sincronizar os itens"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
 	"clearStorage": {
 		"message": "Limpar Armazenamento"
@@ -44,6 +50,10 @@
 	"clearTraktCacheSuccess": {
 		"message": "Cache do Trakt limpado."
 	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Fechar"
+	},
 	"confirmClearStorageMessage": {
 		"message": "Todas as opções serão resetadas para seus valores padrões e você precisará entrar com o Trakt novamente."
 	},
@@ -57,8 +67,8 @@
 		"message": "Limar o cache do Trakt?"
 	},
 	"correct": {
-		"message": "Corrigir",
-		"description": "This is the verb, as in 'to correct'."
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Corrigir"
 	},
 	"correctWrongItem": {
 		"message": "Corrigir item errado"
@@ -70,10 +80,10 @@
 		"message": "Não foi possível realizar o scrobble."
 	},
 	"disableScrobblingDescription": {
-		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil caso você queira usar apenas a sincronização de histórico."
 	},
 	"disableScrobblingName": {
-		"message": "Disable scrobbling."
+		"message": "Desativar scrobbling."
 	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
@@ -102,6 +112,9 @@
 	"history": {
 		"message": "Histórico"
 	},
+	"historySyncError": {
+		"message": "Ocorreu um erro ao sincronizar o histórico."
+	},
 	"historySyncSuccess": {
 		"message": "$EPISODES$ episódios e $MOVIES$ filmes sincronizados.",
 		"placeholders": {
@@ -113,20 +126,17 @@
 			}
 		}
 	},
-	"historySyncError": {
-		"message": "Ocorreu um erro ao sincronizar o histórico."
-	},
 	"home": {
 		"message": "Início"
 	},
 	"isThisWrong": {
 		"message": "Isso está errado?"
 	},
-	"itemSynced": {
-		"message": "Item sincronizado"
-	},
 	"itemNotSynced": {
 		"message": "Item não sincronizado"
+	},
+	"itemSynced": {
+		"message": "Item sincronizado"
 	},
 	"itemsPerLoadName": {
 		"message": "Itens por página."
@@ -143,11 +153,31 @@
 	"logout": {
 		"message": "Sair"
 	},
+	"missingWatchedDate": {
+		"message": "Faltando data em que foi assistido"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Escolha como deseja adicionar a data em que $TITLE$ foi assistido.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Selecione a data"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Por favor, selecione uma data válida!"
+	},
 	"nextPage": {
 		"message": "Próxima Página"
 	},
 	"no": {
 		"message": "Não"
+	},
+	"noMoreHistory": {
+		"message": "Chegou ao fim do histórico."
 	},
 	"noStreamingServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
@@ -238,6 +268,15 @@
 	"use24ClockName": {
 		"message": "Usar relógio de 24 horas."
 	},
+	"useCurrentDate": {
+		"message": "Usar data atual."
+	},
+	"useCustomDate": {
+		"message": "Usar data customizada."
+	},
+	"useReleaseDate": {
+		"message": "Usar data de lançamento."
+	},
 	"watched": {
 		"message": "Assistido Em"
 	},
@@ -251,9 +290,6 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"
-	},
-	"wrongItemDialogUrlLabel": {
-		"message": "URL"
 	},
 	"yes": {
 		"message": "Sim"

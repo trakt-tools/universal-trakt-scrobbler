@@ -66,7 +66,13 @@ export const WrongItemDialog: React.FC = () => {
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
 				) as Record<StreamingServiceId, Record<string, string>>;
 			}
-			correctUrls[dialog.serviceId][dialog.item.id] = url;
+			if (!correctUrls[dialog.serviceId]) {
+				correctUrls[dialog.serviceId] = {};
+			}
+			const serviceCorrectUrls = correctUrls[dialog.serviceId];
+			if (serviceCorrectUrls) {
+				serviceCorrectUrls[dialog.item.id] = url;
+			}
 			await BrowserStorage.set({ correctUrls }, true);
 			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
 				item: dialog.item,
@@ -126,7 +132,7 @@ export const WrongItemDialog: React.FC = () => {
 
 	const [urlLabel, urlError] =
 		!dialog.url || isValidUrl(dialog.url)
-			? [browser.i18n.getMessage('wrongItemDialogUrlLabel'), false]
+			? ['URL', false]
 			: [browser.i18n.getMessage('wrongItemDialogInvalidUrlLabel'), true];
 
 	return (

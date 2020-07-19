@@ -14,7 +14,10 @@ class _Tabs {
 	/**
 	 * @param url The URL to open.
 	 */
-	open = async (url: string): Promise<browser.tabs.Tab | undefined> => {
+	open = async (
+		url: string,
+		extraProperties: TabProperties = {}
+	): Promise<browser.tabs.Tab | undefined> => {
 		const tabs = await browser.tabs.query({ active: true, currentWindow: true });
 		if (tabs.length === 0) {
 			return;
@@ -22,6 +25,7 @@ class _Tabs {
 		const tabProperties: TabProperties = {
 			index: tabs[0].index + 1,
 			url,
+			...extraProperties,
 		};
 		const storage = await BrowserStorage.get('options');
 		if (storage.options?.grantCookies && browser.cookies) {

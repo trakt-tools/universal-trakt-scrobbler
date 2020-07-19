@@ -2,9 +2,9 @@ import { Box, Checkbox } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
-import { Item } from '../../../../models/Item';
-import { EventDispatcher } from '../../../../common/Events';
-import { StreamingServiceId } from '../../../../streaming-services/streaming-services';
+import { Item } from '../../../models/Item';
+import { EventDispatcher } from '../../../common/Events';
+import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
@@ -21,6 +21,13 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
 			index: item.index,
 			checked: !item.isSelected,
+		});
+	};
+
+	const openMissingWatchedDateDialog = async () => {
+		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
+			serviceId,
+			item,
 		});
 	};
 
@@ -45,7 +52,12 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 					onChange={onCheckboxChange}
 				/>
 			)}
-			<HistoryListItemCard dateFormat={dateFormat} item={item} name={serviceName} />
+			<HistoryListItemCard
+				dateFormat={dateFormat}
+				item={item}
+				name={serviceName}
+				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
+			/>
 			<Box
 				className="history-list-item-status"
 				title={browser.i18n.getMessage(statusMessageName)}
