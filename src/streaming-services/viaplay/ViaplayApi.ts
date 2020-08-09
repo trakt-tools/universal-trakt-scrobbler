@@ -162,8 +162,9 @@ class _ViaplayApi extends Api {
 	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
 		let item: Item;
 		const year = historyItem.content.production.year;
-		const percentageWatched = historyItem.user.progress?.elapsedPercent || 0;
-		const watchedAt = moment(historyItem.user.progress?.updated);
+		const progress = historyItem.user.progress;
+		const percentageWatched = progress?.elapsedPercent || 0;
+		const watchedAt = progress ? moment(progress.updated) : undefined;
 		const id = historyItem.system.guid;
 		if (historyItem.type === 'episode') {
 			const content = historyItem.content;
