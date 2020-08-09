@@ -6,10 +6,10 @@
 		"message": "Send aktiviteten fra dine favorittstrømmetjenester til Trakt.tv!"
 	},
 	"add": {
-		"message": "Add"
+		"message": "Legg til"
 	},
 	"addMissingWatchedDateFailed": {
-		"message": "Failed to add missing watched date."
+		"message": "Kunne ikke legge til manglende «sett dato»."
 	},
 	"addWithReleaseDateName": {
 		"message": "Legg til med utgivelsesdato."
@@ -27,10 +27,10 @@
 		"message": "Avbryt"
 	},
 	"cannotSync": {
-		"message": "Cannot sync items"
+		"message": "Klarer ikke å synkronisere elementer"
 	},
 	"cannotSyncMissingWatchedDate": {
-		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
+		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -52,7 +52,7 @@
 	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
-		"message": "Close"
+		"message": "Lukk"
 	},
 	"confirmClearStorageMessage": {
 		"message": "Alle valgene vil bli tilbakestilt til standardvalgene og du blir nødt til å logge inn på nytt."
@@ -154,10 +154,10 @@
 		"message": "Logg ut"
 	},
 	"missingWatchedDate": {
-		"message": "Missing watched date"
+		"message": "Mangler «sett dato»"
 	},
 	"missingWatchedDateDialogContent": {
-		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"message": "Hvordan ønsker du å legge til manglede «sett datoer» for $TITLE$?",
 		"placeholders": {
 			"title": {
 				"content": "$1"
@@ -165,10 +165,10 @@
 		}
 	},
 	"missingWatchedDateDialogDateLabel": {
-		"message": "Select the date"
+		"message": "Velg datoen"
 	},
 	"missingWatchedDateDialogInvalidDateLabel": {
-		"message": "Please enter a valid date!"
+		"message": "Legg inn en gydlig dato!"
 	},
 	"nextPage": {
 		"message": "Neste side"
@@ -177,7 +177,7 @@
 		"message": "Nei"
 	},
 	"noMoreHistory": {
-		"message": "Reached the end of the history."
+		"message": "Slutten av historikken er nådd."
 	},
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
@@ -269,13 +269,13 @@
 		"message": "Bruk 24-timers klokke."
 	},
 	"useCurrentDate": {
-		"message": "Use current date."
+		"message": "Bruk dagens dato."
 	},
 	"useCustomDate": {
-		"message": "Use custom date."
+		"message": "Bruk valgfri dato."
 	},
 	"useReleaseDate": {
-		"message": "Use release date."
+		"message": "Bruk utgivelsesdato."
 	},
 	"watched": {
 		"message": "Dato sett"
