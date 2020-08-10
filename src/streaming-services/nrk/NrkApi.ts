@@ -103,7 +103,8 @@ class _NrkApi extends Api {
 		const type = program.programType === 'Episode' ? 'show' : 'movie';
 		const year = program.productionYear;
 		const percentageWatched = parseInt(historyItem.lastSeen.percentageWatched, 10);
-		const watchedAt = moment(this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at));
+		const watchedDate = this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at);
+		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
 		if (type === 'show') {
 			const title = program.title.trim();
 			const season = parseInt(program.seasonNumber, 10);
@@ -128,7 +129,7 @@ class _NrkApi extends Api {
 		return item;
 	};
 
-	convertAspNetJSONDateToDateObject = (value: string): Date => {
+	convertAspNetJSONDateToDateObject = (value: string): Date | undefined => {
 		const dateRegexp = /^\/?Date\((-?\d+)/i;
 		if (dateRegexp.exec(value) !== null) {
 			const dateInMs = parseInt(value.slice(6, 19), 10);
@@ -138,7 +139,6 @@ class _NrkApi extends Api {
 			const dateWithOffset = dateInMs + offsetInMs;
 			return new Date(dateWithOffset);
 		}
-		return new Date();
 	};
 }
 
