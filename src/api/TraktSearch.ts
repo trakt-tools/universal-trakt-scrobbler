@@ -104,6 +104,7 @@ class _TraktSearch extends TraktApi {
 			await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
 		} catch (err) {
 			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as Error });
+			throw err;
 		}
 		return traktItem;
 	};
