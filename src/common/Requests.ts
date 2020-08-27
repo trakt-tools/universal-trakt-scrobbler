@@ -21,7 +21,10 @@ export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response
 class _Requests {
 	send = async (request: RequestDetails, tabId = 0): Promise<string> => {
 		let responseText = '';
-		if (Shared.isBackgroundPage || request.url.includes(window.location.host)) {
+		if (
+			(Shared.isBackgroundPage && tabId) ||
+			(!Shared.isBackgroundPage && request.url.includes(window.location.host))
+		) {
 			responseText = await this.sendDirectly(request, tabId);
 		} else {
 			const response = await Messaging.toBackground({ action: 'send-request', request });
