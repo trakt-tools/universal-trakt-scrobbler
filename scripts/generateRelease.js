@@ -18,12 +18,11 @@ generateRelease();
 
 async function generateRelease() {
 	const name = `v${packageJson.version}`;
-	const release = await octokit.repos.createRelease(
-		Object.assign({}, defaultParams, {
-			name,
-			tag_name: name,
-		})
-	);
+	const release = await octokit.repos.createRelease({
+		...defaultParams,
+		name,
+		tag_name: name,
+	});
 	const url = release.data.upload_url;
 	const files = [
 		{
@@ -41,11 +40,9 @@ async function generateRelease() {
 	for (const file of files) {
 		promises.push(
 			octokit.repos.uploadReleaseAsset({
-				headers: {
-					'content-length': file.content.byteLength,
-					'content-type': file.type,
-				},
-				file: file.content,
+				...defaultParams,
+				release_id: release.data.id,
+				data: file.content,
 				name: file.name,
 				url,
 			})
