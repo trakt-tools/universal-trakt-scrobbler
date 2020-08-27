@@ -4,7 +4,7 @@ dependencies:
   '@material-ui/icons': 4.9.1_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/lab': 4.0.0-alpha.56_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/pickers': 3.2.10_1f98156bd48bdafcda5c0dbaa7af31be
-  history: 5.0.0
+  history: 4.10.1
   moment: 2.27.0
   prop-types: 15.7.2
   react: 16.13.1
@@ -5046,12 +5046,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==
-  /history/5.0.0:
-    dependencies:
-      '@babel/runtime': 7.11.2
-    dev: false
-    resolution:
-      integrity: sha512-3NyRMKIiFSJmIPdq7FxkNMJkQ7ZEtVblOQ38VtKaA0zZMW1Eo6Q6W8oDKEflr1kNNTItSnk4JMCO1deeSgbLLg==
   /hmac-drbg/1.0.1:
     dependencies:
       hash.js: 1.1.7
@@ -9106,7 +9100,7 @@ specifiers:
   fs-extra: ^9.0.1
   gulp: ^4.0.2
   gulp-zip: ^5.0.2
-  history: ^5.0.0
+  history: ^4.10.1
   husky: ^4.2.5
   indent-string: ^3.2.0
   intl-messageformat-parser: ^3.0.7

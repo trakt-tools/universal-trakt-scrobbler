@@ -33,7 +33,8 @@
 		"fix": "run-s format-other tsc lint-typed"
 	},
 	"@comment dependencies": {
-		"@date-io/moment": "Do not update to v2 while using @material-ui/pickers v3"
+		"@date-io/moment": "Do not update to v2 while using @material-ui/pickers v3",
+		"history": "Do not update while using react-router-dom v5"
 	},
 	"dependencies": {
 		"@date-io/moment": "^1.3.13",
@@ -41,7 +42,7 @@
 		"@material-ui/icons": "^4.9.1",
 		"@material-ui/lab": "^4.0.0-alpha.56",
 		"@material-ui/pickers": "^3.2.10",
-		"history": "^5.0.0",
+		"history": "^4.10.1",
 		"moment": "^2.27.0",
 		"prop-types": "^15.7.2",
 		"react": "^16.13.1",
