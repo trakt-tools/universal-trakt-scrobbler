@@ -1,0 +1,7 @@
+build/*
+local-eslint-plugins/*
+src/streaming-services/scrobbler-template/*
+src/streaming-services/sync-template/*
+!.eslintrc.js
+!.eslintrc.typed.js
+!.lintstagedrc.js

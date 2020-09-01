@@ -1,0 +1,5 @@
+.wrong-item-dialog,
+.missing-watched-date-dialog {
+	min-height: 150px;
+	min-width: 300px;
+}

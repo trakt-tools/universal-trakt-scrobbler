@@ -1,186 +1,297 @@
 {
-  "appName": {
-    "message": "Universal Trakt Sync"
-  },
-  "appShortName": {
-    "message": "UTS"
-  },
-  "appDescription": {
-    "message": "A universal sync for Trakt.tv."
-  },
-  "about": {
-    "message": "About"
-  },
-  "addWithReleaseDateName": {
-    "message": "Add with release date."
-  },
-  "aboutMessage": {
-    "message": "Sync the history from your favorite streaming services to Trakt.tv!"
-  },
-  "allowRollbarDescription": {
-    "message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
-  },
-  "allowRollbarName": {
-    "message": "Allow Rollbar to collect information about bugs."
-  },
-  "clearStorage": {
-    "message": "Clear Storage"
-  },
-  "clearStorageFailed": {
-    "message": "Failed to clear storage."
-  },
-  "clearStorageSuccess": {
-    "message": "Storage cleared."
-  },
-  "clearTraktCache": {
-    "message": "Clear Trakt Cache"
-  },
-  "clearTraktCacheFailed": {
-    "message": "Failed to clear Trakt cache."
-  },
-  "clearTraktCacheSuccess": {
-    "message": "Trakt cache cleared."
-  },
-  "confirmClearStorageMessage": {
-    "message": "All of the options will be reset to their default values and you will have to login again."
-  },
-  "confirmClearStorageTitle": {
-    "message": "Clear storage?"
-  },
-  "confirmClearTraktCacheMessage": {
-    "message": "All of the items you have corrected will be reset."
-  },
-  "confirmClearTraktCacheTitle": {
-    "message": "Clear Trakt cache?"
-  },
-  "errorNotification": {
-    "message": "An error has occurred. :("
-  },
-  "errorNotificationLogin": {
-    "message": "Looks like you're not logged in. Please open the extension and login with your Trakt account."
-  },
-  "errorNotificationNotFound": {
-    "message": "Oh snap! We couldn't find what you're watching in Trakt. Please leave a report with the title of the item."
-  },
-  "errorNotificationServers": {
-    "message": "We couldn't talk to Trakt servers. We're trying to fix it, please try again later."
-  },
-  "from": {
-    "message": "from"
-  },
-  "grantCookiesDescription": {
-    "message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
-  },
-  "grantCookiesName": {
-    "message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
-  },
-  "hideSyncedName": {
-    "message": "Hide synced."
-  },
-  "historySyncSuccess": {
-    "message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
-    "placeholders": {
-      "episodes" : {
-        "content" : "$1"
-      },
-      "movies" : {
-        "content" : "$2"
-      }
-    }
-  },
-  "historySyncError": {
-    "message": "Failed to sync history."
-  },
-  "home": {
-    "message": "Home"
-  },
-  "isThisWrong": {
-    "message": "Is this wrong or incomplete? "
-  },
-  "itemsPerLoadName": {
-    "message": "Items per load."
-  },
-  "loadHistoryError": {
-    "message": "Failed to load history."
-  },
-  "loadTraktHistoryError": {
-    "message": "Failed to load Trakt history."
-  },
-  "login": {
-    "message": "Login with Trakt.tv"
-  },
-  "logout": {
-    "message": "Logout"
-  },
-  "nextPage": {
-    "message": "Next Page"
-  },
-  "no": {
-    "message": "No"
-  },
-  "notFound": {
-    "message": "Not Found"
-  },
-  "notWatched": {
-    "message": "Not Watched"
-  },
-  "on": {
-    "message": "On"
-  },
-  "options": {
-    "message": "Options"
-  },
-  "readMore": {
-    "message": "Read More"
-  },
-  "save": {
-    "message": "Save"
-  },
-  "saveOptionFailed": {
-    "message": "Failed to save option."
-  },
-  "saveOptionSuccess": {
-    "message": "Option saved."
-  },
-  "select": {
-    "message": "Select:"
-  },
-  "selectAll": {
-    "message": "All"
-  },
-  "selectNone": {
-    "message": "None"
-  },
-  "selectStreamingService": {
-    "message": "Select a streaming service to sync from:"
-  },
-  "sendReceiveSuggestionsDescription": {
-    "message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Sheets database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
-  },
-  "sendReceiveSuggestionsName": {
-    "message": "Send / receive correction suggestions."
-  },
-  "sync": {
-    "message": "Sync"
-  },
-  "toggleAll": {
-    "message": "Toggle"
-  },
-  "use24ClockName": {
-    "message": "Use 24-hour clock."
-  },
-  "watched": {
-    "message": "Watched On"
-  },
-  "progress": {
-    "message": "Progress: $PROGRESS$%",
-    "placeholders": {
-      "progress" : {
-        "content" : "$1"
-      }
-    }
-  },
-  "yes": {
-    "message": "Yes"
-  }
+	"about": {
+		"message": "About"
+	},
+	"aboutMessage": {
+		"message": "Send your activity from your favorite streaming services to Trakt.tv!"
+	},
+	"add": {
+		"message": "Add"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Failed to add missing watched date."
+	},
+	"addWithReleaseDateName": {
+		"message": "Add with release date."
+	},
+	"allowRollbarDescription": {
+		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
+	},
+	"allowRollbarName": {
+		"message": "Allow Rollbar to collect information about bugs."
+	},
+	"appDescription": {
+		"message": "A universal sync for Trakt.tv."
+	},
+	"cancel": {
+		"message": "Cancel"
+	},
+	"cannotSync": {
+		"message": "Cannot sync items"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
+	},
+	"clearStorage": {
+		"message": "Clear Storage"
+	},
+	"clearStorageFailed": {
+		"message": "Failed to clear storage."
+	},
+	"clearStorageSuccess": {
+		"message": "Storage cleared."
+	},
+	"clearTraktCache": {
+		"message": "Clear Trakt Cache"
+	},
+	"clearTraktCacheFailed": {
+		"message": "Failed to clear Trakt cache."
+	},
+	"clearTraktCacheSuccess": {
+		"message": "Trakt cache cleared."
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Close"
+	},
+	"confirmClearStorageMessage": {
+		"message": "All of the options will be reset to their default values and you will have to login again."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Clear storage?"
+	},
+	"confirmClearTraktCacheMessage": {
+		"message": "All of the items you have corrected will be reset."
+	},
+	"confirmClearTraktCacheTitle": {
+		"message": "Clear Trakt cache?"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Correct"
+	},
+	"correctWrongItem": {
+		"message": "Correct wrong item"
+	},
+	"correctWrongItemFailed": {
+		"message": "Failed to correct wrong item."
+	},
+	"couldNotScrobble": {
+		"message": "Could not scrobble."
+	},
+	"disableScrobblingDescription": {
+		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	},
+	"disableScrobblingName": {
+		"message": "Disable scrobbling."
+	},
+	"errorNotification": {
+		"message": "An error has occurred. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Looks like you're not logged in. Please open the extension and login with your Trakt account."
+	},
+	"errorNotificationNotFound": {
+		"message": "Oh snap! We couldn't find what you're watching in Trakt. Please leave a report with the title of the item."
+	},
+	"errorNotificationServers": {
+		"message": "We couldn't talk to Trakt servers. We're trying to fix it, please try again later."
+	},
+	"from": {
+		"message": "from"
+	},
+	"grantCookiesDescription": {
+		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
+	},
+	"grantCookiesName": {
+		"message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
+	},
+	"hideSyncedName": {
+		"message": "Hide synced."
+	},
+	"history": {
+		"message": "History"
+	},
+	"historySyncError": {
+		"message": "Failed to sync history."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ episodes and $MOVIES$ movies synced.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Home"
+	},
+	"isThisWrong": {
+		"message": "Is this wrong?"
+	},
+	"itemNotSynced": {
+		"message": "Item not synced"
+	},
+	"itemSynced": {
+		"message": "Item synced"
+	},
+	"itemsPerLoadName": {
+		"message": "Items per load."
+	},
+	"loadHistoryError": {
+		"message": "Failed to load history."
+	},
+	"loadTraktHistoryError": {
+		"message": "Failed to load Trakt history."
+	},
+	"login": {
+		"message": "Login with Trakt.tv"
+	},
+	"logout": {
+		"message": "Logout"
+	},
+	"missingWatchedDate": {
+		"message": "Missing watched date"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Choose how you want to add the missing watched date for $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Select the date"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Please enter a valid date!"
+	},
+	"nextPage": {
+		"message": "Next Page"
+	},
+	"no": {
+		"message": "No"
+	},
+	"noMoreHistory": {
+		"message": "Reached the end of the history."
+	},
+	"noStreamingServices": {
+		"message": "No streaming services enabled. You can enable streaming services in the options page."
+	},
+	"notFound": {
+		"message": "Not Found"
+	},
+	"notWatched": {
+		"message": "Not Watched"
+	},
+	"notWatching": {
+		"message": "Watch something!"
+	},
+	"nowScrobbling": {
+		"message": "Now Scrobbling"
+	},
+	"on": {
+		"message": "On"
+	},
+	"options": {
+		"message": "Options"
+	},
+	"progress": {
+		"message": "Progress: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"readMore": {
+		"message": "Read More"
+	},
+	"save": {
+		"message": "Save"
+	},
+	"saveOptionFailed": {
+		"message": "Failed to save option."
+	},
+	"saveOptionSuccess": {
+		"message": "Option saved."
+	},
+	"scrobblePaused": {
+		"message": "Scrobble paused."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobble started."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobble stopped."
+	},
+	"select": {
+		"message": "Select:"
+	},
+	"selectAll": {
+		"message": "All"
+	},
+	"selectNone": {
+		"message": "None"
+	},
+	"selectStreamingService": {
+		"message": "Select a streaming service to sync from:"
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Sheets database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
+	},
+	"sendReceiveSuggestionsName": {
+		"message": "Send / receive correction suggestions."
+	},
+	"showNotificationsDescription": {
+		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
+	},
+	"showNotificationsName": {
+		"message": "Show browser notifications."
+	},
+	"streamingServicesDescription": {
+		"message": "Choose which streaming services to enable."
+	},
+	"streamingServicesName": {
+		"message": "Streaming services"
+	},
+	"sync": {
+		"message": "Sync"
+	},
+	"toggleAll": {
+		"message": "Toggle"
+	},
+	"use24ClockName": {
+		"message": "Use 24-hour clock."
+	},
+	"useCurrentDate": {
+		"message": "Use current date."
+	},
+	"useCustomDate": {
+		"message": "Use custom date."
+	},
+	"useReleaseDate": {
+		"message": "Use release date."
+	},
+	"watched": {
+		"message": "Watched On"
+	},
+	"wrongItemDialogContent": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"wrongItemDialogInvalidUrlLabel": {
+		"message": "Please enter a valid Trakt URL!"
+	},
+	"yes": {
+		"message": "Yes"
+	}
 }

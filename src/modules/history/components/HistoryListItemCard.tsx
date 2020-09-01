@@ -1,0 +1,94 @@
+import {
+	Button,
+	Card,
+	CardContent,
+	CircularProgress,
+	Divider,
+	Typography,
+} from '@material-ui/core';
+import * as React from 'react';
+import { UtsCenter } from '../../../components/UtsCenter';
+import { Item } from '../../../models/Item';
+import { TraktItem } from '../../../models/TraktItem';
+
+interface HistoryListItemCardProps {
+	dateFormat: string;
+	item?: Item | TraktItem | null;
+	name: string;
+	openMissingWatchedDateDialog?: () => Promise<void>;
+	openWrongItemDialog?: () => Promise<void>;
+}
+
+export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
+	props: HistoryListItemCardProps
+) => {
+	const { dateFormat, item, name, openMissingWatchedDateDialog, openWrongItemDialog } = props;
+
+	const watchedAtComponent = item ? (
+		item.watchedAt ? (
+			<Typography variant="overline">
+				{`${browser.i18n.getMessage('watched')} ${item.watchedAt.format(dateFormat)}`}
+			</Typography>
+		) : openMissingWatchedDateDialog ? (
+			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
+				<Typography variant="caption">{browser.i18n.getMessage('missingWatchedDate')}</Typography>
+			</Button>
+		) : (
+			<Typography variant="overline">{browser.i18n.getMessage('notWatched')}</Typography>
+		)
+	) : null;
+
+	return (
+		<Card className="history-list-item-card" variant="outlined">
+			<CardContent>
+				<UtsCenter isHorizontal={false}>
+					<Typography variant="overline">{`${browser.i18n.getMessage('on')} ${name}`}</Typography>
+					<Divider className="history-list-item-divider" />
+					{typeof item !== 'undefined' ? (
+						<>
+							{item === null ? (
+								<Typography variant="h6">{browser.i18n.getMessage('notFound')}</Typography>
+							) : item.type === 'show' ? (
+								<>
+									{item.season && item.episode && (
+										<Typography variant="overline">{`S${item.season} E${item.episode}`}</Typography>
+									)}
+									<Typography variant="h6">{item.episodeTitle}</Typography>
+									<Typography variant="subtitle2">{item.title}</Typography>
+									<Divider className="history-list-item-divider" />
+									{watchedAtComponent}
+									{'percentageWatched' in item && item.percentageWatched !== undefined && (
+										<Typography variant="caption">
+											{browser.i18n.getMessage('progress', item.percentageWatched.toString())}
+										</Typography>
+									)}
+								</>
+							) : (
+								<>
+									{item.year && <Typography variant="overline">{item.year}</Typography>}
+									<Typography variant="h6">{item.title}</Typography>
+									<Divider className="history-list-item-divider" />
+									{watchedAtComponent}
+									{'percentageWatched' in item && item.percentageWatched !== undefined && (
+										<Typography variant="caption">
+											{browser.i18n.getMessage('progress', item.percentageWatched.toString())}
+										</Typography>
+									)}
+								</>
+							)}
+							{openWrongItemDialog && (
+								<Button color="secondary" onClick={openWrongItemDialog}>
+									<Typography variant="caption">
+										{browser.i18n.getMessage('isThisWrong')}
+									</Typography>
+								</Button>
+							)}
+						</>
+					) : (
+						<CircularProgress />
+					)}
+				</UtsCenter>
+			</CardContent>
+		</Card>
+	);
+};

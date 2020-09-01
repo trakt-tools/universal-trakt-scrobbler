@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  format_lint:
+    name: Check format and lint
+    runs-on: ubuntu-latest
+    container: node:alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run check
+        run: |
+          apk add --no-cache curl
+          curl -L https://unpkg.com/@pnpm/self-installer | node
+          pnpm install
+          cp config.dev.json config.json
+          pnpm run check
+          pnpm run lint-translations

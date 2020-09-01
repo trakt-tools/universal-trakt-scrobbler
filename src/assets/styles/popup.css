@@ -1,0 +1,74 @@
+.popup-container {
+	height: 200px;
+	padding: 8px;
+	width: 400px;
+}
+
+.popup-container--content {
+	height: 100%;
+	position: relative;
+}
+
+.popup-container--content > * {
+	height: 100%;
+}
+
+.popup-container--overlay-color {
+	background-color: rgba(0, 0, 0, 0.75);
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.popup-container--overlay-image {
+	background-image: url('../images/background.jpg');
+	background-size: cover !important;
+	bottom: 0;
+	filter: blur(2px) grayscale(0.5);
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.popup-header {
+	color: #fff;
+}
+
+.popup-info {
+	color: #fff;
+	text-align: center;
+}
+
+.popup-info > * {
+	margin: 8px 0;
+}
+
+.popup-watching--content {
+	height: 100%;
+	position: relative;
+}
+
+.popup-watching--content > * {
+	height: 100%;
+}
+
+.popup-watching--overlay-color {
+	background-color: rgba(0, 0, 0, 0.5);
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.popup-watching--overlay-image {
+	background-size: cover !important;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}

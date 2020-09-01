@@ -2,13 +2,18 @@ import { Box } from '@material-ui/core';
 import * as React from 'react';
 
 interface UtsCenterProps {
-  className?: string;
+	children: React.ReactNode;
+	className?: string;
+	isHorizontal?: boolean;
 }
 
-const UtsCenter: React.FC<UtsCenterProps> = ({ children, className }) => (
-  <Box className={`container--center ${className || ''}`}>
-    {children}
-  </Box>
-);
-
-export { UtsCenter };
+export const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
+	const { children, className, isHorizontal = true } = props;
+	return (
+		<Box
+			className={`container--center-${isHorizontal ? 'horizontal' : 'vertical'} ${className || ''}`}
+		>
+			{children}
+		</Box>
+	);
+};

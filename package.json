@@ -1,68 +1,172 @@
 {
-  "name": "universal-trakt-sync",
-  "version": "1.0.0",
-  "description": "A universal sync for Trakt.tv.",
-  "author": "trakt-tools",
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/trakt-tools/universal-trakt-sync.git"
-  },
-  "scripts": {
-    "build": "./node_modules/.bin/webpack --env.production",
-    "build-dev": "./node_modules/.bin/webpack --env.development",
-    "generate-release": "./node_modules/.bin/node ./scripts/generateRelease.js",
-    "start": "./node_modules/.bin/webpack --env.development --env.watch",
-    "zip": "./node_modules/.bin/gulp zip"
-  },
-  "dependencies": {
-    "@material-ui/core": "^4.9.1",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.41",
-    "history": "^4.10.1",
-    "moment": "^2.24.0",
-    "prop-types": "^15.7.2",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-router-dom": "^5.1.2",
-    "rollbar": "^2.14.4",
-    "typeface-roboto": "^0.0.75",
-    "webextension-polyfill": "^0.6.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
-    "@babel/preset-flow": "^7.8.3",
-    "@babel/preset-react": "^7.8.3",
-    "@babel/preset-typescript": "^7.6.0",
-    "@babel/runtime": "^7.8.4",
-    "@octokit/rest": "^16.43.1",
-    "@svgr/webpack": "^5.1.0",
-    "@types/history": "^4.7.5",
-    "@types/material-ui": "^0.21.7",
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5",
-    "@types/react-router-dom": "5.1.3",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
-    "babel-preset-minify": "^0.5.1",
-    "clean-webpack-plugin": "^3.0.0",
-    "css-loader": "^3.4.2",
-    "eslint": "^6.8.0",
-    "eslint-plugin-react": "^7.18.3",
-    "file-loader": "^5.0.2",
-    "fs-extra": "^8.1.0",
-    "gulp": "^4.0.2",
-    "gulp-zip": "^5.0.1",
-    "progress-bar-webpack-plugin": "^2.1.0",
-    "react-svg-loader": "^3.0.3",
-    "string-replace-loader": "^2.2.0",
-    "style-loader": "^1.1.3",
-    "typescript": "^3.6.3",
-    "web-ext-types": "^3.2.1",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
-  }
+	"name": "universal-trakt-scrobbler",
+	"version": "1.0.0",
+	"description": "A universal sync for Trakt.tv.",
+	"author": "trakt-tools",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/trakt-tools/universal-trakt-scrobbler.git"
+	},
+	"scripts": {
+		"build": "webpack --env.production",
+		"build-dev": "webpack --env.development",
+		"generate-release": "node ./scripts/generateRelease.js",
+		"start": "webpack --env.development --env.watch",
+		"zip": "gulp zip",
+		"prettier": "prettier '**/*.{js,jsx,ts,tsx}'",
+		"format-check": "npm run prettier -- --check",
+		"format": "npm run prettier -- --write",
+		"prettier-other": "prettier '**/*.{json,css,html,md,yml,yaml}'",
+		"format-check-other": "npm run prettier-other -- --check",
+		"format-other": "npm run prettier-other -- --write",
+		"eslint": "eslint '**/*.{js,jsx,ts,tsx}'",
+		"lint-check": "npm run eslint -- --quiet",
+		"lint-all": "npm run eslint -- --fix",
+		"lint": "npm run lint-all -- --quiet",
+		"lint-check-typed": "npm run lint-check -- -c ./.eslintrc.typed.js --no-eslintrc",
+		"lint-all-typed": "npm run lint-all -- -c ./.eslintrc.typed.js --no-eslintrc",
+		"lint-typed": "npm run lint -- -c ./.eslintrc.typed.js --no-eslintrc",
+		"lint-translations": "eslint '**/_locales/**/*.json' --fix --quiet",
+		"tsc": "tsc --noEmit",
+		"check": "run-s format-check-other tsc lint-check-typed",
+		"fix": "run-s format-other tsc lint-typed"
+	},
+	"@comment dependencies": {
+		"@date-io/moment": "Do not update to v2 while using @material-ui/pickers v3",
+		"history": "Do not update while using react-router-dom v5"
+	},
+	"dependencies": {
+		"@date-io/moment": "^1.3.13",
+		"@material-ui/core": "^4.11.0",
+		"@material-ui/icons": "^4.9.1",
+		"@material-ui/lab": "^4.0.0-alpha.56",
+		"@material-ui/pickers": "^3.2.10",
+		"history": "^4.10.1",
+		"moment": "^2.27.0",
+		"prop-types": "^15.7.2",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"react-router-dom": "^5.2.0",
+		"rollbar": "^2.19.3",
+		"typeface-roboto": "^0.0.75",
+		"webextension-polyfill": "^0.6.0"
+	},
+	"@comment devDependencies": {
+		"chalk": "Do not update, required for local eslint-plugin-i18n-json",
+		"indent-string": "Do not update, required for local eslint-plugin-i18n-json",
+		"intl-messageformat-parser": "Do not update, required for local eslint-plugin-i18n-json",
+		"jest-diff": "Do not update, required for local eslint-plugin-i18n-json",
+		"lodash.get": "Do not update, required for local eslint-plugin-i18n-json",
+		"lodash.isequal": "Do not update, required for local eslint-plugin-i18n-json",
+		"lodash.isplainobject": "Do not update, required for local eslint-plugin-i18n-json",
+		"lodash.set": "Do not update, required for local eslint-plugin-i18n-json",
+		"log-symbols": "Do not update, required for local eslint-plugin-i18n-json",
+		"micromatch": "Do not update, required for local eslint-plugin-i18n-json",
+		"plur": "Do not update, required for local eslint-plugin-i18n-json",
+		"pretty-format": "Do not update, required for local eslint-plugin-i18n-json"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.11.4",
+		"@babel/plugin-proposal-class-properties": "^7.10.4",
+		"@babel/plugin-transform-runtime": "^7.11.0",
+		"@babel/preset-env": "^7.11.0",
+		"@babel/preset-react": "^7.10.4",
+		"@babel/preset-typescript": "^7.10.4",
+		"@babel/runtime": "^7.11.2",
+		"@octokit/rest": "^18.0.4",
+		"@rafaelgssa/eslint-plugin-local": "^1.1.0",
+		"@svgr/webpack": "^5.4.0",
+		"@types/fs-extra": "^9.0.1",
+		"@types/gulp": "^4.0.6",
+		"@types/gulp-zip": "^4.0.1",
+		"@types/history": "^4.7.7",
+		"@types/material-ui": "^0.21.8",
+		"@types/node": "^14.6.1",
+		"@types/progress-bar-webpack-plugin": "^2.1.0",
+		"@types/react": "^16.9.48",
+		"@types/react-dom": "^16.9.8",
+		"@types/react-router-dom": "^5.1.5",
+		"@types/webpack": "^4.41.21",
+		"@typescript-eslint/eslint-plugin": "^3.10.1",
+		"@typescript-eslint/parser": "^3.10.1",
+		"babel-eslint": "^10.1.0",
+		"babel-loader": "^8.1.0",
+		"babel-preset-minify": "^0.5.1",
+		"chalk": "^2.3.2",
+		"clean-webpack-plugin": "^3.0.0",
+		"css-loader": "^4.2.2",
+		"eslint": "^7.7.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prefer-arrow": "^1.2.2",
+		"eslint-plugin-prettier": "^3.1.4",
+		"eslint-plugin-react": "^7.20.6",
+		"file-loader": "^6.0.0",
+		"fs-extra": "^9.0.1",
+		"gulp": "^4.0.2",
+		"gulp-zip": "^5.0.2",
+		"husky": "^4.2.5",
+		"indent-string": "^3.2.0",
+		"intl-messageformat-parser": "^3.0.7",
+		"jest-diff": "^22.0.3",
+		"jsonlint": "^1.6.2",
+		"lint-staged": "^10.2.13",
+		"lodash.get": "^4.4.2",
+		"lodash.isequal": "^4.5.0",
+		"lodash.isplainobject": "^4.0.6",
+		"lodash.set": "^4.3.2",
+		"log-symbols": "^2.2.0",
+		"micromatch": "^4.0.2",
+		"npm-run-all": "^4.1.5",
+		"plur": "^2.1.2",
+		"prettier": "^2.1.1",
+		"pretty-format": "^22.0.3",
+		"progress-bar-webpack-plugin": "^2.1.0",
+		"react-svg-loader": "^3.0.3",
+		"string-replace-loader": "^2.3.0",
+		"style-loader": "^1.2.1",
+		"ts-node": "^9.0.0",
+		"typescript": "^4.0.2",
+		"web-ext-types": "^3.2.1",
+		"webpack": "^4.44.1",
+		"webpack-cli": "^3.3.12"
+	},
+	"babel": {
+		"env": {
+			"production": {
+				"presets": [
+					[
+						"minify",
+						{
+							"builtIns": false
+						}
+					]
+				]
+			}
+		},
+		"plugins": [
+			"@babel/proposal-class-properties",
+			[
+				"@babel/plugin-transform-runtime",
+				{
+					"regenerator": true
+				}
+			]
+		],
+		"presets": [
+			"@babel/typescript",
+			"@babel/preset-env",
+			"@babel/preset-react"
+		]
+	},
+	"prettier": {
+		"printWidth": 100,
+		"useTabs": true,
+		"singleQuote": true
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	}
 }

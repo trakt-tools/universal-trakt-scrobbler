@@ -1,25 +1,23 @@
 import { Button, Typography } from '@material-ui/core';
-import * as React from "react";
-import { Messaging } from '../../../services/Messaging';
+import * as React from 'react';
+import { Tabs } from '../../../common/Tabs';
 import { HistoryInfo } from '../components/HistoryInfo';
 
-const AboutPage: React.FC = () => {
-  async function onLinkClick(url: string) {
-    await Messaging.toBackground({ action: 'create-tab', url });
-  }
+export const AboutPage: React.FC = () => {
+	const onLinkClick = async (url: string) => {
+		await Tabs.open(url);
+	};
 
-  return (
-    <HistoryInfo>
-      <Typography variant="h6">{browser.i18n.getMessage('aboutMessage')}</Typography>
-      <Button
-        color="secondary"
-        onClick={() => onLinkClick('https://github.com/trakt-tools/universal-trakt-sync')}
-        variant="contained"
-      >
-        {browser.i18n.getMessage('readMore')}
-      </Button>
-    </HistoryInfo>
-  );
+	return (
+		<HistoryInfo>
+			<Typography variant="h6">{browser.i18n.getMessage('aboutMessage')}</Typography>
+			<Button
+				color="secondary"
+				onClick={() => onLinkClick('https://github.com/trakt-tools/universal-trakt-scrobbler')}
+				variant="contained"
+			>
+				{browser.i18n.getMessage('readMore')}
+			</Button>
+		</HistoryInfo>
+	);
 };
-
-export { AboutPage };

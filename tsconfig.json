@@ -1,15 +1,22 @@
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "outDir": "./build/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "module": "es6",
-    "target": "es6",
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/web-ext-types"
-    ],
-    "moduleResolution": "Node"
-  }
+	"exclude": [
+		"./node_modules",
+		"./build",
+		"./local-eslint-plugins",
+		"./src/streaming-services/scrobbler-template",
+		"./src/streaming-services/sync-template"
+	],
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"jsx": "react",
+		"module": "CommonJS",
+		"outDir": "./build",
+		"sourceMap": true,
+		"target": "ES2020",
+		"strict": true,
+		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
+		"resolveJsonModule": true,
+		"skipLibCheck": true
+	}
 }
