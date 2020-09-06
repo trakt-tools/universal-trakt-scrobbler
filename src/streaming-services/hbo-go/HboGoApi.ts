@@ -1,3 +1,4 @@
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
@@ -241,6 +242,7 @@ class _HboGoApi extends Api {
 			getSyncStore('hbo-go')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
+				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});

@@ -147,6 +147,9 @@
 	"loadTraktHistoryError": {
 		"message": "Klarte ikke å laste inn Trakt historikken."
 	},
+	"loadingSuggestions": {
+		"message": "Loading suggestions"
+	},
 	"login": {
 		"message": "Logg inn med Trakt.tv"
 	},
@@ -220,6 +223,9 @@
 	"saveOptionSuccess": {
 		"message": "Alternativ lagret."
 	},
+	"saveSuggestionFailed": {
+		"message": "Failed to save suggestion."
+	},
 	"scrobblePaused": {
 		"message": "Scrobbling pauset."
 	},
@@ -259,11 +265,30 @@
 	"streamingServicesName": {
 		"message": "Strømmetjenester"
 	},
+	"suggestedBy": {
+		"message": "Suggested by $COUNT$ users",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "$SUGGESTIONS$ suggestions",
+		"placeholders": {
+			"suggestions": {
+				"content": "$1"
+			}
+		}
+	},
 	"sync": {
 		"message": "Synkroniser historikk"
 	},
 	"toggleAll": {
 		"message": "Veksle"
+	},
+	"use": {
+		"message": "Use"
 	},
 	"use24ClockName": {
 		"message": "Bruk 24-timers klokke."

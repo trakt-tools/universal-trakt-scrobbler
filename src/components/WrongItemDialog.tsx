@@ -6,13 +6,19 @@ import {
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
+	List,
+	ListItem,
+	ListItemSecondaryAction,
+	ListItemText,
 	TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { Item } from '../models/Item';
+import { WrongItemApi } from '../api/WrongItemApi';
 import { BrowserStorage } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
+import { I18N } from '../common/I18N';
+import { Item } from '../models/Item';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
@@ -38,6 +44,13 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
+	const onUseButtonClick = (url: string): void => {
+		setDialog((prevDialog) => ({
+			...prevDialog,
+			url,
+		}));
+	};
+
 	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
 		setDialog((prevDialog) => ({
@@ -59,8 +72,7 @@ export const WrongItemDialog: React.FC = () => {
 				throw new Error('Invalid URL');
 			}
 			const url = cleanUrl(dialog.url);
-			const storage = await BrowserStorage.get('correctUrls');
-			let { correctUrls } = storage;
+			let { correctUrls } = await BrowserStorage.get('correctUrls');
 			if (!correctUrls) {
 				correctUrls = Object.fromEntries(
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
@@ -74,6 +86,15 @@ export const WrongItemDialog: React.FC = () => {
 				serviceCorrectUrls[dialog.item.id] = url;
 			}
 			await BrowserStorage.set({ correctUrls }, true);
+			try {
+				await WrongItemApi.saveSuggestion(dialog.serviceId, dialog.item.id, url);
+			} catch (err) {
+				Errors.error('Failed to save suggestion.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'saveSuggestionFailed',
+					severity: 'error',
+				});
+			}
 			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
 				item: dialog.item,
 				url,
@@ -164,6 +185,27 @@ export const WrongItemDialog: React.FC = () => {
 									: 'Unknown'
 							)}
 						</DialogContentText>
+						{dialog.item?.urlSuggestions && dialog.item.urlSuggestions.length > 0 && (
+							<List>
+								{dialog.item.urlSuggestions.map((urlSuggestion, index) => (
+									<ListItem key={index}>
+										<ListItemText
+											primary={urlSuggestion.url}
+											secondary={I18N.translate('suggestedBy', urlSuggestion.count.toString())}
+										/>
+										<ListItemSecondaryAction>
+											<Button
+												size="small"
+												color="default"
+												onClick={() => onUseButtonClick(urlSuggestion.url)}
+											>
+												{I18N.translate('use')}
+											</Button>
+										</ListItemSecondaryAction>
+									</ListItem>
+								))}
+							</List>
+						)}
 						<TextField
 							type="string"
 							id="wrong-item-dialog-url"

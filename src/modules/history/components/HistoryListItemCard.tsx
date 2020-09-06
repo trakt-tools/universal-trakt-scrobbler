@@ -9,13 +9,15 @@ import {
 import * as React from 'react';
 import { I18N } from '../../../common/I18N';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { Item } from '../../../models/Item';
+import { Item, UrlSuggestion } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
 	dateFormat: string;
 	item?: Item | TraktItem | null;
 	name: string;
+	sendReceiveSuggestions?: boolean;
+	urlSuggestions?: UrlSuggestion[] | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
 	openWrongItemDialog?: () => Promise<void>;
 }
@@ -23,7 +25,15 @@ interface HistoryListItemCardProps {
 export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
-	const { dateFormat, item, name, openMissingWatchedDateDialog, openWrongItemDialog } = props;
+	const {
+		dateFormat,
+		item,
+		name,
+		sendReceiveSuggestions,
+		urlSuggestions,
+		openMissingWatchedDateDialog,
+		openWrongItemDialog,
+	} = props;
 
 	const watchedAtComponent = item ? (
 		item.watchedAt ? (
@@ -80,7 +90,14 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 							{openWrongItemDialog && (
 								<Button color="secondary" onClick={openWrongItemDialog}>
 									<Typography variant="caption">
-										{browser.i18n.getMessage('isThisWrong')}
+										{I18N.translate('isThisWrong')}{' '}
+										{sendReceiveSuggestions ? (
+											typeof urlSuggestions === 'undefined' ? (
+												<>({I18N.translate('loadingSuggestions')}...)</>
+											) : urlSuggestions && urlSuggestions.length > 0 ? (
+												<>({I18N.translate('suggestions', urlSuggestions.length.toString())})</>
+											) : null
+										) : null}
 									</Typography>
 								</Button>
 							)}

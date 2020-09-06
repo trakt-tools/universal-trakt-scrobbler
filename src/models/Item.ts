@@ -28,6 +28,12 @@ export interface IItem {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
+	urlSuggestions?: UrlSuggestion[] | null;
+}
+
+export interface UrlSuggestion {
+	url: string;
+	count: number;
 }
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
@@ -45,6 +51,7 @@ export class Item implements IItem {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
+	urlSuggestions?: UrlSuggestion[] | null;
 
 	constructor(options: IItem) {
 		this.id = options.id;
@@ -60,5 +67,6 @@ export class Item implements IItem {
 		this.percentageWatched = options.percentageWatched ?? 0;
 		this.watchedAt = options.watchedAt;
 		this.trakt = options.trakt;
+		this.urlSuggestions = options.urlSuggestions;
 	}
 }

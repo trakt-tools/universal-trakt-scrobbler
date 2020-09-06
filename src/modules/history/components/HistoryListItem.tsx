@@ -13,10 +13,11 @@ interface HistoryListItemProps {
 	item: Item;
 	serviceId: StreamingServiceId;
 	serviceName: string;
+	sendReceiveSuggestions: boolean;
 }
 
 export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
-	const { dateFormat, item, serviceId, serviceName } = props;
+	const { dateFormat, item, serviceId, serviceName, sendReceiveSuggestions } = props;
 
 	const onCheckboxChange = async () => {
 		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
@@ -70,6 +71,8 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				dateFormat={dateFormat}
 				item={item.trakt}
 				name="Trakt"
+				sendReceiveSuggestions={sendReceiveSuggestions}
+				urlSuggestions={item.urlSuggestions}
 				openWrongItemDialog={openWrongItemDialog}
 			/>
 		</Box>

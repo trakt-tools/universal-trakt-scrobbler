@@ -1,8 +1,9 @@
 import * as moment from 'moment';
-import { Item } from '../../models/Item';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { Requests } from '../../common/Requests';
+import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
@@ -148,6 +149,7 @@ class _ViaplayApi extends Api {
 			getSyncStore('viaplay')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
+				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});
