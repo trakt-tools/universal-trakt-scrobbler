@@ -133,7 +133,7 @@ export const WrongItemDialog: React.FC = () => {
 	const [urlLabel, urlError] =
 		!dialog.url || isValidUrl(dialog.url)
 			? ['URL', false]
-			: [browser.i18n.getMessage('wrongItemDialogInvalidUrlLabel'), true];
+			: [I18N.translate('wrongItemDialogInvalidUrlLabel'), true];
 
 	return (
 		<Dialog
@@ -142,9 +142,7 @@ export const WrongItemDialog: React.FC = () => {
 			aria-labelledby="wrong-item-dialog-title"
 			onClose={closeDialog}
 		>
-			<DialogTitle id="wrong-item-dialog-title">
-				{browser.i18n.getMessage('correctWrongItem')}
-			</DialogTitle>
+			<DialogTitle id="wrong-item-dialog-title">{I18N.translate('correctWrongItem')}</DialogTitle>
 			{dialog.isLoading ? (
 				<UtsCenter>
 					<CircularProgress />
@@ -153,7 +151,7 @@ export const WrongItemDialog: React.FC = () => {
 				<>
 					<DialogContent>
 						<DialogContentText>
-							{browser.i18n.getMessage(
+							{I18N.translate(
 								'wrongItemDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
@@ -181,7 +179,7 @@ export const WrongItemDialog: React.FC = () => {
 					</DialogContent>
 					<DialogActions>
 						<Button color="default" onClick={closeDialog}>
-							{browser.i18n.getMessage('cancel')}
+							{I18N.translate('cancel')}
 						</Button>
 						<Button
 							color="primary"
@@ -189,7 +187,7 @@ export const WrongItemDialog: React.FC = () => {
 							variant="contained"
 							onClick={onCorrectButtonClick}
 						>
-							{browser.i18n.getMessage('correct')}
+							{I18N.translate('correct')}
 						</Button>
 					</DialogActions>
 				</>

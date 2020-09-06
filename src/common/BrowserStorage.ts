@@ -2,6 +2,7 @@ import { TraktAuthDetails } from '../api/TraktAuth';
 import { TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
+import { I18N } from './I18N';
 import { Shared } from './Shared';
 
 export type StorageValues = {
@@ -179,8 +180,8 @@ class _BrowserStorage {
 		};
 		const values = await BrowserStorage.get('options');
 		for (const option of Object.values(options)) {
-			option.name = browser.i18n.getMessage(`${option.id}Name`);
-			option.description = browser.i18n.getMessage(`${option.id}Description`);
+			option.name = I18N.translate(`${option.id}Name` as MessageName);
+			option.description = I18N.translate(`${option.id}Description` as MessageName);
 			option.value = (values.options && values.options[option.id]) || option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
@@ -214,7 +215,7 @@ class _BrowserStorage {
 		};
 		const values = await BrowserStorage.get('syncOptions');
 		for (const option of Object.values(options)) {
-			option.name = browser.i18n.getMessage(`${option.id}Name`);
+			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
 		}
 		return options;

@@ -2,9 +2,10 @@ import { Button, CircularProgress } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { UtsCenter } from '../../../components/UtsCenter';
 import { EventDispatcher } from '../../../common/Events';
+import { I18N } from '../../../common/I18N';
 import { Session } from '../../../common/Session';
+import { UtsCenter } from '../../../components/UtsCenter';
 
 export const LoginPage: React.FC = () => {
 	const history = useHistory();
@@ -49,7 +50,7 @@ export const LoginPage: React.FC = () => {
 				<CircularProgress color="secondary" />
 			) : (
 				<Button color="secondary" onClick={onLoginClick} variant="contained">
-					{browser.i18n.getMessage('login')}
+					{I18N.translate('login')}
 				</Button>
 			)}
 		</UtsCenter>

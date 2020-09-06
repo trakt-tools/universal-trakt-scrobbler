@@ -90,7 +90,7 @@ export interface DialogShowData {
 }
 
 export interface SnackbarShowData {
-	messageName: string;
+	messageName: MessageName;
 	messageArgs?: string[];
 	severity: Color;
 }

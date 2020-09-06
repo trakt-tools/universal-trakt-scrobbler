@@ -7,6 +7,7 @@ import {
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
+import { I18N } from '../../../common/I18N';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Item } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
@@ -27,14 +28,14 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	const watchedAtComponent = item ? (
 		item.watchedAt ? (
 			<Typography variant="overline">
-				{`${browser.i18n.getMessage('watched')} ${item.watchedAt.format(dateFormat)}`}
+				{`${I18N.translate('watched')} ${item.watchedAt.format(dateFormat)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
 			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
-				<Typography variant="caption">{browser.i18n.getMessage('missingWatchedDate')}</Typography>
+				<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
 			</Button>
 		) : (
-			<Typography variant="overline">{browser.i18n.getMessage('notWatched')}</Typography>
+			<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
 		)
 	) : null;
 
@@ -42,12 +43,12 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		<Card className="history-list-item-card" variant="outlined">
 			<CardContent>
 				<UtsCenter isHorizontal={false}>
-					<Typography variant="overline">{`${browser.i18n.getMessage('on')} ${name}`}</Typography>
+					<Typography variant="overline">{`${I18N.translate('on')} ${name}`}</Typography>
 					<Divider className="history-list-item-divider" />
 					{typeof item !== 'undefined' ? (
 						<>
 							{item === null ? (
-								<Typography variant="h6">{browser.i18n.getMessage('notFound')}</Typography>
+								<Typography variant="h6">{I18N.translate('notFound')}</Typography>
 							) : item.type === 'show' ? (
 								<>
 									{item.season && item.episode && (
@@ -59,7 +60,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									{watchedAtComponent}
 									{'percentageWatched' in item && item.percentageWatched !== undefined && (
 										<Typography variant="caption">
-											{browser.i18n.getMessage('progress', item.percentageWatched.toString())}
+											{I18N.translate('progress', item.percentageWatched.toString())}
 										</Typography>
 									)}
 								</>
@@ -71,7 +72,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									{watchedAtComponent}
 									{'percentageWatched' in item && item.percentageWatched !== undefined && (
 										<Typography variant="caption">
-											{browser.i18n.getMessage('progress', item.percentageWatched.toString())}
+											{I18N.translate('progress', item.percentageWatched.toString())}
 										</Typography>
 									)}
 								</>

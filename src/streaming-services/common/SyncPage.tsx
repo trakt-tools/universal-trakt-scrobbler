@@ -15,6 +15,7 @@ import {
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
+import { I18N } from '../../common/I18N';
 import { UtsCenter } from '../../components/UtsCenter';
 import { Item } from '../../models/Item';
 import { HistoryActions } from '../../modules/history/components/HistoryActions';
@@ -87,8 +88,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			const missingWatchedDate = store.data.items.find((item) => !item.watchedAt);
 			if (missingWatchedDate) {
 				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
-					title: browser.i18n.getMessage('cannotSync'),
-					message: browser.i18n.getMessage('cannotSyncMissingWatchedDate'),
+					title: I18N.translate('cannotSync'),
+					message: I18N.translate('cannotSyncMissingWatchedDate'),
 				});
 			}
 		}
@@ -305,7 +306,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					/>
 				) : (
 					<Box className="history-content--empty">
-						<Typography variant="body1">{browser.i18n.getMessage('noMoreHistory')}</Typography>
+						<Typography variant="body1">{I18N.translate('noMoreHistory')}</Typography>
 					</Box>
 				)}
 			</Box>

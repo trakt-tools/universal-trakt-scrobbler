@@ -8,7 +8,8 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { EventDispatcher, DialogShowData } from '../common/Events';
+import { DialogShowData, EventDispatcher } from '../common/Events';
+import { I18N } from '../common/I18N';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;
@@ -63,11 +64,11 @@ export const UtsDialog: React.FC = () => {
 			</DialogContent>
 			<DialogActions>
 				<Button color="primary" onClick={() => closeDialog(false)}>
-					{browser.i18n.getMessage(dialog.onConfirm || dialog.onDeny ? 'no' : 'close')}
+					{I18N.translate(dialog.onConfirm || dialog.onDeny ? 'no' : 'close')}
 				</Button>
 				{dialog.onConfirm && (
 					<Button color="primary" onClick={() => closeDialog(true)} variant="contained">
-						{browser.i18n.getMessage('yes')}
+						{I18N.translate('yes')}
 					</Button>
 				)}
 			</DialogActions>
