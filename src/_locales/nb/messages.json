@@ -148,7 +148,7 @@
 		"message": "Klarte ikke å laste inn Trakt historikken."
 	},
 	"loadingSuggestions": {
-		"message": "Loading suggestions"
+		"message": "Laster inn forslag"
 	},
 	"login": {
 		"message": "Logg inn med Trakt.tv"
@@ -224,7 +224,7 @@
 		"message": "Alternativ lagret."
 	},
 	"saveSuggestionFailed": {
-		"message": "Failed to save suggestion."
+		"message": "Klarte ikke å lagre forslag."
 	},
 	"scrobblePaused": {
 		"message": "Scrobbling pauset."
@@ -266,7 +266,7 @@
 		"message": "Strømmetjenester"
 	},
 	"suggestedBy": {
-		"message": "Suggested by $COUNT$ users",
+		"message": "Foreslått av $COUNT$ brukere",
 		"placeholders": {
 			"count": {
 				"content": "$1"
@@ -274,7 +274,7 @@
 		}
 	},
 	"suggestions": {
-		"message": "$SUGGESTIONS$ suggestions",
+		"message": "$SUGGESTIONS$ forslag",
 		"placeholders": {
 			"suggestions": {
 				"content": "$1"
@@ -288,7 +288,7 @@
 		"message": "Veksle"
 	},
 	"use": {
-		"message": "Use"
+		"message": "Bruk"
 	},
 	"use24ClockName": {
 		"message": "Bruk 24-timers klokke."
