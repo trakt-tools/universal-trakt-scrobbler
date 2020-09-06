@@ -141,7 +141,7 @@ class _HboGoApi extends Api {
 		this.groupUrl = settings.CustomerGroupUrlTemplate;
 		this.historyGroupId = settings.HistoryGroupId;
 		let apiParams: Partial<HboGoApiParams> | undefined;
-		if (!Shared.isBackgroundPage) {
+		if (Shared.pageType === 'content') {
 			apiParams = await this.getApiParams();
 		}
 		if (!apiParams || !this.checkParams(apiParams)) {

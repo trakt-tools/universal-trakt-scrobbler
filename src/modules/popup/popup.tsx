@@ -7,7 +7,7 @@ import { Shared } from '../../common/Shared';
 import { PopupApp } from './PopupApp';
 
 const init = async () => {
-	Shared.isBackgroundPage = true;
+	Shared.pageType = 'popup';
 	await BrowserStorage.sync();
 	const values = await BrowserStorage.get('options');
 	if (values.options && values.options.allowRollbar) {

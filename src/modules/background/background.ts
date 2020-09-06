@@ -65,7 +65,7 @@ export interface StopScrobbleMessage {
 }
 
 const init = async () => {
-	Shared.isBackgroundPage = true;
+	Shared.pageType = 'background';
 	await BrowserStorage.sync();
 	const storage = await BrowserStorage.get('options');
 	if (storage.options?.allowRollbar) {

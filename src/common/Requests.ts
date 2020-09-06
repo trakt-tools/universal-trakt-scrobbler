@@ -22,8 +22,9 @@ class _Requests {
 	send = async (request: RequestDetails, tabId = 0): Promise<string> => {
 		let responseText = '';
 		if (
-			(Shared.isBackgroundPage && tabId) ||
-			(!Shared.isBackgroundPage && request.url.includes(window.location.host))
+			Shared.pageType === 'background' ||
+			(Shared.pageType === 'popup' && tabId) ||
+			(Shared.pageType === 'content' && request.url.includes(window.location.host))
 		) {
 			responseText = await this.sendDirectly(request, tabId);
 		} else {

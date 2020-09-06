@@ -178,7 +178,7 @@ class _NetflixApi extends Api {
 	activate = async () => {
 		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the API params.
 		let apiParams;
-		if (!Shared.isBackgroundPage) {
+		if (Shared.pageType === 'content') {
 			apiParams = await this.getApiParams();
 		}
 		if (apiParams && this.checkParams(apiParams)) {
