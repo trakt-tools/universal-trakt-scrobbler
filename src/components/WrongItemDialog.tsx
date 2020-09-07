@@ -17,6 +17,8 @@ import { BrowserStorage, CorrectItem } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
+import { Messaging } from '../common/Messaging';
+import { Shared } from '../common/Shared';
 import { CorrectionSuggestion, Item } from '../models/Item';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
@@ -98,12 +100,19 @@ export const WrongItemDialog: React.FC = () => {
 				};
 			}
 			await BrowserStorage.set({ correctItems }, true);
-			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
+			const data = {
 				item: dialog.item,
 				type: dialog.type,
 				traktId: dialog.traktId,
 				url,
-			});
+			};
+			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, data);
+			if (Shared.pageType === 'popup') {
+				const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
+				if (scrobblingTabId) {
+					await Messaging.toContent({ action: 'wrong-item-corrected', ...data }, scrobblingTabId);
+				}
+			}
 		} catch (err) {
 			Errors.error('Failed to correct item.', err);
 			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {

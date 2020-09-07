@@ -1,12 +1,14 @@
 import { TraktAuth } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
 import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
+import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
-import { streamingServices } from '../../streaming-services/streaming-services';
+import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
 	| CheckLoginMessage
@@ -18,7 +20,9 @@ export type MessageRequest =
 	| StartScrobbleMessage
 	| StopScrobbleMessage
 	| SendRequestMessage
-	| ShowNotificationMessage;
+	| ShowNotificationMessage
+	| WrongItemCorrectedMessage
+	| SaveCorrectionSuggestionMessage;
 
 export interface CheckLoginMessage {
 	action: 'check-login';
@@ -62,6 +66,21 @@ export interface StartScrobbleMessage {
 
 export interface StopScrobbleMessage {
 	action: 'stop-scrobble';
+}
+
+export interface WrongItemCorrectedMessage {
+	action: 'wrong-item-corrected';
+	item: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
+	url: string;
+}
+
+export interface SaveCorrectionSuggestionMessage {
+	action: 'save-correction-suggestion';
+	serviceId: StreamingServiceId;
+	item: Item;
+	url: string;
 }
 
 const init = async () => {
@@ -216,6 +235,15 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 						});
 					}
 				});
+			break;
+		}
+		case 'save-correction-suggestion': {
+			const item = new Item(parsedRequest.item);
+			executingAction = WrongItemApi.saveSuggestion(
+				parsedRequest.serviceId,
+				item,
+				parsedRequest.url
+			);
 			break;
 		}
 	}

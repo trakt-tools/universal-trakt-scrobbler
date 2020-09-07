@@ -40,6 +40,36 @@ export const HomePage: React.FC = () => {
 		void getScrobblingItem();
 	}, []);
 
+	useEffect(() => {
+		const startListeners = () => {
+			browser.storage.onChanged.addListener(onStorageChanged);
+		};
+
+		const stopListeners = () => {
+			browser.storage.onChanged.removeListener(onStorageChanged);
+		};
+
+		const onStorageChanged = (
+			changes: browser.storage.ChangeDict,
+			areaName: browser.storage.StorageName
+		) => {
+			if (areaName !== 'local') {
+				return;
+			}
+			if ('scrobblingItem' in changes) {
+				setContent({
+					isLoading: false,
+					scrobblingItem: changes.scrobblingItem.newValue
+						? new Item(changes.scrobblingItem.newValue as IItem)
+						: null,
+				});
+			}
+		};
+
+		startListeners();
+		return stopListeners;
+	});
+
 	let component = null;
 	if (content.isLoading) {
 		component = (

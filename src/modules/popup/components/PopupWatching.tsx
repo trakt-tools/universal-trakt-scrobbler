@@ -16,25 +16,85 @@ export interface IPopupWatching {
 }
 
 export const PopupWatching: React.FC<IPopupWatching> = ({ item }) => {
+	const [content, setContent] = React.useState({
+		item,
+		sendReceiveSuggestions: false,
+	});
+
+	const openWrongItemDialog = async () => {
+		await EventDispatcher.dispatch('WRONG_ITEM_DIALOG_SHOW', null, {
+			serviceId: content.item.serviceId,
+			item: content.item,
+		});
+	};
+
+	React.useEffect(() => {
+		const getSendReceiveSuggestions = async () => {
+			const { options } = await BrowserStorage.get('options');
+			const sendReceiveSuggestions = options?.sendReceiveSuggestions ?? false;
+			setContent((prevContent) => ({
+				...prevContent,
+				sendReceiveSuggestions,
+			}));
+			if (sendReceiveSuggestions) {
+				void loadSuggestions();
+			}
+		};
+
+		const loadSuggestions = async () => {
+			const item = await WrongItemApi.loadItemSuggestions(content.item);
+			setContent((prevContent) => ({
+				...prevContent,
+				item,
+			}));
+		};
+
+		void getSendReceiveSuggestions();
+	}, []);
+
 	return (
-		<Box>
-			<PopupTmdbImage item={item} />
-			<Box className="popup-watching--overlay-color" />
-			<Box className="popup-watching--content">
-				<PopupInfo>
-					<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>
-					{item.trakt?.type === 'show' ? (
-						<>
-							<Typography variant="h6">{item.trakt.episodeTitle}</Typography>
-							<Typography variant="subtitle2">{I18N.translate('from')}</Typography>
-							<Typography variant="subtitle1">{item.trakt.title}</Typography>
-						</>
-					) : (
-						<Typography variant="h6">{item.trakt?.title}</Typography>
-					)}
-				</PopupInfo>
+		<>
+			<Box>
+				<PopupTmdbImage item={content.item} />
+				<Box className="popup-watching--overlay-color" />
+				<Box className="popup-watching--content">
+					<PopupInfo>
+						<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>
+						{content.item.trakt?.type === 'show' ? (
+							<>
+								<Typography variant="h6">{content.item.trakt.episodeTitle}</Typography>
+								<Typography variant="subtitle2">{I18N.translate('from')}</Typography>
+								<Typography variant="subtitle1">{content.item.trakt.title}</Typography>
+							</>
+						) : (
+							<Typography variant="h6">{content.item.trakt?.title}</Typography>
+						)}
+						<Button color="secondary" onClick={openWrongItemDialog}>
+							<Typography variant="caption">
+								{I18N.translate('isThisWrong')}{' '}
+								{content.sendReceiveSuggestions ? (
+									typeof content.item.correctionSuggestions === 'undefined' ? (
+										<>({I18N.translate('loadingSuggestions')}...)</>
+									) : content.item.correctionSuggestions &&
+									  content.item.correctionSuggestions.length > 0 ? (
+										<>
+											(
+											{I18N.translate(
+												'suggestions',
+												content.item.correctionSuggestions.length.toString()
+											)}
+											)
+										</>
+									) : null
+								) : null}
+							</Typography>
+						</Button>
+					</PopupInfo>
+				</Box>
 			</Box>
-		</Box>
+			<WrongItemDialog />
+			<UtsSnackbar />
+		</>
 	);
 };
 

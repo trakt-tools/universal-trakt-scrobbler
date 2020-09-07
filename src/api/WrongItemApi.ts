@@ -48,6 +48,41 @@ class _WrongItemApi {
 		await getSyncStore(serviceId).update({ items }, true);
 	};
 
+	loadItemSuggestions = async (item: Item): Promise<Item> => {
+		const itemCopy = new Item(item);
+		const { options } = await BrowserStorage.get('options');
+		if (
+			!options?.sendReceiveSuggestions ||
+			!(await browser.permissions.contains({
+				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
+			}))
+		) {
+			return itemCopy;
+		}
+		try {
+			const response = await Requests.send({
+				method: 'GET',
+				url: `${this.URL}?serviceId=${encodeURIComponent(
+					itemCopy.serviceId
+				)}&ids=${encodeURIComponent(itemCopy.id)}`,
+			});
+			const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
+			itemCopy.correctionSuggestions = json[itemCopy.id]?.sort((a, b) => {
+				if (a.count > b.count) {
+					return -1;
+				}
+				if (b.count > a.count) {
+					return 1;
+				}
+				return 0;
+			});
+		} catch (err) {
+			// Do nothing
+		}
+		itemCopy.correctionSuggestions = itemCopy.correctionSuggestions ?? null;
+		return itemCopy;
+	};
+
 	saveSuggestion = async (
 		serviceId: StreamingServiceId,
 		item: Item,

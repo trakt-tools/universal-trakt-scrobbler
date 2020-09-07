@@ -28,6 +28,7 @@ export class ScrobbleController {
 		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, this.onProgress);
+		EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
 	};
 
 	onStart = async (): Promise<void> => {
@@ -38,7 +39,10 @@ export class ScrobbleController {
 			}
 			if (this.item) {
 				if (!this.item.trakt) {
-					this.item.trakt = await TraktSearch.find(this.item);
+					const storage = await BrowserStorage.get(['correctItems']);
+					const { correctItems } = storage;
+					const correctItem = correctItems?.[this.item.serviceId]?.[this.item.id];
+					this.item.trakt = await TraktSearch.find(this.item, correctItem);
 				}
 				if (this.item.trakt) {
 					await TraktScrobble.start(this.item.trakt);
@@ -57,12 +61,17 @@ export class ScrobbleController {
 	};
 
 	onStop = async (): Promise<void> => {
-		if (this.item?.trakt) {
-			await TraktScrobble.stop(this.item.trakt);
-			await BrowserStorage.remove('scrobblingItem');
-		}
+		await this.stopScrobble();
 		this.item = undefined;
 		this.reachedScrobbleThreshold = false;
+	};
+
+	stopScrobble = async (): Promise<void> => {
+		if (!this.item?.trakt) {
+			return;
+		}
+		await TraktScrobble.stop(this.item.trakt);
+		await BrowserStorage.remove('scrobblingItem');
 	};
 
 	onProgress = async (data: ScrobbleProgressData): Promise<void> => {
@@ -85,5 +94,36 @@ export class ScrobbleController {
 					correctionSuggestions: this.item.correctionSuggestions,
 			  }
 			: undefined;
+	};
+
+	onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+		if (!this.item) {
+			return;
+		}
+		await this.onProgress({ progress: 0 });
+		await this.stopScrobble();
+		this.item.trakt = await TraktSearch.find(this.item, {
+			type: data.type,
+			traktId: data.traktId,
+			url: data.url,
+		});
+		await this.onStart();
+		try {
+			const response = await Messaging.toBackground({
+				action: 'save-correction-suggestion',
+				serviceId: this.item.serviceId,
+				item: this.item,
+				url: data.url,
+			});
+			if (response?.error) {
+				throw response.error;
+			}
+		} catch (err) {
+			Errors.error('Failed to save suggestion.', err);
+			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+				messageName: 'saveSuggestionFailed',
+				severity: 'error',
+			});
+		}
 	};
 }
