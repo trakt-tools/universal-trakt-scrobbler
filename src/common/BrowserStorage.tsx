@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { CorrectionSuggestion, ItemBase } from '../models/Item';
 import { TraktItemBase } from '../models/TraktItem';
@@ -50,7 +51,7 @@ export type Options = {
 export type Option<K extends keyof StorageValuesOptions> = {
 	id: K;
 	name: string;
-	description: string;
+	description: React.ReactElement | string;
 	value: StorageValuesOptions[K];
 	origins: string[];
 	permissions: browser.permissions.Permission[];
@@ -165,7 +166,19 @@ class _BrowserStorage {
 			sendReceiveSuggestions: {
 				id: 'sendReceiveSuggestions',
 				name: '',
-				description: '',
+				description: (
+					<>
+						{I18N.translate('sendReceiveSuggestionsDescription')}
+						<br />
+						<a
+							href="https://docs.google.com/spreadsheets/d/1V3m_eMYTJSREehtxz3SeNqFLJlWWIx7Bm0Dp-1WMvnk/edit?usp=sharing"
+							target="_blank"
+							rel="noreferrer"
+						>
+							Google Sheet
+						</a>
+					</>
+				),
 				value: false,
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 				permissions: [],
@@ -193,7 +206,9 @@ class _BrowserStorage {
 		const values = await BrowserStorage.get('options');
 		for (const option of Object.values(options)) {
 			option.name = I18N.translate(`${option.id}Name` as MessageName);
-			option.description = I18N.translate(`${option.id}Description` as MessageName);
+			if (!option.description) {
+				option.description = I18N.translate(`${option.id}Description` as MessageName);
+			}
 			option.value = (values.options && values.options[option.id]) || option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
