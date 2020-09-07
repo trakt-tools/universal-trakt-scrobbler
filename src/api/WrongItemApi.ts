@@ -1,6 +1,6 @@
 import { BrowserStorage } from '../common/BrowserStorage';
 import { Requests } from '../common/Requests';
-import { UrlSuggestion } from '../models/Item';
+import { CorrectionSuggestion } from '../models/Item';
 import { getSyncStore } from '../streaming-services/common/common';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 
@@ -25,10 +25,10 @@ class _WrongItemApi {
 					.map((item) => encodeURIComponent(item.id))
 					.join(',')}`,
 			});
-			const json = JSON.parse(response) as Record<string, UrlSuggestion[] | undefined>;
+			const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
 			items = items.map((item) => ({
 				...item,
-				urlSuggestions: json[item.id]?.sort((a, b) => {
+				correctionSuggestions: json[item.id]?.sort((a, b) => {
 					if (a.count > b.count) {
 						return -1;
 					}
@@ -41,7 +41,10 @@ class _WrongItemApi {
 		} catch (err) {
 			// Do nothing
 		}
-		items = items.map((item) => ({ ...item, urlSuggestions: item.urlSuggestions ?? null }));
+		items = items.map((item) => ({
+			...item,
+			correctionSuggestions: item.correctionSuggestions ?? null,
+		}));
 		await getSyncStore(serviceId).update({ items }, true);
 	};
 

@@ -9,7 +9,7 @@ import {
 import * as React from 'react';
 import { I18N } from '../../../common/I18N';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { Item, UrlSuggestion } from '../../../models/Item';
+import { Item, CorrectionSuggestion } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
@@ -17,7 +17,7 @@ interface HistoryListItemCardProps {
 	item?: Item | TraktItem | null;
 	name: string;
 	sendReceiveSuggestions?: boolean;
-	urlSuggestions?: UrlSuggestion[] | null;
+	correctionSuggestions?: CorrectionSuggestion[] | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
 	openWrongItemDialog?: () => Promise<void>;
 }
@@ -30,7 +30,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		item,
 		name,
 		sendReceiveSuggestions,
-		urlSuggestions,
+		correctionSuggestions,
 		openMissingWatchedDateDialog,
 		openWrongItemDialog,
 	} = props;
@@ -92,10 +92,12 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
 										{sendReceiveSuggestions ? (
-											typeof urlSuggestions === 'undefined' ? (
+											typeof correctionSuggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
-											) : urlSuggestions && urlSuggestions.length > 0 ? (
-												<>({I18N.translate('suggestions', urlSuggestions.length.toString())})</>
+											) : correctionSuggestions && correctionSuggestions.length > 0 ? (
+												<>
+													({I18N.translate('suggestions', correctionSuggestions.length.toString())})
+												</>
 											) : null
 										) : null}
 									</Typography>

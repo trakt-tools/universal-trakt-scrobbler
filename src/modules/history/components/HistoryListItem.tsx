@@ -72,7 +72,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				item={item.trakt}
 				name="Trakt"
 				sendReceiveSuggestions={sendReceiveSuggestions}
-				urlSuggestions={item.urlSuggestions}
+				correctionSuggestions={item.correctionSuggestions}
 				openWrongItemDialog={openWrongItemDialog}
 			/>
 		</Box>

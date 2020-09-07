@@ -185,19 +185,22 @@ export const WrongItemDialog: React.FC = () => {
 									: 'Unknown'
 							)}
 						</DialogContentText>
-						{dialog.item?.urlSuggestions && dialog.item.urlSuggestions.length > 0 && (
+						{dialog.item?.correctionSuggestions && dialog.item.correctionSuggestions.length > 0 && (
 							<List>
-								{dialog.item.urlSuggestions.map((urlSuggestion, index) => (
+								{dialog.item.correctionSuggestions.map((correctionSuggestion, index) => (
 									<ListItem key={index}>
 										<ListItemText
-											primary={urlSuggestion.url}
-											secondary={I18N.translate('suggestedBy', urlSuggestion.count.toString())}
+											primary={correctionSuggestion.url}
+											secondary={I18N.translate(
+												'suggestedBy',
+												correctionSuggestion.count.toString()
+											)}
 										/>
 										<ListItemSecondaryAction>
 											<Button
 												size="small"
 												color="default"
-												onClick={() => onUseButtonClick(urlSuggestion.url)}
+												onClick={() => onUseButtonClick(correctionSuggestion.url)}
 											>
 												{I18N.translate('use')}
 											</Button>

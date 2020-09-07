@@ -28,10 +28,10 @@ export interface IItem {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
-	urlSuggestions?: UrlSuggestion[] | null;
+	correctionSuggestions?: CorrectionSuggestion[] | null;
 }
 
-export interface UrlSuggestion {
+export interface CorrectionSuggestion {
 	url: string;
 	count: number;
 }
@@ -51,7 +51,7 @@ export class Item implements IItem {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
-	urlSuggestions?: UrlSuggestion[] | null;
+	correctionSuggestions?: CorrectionSuggestion[] | null;
 
 	constructor(options: IItem) {
 		this.id = options.id;
@@ -67,6 +67,6 @@ export class Item implements IItem {
 		this.percentageWatched = options.percentageWatched ?? 0;
 		this.watchedAt = options.watchedAt;
 		this.trakt = options.trakt;
-		this.urlSuggestions = options.urlSuggestions;
+		this.correctionSuggestions = options.correctionSuggestions;
 	}
 }
