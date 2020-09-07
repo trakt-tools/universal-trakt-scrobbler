@@ -1,4 +1,5 @@
 import { TraktAuthDetails } from '../api/TraktAuth';
+import { CorrectionSuggestion, ItemBase } from '../models/Item';
 import { TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
@@ -11,7 +12,7 @@ export type StorageValues = {
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
 	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
-	scrobblingItem?: Omit<TraktItemBase, ''>;
+	scrobblingItem?: ScrobblingItem;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
@@ -35,6 +36,11 @@ export type CorrectItem = {
 	type: 'episode' | 'movie';
 	traktId?: number;
 	url: string;
+};
+
+export type ScrobblingItem = Omit<ItemBase, ''> & {
+	trakt: Omit<TraktItemBase, ''>;
+	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
 };
 
 export type Options = {

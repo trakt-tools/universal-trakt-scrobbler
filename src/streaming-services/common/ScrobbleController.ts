@@ -1,10 +1,11 @@
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { TraktSearch } from '../../api/TraktSearch';
+import { BrowserStorage, ScrobblingItem } from '../../common/BrowserStorage';
+import { Errors } from '../../common/Errors';
+import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '../../common/Events';
+import { Messaging } from '../../common/Messaging';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
-import { BrowserStorage } from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher, ScrobbleProgressData } from '../../common/Events';
 
 export interface ScrobbleParser {
 	parseItem(): Promise<Item | undefined>;
@@ -41,7 +42,7 @@ export class ScrobbleController {
 				}
 				if (this.item.trakt) {
 					await TraktScrobble.start(this.item.trakt);
-					await BrowserStorage.set({ scrobblingItem: TraktItem.getBase(this.item.trakt) }, false);
+					await BrowserStorage.set({ scrobblingItem: this.getScrobblingItem() }, false);
 				}
 			}
 		} catch (err) {
@@ -71,8 +72,18 @@ export class ScrobbleController {
 		this.item.trakt.progress = data.progress;
 		if (!this.reachedScrobbleThreshold && this.item.trakt.progress > this.scrobbleThreshold) {
 			// Update the stored progress after reaching the scrobble threshold to make sure that the item is scrobbled on tab close.
-			await BrowserStorage.set({ scrobblingItem: TraktItem.getBase(this.item.trakt) }, false);
+			await BrowserStorage.set({ scrobblingItem: this.getScrobblingItem() }, false);
 			this.reachedScrobbleThreshold = true;
 		}
+	};
+
+	getScrobblingItem = (): ScrobblingItem | undefined => {
+		return this.item?.trakt
+			? {
+					...Item.getBase(this.item),
+					trakt: TraktItem.getBase(this.item.trakt),
+					correctionSuggestions: this.item.correctionSuggestions,
+			  }
+			: undefined;
 	};
 }

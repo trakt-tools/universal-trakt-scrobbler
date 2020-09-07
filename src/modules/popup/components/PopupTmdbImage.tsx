@@ -2,13 +2,13 @@ import { Box } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { TraktItem } from '../../../models/TraktItem';
-import { secrets } from '../../../secrets';
 import { Errors } from '../../../common/Errors';
 import { Requests } from '../../../common/Requests';
+import { Item } from '../../../models/Item';
+import { secrets } from '../../../secrets';
 
 interface IPopupTmdbImage {
-	item: TraktItem;
+	item: Item;
 }
 
 export interface TmdbConfigResponse {
@@ -75,7 +75,7 @@ export const PopupTmdbImage: React.FC<IPopupTmdbImage> = ({ item }) => {
 
 	useEffect(() => {
 		const getImageUrl = async (): Promise<void> => {
-			if (!item?.tmdbId || !imageConfig.host) {
+			if (!item?.trakt?.tmdbId || !imageConfig.host) {
 				return;
 			}
 			try {
@@ -87,7 +87,9 @@ export const PopupTmdbImage: React.FC<IPopupTmdbImage> = ({ item }) => {
 				if (!('status_code' in responseJson)) {
 					const image = 'stills' in responseJson ? responseJson.stills[0] : responseJson.posters[0];
 					if (image) {
-						setImageUrl(`${imageConfig.host}${imageConfig.width[item.type]}${image.file_path}`);
+						setImageUrl(
+							`${imageConfig.host}${imageConfig.width[item.trakt.type]}${image.file_path}`
+						);
 					}
 				}
 			} catch (err) {
@@ -98,14 +100,14 @@ export const PopupTmdbImage: React.FC<IPopupTmdbImage> = ({ item }) => {
 		const getApiUrl = (): string => {
 			let type = '';
 			let path = '';
-			if (item.type === 'show') {
+			if (item.trakt?.type === 'show') {
 				type = 'tv';
-				path = `${item.tmdbId.toString()}/season/${item.season?.toString() ?? ''}/episode/${
-					item.episode?.toString() ?? ''
-				}`;
+				path = `${item.trakt.tmdbId.toString()}/season/${
+					item.trakt.season?.toString() ?? ''
+				}/episode/${item.trakt.episode?.toString() ?? ''}`;
 			} else {
 				type = 'movie';
-				path = item.tmdbId.toString();
+				path = item.trakt?.tmdbId.toString() ?? '';
 			}
 			return `https://api.themoviedb.org/3/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
 		};
@@ -122,5 +124,5 @@ export const PopupTmdbImage: React.FC<IPopupTmdbImage> = ({ item }) => {
 };
 
 PopupTmdbImage.propTypes = {
-	item: PropTypes.instanceOf(TraktItem).isRequired,
+	item: PropTypes.instanceOf(Item).isRequired,
 };
