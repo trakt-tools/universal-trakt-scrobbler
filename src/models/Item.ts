@@ -1,3 +1,4 @@
+import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
@@ -14,7 +15,10 @@ const correctTitles: Record<string, string> = {
 	['Young and Hungry']: '"Young and Hungry"',
 };
 
-export interface IItem {
+export type IItem = ItemBase & ItemExtra;
+
+export interface ItemBase {
+	serviceId: StreamingServiceId;
 	id: string;
 	type: 'show' | 'movie';
 	title: string;
@@ -23,6 +27,9 @@ export interface IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
+}
+
+export interface ItemExtra {
 	watchedAt?: import('moment').Moment;
 	percentageWatched?: number;
 	trakt?: TraktItem | null;
@@ -40,6 +47,7 @@ export interface CorrectionSuggestion {
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 export class Item implements IItem {
+	serviceId: StreamingServiceId;
 	id: string;
 	type: 'show' | 'movie';
 	title: string;
@@ -56,6 +64,7 @@ export class Item implements IItem {
 	correctionSuggestions?: CorrectionSuggestion[] | null;
 
 	constructor(options: IItem) {
+		this.serviceId = options.serviceId;
 		this.id = options.id;
 		this.type = options.type;
 		this.title = correctTitles[options.title] || options.title;
@@ -71,6 +80,20 @@ export class Item implements IItem {
 		this.trakt = options.trakt;
 		this.correctionSuggestions = options.correctionSuggestions;
 	}
+
+	static getBase = (item: Item): ItemBase => {
+		return {
+			serviceId: item.serviceId,
+			id: item.id,
+			type: item.type,
+			title: item.title,
+			year: item.year,
+			season: item.season,
+			episode: item.episode,
+			episodeTitle: item.episodeTitle,
+			isCollection: item.isCollection,
+		};
+	};
 
 	getFullTitle = () => {
 		if (this.type === 'show') {

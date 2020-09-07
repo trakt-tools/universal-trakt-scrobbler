@@ -58,6 +58,7 @@ class _AmazonPrimeApi extends Api {
 
 	parseMetadata = (metadata: AmazonPrimeMetadataItem): Item => {
 		let item: Item;
+		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
 		const type = entityType === 'TV Show' ? 'show' : 'movie';
@@ -72,10 +73,20 @@ class _AmazonPrimeApi extends Api {
 			}
 			const { episodeNumber: episode, title: episodeTitle } = catalog;
 			const isCollection = false;
-			item = new Item({ id, type, title, year, isCollection, season, episode, episodeTitle });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				isCollection,
+				season,
+				episode,
+				episodeTitle,
+			});
 		} else {
 			const { title } = catalog;
-			item = new Item({ id, type, title, year });
+			item = new Item({ serviceId, id, type, title, year });
 		}
 		return item;
 	};

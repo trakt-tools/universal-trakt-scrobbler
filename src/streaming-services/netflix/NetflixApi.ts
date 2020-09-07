@@ -285,6 +285,7 @@ class _NetflixApi extends Api {
 
 	parseHistoryItem = (historyItem: NetflixHistoryItemWithMetadata) => {
 		let item: Item;
+		const serviceId = this.id;
 		const id = historyItem.movieID.toString();
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
@@ -300,6 +301,7 @@ class _NetflixApi extends Api {
 			}
 			const episodeTitle = historyItem.episodeTitle.trim();
 			item = new Item({
+				serviceId,
 				id,
 				type,
 				title,
@@ -312,7 +314,7 @@ class _NetflixApi extends Api {
 			});
 		} else {
 			const title = historyItem.title.trim();
-			item = new Item({ id, type, title, year, watchedAt });
+			item = new Item({ serviceId, id, type, title, year, watchedAt });
 		}
 		return item;
 	};
@@ -339,6 +341,7 @@ class _NetflixApi extends Api {
 
 	parseMetadata = (metadata: NetflixSingleMetadataItem): Item => {
 		let item: Item;
+		const serviceId = this.id;
 		const { video } = metadata;
 		const id = video.id.toString();
 		const { type, title, year } = video;
@@ -360,9 +363,19 @@ class _NetflixApi extends Api {
 			const season = seasonInfo.seq;
 			const episode = episodeInfo.seq;
 			const episodeTitle = episodeInfo.title;
-			item = new Item({ id, type, title, year, isCollection, season, episode, episodeTitle });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				isCollection,
+				season,
+				episode,
+				episodeTitle,
+			});
 		} else {
-			item = new Item({ id, type, title, year });
+			item = new Item({ serviceId, id, type, title, year });
 		}
 		return item;
 	};

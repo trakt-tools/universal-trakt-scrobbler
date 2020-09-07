@@ -163,6 +163,7 @@ class _ViaplayApi extends Api {
 
 	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
 		let item: Item;
+		const serviceId = this.id;
 		const year = historyItem.content.production.year;
 		const progress = historyItem.user.progress;
 		const percentageWatched = progress?.elapsedPercent || 0;
@@ -175,6 +176,7 @@ class _ViaplayApi extends Api {
 			const episode = content.series.episodeNumber;
 			const episodeTitle = content.title !== title ? content.title : content.series.episodeTitle;
 			item = new Item({
+				serviceId,
 				id,
 				type: 'show',
 				title,
@@ -188,7 +190,7 @@ class _ViaplayApi extends Api {
 			});
 		} else {
 			const title = historyItem.content.title;
-			item = new Item({ id, type: 'movie', title, year, percentageWatched, watchedAt });
+			item = new Item({ serviceId, id, type: 'movie', title, year, percentageWatched, watchedAt });
 		}
 		return item;
 	};
