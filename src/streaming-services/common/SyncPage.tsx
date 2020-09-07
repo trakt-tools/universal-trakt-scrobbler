@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import {
 	BrowserStorage,
 	Options,
@@ -172,7 +173,20 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!traktCache) {
 				traktCache = {};
 			}
-			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, data.url);
+			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, {
+				type: data.type,
+				traktId: data.traktId,
+				url: data.url,
+			});
+			try {
+				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
+			} catch (err) {
+				Errors.error('Failed to save suggestion.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'saveSuggestionFailed',
+					severity: 'error',
+				});
+			}
 			await BrowserStorage.set({ traktCache }, false);
 			await getSyncStore(serviceId).update();
 		};

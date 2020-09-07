@@ -32,6 +32,8 @@ export interface IItem {
 }
 
 export interface CorrectionSuggestion {
+	type: 'episode' | 'movie';
+	traktId?: number;
 	url: string;
 	count: number;
 }
@@ -69,4 +71,13 @@ export class Item implements IItem {
 		this.trakt = options.trakt;
 		this.correctionSuggestions = options.correctionSuggestions;
 	}
+
+	getFullTitle = () => {
+		if (this.type === 'show') {
+			return `${this.title} S${this.season?.toString() ?? '0'} E${
+				this.episode?.toString() ?? '0'
+			} - ${this.episodeTitle ?? 'Untitled'}`;
+		}
+		return `${this.title} (${this.year})`;
+	};
 }

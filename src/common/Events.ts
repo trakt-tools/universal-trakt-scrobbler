@@ -113,6 +113,8 @@ export interface WrongItemDialogShowData {
 
 export interface WrongItemCorrectedData {
 	item: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
 	url: string;
 }
 

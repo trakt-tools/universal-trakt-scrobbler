@@ -13,12 +13,11 @@ import {
 	TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { WrongItemApi } from '../api/WrongItemApi';
-import { BrowserStorage } from '../common/BrowserStorage';
+import { BrowserStorage, CorrectItem } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
-import { Item } from '../models/Item';
+import { CorrectionSuggestion, Item } from '../models/Item';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
@@ -27,6 +26,8 @@ interface WrongItemDialogState {
 	isLoading: boolean;
 	serviceId?: StreamingServiceId;
 	item?: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
 	url: string;
 }
 
@@ -34,6 +35,8 @@ export const WrongItemDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<WrongItemDialogState>({
 		isOpen: false,
 		isLoading: false,
+		type: 'episode',
+		traktId: 0,
 		url: '',
 	});
 
@@ -44,17 +47,22 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
-	const onUseButtonClick = (url: string): void => {
+	const onUseButtonClick = (correctionSuggestion: CorrectionSuggestion): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
-			url,
+			type: correctionSuggestion.type,
+			traktId: correctionSuggestion.traktId,
+			url: correctionSuggestion.url,
 		}));
 	};
 
 	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
+		const url = target.value;
 		setDialog((prevDialog) => ({
 			...prevDialog,
+			type: url.includes('shows') ? 'episode' : 'movie',
+			traktId: 0,
 			url: target.value,
 		}));
 	};
@@ -72,31 +80,28 @@ export const WrongItemDialog: React.FC = () => {
 				throw new Error('Invalid URL');
 			}
 			const url = cleanUrl(dialog.url);
-			let { correctUrls } = await BrowserStorage.get('correctUrls');
-			if (!correctUrls) {
-				correctUrls = Object.fromEntries(
+			let { correctItems } = await BrowserStorage.get('correctItems');
+			if (!correctItems) {
+				correctItems = Object.fromEntries(
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
-				) as Record<StreamingServiceId, Record<string, string>>;
+				) as Record<StreamingServiceId, Record<string, CorrectItem>>;
 			}
-			if (!correctUrls[dialog.serviceId]) {
-				correctUrls[dialog.serviceId] = {};
+			if (!correctItems[dialog.serviceId]) {
+				correctItems[dialog.serviceId] = {};
 			}
-			const serviceCorrectUrls = correctUrls[dialog.serviceId];
-			if (serviceCorrectUrls) {
-				serviceCorrectUrls[dialog.item.id] = url;
+			const serviceCorrectItems = correctItems[dialog.serviceId];
+			if (serviceCorrectItems) {
+				serviceCorrectItems[dialog.item.id] = {
+					type: dialog.type,
+					traktId: dialog.traktId,
+					url,
+				};
 			}
-			await BrowserStorage.set({ correctUrls }, true);
-			try {
-				await WrongItemApi.saveSuggestion(dialog.serviceId, dialog.item.id, url);
-			} catch (err) {
-				Errors.error('Failed to save suggestion.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'saveSuggestionFailed',
-					severity: 'error',
-				});
-			}
+			await BrowserStorage.set({ correctItems }, true);
 			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
 				item: dialog.item,
+				type: dialog.type,
+				traktId: dialog.traktId,
 				url,
 			});
 		} catch (err) {
@@ -143,6 +148,8 @@ export const WrongItemDialog: React.FC = () => {
 				isOpen: true,
 				isLoading: false,
 				...data,
+				type: 'episode',
+				traktId: 0,
 				url: '',
 			});
 		};
@@ -200,7 +207,7 @@ export const WrongItemDialog: React.FC = () => {
 											<Button
 												size="small"
 												color="default"
-												onClick={() => onUseButtonClick(correctionSuggestion.url)}
+												onClick={() => onUseButtonClick(correctionSuggestion)}
 											>
 												{I18N.translate('use')}
 											</Button>

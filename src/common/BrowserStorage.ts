@@ -10,7 +10,7 @@ export type StorageValues = {
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
-	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
+	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
 	scrobblingItem?: Omit<TraktItemBase, ''>;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
@@ -29,6 +29,12 @@ export type StorageValuesSyncOptions = {
 	addWithReleaseDate: boolean;
 	hideSynced: boolean;
 	itemsPerLoad: number;
+};
+
+export type CorrectItem = {
+	type: 'episode' | 'movie';
+	traktId?: number;
+	url: string;
 };
 
 export type Options = {

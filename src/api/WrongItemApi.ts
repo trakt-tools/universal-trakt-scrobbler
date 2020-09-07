@@ -1,6 +1,6 @@
 import { BrowserStorage } from '../common/BrowserStorage';
 import { Requests } from '../common/Requests';
-import { CorrectionSuggestion } from '../models/Item';
+import { CorrectionSuggestion, Item } from '../models/Item';
 import { getSyncStore } from '../streaming-services/common/common';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 
@@ -50,7 +50,7 @@ class _WrongItemApi {
 
 	saveSuggestion = async (
 		serviceId: StreamingServiceId,
-		id: string,
+		item: Item,
 		url: string
 	): Promise<void> => {
 		const { options } = await BrowserStorage.get('options');
@@ -62,10 +62,18 @@ class _WrongItemApi {
 		) {
 			return;
 		}
+		const type = item.trakt?.type ?? item.type;
 		await Requests.send({
 			method: 'POST',
 			url: this.URL,
-			body: { serviceId, id, url },
+			body: {
+				serviceId,
+				id: item.id,
+				title: item.getFullTitle(),
+				type: type === 'show' ? 'episode' : 'movie',
+				traktId: item.trakt?.id,
+				url,
+			},
 		});
 	};
 }
