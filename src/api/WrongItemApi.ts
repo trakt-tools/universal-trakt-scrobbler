@@ -1,4 +1,5 @@
 import { BrowserStorage } from '../common/BrowserStorage';
+import { Messaging } from '../common/Messaging';
 import { Requests } from '../common/Requests';
 import { CorrectionSuggestion, Item } from '../models/Item';
 import { getSyncStore } from '../streaming-services/common/common';
@@ -19,25 +20,50 @@ class _WrongItemApi {
 		}
 		let items = getSyncStore(serviceId).data.items;
 		try {
-			const response = await Requests.send({
-				method: 'GET',
-				url: `${this.URL}?serviceId=${encodeURIComponent(serviceId)}&ids=${items
-					.map((item) => encodeURIComponent(item.id))
-					.join(',')}`,
+			const cache = await Messaging.toBackground({
+				action: 'get-cache',
+				key: 'correctionSuggestions',
 			});
-			const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
-			items = items.map((item) => ({
-				...item,
-				correctionSuggestions: json[item.id]?.sort((a, b) => {
-					if (a.count > b.count) {
-						return -1;
-					}
-					if (b.count > a.count) {
-						return 1;
-					}
-					return 0;
-				}),
-			}));
+			let serviceSuggestions = cache[serviceId];
+			const missingItems = [];
+			for (const item of items) {
+				const suggestions = serviceSuggestions?.[item.id];
+				if (suggestions) {
+					item.correctionSuggestions = suggestions;
+				} else {
+					missingItems.push(item);
+				}
+			}
+			if (missingItems.length > 0) {
+				const response = await Requests.send({
+					method: 'GET',
+					url: `${this.URL}?serviceId=${encodeURIComponent(
+						serviceId
+					)}&ids=${missingItems.map((item) => encodeURIComponent(item.id)).join(',')}`,
+				});
+				const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
+				if (!serviceSuggestions) {
+					serviceSuggestions = {};
+					cache[serviceId] = serviceSuggestions;
+				}
+				for (const item of missingItems) {
+					serviceSuggestions[item.id] = json[item.id]?.sort((a, b) => {
+						if (a.count > b.count) {
+							return -1;
+						}
+						if (b.count > a.count) {
+							return 1;
+						}
+						return 0;
+					});
+					item.correctionSuggestions = serviceSuggestions[item.id];
+				}
+				await Messaging.toBackground({
+					action: 'set-cache',
+					key: 'correctionSuggestions',
+					value: cache,
+				});
+			}
 		} catch (err) {
 			// Do nothing
 		}
@@ -59,27 +85,46 @@ class _WrongItemApi {
 		) {
 			return itemCopy;
 		}
+		let suggestions;
 		try {
-			const response = await Requests.send({
-				method: 'GET',
-				url: `${this.URL}?serviceId=${encodeURIComponent(
-					itemCopy.serviceId
-				)}&ids=${encodeURIComponent(itemCopy.id)}`,
+			const cache = await Messaging.toBackground({
+				action: 'get-cache',
+				key: 'correctionSuggestions',
 			});
-			const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
-			itemCopy.correctionSuggestions = json[itemCopy.id]?.sort((a, b) => {
-				if (a.count > b.count) {
-					return -1;
+			let serviceSuggestions = cache[itemCopy.serviceId];
+			suggestions = serviceSuggestions?.[itemCopy.id];
+			if (!suggestions) {
+				const response = await Requests.send({
+					method: 'GET',
+					url: `${this.URL}?serviceId=${encodeURIComponent(
+						itemCopy.serviceId
+					)}&ids=${encodeURIComponent(itemCopy.id)}`,
+				});
+				const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
+				if (!serviceSuggestions) {
+					serviceSuggestions = {};
+					cache[itemCopy.serviceId] = serviceSuggestions;
 				}
-				if (b.count > a.count) {
-					return 1;
-				}
-				return 0;
-			});
+				serviceSuggestions[itemCopy.id] = json[itemCopy.id]?.sort((a, b) => {
+					if (a.count > b.count) {
+						return -1;
+					}
+					if (b.count > a.count) {
+						return 1;
+					}
+					return 0;
+				});
+				await Messaging.toBackground({
+					action: 'set-cache',
+					key: 'correctionSuggestions',
+					value: cache,
+				});
+				suggestions = serviceSuggestions[itemCopy.id];
+			}
 		} catch (err) {
 			// Do nothing
 		}
-		itemCopy.correctionSuggestions = itemCopy.correctionSuggestions ?? null;
+		itemCopy.correctionSuggestions = suggestions ?? null;
 		return itemCopy;
 	};
 

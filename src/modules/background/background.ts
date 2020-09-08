@@ -3,6 +3,7 @@ import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
 import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
@@ -15,6 +16,8 @@ export type MessageRequest =
 	| FinishLoginMessage
 	| LoginMessage
 	| LogoutMessage
+	| GetCacheMessage
+	| SetCacheMessage<keyof CacheValues>
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
 	| StartScrobbleMessage
@@ -39,6 +42,17 @@ export interface LoginMessage {
 
 export interface LogoutMessage {
 	action: 'logout';
+}
+
+export interface GetCacheMessage {
+	action: 'get-cache';
+	key: keyof CacheValues;
+}
+
+export interface SetCacheMessage<K extends keyof CacheValues> {
+	action: 'set-cache';
+	key: K;
+	value: CacheValues[K];
 }
 
 export interface SendRequestMessage {
@@ -200,6 +214,15 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'logout': {
 			executingAction = TraktAuth.revokeToken();
+			break;
+		}
+		case 'get-cache': {
+			executingAction = Promise.resolve(Cache.values[parsedRequest.key]);
+			break;
+		}
+		case 'set-cache': {
+			Cache.values[parsedRequest.key] = parsedRequest.value;
+			executingAction = Promise.resolve();
 			break;
 		}
 		case 'send-request': {
