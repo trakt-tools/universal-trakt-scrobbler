@@ -314,7 +314,7 @@
 		}
 	},
 	"wrongItemDialogContentSuggestions": {
-		"message": "Correction suggestions (click to use):"
+		"message": "Korrigeringsforslag (trykk for å bruke):"
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"
