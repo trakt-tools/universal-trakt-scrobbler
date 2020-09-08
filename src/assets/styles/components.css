@@ -3,3 +3,7 @@
 	min-height: 150px;
 	min-width: 300px;
 }
+
+.wrong-item-dialog-suggestions-title {
+	margin-top: 8px;
+}

@@ -6,9 +6,9 @@ import {
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
+	Divider,
 	List,
 	ListItem,
-	ListItemSecondaryAction,
 	ListItemText,
 	TextField,
 } from '@material-ui/core';
@@ -202,28 +202,30 @@ export const WrongItemDialog: React.FC = () => {
 							)}
 						</DialogContentText>
 						{dialog.item?.correctionSuggestions && dialog.item.correctionSuggestions.length > 0 && (
-							<List>
-								{dialog.item.correctionSuggestions.map((correctionSuggestion, index) => (
-									<ListItem key={index}>
-										<ListItemText
-											primary={correctionSuggestion.url}
-											secondary={I18N.translate(
-												'suggestedBy',
-												correctionSuggestion.count.toString()
-											)}
-										/>
-										<ListItemSecondaryAction>
-											<Button
-												size="small"
-												color="default"
-												onClick={() => onUseButtonClick(correctionSuggestion)}
-											>
-												{I18N.translate('use')}
-											</Button>
-										</ListItemSecondaryAction>
-									</ListItem>
-								))}
-							</List>
+							<>
+								<Divider />
+								<DialogContentText className="wrong-item-dialog-suggestions-title">
+									{I18N.translate('wrongItemDialogContentSuggestions')}
+								</DialogContentText>
+								<List>
+									{dialog.item.correctionSuggestions.map((correctionSuggestion, index) => (
+										<ListItem
+											key={index}
+											button
+											onClick={() => onUseButtonClick(correctionSuggestion)}
+										>
+											<ListItemText
+												primary={correctionSuggestion.url}
+												secondary={I18N.translate(
+													'suggestedBy',
+													correctionSuggestion.count.toString()
+												)}
+											/>
+										</ListItem>
+									))}
+								</List>
+								<Divider />
+							</>
 						)}
 						<TextField
 							type="string"

@@ -313,6 +313,9 @@
 			}
 		}
 	},
+	"wrongItemDialogContentSuggestions": {
+		"message": "Correction suggestions (click to use):"
+	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"
 	},
