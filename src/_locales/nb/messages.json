@@ -275,10 +275,10 @@
 		"message": "Bruk valgfri dato."
 	},
 	"useDarkThemeDescription": {
-		"message": "With this option enabled, a dark theme is applied."
+		"message": "Dersom dette alternativet er på, brukes mørkt tema."
 	},
 	"useDarkThemeName": {
-		"message": "Use dark theme."
+		"message": "Bruk mørkt tema."
 	},
 	"useReleaseDate": {
 		"message": "Bruk utgivelsesdato."
