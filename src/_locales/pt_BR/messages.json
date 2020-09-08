@@ -274,6 +274,12 @@
 	"useCustomDate": {
 		"message": "Usar data customizada."
 	},
+	"useDarkThemeDescription": {
+		"message": "Com essa opção ativada, um tema escuro é aplicado."
+	},
+	"useDarkThemeName": {
+		"message": "Usar tema escuro."
+	},
 	"useReleaseDate": {
 		"message": "Usar data de lançamento."
 	},

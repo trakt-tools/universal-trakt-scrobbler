@@ -19,8 +19,9 @@ export type StorageValuesOptions = {
 	streamingServices: Record<StreamingServiceId, boolean>;
 	disableScrobbling: boolean;
 	showNotifications: boolean;
-	allowRollbar: boolean;
 	sendReceiveSuggestions: boolean;
+	useDarkTheme: boolean;
+	allowRollbar: boolean;
 	grantCookies: boolean;
 };
 
@@ -155,6 +156,15 @@ class _BrowserStorage {
 				description: '',
 				value: false,
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
+				permissions: [],
+				doShow: true,
+			},
+			useDarkTheme: {
+				id: 'useDarkTheme',
+				name: '',
+				description: '',
+				value: false,
+				origins: [],
 				permissions: [],
 				doShow: true,
 			},

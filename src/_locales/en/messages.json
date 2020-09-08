@@ -274,6 +274,12 @@
 	"useCustomDate": {
 		"message": "Use custom date."
 	},
+	"useDarkThemeDescription": {
+		"message": "With this option enabled, a dark theme is applied."
+	},
+	"useDarkThemeName": {
+		"message": "Use dark theme."
+	},
 	"useReleaseDate": {
 		"message": "Use release date."
 	},
