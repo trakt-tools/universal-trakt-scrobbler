@@ -4,6 +4,7 @@ import '../../assets/assets';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Shared } from '../../common/Shared';
+import { ThemeWrapper } from '../../components/ThemeWrapper';
 import { HistoryApp } from './HistoryApp';
 
 const init = async () => {
@@ -14,7 +15,12 @@ const init = async () => {
 		Errors.startRollbar();
 	}
 	const root = document.querySelector('#root');
-	ReactDOM.render(<HistoryApp />, root);
+	ReactDOM.render(
+		<ThemeWrapper>
+			<HistoryApp />
+		</ThemeWrapper>,
+		root
+	);
 };
 
 void init();
