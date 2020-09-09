@@ -90,7 +90,7 @@ export interface DialogShowData {
 }
 
 export interface SnackbarShowData {
-	messageName: string;
+	messageName: MessageName;
 	messageArgs?: string[];
 	severity: Color;
 }
@@ -113,6 +113,8 @@ export interface WrongItemDialogShowData {
 
 export interface WrongItemCorrectedData {
 	item: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
 	url: string;
 }
 

@@ -1,3 +1,4 @@
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
@@ -141,7 +142,7 @@ class _HboGoApi extends Api {
 		this.groupUrl = settings.CustomerGroupUrlTemplate;
 		this.historyGroupId = settings.HistoryGroupId;
 		let apiParams: Partial<HboGoApiParams> | undefined;
-		if (!Shared.isBackgroundPage) {
+		if (Shared.pageType === 'content') {
 			apiParams = await this.getApiParams();
 		}
 		if (!apiParams || !this.checkParams(apiParams)) {
@@ -241,6 +242,7 @@ class _HboGoApi extends Api {
 			getSyncStore('hbo-go')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
+				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});
@@ -260,6 +262,7 @@ class _HboGoApi extends Api {
 
 	parseMetadata = (metadata: HboGoMetadataItem): Item => {
 		let item: Item;
+		const serviceId = this.id;
 		const { Id: id, ProductionYear: year = 0 } = metadata;
 		const type = metadata.Category === 'Series' ? 'show' : 'movie';
 		if (metadata.Category === 'Series') {
@@ -267,10 +270,20 @@ class _HboGoApi extends Api {
 			const { SeasonIndex: season, Index: episode } = metadata;
 			const episodeTitle = metadata.Name.trim();
 			const isCollection = false;
-			item = new Item({ id, type, title, year, season, episode, episodeTitle, isCollection });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				season,
+				episode,
+				episodeTitle,
+				isCollection,
+			});
 		} else {
 			const title = metadata.Name.trim();
-			item = new Item({ id, type, title, year });
+			item = new Item({ serviceId, id, type, title, year });
 		}
 		return item;
 	};

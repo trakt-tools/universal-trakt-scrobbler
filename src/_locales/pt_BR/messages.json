@@ -147,6 +147,9 @@
 	"loadTraktHistoryError": {
 		"message": "Ocorreu um erro ao carregar o histórico do Trakt."
 	},
+	"loadingSuggestions": {
+		"message": "Carregando sugestões"
+	},
 	"login": {
 		"message": "Entrar com o Trakt.tv"
 	},
@@ -220,6 +223,9 @@
 	"saveOptionSuccess": {
 		"message": "Opção salva."
 	},
+	"saveSuggestionFailed": {
+		"message": "Ocorreu um erro ao salvar a sugestão."
+	},
 	"scrobblePaused": {
 		"message": "O scrobble foi pausado."
 	},
@@ -259,11 +265,30 @@
 	"streamingServicesName": {
 		"message": "Serviços de streaming"
 	},
+	"suggestedBy": {
+		"message": "Sugerido por $COUNT$ usuários",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "$SUGGESTIONS$ sugestões",
+		"placeholders": {
+			"suggestions": {
+				"content": "$1"
+			}
+		}
+	},
 	"sync": {
 		"message": "Sincronizar"
 	},
 	"toggleAll": {
 		"message": "Inverso"
+	},
+	"use": {
+		"message": "Usar"
 	},
 	"use24ClockName": {
 		"message": "Usar relógio de 24 horas."
@@ -287,6 +312,9 @@
 				"content": "$1"
 			}
 		}
+	},
+	"wrongItemDialogContentSuggestions": {
+		"message": "Sugestões para correção (clique para usar):"
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"

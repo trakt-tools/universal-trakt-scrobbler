@@ -9,7 +9,7 @@ class _BrowserAction {
 	};
 
 	setActiveIcon = async (): Promise<void> => {
-		if (Shared.isBackgroundPage) {
+		if (Shared.pageType === 'background') {
 			await browser.browserAction.setIcon({
 				path: browser.runtime.getURL('images/uts-icon-selected-38.png'),
 			});
@@ -19,7 +19,7 @@ class _BrowserAction {
 	};
 
 	setInactiveIcon = async (): Promise<void> => {
-		if (Shared.isBackgroundPage) {
+		if (Shared.pageType === 'background') {
 			await browser.browserAction.setIcon({
 				path: browser.runtime.getURL('images/uts-icon-38.png'),
 			});

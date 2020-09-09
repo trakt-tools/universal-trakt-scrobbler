@@ -147,6 +147,9 @@
 	"loadTraktHistoryError": {
 		"message": "Failed to load Trakt history."
 	},
+	"loadingSuggestions": {
+		"message": "Loading suggestions"
+	},
 	"login": {
 		"message": "Login with Trakt.tv"
 	},
@@ -220,6 +223,9 @@
 	"saveOptionSuccess": {
 		"message": "Option saved."
 	},
+	"saveSuggestionFailed": {
+		"message": "Failed to save suggestion."
+	},
 	"scrobblePaused": {
 		"message": "Scrobble paused."
 	},
@@ -259,11 +265,30 @@
 	"streamingServicesName": {
 		"message": "Streaming services"
 	},
+	"suggestedBy": {
+		"message": "Suggested by $COUNT$ users",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "$SUGGESTIONS$ suggestions",
+		"placeholders": {
+			"suggestions": {
+				"content": "$1"
+			}
+		}
+	},
 	"sync": {
 		"message": "Sync"
 	},
 	"toggleAll": {
 		"message": "Toggle"
+	},
+	"use": {
+		"message": "Use"
 	},
 	"use24ClockName": {
 		"message": "Use 24-hour clock."
@@ -287,6 +312,9 @@
 				"content": "$1"
 			}
 		}
+	},
+	"wrongItemDialogContentSuggestions": {
+		"message": "Correction suggestions (click to use):"
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Please enter a valid Trakt URL!"

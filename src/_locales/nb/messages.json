@@ -147,6 +147,9 @@
 	"loadTraktHistoryError": {
 		"message": "Klarte ikke å laste inn Trakt historikken."
 	},
+	"loadingSuggestions": {
+		"message": "Laster inn forslag"
+	},
 	"login": {
 		"message": "Logg inn med Trakt.tv"
 	},
@@ -220,6 +223,9 @@
 	"saveOptionSuccess": {
 		"message": "Alternativ lagret."
 	},
+	"saveSuggestionFailed": {
+		"message": "Klarte ikke å lagre forslag."
+	},
 	"scrobblePaused": {
 		"message": "Scrobbling pauset."
 	},
@@ -259,11 +265,30 @@
 	"streamingServicesName": {
 		"message": "Strømmetjenester"
 	},
+	"suggestedBy": {
+		"message": "Foreslått av $COUNT$ brukere",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "$SUGGESTIONS$ forslag",
+		"placeholders": {
+			"suggestions": {
+				"content": "$1"
+			}
+		}
+	},
 	"sync": {
 		"message": "Synkroniser historikk"
 	},
 	"toggleAll": {
 		"message": "Veksle"
+	},
+	"use": {
+		"message": "Bruk"
 	},
 	"use24ClockName": {
 		"message": "Bruk 24-timers klokke."
@@ -287,6 +312,9 @@
 				"content": "$1"
 			}
 		}
+	},
+	"wrongItemDialogContentSuggestions": {
+		"message": "Korrigeringsforslag (trykk for å bruke):"
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"

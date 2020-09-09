@@ -6,6 +6,7 @@ import './images/uts-icon-19.png';
 import './images/uts-icon-38.png';
 import './images/uts-icon-selected-19.png';
 import './images/uts-icon-selected-38.png';
+import './styles/components.css';
 import './styles/history.css';
 import './styles/layout.css';
 import './styles/options.css';

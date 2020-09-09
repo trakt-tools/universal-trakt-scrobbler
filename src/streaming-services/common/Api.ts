@@ -1,10 +1,10 @@
 import { TraktSearch } from '../../api/TraktSearch';
 import { TraktSync } from '../../api/TraktSync';
-import { Item } from '../../models/Item';
-import { TraktItem, TraktItemBase } from '../../models/TraktItem';
-import { BrowserStorage } from '../../common/BrowserStorage';
+import { BrowserStorage, CorrectItem } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
+import { Item } from '../../models/Item';
+import { TraktItem, TraktItemBase } from '../../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services';
 import { getSyncStore } from './common';
 
@@ -23,8 +23,8 @@ export abstract class Api {
 
 	loadTraktHistory = async () => {
 		try {
-			const storage = await BrowserStorage.get(['correctUrls', 'traktCache']);
-			const { correctUrls } = storage;
+			const storage = await BrowserStorage.get(['correctItems', 'traktCache']);
+			const { correctItems } = storage;
 			let { traktCache } = storage;
 			if (!traktCache) {
 				traktCache = {};
@@ -33,7 +33,7 @@ export abstract class Api {
 			const items = getSyncStore(this.id).data.items;
 			for (const item of items) {
 				promises.push(
-					this.loadTraktItemHistory(item, traktCache, correctUrls?.[this.id]?.[item.id])
+					this.loadTraktItemHistory(item, traktCache, correctItems?.[this.id]?.[item.id])
 				);
 			}
 			await Promise.all(promises);
@@ -50,15 +50,18 @@ export abstract class Api {
 	loadTraktItemHistory = async (
 		item: Item,
 		traktCache: Record<string, TraktItemBase>,
-		url?: string
+		correctItem?: CorrectItem
 	) => {
-		if (item.trakt && !url) {
+		if (item.trakt && !correctItem) {
 			return;
 		}
 		try {
 			const cacheId = this.getTraktCacheId(item);
 			const cacheItem = traktCache[cacheId];
-			item.trakt = url || !cacheItem ? await TraktSearch.find(item, url) : new TraktItem(cacheItem);
+			item.trakt =
+				correctItem || !cacheItem
+					? await TraktSearch.find(item, correctItem)
+					: new TraktItem(cacheItem);
 			await TraktSync.loadHistory(item);
 			if (item.trakt) {
 				traktCache[cacheId] = TraktItem.getBase(item.trakt);

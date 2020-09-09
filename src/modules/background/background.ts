@@ -1,24 +1,31 @@
 import { TraktAuth } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
 import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
+import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
-import { streamingServices } from '../../streaming-services/streaming-services';
+import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
 	| CheckLoginMessage
 	| FinishLoginMessage
 	| LoginMessage
 	| LogoutMessage
+	| GetCacheMessage
+	| SetCacheMessage<keyof CacheValues>
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
 	| StartScrobbleMessage
 	| StopScrobbleMessage
 	| SendRequestMessage
-	| ShowNotificationMessage;
+	| ShowNotificationMessage
+	| WrongItemCorrectedMessage
+	| SaveCorrectionSuggestionMessage;
 
 export interface CheckLoginMessage {
 	action: 'check-login';
@@ -35,6 +42,17 @@ export interface LoginMessage {
 
 export interface LogoutMessage {
 	action: 'logout';
+}
+
+export interface GetCacheMessage {
+	action: 'get-cache';
+	key: keyof CacheValues;
+}
+
+export interface SetCacheMessage<K extends keyof CacheValues> {
+	action: 'set-cache';
+	key: K;
+	value: CacheValues[K];
 }
 
 export interface SendRequestMessage {
@@ -64,8 +82,23 @@ export interface StopScrobbleMessage {
 	action: 'stop-scrobble';
 }
 
+export interface WrongItemCorrectedMessage {
+	action: 'wrong-item-corrected';
+	item: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
+	url: string;
+}
+
+export interface SaveCorrectionSuggestionMessage {
+	action: 'save-correction-suggestion';
+	serviceId: StreamingServiceId;
+	item: Item;
+	url: string;
+}
+
 const init = async () => {
-	Shared.isBackgroundPage = true;
+	Shared.pageType = 'background';
 	await BrowserStorage.sync();
 	const storage = await BrowserStorage.get('options');
 	if (storage.options?.allowRollbar) {
@@ -89,7 +122,7 @@ const onTabRemoved = async (tabId: number) => {
 	}
 	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
 	if (scrobblingItem) {
-		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.remove('scrobblingTabId');
@@ -183,6 +216,15 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			executingAction = TraktAuth.revokeToken();
 			break;
 		}
+		case 'get-cache': {
+			executingAction = Promise.resolve(Cache.values[parsedRequest.key]);
+			break;
+		}
+		case 'set-cache': {
+			Cache.values[parsedRequest.key] = parsedRequest.value;
+			executingAction = Promise.resolve();
+			break;
+		}
 		case 'send-request': {
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
@@ -218,6 +260,15 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				});
 			break;
 		}
+		case 'save-correction-suggestion': {
+			const item = new Item(parsedRequest.item);
+			executingAction = WrongItemApi.saveSuggestion(
+				parsedRequest.serviceId,
+				item,
+				parsedRequest.url
+			);
+			break;
+		}
 	}
 	return new Promise((resolve) => {
 		executingAction
@@ -242,7 +293,7 @@ const setScrobblingTabId = async (tabId?: number): Promise<void> => {
 	]);
 	if (scrobblingItem && tabId !== scrobblingTabId) {
 		// Stop the previous scrobble if it exists.
-		await TraktScrobble.stop(new TraktItem(scrobblingItem));
+		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.set({ scrobblingTabId: tabId }, false);

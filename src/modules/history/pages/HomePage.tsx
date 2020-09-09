@@ -2,11 +2,12 @@ import { CircularProgress, List, ListItem, ListItemText, Typography } from '@mat
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { UtsCenter } from '../../../components/UtsCenter';
-import { Session } from '../../../common/Session';
-import { HistoryInfo } from '../components/HistoryInfo';
-import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
 import { BrowserStorage } from '../../../common/BrowserStorage';
+import { I18N } from '../../../common/I18N';
+import { Session } from '../../../common/Session';
+import { UtsCenter } from '../../../components/UtsCenter';
+import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
+import { HistoryInfo } from '../components/HistoryInfo';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
@@ -57,7 +58,7 @@ export const HomePage: React.FC = () => {
 		<HistoryInfo>
 			{services.length > 0 ? (
 				<>
-					<Typography variant="h6">{browser.i18n.getMessage('selectStreamingService')}</Typography>
+					<Typography variant="h6">{I18N.translate('selectStreamingService')}</Typography>
 					<List>
 						{services.map((service) => (
 							<ListItem
@@ -72,7 +73,7 @@ export const HomePage: React.FC = () => {
 					</List>
 				</>
 			) : (
-				<Typography variant="body1">{browser.i18n.getMessage('noStreamingServices')}</Typography>
+				<Typography variant="body1">{I18N.translate('noStreamingServices')}</Typography>
 			)}
 		</HistoryInfo>
 	);

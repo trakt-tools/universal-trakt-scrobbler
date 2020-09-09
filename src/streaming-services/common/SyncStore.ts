@@ -71,7 +71,7 @@ export class SyncStore {
 		void this.update();
 	};
 
-	update = async (data?: Partial<StoreData>): Promise<void> => {
+	update = async (data?: Partial<StoreData>, doClear = false): Promise<void> => {
 		if (data) {
 			if (data.items) {
 				data.items = data.items.map((item, index) => {
@@ -82,7 +82,7 @@ export class SyncStore {
 			this.data = {
 				...this.data,
 				...data,
-				items: [...this.data.items, ...(data.items || [])],
+				items: doClear ? [...(data.items || [])] : [...this.data.items, ...(data.items || [])],
 			};
 		}
 		await EventDispatcher.dispatch('STREAMING_SERVICE_STORE_UPDATE', null, {
