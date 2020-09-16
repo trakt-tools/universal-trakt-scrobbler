@@ -7,53 +7,120 @@ import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
-export interface NrkHistoryItem {
-	lastSeen: NrkLastSeen;
-	program: NrkProgramInfo;
+interface NrkUserData {
+	name: string;
+	profileType: string;
+	userId: string;
 }
 
-export interface NrkLastSeen {
-	at: string;
-	percentageWatched: string;
-	percentageAssumedFinished: string;
+interface NrkProgressResponse {
+	progresses: NrkProgressItem[];
+	_links: {
+		backwards?: NrkLinkObject;
+		next?: NrkLinkObject;
+		self: NrkLinkObject;
+	};
 }
 
-export interface NrkProgramInfo {
+interface NrkLinkObject {
+	href: string;
+}
+
+interface NrkProgressItemCommon {
+	accessibilityValue: string;
 	id: string;
-	title: string;
-	mainTitle: string;
-	viewCount: number;
-	description: string;
-	programType: 'Program' | 'Episode';
-	seriesId: string;
-	episodeNumber: string;
-	totalEpisodesInSeason: string;
-	episodeNumberOrDate: string;
-	seasonNumber: string;
-	productionYear: number;
+	registeredAt: string;
+	_embedded: {
+		programs: NrkProgram;
+	};
+	_links: unknown;
 }
+
+type NrkProgressItem = NrkProgressItemFinished | NrkProgressItemInProgress;
+
+interface NrkProgressItemFinished extends NrkProgressItemCommon {
+	finished: true;
+	progress: 'finished';
+}
+
+interface NrkProgressItemInProgress extends NrkProgressItemCommon {
+	progress: 'inProgress';
+	registeredAt: string;
+	inProgress: {
+		precentage: number;
+		time: string;
+	};
+}
+
+interface NrkProgram {
+	image: unknown;
+	titles: {
+		title: string;
+		subtitle: string;
+	};
+	_links: unknown;
+}
+
+// export interface NrkHistoryItem {
+// 	lastSeen: NrkLastSeen;
+// 	program: NrkProgramInfo;
+// }
+//
+// export interface NrkLastSeen {
+// 	at: string;
+// 	percentageWatched: string;
+// 	percentageAssumedFinished: string;
+// }
+//
+// export interface NrkProgramInfo {
+// 	id: string;
+// 	title: string;
+// 	mainTitle: string;
+// 	viewCount: number;
+// 	description: string;
+// 	programType: 'Program' | 'Episode';
+// 	seriesId: string;
+// 	episodeNumber: string;
+// 	totalEpisodesInSeason: string;
+// 	episodeNumberOrDate: string;
+// 	seasonNumber: string;
+// 	productionYear: number;
+// }
 
 class _NrkApi extends Api {
 	HOST_URL: string;
+	API_HOST_URL: string;
 	HISTORY_API_URL: string;
-	AUTH_URL: string;
+	TOKEN_URL: string;
+	USERDATA_URL: string;
+	token: string;
 	isActivated: boolean;
 
 	constructor() {
 		super('nrk');
 
 		this.HOST_URL = 'https://tv.nrk.no';
-		this.HISTORY_API_URL = `${this.HOST_URL}/history`;
-		this.AUTH_URL = `${this.HOST_URL}/auth/token`;
-
+		this.API_HOST_URL = 'https://psapi.nrk.no';
+		this.HISTORY_API_URL = '';
+		this.TOKEN_URL = `${this.HOST_URL}/auth/token`;
+		this.USERDATA_URL = `${this.HOST_URL}/auth/userdata`;
+		this.token = '';
 		this.isActivated = false;
 	}
 
 	activate = async () => {
-		await Requests.send({
-			url: this.AUTH_URL,
+		const stringToken = await Requests.send({
+			url: `${this.TOKEN_URL}?_=${Date.now()}`,
 			method: 'GET',
 		});
+		this.token = stringToken.split('"').join('');
+		console.warn(this.token);
+		const response = await Requests.send({
+			url: this.USERDATA_URL,
+			method: 'GET',
+		});
+		const userData: NrkUserData = JSON.parse(response);
+		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress`;
 		this.isActivated = true;
 	};
 
@@ -64,16 +131,20 @@ class _NrkApi extends Api {
 			}
 			let isLastPage = false;
 			let items: Item[] = [];
-			const historyItems: NrkHistoryItem[] = [];
+			const historyItems: NrkProgressItem[] = [];
 			do {
 				const responseText = await Requests.send({
-					url: `${this.HISTORY_API_URL}?pg=${nextPage}`, //TODO figure out if pagination is even supported in the API
+					url: `${this.HISTORY_API_URL}?sortorder=descending&pageSize=10`,
 					method: 'GET',
+					headers: {
+						Authorization: 'Bearer ' + this.token,
+					},
 				});
-				const responseJson = JSON.parse(responseText) as NrkHistoryItem[];
-				if (responseJson && responseJson.length > 0) {
-					itemsToLoad -= responseJson.length;
-					historyItems.push(...responseJson);
+				const responseJson: NrkProgressResponse = JSON.parse(responseText);
+				const { progresses } = responseJson;
+				if (progresses.length > 0) {
+					itemsToLoad -= progresses.length;
+					historyItems.push(...progresses);
 				} else {
 					isLastPage = true;
 				}
@@ -98,38 +169,62 @@ class _NrkApi extends Api {
 		}
 	};
 
-	parseHistoryItem = (historyItem: NrkHistoryItem): Item => {
-		const program: NrkProgramInfo = historyItem.program;
+	parseHistoryItem = (historyItem: NrkProgressItem): Item => {
 		let item: Item;
 		const serviceId = this.id;
-		const id = program.id;
-		const type = program.programType === 'Episode' ? 'show' : 'movie';
-		const year = program.productionYear;
-		const percentageWatched = parseInt(historyItem.lastSeen.percentageWatched, 10);
-		const watchedDate = this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at);
-		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
-		if (type === 'show') {
-			const title = program.title.trim();
-			const season = parseInt(program.seasonNumber, 10);
-			const episode = parseInt(program.episodeNumber, 10);
-			const episodeTitle = program.mainTitle.trim();
+		const id = historyItem.id;
+		const type = 'show'; //TODO
+		const titleInfo = historyItem._embedded.programs.titles;
+		const title = titleInfo.title;
+		const episodeTitle = titleInfo.subtitle;
+		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
+		if (historyItem.progress === 'inProgress') {
+			const percentageWatched = historyItem.inProgress.precentage;
 			item = new Item({
-				serviceId,
-				id,
 				type,
+				id,
+				serviceId,
 				title,
-				year,
-				season,
-				episode,
+				year: 2020, //TODO
 				episodeTitle,
-				isCollection: false,
 				percentageWatched,
 				watchedAt,
 			});
 		} else {
-			const title = program.title.trim();
-			item = new Item({ serviceId, id, type, title, year, percentageWatched, watchedAt });
+			item = new Item({
+				type,
+				id,
+				serviceId,
+				title,
+				year: 2020, //TODO
+				episodeTitle,
+				watchedAt,
+			});
 		}
+		// const watchedDate = this.convertAspNetJSONDateToDateObject(historyItem.lastSeen.at);
+		// const watchedAt = watchedDate ? moment(watchedDate) : undefined;
+		// if (type === 'show') {
+		// 	const title = program.title.trim();
+		// 	const season = parseInt(program.seasonNumber, 10);
+		// 	const episode = parseInt(program.episodeNumber, 10);
+		// 	const episodeTitle = program.mainTitle.trim();
+		// 	item = new Item({
+		// 		serviceId,
+		// 		id,
+		// 		type,
+		// 		title,
+		// 		year,
+		// 		season,
+		// 		episode,
+		// 		episodeTitle,
+		// 		isCollection: false,
+		// 		percentageWatched,
+		// 		watchedAt,
+		// 	});
+		// } else {
+		// 	const title = program.title.trim();
+		// 	item = new Item({ serviceId, id, type, title, year, percentageWatched, watchedAt });
+		// }
 		return item;
 	};
 
