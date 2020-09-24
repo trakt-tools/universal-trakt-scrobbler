@@ -69,7 +69,7 @@ class _Requests {
 		return fetch(request.url, options);
 	};
 
-	getOptions = async (request: RequestDetails, tabId = 0): Promise<Record<string, unknown>> => {
+	getOptions = async (request: RequestDetails, tabId = 0): Promise<RequestInit> => {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request, tabId),
@@ -77,8 +77,8 @@ class _Requests {
 		};
 	};
 
-	getHeaders = async (request: RequestDetails, tabId = 0): Promise<Record<string, unknown>> => {
-		const headers: Record<string, unknown> = {
+	getHeaders = async (request: RequestDetails, tabId = 0): Promise<HeadersInit> => {
+		const headers: HeadersInit = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
 			...(request.headers || {}),

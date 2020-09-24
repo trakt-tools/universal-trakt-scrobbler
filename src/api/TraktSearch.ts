@@ -187,22 +187,21 @@ class _TraktSearch extends TraktApi {
 		showItem: TraktSearchShowItem,
 		episodeItems: TraktSearchEpisodeItem[]
 	): TraktEpisodeItem => {
-		const episodeItem: TraktEpisodeItemEpisode | undefined = episodeItems
-			.map((x) => x.episode) //TODO figure out removed || x
-			.find(
-				(x) =>
-					x.title &&
-					item.episodeTitle &&
-					this.formatEpisodeTitle(x.title) === this.formatEpisodeTitle(item.episodeTitle)
-			);
-		if (!episodeItem) {
+		const searchItem = episodeItems.find(
+			(x) =>
+				x.episode.title &&
+				item.episodeTitle &&
+				this.formatEpisodeTitle(x.episode.title) === this.formatEpisodeTitle(item.episodeTitle) &&
+				this.formatEpisodeTitle(x.show.title) === this.formatEpisodeTitle(item.title)
+		);
+		if (!searchItem) {
 			throw {
 				request: { item, showItem },
 				status: 404,
 				text: 'Episode not found.',
 			};
 		}
-		return { episode: episodeItem };
+		return { episode: searchItem.episode };
 	};
 
 	getEpisodeUrl = (item: Item, traktId: number): string => {
