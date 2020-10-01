@@ -175,24 +175,25 @@ class _TraktSearch extends TraktApi {
 			episodeItem = {
 				episode: JSON.parse(responseText) as TraktEpisodeItemEpisode,
 			};
+			return Object.assign({}, episodeItem, showItem);
 		} else {
 			const episodeItems = JSON.parse(responseText) as TraktSearchEpisodeItem[];
-			episodeItem = this.findEpisodeByTitle(item, showItem, episodeItems);
+			return this.findEpisodeByTitle(item, showItem, episodeItems);
 		}
-		return Object.assign({}, episodeItem, showItem);
 	};
 
 	findEpisodeByTitle = (
 		item: Item,
 		showItem: TraktSearchShowItem,
 		episodeItems: TraktSearchEpisodeItem[]
-	): TraktEpisodeItem => {
+	): TraktSearchEpisodeItem => {
 		const searchItem = episodeItems.find(
 			(x) =>
 				x.episode.title &&
 				item.episodeTitle &&
 				this.formatEpisodeTitle(x.episode.title) === this.formatEpisodeTitle(item.episodeTitle) &&
-				this.formatEpisodeTitle(x.show.title) === this.formatEpisodeTitle(item.title)
+				(this.formatEpisodeTitle(x.show.title).includes(this.formatEpisodeTitle(item.title)) ||
+					this.formatEpisodeTitle(item.title).includes(this.formatEpisodeTitle(x.show.title)))
 		);
 		if (!searchItem) {
 			throw {
@@ -201,7 +202,7 @@ class _TraktSearch extends TraktApi {
 				text: 'Episode not found.',
 			};
 		}
-		return { episode: searchItem.episode };
+		return searchItem;
 	};
 
 	getEpisodeUrl = (item: Item, traktId: number): string => {
