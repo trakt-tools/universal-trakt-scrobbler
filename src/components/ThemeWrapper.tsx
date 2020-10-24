@@ -3,12 +3,16 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
 import { BrowserStorage, ThemeValue } from '../common/BrowserStorage';
 
+interface ThemeWrapperProps {
+	children: React.ReactNode;
+}
+
 export interface ThemeDetails {
 	value: ThemeValue;
 	palette: 'light' | 'dark';
 }
 
-export const ThemeWrapper: React.FC = ({ children }) => {
+export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWrapperProps) => {
 	const [themeDetails, setThemeDetails] = React.useState<ThemeDetails>({
 		value: 'system',
 		palette: 'light',
@@ -61,7 +65,7 @@ export const ThemeWrapper: React.FC = ({ children }) => {
 			}
 			const { options } = changes;
 			if (options) {
-				const { theme: themeValue } = options.newValue;
+				const { theme: themeValue } = options.newValue as { theme: ThemeValue };
 				setThemeDetails((prevThemeDetails) => {
 					if (prevThemeDetails.value === themeValue) {
 						return prevThemeDetails;
