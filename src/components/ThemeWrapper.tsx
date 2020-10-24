@@ -23,7 +23,7 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 	React.useEffect(() => {
 		const setTheme = async () => {
 			const { options } = await BrowserStorage.get('options');
-			const themeValue = options?.theme ?? 'light';
+			const themeValue = options?.theme ?? 'system';
 			const themePalette = themeValue === 'system' ? systemPalette : themeValue;
 			setThemeDetails({
 				value: themeValue,

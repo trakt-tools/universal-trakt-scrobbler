@@ -219,7 +219,7 @@ class _BrowserStorage {
 					dark: I18N.translate('darkTheme'),
 					system: I18N.translate('systemTheme'),
 				},
-				value: 'light',
+				value: 'system',
 				origins: [],
 				permissions: [],
 				doShow: true,
