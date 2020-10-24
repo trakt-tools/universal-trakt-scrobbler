@@ -54,21 +54,3 @@
 .popup-watching--content > * {
 	height: 100%;
 }
-
-.popup-watching--overlay-color {
-	background-color: rgba(0, 0, 0, 0.5);
-	bottom: 0;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: 0;
-}
-
-.popup-watching--overlay-image {
-	background-size: cover !important;
-	bottom: 0;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: 0;
-}
