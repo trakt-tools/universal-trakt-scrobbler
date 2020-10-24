@@ -1,4 +1,5 @@
 import { BrowserStorage } from '../common/BrowserStorage';
+import { CacheValues } from '../common/Cache';
 import { Messaging } from '../common/Messaging';
 import { Requests } from '../common/Requests';
 import { CorrectionSuggestion, Item } from '../models/Item';
@@ -20,10 +21,10 @@ class _WrongItemApi {
 		}
 		let items = getSyncStore(serviceId).data.items;
 		try {
-			const cache = await Messaging.toBackground({
+			const cache = (await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'correctionSuggestions',
-			});
+			})) as CacheValues['correctionSuggestions'];
 			let serviceSuggestions = cache[serviceId];
 			const missingItems = [];
 			for (const item of items) {
@@ -87,10 +88,10 @@ class _WrongItemApi {
 		}
 		let suggestions;
 		try {
-			const cache = await Messaging.toBackground({
+			const cache = (await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'correctionSuggestions',
-			});
+			})) as CacheValues['correctionSuggestions'];
 			let serviceSuggestions = cache[itemCopy.serviceId];
 			suggestions = serviceSuggestions?.[itemCopy.id];
 			if (!suggestions) {
