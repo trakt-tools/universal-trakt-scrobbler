@@ -5,7 +5,7 @@ import { EventDispatcher } from './Events';
 import { CacheValues } from './Cache';
 
 export type ReturnTypes<T extends MessageRequest> = T extends GetCacheMessage
-	? CacheValues['correctionSuggestions']
+	? CacheValues[keyof CacheValues]
 	: Record<string, unknown>;
 
 class _Messaging {

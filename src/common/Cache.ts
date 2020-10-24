@@ -5,16 +5,19 @@ export interface CacheValues {
 	correctionSuggestions: Partial<
 		Record<StreamingServiceId, Record<string, CorrectionSuggestion[] | undefined>>
 	>;
+	tmdbImages: Record<string, string>;
 }
 
 class _Cache {
 	private timers: Record<keyof CacheValues, number | null> = {
 		correctionSuggestions: null,
+		tmdbImages: null,
 	};
 
 	/** In seconds. */
 	private expiries: Record<keyof CacheValues, number> = {
 		correctionSuggestions: 360,
+		tmdbImages: 360,
 	};
 
 	readonly values: CacheValues;
@@ -27,10 +30,11 @@ class _Cache {
 	private getInitialValues = (): CacheValues => {
 		return {
 			correctionSuggestions: {},
+			tmdbImages: {},
 		};
 	};
 
-	private invalidate = (key: keyof CacheValues, expiry: number): void => {
+	private invalidate = <K extends keyof CacheValues>(key: K, expiry: number): void => {
 		this.values[key] = this.getInitialValues()[key];
 		this.timers[key] = window.setTimeout(this.invalidate, expiry * 1e3, key, expiry);
 	};
