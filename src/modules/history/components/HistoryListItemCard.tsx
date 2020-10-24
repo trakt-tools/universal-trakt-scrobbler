@@ -8,6 +8,7 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { I18N } from '../../../common/I18N';
+import { TmdbImage } from '../../../components/TmdbImage';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Item, CorrectionSuggestion } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
@@ -49,9 +50,11 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		)
 	) : null;
 
+	const hasImage = !item || item instanceof TraktItem;
 	return (
-		<Card className="history-list-item-card" variant="outlined">
-			<CardContent>
+		<Card className={`history-list-item-card ${hasImage ? 'image' : ''}`} variant="outlined">
+			{(!item || item instanceof TraktItem) && <TmdbImage item={item} />}
+			<CardContent className="history-list-item-card-content">
 				<UtsCenter isHorizontal={false}>
 					<Typography variant="overline">{`${I18N.translate('on')} ${name}`}</Typography>
 					<Divider className="history-list-item-divider" />
