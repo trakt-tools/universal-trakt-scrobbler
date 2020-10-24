@@ -1,3 +1,4 @@
+import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { CorrectionSuggestion, ItemBase } from '../models/Item';
@@ -195,13 +196,13 @@ class _BrowserStorage {
 					<>
 						{I18N.translate('sendReceiveSuggestionsDescription')}
 						<br />
-						<a
+						<Link
 							href="https://docs.google.com/spreadsheets/d/1V3m_eMYTJSREehtxz3SeNqFLJlWWIx7Bm0Dp-1WMvnk/edit?usp=sharing"
 							target="_blank"
 							rel="noreferrer"
 						>
 							Google Sheet
-						</a>
+						</Link>
 					</>
 				),
 				value: false,
