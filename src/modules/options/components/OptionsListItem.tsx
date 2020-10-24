@@ -4,6 +4,8 @@ import {
 	ListItem,
 	ListItemSecondaryAction,
 	ListItemText,
+	MenuItem,
+	Select,
 	Switch,
 } from '@material-ui/core';
 import * as React from 'react';
@@ -20,10 +22,17 @@ interface OptionsListItemProps {
 export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
 	const { option } = props;
 
-	const onChange = async () => {
+	const onSwitchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
 			id: option.id,
-			value: !option.value,
+			value: event.target.checked,
+		});
+	};
+
+	const onSelectChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
+			id: option.id,
+			value: event.target.value as StorageValuesOptions[keyof StorageValuesOptions],
 		});
 	};
 
@@ -69,25 +78,42 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		return option.id === 'streamingServices';
 	};
 
+	let secondaryAction;
+	switch (option.type) {
+		case 'switch':
+			secondaryAction = (
+				<Switch checked={!!option.value} color="primary" edge="end" onChange={onSwitchChange} />
+			);
+			break;
+		case 'select':
+			secondaryAction = (
+				<Select value={option.value} onChange={onSelectChange}>
+					{Object.entries(option.selectItems).map(([key, name]) => (
+						<MenuItem key={key} value={key}>
+							{name}
+						</MenuItem>
+					))}
+				</Select>
+			);
+			break;
+		case 'list':
+			secondaryAction = (
+				<ButtonGroup variant="contained">
+					<Button onClick={onSelectAllClick}>{I18N.translate('selectAll')}</Button>
+					<Button onClick={onSelectNoneClick}>{I18N.translate('selectNone')}</Button>
+					<Button onClick={onToggleAllClick}>{I18N.translate('toggleAll')}</Button>
+				</ButtonGroup>
+			);
+			break;
+	}
+
 	return (
 		<>
 			<ListItem
 				classes={{ root: 'options-list-item', secondaryAction: 'options-list-item--secondary' }}
 			>
 				<ListItemText primary={option.name} secondary={option.description} />
-				{isStreamingServiceOption(option) ? (
-					<ListItemSecondaryAction>
-						<ButtonGroup variant="contained">
-							<Button onClick={onSelectAllClick}>{I18N.translate('selectAll')}</Button>
-							<Button onClick={onSelectNoneClick}>{I18N.translate('selectNone')}</Button>
-							<Button onClick={onToggleAllClick}>{I18N.translate('toggleAll')}</Button>
-						</ButtonGroup>
-					</ListItemSecondaryAction>
-				) : (
-					<ListItemSecondaryAction>
-						<Switch checked={!!option.value} color="primary" edge="end" onChange={onChange} />
-					</ListItemSecondaryAction>
-				)}
+				<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
 			</ListItem>
 			{isStreamingServiceOption(option) && <StreamingServiceOptions options={option.value} />}
 		</>

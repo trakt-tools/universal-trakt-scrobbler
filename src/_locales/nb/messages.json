@@ -79,6 +79,9 @@
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
 	},
+	"darkTheme": {
+		"message": "Dark"
+	},
 	"disableScrobblingDescription": {
 		"message": "Dersom dette valget er aktivert vil utvidelsen ikke automatisk scrobble det du ser på. Dette er nyttig om du bare ønsker å bruke sync av historikk."
 	},
@@ -140,6 +143,9 @@
 	},
 	"itemsPerLoadName": {
 		"message": "Antall elementer i hver innlasting."
+	},
+	"lightTheme": {
+		"message": "Light"
 	},
 	"loadHistoryError": {
 		"message": "Klarte ikke å laste inn historikken."
@@ -284,6 +290,15 @@
 	"sync": {
 		"message": "Synkroniser historikk"
 	},
+	"systemTheme": {
+		"message": "Use your system preference"
+	},
+	"themeDescription": {
+		"message": "Choose what theme to use."
+	},
+	"themeName": {
+		"message": "Theme"
+	},
 	"toggleAll": {
 		"message": "Veksle"
 	},
@@ -298,12 +313,6 @@
 	},
 	"useCustomDate": {
 		"message": "Bruk valgfri dato."
-	},
-	"useDarkThemeDescription": {
-		"message": "Dersom dette alternativet er på, brukes mørkt tema."
-	},
-	"useDarkThemeName": {
-		"message": "Bruk mørkt tema."
 	},
 	"useReleaseDate": {
 		"message": "Bruk utgivelsesdato."

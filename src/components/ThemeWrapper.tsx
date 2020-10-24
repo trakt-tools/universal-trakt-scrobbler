@@ -1,21 +1,47 @@
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
-import { BrowserStorage } from '../common/BrowserStorage';
+import { BrowserStorage, ThemeValue } from '../common/BrowserStorage';
+
+export interface ThemeDetails {
+	value: ThemeValue;
+	palette: 'light' | 'dark';
+}
 
 export const ThemeWrapper: React.FC = ({ children }) => {
-	const [themePalette, setThemePalette] = React.useState<'light' | 'dark'>('light');
+	const [themeDetails, setThemeDetails] = React.useState<ThemeDetails>({
+		value: 'system',
+		palette: 'light',
+	});
+	const prefersLightMode = useMediaQuery('(prefers-color-scheme: light)', { noSsr: true });
+	const systemPalette = prefersLightMode ? 'light' : 'dark';
 
 	React.useEffect(() => {
-		const setDarkTheme = async () => {
+		const setTheme = async () => {
 			const { options } = await BrowserStorage.get('options');
-			if (options?.useDarkTheme) {
-				setThemePalette('dark');
+			const themeValue = options?.theme ?? 'light';
+			const themePalette = themeValue === 'system' ? systemPalette : themeValue;
+			setThemeDetails({
+				value: themeValue,
+				palette: themePalette,
+			});
+		};
+
+		void setTheme();
+	}, []);
+
+	React.useEffect(() => {
+		const updateSystemPalette = () => {
+			if (themeDetails.value === 'system' && themeDetails.palette !== systemPalette) {
+				setThemeDetails({
+					value: 'system',
+					palette: systemPalette,
+				});
 			}
 		};
 
-		void setDarkTheme();
-	}, []);
+		updateSystemPalette();
+	}, [systemPalette]);
 
 	React.useEffect(() => {
 		const startListeners = () => {
@@ -35,15 +61,16 @@ export const ThemeWrapper: React.FC = ({ children }) => {
 			}
 			const { options } = changes;
 			if (options) {
-				const { useDarkTheme } = options.newValue;
-				setThemePalette((prevThemePalette) => {
-					if (useDarkTheme && prevThemePalette === 'light') {
-						return 'dark';
+				const { theme: themeValue } = options.newValue;
+				setThemeDetails((prevThemeDetails) => {
+					if (prevThemeDetails.value === themeValue) {
+						return prevThemeDetails;
 					}
-					if (!useDarkTheme && prevThemePalette === 'dark') {
-						return 'light';
-					}
-					return prevThemePalette;
+					const themePalette = themeValue === 'system' ? systemPalette : themeValue;
+					return {
+						value: themeValue,
+						palette: themePalette,
+					};
 				});
 			}
 		};
@@ -54,7 +81,7 @@ export const ThemeWrapper: React.FC = ({ children }) => {
 
 	const theme = createMuiTheme({
 		palette: {
-			type: themePalette,
+			type: themeDetails.palette,
 		},
 	});
 

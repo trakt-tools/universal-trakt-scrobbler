@@ -23,10 +23,12 @@ export type StorageValuesOptions = {
 	disableScrobbling: boolean;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
-	useDarkTheme: boolean;
+	theme: ThemeValue;
 	allowRollbar: boolean;
 	grantCookies: boolean;
 };
+
+export type ThemeValue = 'light' | 'dark' | 'system';
 
 export type StorageValuesSyncOptions = {
 	addWithReleaseDate: boolean;
@@ -49,7 +51,12 @@ export type Options = {
 	[K in keyof StorageValuesOptions]: Option<K>;
 };
 
-export type Option<K extends keyof StorageValuesOptions> = {
+export type Option<K extends keyof StorageValuesOptions> =
+	| SwitchOption<K>
+	| SelectOption<K>
+	| ListOption<K>;
+
+export type BaseOption<K extends keyof StorageValuesOptions> = {
 	id: K;
 	name: string;
 	description: React.ReactElement | string;
@@ -58,6 +65,19 @@ export type Option<K extends keyof StorageValuesOptions> = {
 	permissions: browser.permissions.Permission[];
 	doShow: boolean;
 };
+
+export interface SwitchOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'switch';
+}
+
+export interface SelectOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'select';
+	selectItems: Record<string, string>;
+}
+
+export interface ListOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'list';
+}
 
 export type SyncOptions = {
 	[K in keyof StorageValuesSyncOptions]: {
@@ -136,6 +156,7 @@ class _BrowserStorage {
 	getOptions = async (): Promise<Options> => {
 		const options: Options = {
 			streamingServices: {
+				type: 'list',
 				id: 'streamingServices',
 				name: '',
 				description: '',
@@ -147,6 +168,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			disableScrobbling: {
+				type: 'switch',
 				id: 'disableScrobbling',
 				name: '',
 				description: '',
@@ -156,6 +178,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			showNotifications: {
+				type: 'switch',
 				id: 'showNotifications',
 				name: '',
 				description: '',
@@ -165,6 +188,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			sendReceiveSuggestions: {
+				type: 'switch',
 				id: 'sendReceiveSuggestions',
 				name: '',
 				description: (
@@ -185,16 +209,23 @@ class _BrowserStorage {
 				permissions: [],
 				doShow: true,
 			},
-			useDarkTheme: {
-				id: 'useDarkTheme',
+			theme: {
+				type: 'select',
+				id: 'theme',
 				name: '',
 				description: '',
-				value: false,
+				selectItems: {
+					light: I18N.translate('lightTheme'),
+					dark: I18N.translate('darkTheme'),
+					system: I18N.translate('systemTheme'),
+				},
+				value: 'light',
 				origins: [],
 				permissions: [],
 				doShow: true,
 			},
 			allowRollbar: {
+				type: 'switch',
 				id: 'allowRollbar',
 				name: '',
 				description: '',
@@ -204,6 +235,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			grantCookies: {
+				type: 'switch',
 				id: 'grantCookies',
 				name: '',
 				description: '',

@@ -79,6 +79,9 @@
 	"couldNotScrobble": {
 		"message": "Não foi possível realizar o scrobble."
 	},
+	"darkTheme": {
+		"message": "Escuro"
+	},
 	"disableScrobblingDescription": {
 		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil caso você queira usar apenas a sincronização de histórico."
 	},
@@ -140,6 +143,9 @@
 	},
 	"itemsPerLoadName": {
 		"message": "Itens por página."
+	},
+	"lightTheme": {
+		"message": "Claro"
 	},
 	"loadHistoryError": {
 		"message": "Ocorreu um erro ao carregar o histórico."
@@ -284,6 +290,15 @@
 	"sync": {
 		"message": "Sincronizar"
 	},
+	"systemTheme": {
+		"message": "Usar sua preferência do sistema"
+	},
+	"themeDescription": {
+		"message": "Escolha que tema usar."
+	},
+	"themeName": {
+		"message": "Tema"
+	},
 	"toggleAll": {
 		"message": "Inverso"
 	},
@@ -298,12 +313,6 @@
 	},
 	"useCustomDate": {
 		"message": "Usar data customizada."
-	},
-	"useDarkThemeDescription": {
-		"message": "Com essa opção ativada, um tema escuro é aplicado."
-	},
-	"useDarkThemeName": {
-		"message": "Usar tema escuro."
 	},
 	"useReleaseDate": {
 		"message": "Usar data de lançamento."
