@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { Errors } from '../../../common/Errors';
 import { EventDispatcher } from '../../../common/Events';
+import { I18N } from '../../../common/I18N';
 
 export const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');
@@ -14,8 +15,8 @@ export const OptionsActions: React.FC = () => {
 
 	const onClearStorageClick = async () => {
 		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
-			title: browser.i18n.getMessage('confirmClearStorageTitle'),
-			message: browser.i18n.getMessage('confirmClearStorageMessage'),
+			title: I18N.translate('confirmClearStorageTitle'),
+			message: I18N.translate('confirmClearStorageMessage'),
 			onConfirm: async () => {
 				try {
 					await BrowserStorage.clear(true);
@@ -39,8 +40,8 @@ export const OptionsActions: React.FC = () => {
 
 	const onClearTraktCacheClick = async () => {
 		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
-			title: browser.i18n.getMessage('confirmClearTraktCacheTitle'),
-			message: browser.i18n.getMessage('confirmClearTraktCacheMessage'),
+			title: I18N.translate('confirmClearTraktCacheTitle'),
+			message: I18N.translate('confirmClearTraktCacheMessage'),
 			onConfirm: async () => {
 				try {
 					await BrowserStorage.remove('traktCache');
@@ -69,10 +70,10 @@ export const OptionsActions: React.FC = () => {
 			<Divider />
 			<Box className="options-actions">
 				<Button onClick={onClearStorageClick} variant="contained">
-					{browser.i18n.getMessage('clearStorage')}
+					{I18N.translate('clearStorage')}
 				</Button>
 				<Button onClick={onClearTraktCacheClick} variant="contained">
-					{browser.i18n.getMessage('clearTraktCache')} (<span>{cacheSize}</span>)
+					{I18N.translate('clearTraktCache')} (<span>{cacheSize}</span>)
 				</Button>
 			</Box>
 		</Box>

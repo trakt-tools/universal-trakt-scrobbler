@@ -1,8 +1,9 @@
 import * as moment from 'moment';
-import { Item } from '../../models/Item';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { Requests } from '../../common/Requests';
+import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
@@ -148,6 +149,7 @@ class _ViaplayApi extends Api {
 			getSyncStore('viaplay')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
+				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});
@@ -161,6 +163,7 @@ class _ViaplayApi extends Api {
 
 	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
 		let item: Item;
+		const serviceId = this.id;
 		const year = historyItem.content.production.year;
 		const progress = historyItem.user.progress;
 		const percentageWatched = progress?.elapsedPercent || 0;
@@ -173,6 +176,7 @@ class _ViaplayApi extends Api {
 			const episode = content.series.episodeNumber;
 			const episodeTitle = content.title !== title ? content.title : content.series.episodeTitle;
 			item = new Item({
+				serviceId,
 				id,
 				type: 'show',
 				title,
@@ -186,7 +190,7 @@ class _ViaplayApi extends Api {
 			});
 		} else {
 			const title = historyItem.content.title;
-			item = new Item({ id, type: 'movie', title, year, percentageWatched, watchedAt });
+			item = new Item({ serviceId, id, type: 'movie', title, year, percentageWatched, watchedAt });
 		}
 		return item;
 	};

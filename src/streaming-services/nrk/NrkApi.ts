@@ -1,8 +1,9 @@
 import * as moment from 'moment';
-import { Item } from '../../models/Item';
+import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { Requests } from '../../common/Requests';
+import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
@@ -85,6 +86,7 @@ class _NrkApi extends Api {
 			getSyncStore('nrk')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
 				.then(this.loadTraktHistory)
+				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});
@@ -99,6 +101,7 @@ class _NrkApi extends Api {
 	parseHistoryItem = (historyItem: NrkHistoryItem): Item => {
 		const program: NrkProgramInfo = historyItem.program;
 		let item: Item;
+		const serviceId = this.id;
 		const id = program.id;
 		const type = program.programType === 'Episode' ? 'show' : 'movie';
 		const year = program.productionYear;
@@ -111,6 +114,7 @@ class _NrkApi extends Api {
 			const episode = parseInt(program.episodeNumber, 10);
 			const episodeTitle = program.mainTitle.trim();
 			item = new Item({
+				serviceId,
 				id,
 				type,
 				title,
@@ -124,7 +128,7 @@ class _NrkApi extends Api {
 			});
 		} else {
 			const title = program.title.trim();
-			item = new Item({ id, type, title, year, percentageWatched, watchedAt });
+			item = new Item({ serviceId, id, type, title, year, percentageWatched, watchedAt });
 		}
 		return item;
 	};

@@ -41,7 +41,7 @@ class _TraktScrobble extends TraktApi {
 	}
 
 	start = async (item: TraktItem): Promise<void> => {
-		if (!Shared.isBackgroundPage) {
+		if (Shared.pageType !== 'background') {
 			await Messaging.toBackground({ action: 'start-scrobble' });
 		}
 		await this.send(item, this.START);
@@ -53,7 +53,7 @@ class _TraktScrobble extends TraktApi {
 
 	stop = async (item: TraktItem): Promise<void> => {
 		await this.send(item, this.STOP);
-		if (!Shared.isBackgroundPage) {
+		if (Shared.pageType !== 'background') {
 			await Messaging.toBackground({ action: 'stop-scrobble' });
 		}
 	};

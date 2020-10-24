@@ -1,7 +1,10 @@
+import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
+import { CorrectionSuggestion, ItemBase } from '../models/Item';
 import { TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
+import { I18N } from './I18N';
 import { Shared } from './Shared';
 
 export type StorageValues = {
@@ -9,8 +12,8 @@ export type StorageValues = {
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
-	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
-	scrobblingItem?: Omit<TraktItemBase, ''>;
+	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
+	scrobblingItem?: ScrobblingItem;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
@@ -31,6 +34,17 @@ export type StorageValuesSyncOptions = {
 	itemsPerLoad: number;
 };
 
+export type CorrectItem = {
+	type: 'episode' | 'movie';
+	traktId?: number;
+	url: string;
+};
+
+export type ScrobblingItem = Omit<ItemBase, ''> & {
+	trakt: Omit<TraktItemBase, ''>;
+	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
+};
+
 export type Options = {
 	[K in keyof StorageValuesOptions]: Option<K>;
 };
@@ -38,7 +52,7 @@ export type Options = {
 export type Option<K extends keyof StorageValuesOptions> = {
 	id: K;
 	name: string;
-	description: string;
+	description: React.ReactElement | string;
 	value: StorageValuesOptions[K];
 	origins: string[];
 	permissions: browser.permissions.Permission[];
@@ -153,7 +167,19 @@ class _BrowserStorage {
 			sendReceiveSuggestions: {
 				id: 'sendReceiveSuggestions',
 				name: '',
-				description: '',
+				description: (
+					<>
+						{I18N.translate('sendReceiveSuggestionsDescription')}
+						<br />
+						<a
+							href="https://docs.google.com/spreadsheets/d/1V3m_eMYTJSREehtxz3SeNqFLJlWWIx7Bm0Dp-1WMvnk/edit?usp=sharing"
+							target="_blank"
+							rel="noreferrer"
+						>
+							Google Sheet
+						</a>
+					</>
+				),
 				value: false,
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 				permissions: [],
@@ -189,8 +215,10 @@ class _BrowserStorage {
 		};
 		const values = await BrowserStorage.get('options');
 		for (const option of Object.values(options)) {
-			option.name = browser.i18n.getMessage(`${option.id}Name`);
-			option.description = browser.i18n.getMessage(`${option.id}Description`);
+			option.name = I18N.translate(`${option.id}Name` as MessageName);
+			if (!option.description) {
+				option.description = I18N.translate(`${option.id}Description` as MessageName);
+			}
 			option.value = (values.options && values.options[option.id]) || option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
@@ -224,7 +252,7 @@ class _BrowserStorage {
 		};
 		const values = await BrowserStorage.get('syncOptions');
 		for (const option of Object.values(options)) {
-			option.name = browser.i18n.getMessage(`${option.id}Name`);
+			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
 		}
 		return options;

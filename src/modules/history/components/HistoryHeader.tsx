@@ -1,9 +1,10 @@
 import { AppBar, Button, Toolbar } from '@material-ui/core';
 import { History } from 'history';
 import * as React from 'react';
-import { UtsLeftRight } from '../../../components/UtsLeftRight';
+import { I18N } from '../../../common/I18N';
 import { Session } from '../../../common/Session';
 import { Tabs } from '../../../common/Tabs';
+import { UtsLeftRight } from '../../../components/UtsLeftRight';
 
 interface HistoryHeaderProps {
 	history: History;
@@ -33,23 +34,23 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 					left={
 						<>
 							<Button color="inherit" onClick={() => onRouteClick('/home')}>
-								{browser.i18n.getMessage('home')}
+								{I18N.translate('home')}
 							</Button>
 							<Button color="inherit" onClick={() => onRouteClick('/about')}>
-								{browser.i18n.getMessage('about')}
+								{I18N.translate('about')}
 							</Button>
 							<Button
 								color="inherit"
 								onClick={() => onLinkClick(browser.runtime.getURL('/html/options.html'))}
 							>
-								{browser.i18n.getMessage('options')}
+								{I18N.translate('options')}
 							</Button>
 						</>
 					}
 					right={
 						isLoggedIn ? (
 							<Button color="inherit" onClick={onLogoutClick}>
-								{browser.i18n.getMessage('logout')}
+								{I18N.translate('logout')}
 							</Button>
 						) : undefined
 					}

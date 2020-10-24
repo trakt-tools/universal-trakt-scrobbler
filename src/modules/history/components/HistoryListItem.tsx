@@ -2,8 +2,9 @@ import { Box, Checkbox } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
-import { Item } from '../../../models/Item';
 import { EventDispatcher } from '../../../common/Events';
+import { I18N } from '../../../common/I18N';
+import { Item } from '../../../models/Item';
 import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
@@ -12,10 +13,11 @@ interface HistoryListItemProps {
 	item: Item;
 	serviceId: StreamingServiceId;
 	serviceName: string;
+	sendReceiveSuggestions: boolean;
 }
 
 export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
-	const { dateFormat, item, serviceId, serviceName } = props;
+	const { dateFormat, item, serviceId, serviceName, sendReceiveSuggestions } = props;
 
 	const onCheckboxChange = async () => {
 		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
@@ -38,7 +40,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		});
 	};
 
-	const [statusColor, statusMessageName] = item.trakt?.watchedAt
+	const [statusColor, statusMessageName]: [string, MessageName] = item.trakt?.watchedAt
 		? [green[500], 'itemSynced']
 		: [red[500], 'itemNotSynced'];
 
@@ -60,7 +62,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			/>
 			<Box
 				className="history-list-item-status"
-				title={browser.i18n.getMessage(statusMessageName)}
+				title={I18N.translate(statusMessageName)}
 				style={{ backgroundColor: statusColor }}
 			>
 				<SyncIcon />
@@ -69,6 +71,8 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				dateFormat={dateFormat}
 				item={item.trakt}
 				name="Trakt"
+				sendReceiveSuggestions={sendReceiveSuggestions}
+				correctionSuggestions={item.correctionSuggestions}
 				openWrongItemDialog={openWrongItemDialog}
 			/>
 		</Box>

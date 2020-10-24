@@ -3,6 +3,7 @@ import { Alert, Color } from '@material-ui/lab';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { EventDispatcher, SnackbarShowData } from '../common/Events';
+import { I18N } from '../common/I18N';
 
 interface SnackBarState {
 	isOpen: boolean;
@@ -36,7 +37,7 @@ export const UtsSnackbar: React.FC = () => {
 		const showSnackbar = (data: SnackbarShowData) => {
 			setSnackbar({
 				isOpen: true,
-				message: browser.i18n.getMessage(data.messageName, data.messageArgs || []),
+				message: I18N.translate(data.messageName, data.messageArgs || []),
 				severity: data.severity,
 			});
 		};

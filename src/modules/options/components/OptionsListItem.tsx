@@ -9,8 +9,9 @@ import {
 import * as React from 'react';
 import { Option, StorageValuesOptions } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
-import { StreamingServiceOptions } from './StreamingServiceOptions';
+import { I18N } from '../../../common/I18N';
 import { StreamingServiceId } from '../../../streaming-services/streaming-services';
+import { StreamingServiceOptions } from './StreamingServiceOptions';
 
 interface OptionsListItemProps {
 	option: Option<keyof StorageValuesOptions>;
@@ -77,9 +78,9 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 				{isStreamingServiceOption(option) ? (
 					<ListItemSecondaryAction>
 						<ButtonGroup variant="contained">
-							<Button onClick={onSelectAllClick}>{browser.i18n.getMessage('selectAll')}</Button>
-							<Button onClick={onSelectNoneClick}>{browser.i18n.getMessage('selectNone')}</Button>
-							<Button onClick={onToggleAllClick}>{browser.i18n.getMessage('toggleAll')}</Button>
+							<Button onClick={onSelectAllClick}>{I18N.translate('selectAll')}</Button>
+							<Button onClick={onSelectNoneClick}>{I18N.translate('selectNone')}</Button>
+							<Button onClick={onToggleAllClick}>{I18N.translate('toggleAll')}</Button>
 						</ButtonGroup>
 					</ListItemSecondaryAction>
 				) : (

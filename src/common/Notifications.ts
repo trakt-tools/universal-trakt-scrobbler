@@ -1,17 +1,18 @@
 import { TraktScrobble } from '../api/TraktScrobble';
 import { BrowserStorage } from './BrowserStorage';
 import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData } from './Events';
+import { I18N } from './I18N';
 import { Messaging } from './Messaging';
 import { RequestException } from './Requests';
 
 class _Notifications {
-	messageNames: Record<number, string>;
+	messageNames: Record<number, MessageName>;
 
 	constructor() {
 		this.messageNames = {
 			[TraktScrobble.START]: 'scrobbleStarted',
 			[TraktScrobble.PAUSE]: 'scrobblePaused',
-			[TraktScrobble.STOP]: 'scrobbleStoped',
+			[TraktScrobble.STOP]: 'scrobbleStopped',
 		};
 	}
 
@@ -28,10 +29,10 @@ class _Notifications {
 		let message = '';
 		if ('error' in data) {
 			title = await this.getTitleFromException(data.error);
-			message = `${browser.i18n.getMessage('couldNotScrobble')} ${data.item.title}`;
+			message = `${I18N.translate('couldNotScrobble')} ${data.item.title}`;
 		} else {
 			title = data.item.title;
-			message = browser.i18n.getMessage(this.messageNames[data.scrobbleType]);
+			message = I18N.translate(this.messageNames[data.scrobbleType]);
 		}
 		await this.show(title, message);
 	};
@@ -40,19 +41,19 @@ class _Notifications {
 		let title = '';
 		if (err) {
 			if (err.status === 404) {
-				title = browser.i18n.getMessage('errorNotificationNotFound');
+				title = I18N.translate('errorNotificationNotFound');
 			} else if (err.status === 0) {
 				const { auth } = await BrowserStorage.get('auth');
 				if (auth?.access_token) {
-					title = browser.i18n.getMessage('errorNotificationServers');
+					title = I18N.translate('errorNotificationServers');
 				} else {
-					title = browser.i18n.getMessage('errorNotificationLogin');
+					title = I18N.translate('errorNotificationLogin');
 				}
 			} else {
-				title = browser.i18n.getMessage('errorNotificationServers');
+				title = I18N.translate('errorNotificationServers');
 			}
 		} else {
-			title = browser.i18n.getMessage('errorNotification');
+			title = I18N.translate('errorNotification');
 		}
 		return title;
 	};

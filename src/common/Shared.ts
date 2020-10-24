@@ -1,11 +1,13 @@
 interface SharedValues {
 	browser: BrowserName;
-	isBackgroundPage: boolean;
+	pageType: PageType;
 }
 
 type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
 
 type BrowserName = 'firefox' | 'chrome' | 'unknown';
+
+type PageType = 'content' | 'popup' | 'background';
 
 const browsers: Record<BrowserPrefix, BrowserName> = {
 	moz: 'firefox',
@@ -18,5 +20,5 @@ const browserPrefix = browser
 
 export const Shared: SharedValues = {
 	browser: browsers[browserPrefix] || 'unknown',
-	isBackgroundPage: false,
+	pageType: 'content',
 };

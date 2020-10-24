@@ -17,13 +17,14 @@ class _ScrobblerTemplateParser implements ScrobbleParser {
 		item = await ScrobblerTemplateApi.getItem();
 
 		// If the service does not have an API, this method will most likely looks like this.
+		const serviceId = 'scrobbler-template';
 		const titleElement = document.querySelector('titleSelector');
 		const yearElement = document.querySelector('yearSelector');
 		const id = 'someUniqueId';
 		const type = 'movie';
 		const title = titleElement?.textContent ?? '';
 		const year = parseInt(yearElement?.textContent ?? '0');
-		item = new Item({ id, type, title, year });
+		item = new Item({ serviceId, id, type, title, year });
 
 		return item;
 	};

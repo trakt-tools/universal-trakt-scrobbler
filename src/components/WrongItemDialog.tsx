@@ -6,13 +6,20 @@ import {
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
+	Divider,
+	List,
+	ListItem,
+	ListItemText,
 	TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { Item } from '../models/Item';
-import { BrowserStorage } from '../common/BrowserStorage';
+import { BrowserStorage, CorrectItem } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
+import { I18N } from '../common/I18N';
+import { Messaging } from '../common/Messaging';
+import { Shared } from '../common/Shared';
+import { CorrectionSuggestion, Item } from '../models/Item';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
@@ -21,6 +28,8 @@ interface WrongItemDialogState {
 	isLoading: boolean;
 	serviceId?: StreamingServiceId;
 	item?: Item;
+	type: 'episode' | 'movie';
+	traktId?: number;
 	url: string;
 }
 
@@ -28,6 +37,8 @@ export const WrongItemDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<WrongItemDialogState>({
 		isOpen: false,
 		isLoading: false,
+		type: 'episode',
+		traktId: 0,
 		url: '',
 	});
 
@@ -38,10 +49,22 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
-	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-		const { target } = event;
+	const onUseButtonClick = (correctionSuggestion: CorrectionSuggestion): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
+			type: correctionSuggestion.type,
+			traktId: correctionSuggestion.traktId,
+			url: correctionSuggestion.url,
+		}));
+	};
+
+	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		const { target } = event;
+		const url = target.value;
+		setDialog((prevDialog) => ({
+			...prevDialog,
+			type: url.includes('shows') ? 'episode' : 'movie',
+			traktId: 0,
 			url: target.value,
 		}));
 	};
@@ -59,25 +82,37 @@ export const WrongItemDialog: React.FC = () => {
 				throw new Error('Invalid URL');
 			}
 			const url = cleanUrl(dialog.url);
-			const storage = await BrowserStorage.get('correctUrls');
-			let { correctUrls } = storage;
-			if (!correctUrls) {
-				correctUrls = Object.fromEntries(
+			let { correctItems } = await BrowserStorage.get('correctItems');
+			if (!correctItems) {
+				correctItems = Object.fromEntries(
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
-				) as Record<StreamingServiceId, Record<string, string>>;
+				) as Record<StreamingServiceId, Record<string, CorrectItem>>;
 			}
-			if (!correctUrls[dialog.serviceId]) {
-				correctUrls[dialog.serviceId] = {};
+			if (!correctItems[dialog.serviceId]) {
+				correctItems[dialog.serviceId] = {};
 			}
-			const serviceCorrectUrls = correctUrls[dialog.serviceId];
-			if (serviceCorrectUrls) {
-				serviceCorrectUrls[dialog.item.id] = url;
+			const serviceCorrectItems = correctItems[dialog.serviceId];
+			if (serviceCorrectItems) {
+				serviceCorrectItems[dialog.item.id] = {
+					type: dialog.type,
+					traktId: dialog.traktId,
+					url,
+				};
 			}
-			await BrowserStorage.set({ correctUrls }, true);
-			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
+			await BrowserStorage.set({ correctItems }, true);
+			const data = {
 				item: dialog.item,
+				type: dialog.type,
+				traktId: dialog.traktId,
 				url,
-			});
+			};
+			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, data);
+			if (Shared.pageType === 'popup') {
+				const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
+				if (scrobblingTabId) {
+					await Messaging.toContent({ action: 'wrong-item-corrected', ...data }, scrobblingTabId);
+				}
+			}
 		} catch (err) {
 			Errors.error('Failed to correct item.', err);
 			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
@@ -122,6 +157,8 @@ export const WrongItemDialog: React.FC = () => {
 				isOpen: true,
 				isLoading: false,
 				...data,
+				type: 'episode',
+				traktId: 0,
 				url: '',
 			});
 		};
@@ -133,7 +170,7 @@ export const WrongItemDialog: React.FC = () => {
 	const [urlLabel, urlError] =
 		!dialog.url || isValidUrl(dialog.url)
 			? ['URL', false]
-			: [browser.i18n.getMessage('wrongItemDialogInvalidUrlLabel'), true];
+			: [I18N.translate('wrongItemDialogInvalidUrlLabel'), true];
 
 	return (
 		<Dialog
@@ -142,9 +179,7 @@ export const WrongItemDialog: React.FC = () => {
 			aria-labelledby="wrong-item-dialog-title"
 			onClose={closeDialog}
 		>
-			<DialogTitle id="wrong-item-dialog-title">
-				{browser.i18n.getMessage('correctWrongItem')}
-			</DialogTitle>
+			<DialogTitle id="wrong-item-dialog-title">{I18N.translate('correctWrongItem')}</DialogTitle>
 			{dialog.isLoading ? (
 				<UtsCenter>
 					<CircularProgress />
@@ -153,7 +188,7 @@ export const WrongItemDialog: React.FC = () => {
 				<>
 					<DialogContent>
 						<DialogContentText>
-							{browser.i18n.getMessage(
+							{I18N.translate(
 								'wrongItemDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
@@ -166,6 +201,32 @@ export const WrongItemDialog: React.FC = () => {
 									: 'Unknown'
 							)}
 						</DialogContentText>
+						{dialog.item?.correctionSuggestions && dialog.item.correctionSuggestions.length > 0 && (
+							<>
+								<Divider />
+								<DialogContentText className="wrong-item-dialog-suggestions-title">
+									{I18N.translate('wrongItemDialogContentSuggestions')}
+								</DialogContentText>
+								<List>
+									{dialog.item.correctionSuggestions.map((correctionSuggestion, index) => (
+										<ListItem
+											key={index}
+											button
+											onClick={() => onUseButtonClick(correctionSuggestion)}
+										>
+											<ListItemText
+												primary={correctionSuggestion.url}
+												secondary={I18N.translate(
+													'suggestedBy',
+													correctionSuggestion.count.toString()
+												)}
+											/>
+										</ListItem>
+									))}
+								</List>
+								<Divider />
+							</>
+						)}
 						<TextField
 							type="string"
 							id="wrong-item-dialog-url"
@@ -181,7 +242,7 @@ export const WrongItemDialog: React.FC = () => {
 					</DialogContent>
 					<DialogActions>
 						<Button color="default" onClick={closeDialog}>
-							{browser.i18n.getMessage('cancel')}
+							{I18N.translate('cancel')}
 						</Button>
 						<Button
 							color="primary"
@@ -189,7 +250,7 @@ export const WrongItemDialog: React.FC = () => {
 							variant="contained"
 							onClick={onCorrectButtonClick}
 						>
-							{browser.i18n.getMessage('correct')}
+							{I18N.translate('correct')}
 						</Button>
 					</DialogActions>
 				</>

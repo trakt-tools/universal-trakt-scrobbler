@@ -16,6 +16,7 @@ import * as moment from 'moment';
 import * as React from 'react';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, MissingWatchedDateDialogShowData } from '../common/Events';
+import { I18N } from '../common/I18N';
 import { Item } from '../models/Item';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
@@ -137,8 +138,8 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		return stopListeners;
 	}, []);
 
-	const dateLabel = browser.i18n.getMessage('missingWatchedDateDialogDateLabel');
-	const invalidDateLabel = browser.i18n.getMessage('missingWatchedDateDialogInvalidDateLabel');
+	const dateLabel = I18N.translate('missingWatchedDateDialogDateLabel');
+	const invalidDateLabel = I18N.translate('missingWatchedDateDialogInvalidDateLabel');
 
 	return (
 		<Dialog
@@ -148,7 +149,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 			onClose={closeDialog}
 		>
 			<DialogTitle id="missing-watched-date-item-dialog-title">
-				{browser.i18n.getMessage('missingWatchedDate')}
+				{I18N.translate('missingWatchedDate')}
 			</DialogTitle>
 			{dialog.isLoading ? (
 				<UtsCenter>
@@ -158,7 +159,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				<>
 					<DialogContent>
 						<DialogContentText>
-							{browser.i18n.getMessage(
+							{I18N.translate(
 								'missingWatchedDateDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
@@ -178,17 +179,17 @@ export const MissingWatchedDateDialog: React.FC = () => {
 							onChange={onDateTypeChange}
 						>
 							<FormControlLabel
-								label={browser.i18n.getMessage('useReleaseDate')}
+								label={I18N.translate('useReleaseDate')}
 								value="release-date"
 								control={<Radio />}
 							/>
 							<FormControlLabel
-								label={browser.i18n.getMessage('useCurrentDate')}
+								label={I18N.translate('useCurrentDate')}
 								value="current-date"
 								control={<Radio />}
 							/>
 							<FormControlLabel
-								label={browser.i18n.getMessage('useCustomDate')}
+								label={I18N.translate('useCustomDate')}
 								value="custom-date"
 								control={<Radio />}
 							/>
@@ -216,7 +217,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 					</DialogContent>
 					<DialogActions>
 						<Button color="default" onClick={closeDialog}>
-							{browser.i18n.getMessage('cancel')}
+							{I18N.translate('cancel')}
 						</Button>
 						<Button
 							color="primary"
@@ -227,7 +228,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 							variant="contained"
 							onClick={onAddButtonClick}
 						>
-							{browser.i18n.getMessage('add')}
+							{I18N.translate('add')}
 						</Button>
 					</DialogActions>
 				</>

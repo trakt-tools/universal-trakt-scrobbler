@@ -5,7 +5,13 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
-import { BrowserStorage, StorageValuesSyncOptions, SyncOptions } from '../../common/BrowserStorage';
+import { WrongItemApi } from '../../api/WrongItemApi';
+import {
+	BrowserStorage,
+	Options,
+	StorageValuesSyncOptions,
+	SyncOptions,
+} from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import {
 	EventDispatcher,
@@ -15,6 +21,7 @@ import {
 	StreamingServiceStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
+import { I18N } from '../../common/I18N';
 import { UtsCenter } from '../../components/UtsCenter';
 import { Item } from '../../models/Item';
 import { HistoryActions } from '../../modules/history/components/HistoryActions';
@@ -34,6 +41,11 @@ interface PageProps {
 
 interface OptionsContent {
 	hasLoaded: boolean;
+	options: Options;
+}
+
+interface SyncOptionsContent {
+	hasLoaded: boolean;
 	options: SyncOptions;
 }
 
@@ -50,6 +62,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	const [optionsContent, setOptionsContent] = useState<OptionsContent>({
 		hasLoaded: false,
+		options: {} as Options,
+	});
+	const [syncOptionsContent, setSyncOptionsContent] = useState<SyncOptionsContent>({
+		hasLoaded: false,
 		options: {} as SyncOptions,
 	});
 	const [content, setContent] = useState<Content>({
@@ -63,7 +79,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	const loadNextPage = () => {
 		const itemsToLoad =
-			(content.nextVisualPage + 1) * optionsContent.options.itemsPerLoad.value -
+			(content.nextVisualPage + 1) * syncOptionsContent.options.itemsPerLoad.value -
 			content.items.length;
 		if (itemsToLoad > 0) {
 			setContent((prevContent) => ({
@@ -83,12 +99,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	const onSyncClick = async () => {
-		if (!optionsContent.options.addWithReleaseDate.value) {
+		if (!syncOptionsContent.options.addWithReleaseDate.value) {
 			const missingWatchedDate = store.data.items.find((item) => !item.watchedAt);
 			if (missingWatchedDate) {
 				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
-					title: browser.i18n.getMessage('cannotSync'),
-					message: browser.i18n.getMessage('cannotSyncMissingWatchedDate'),
+					title: I18N.translate('cannotSync'),
+					message: I18N.translate('cannotSyncMissingWatchedDate'),
 				});
 			}
 		}
@@ -96,7 +112,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			...prevContent,
 			isLoading: true,
 		}));
-		await TraktSync.sync(store.data.items, optionsContent.options.addWithReleaseDate.value);
+		await TraktSync.sync(store.data.items, syncOptionsContent.options.addWithReleaseDate.value);
 		setContent((prevContent) => ({
 			...prevContent,
 			isLoading: false,
@@ -157,7 +173,20 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!traktCache) {
 				traktCache = {};
 			}
-			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, data.url);
+			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, {
+				type: data.type,
+				traktId: data.traktId,
+				url: data.url,
+			});
+			try {
+				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
+			} catch (err) {
+				Errors.error('Failed to save suggestion.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'saveSuggestionFailed',
+					severity: 'error',
+				});
+			}
 			await BrowserStorage.set({ traktCache }, false);
 			await getSyncStore(serviceId).update();
 		};
@@ -215,9 +244,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		const onOptionsChange = (data: HistoryOptionsChangeData) => {
 			const optionsToSave = {} as StorageValuesSyncOptions;
 			const options = {
-				...optionsContent.options,
+				...syncOptionsContent.options,
 				[data.id]: {
-					...optionsContent.options[data.id],
+					...syncOptionsContent.options[data.id],
 					value: data.value,
 				},
 			};
@@ -226,7 +255,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 			BrowserStorage.set({ syncOptions: optionsToSave }, true)
 				.then(async () => {
-					setOptionsContent({
+					setSyncOptionsContent({
 						hasLoaded: true,
 						options,
 					});
@@ -246,17 +275,28 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		startListeners();
 		return stopListeners;
-	}, [optionsContent.options]);
+	}, [syncOptionsContent.options]);
 
 	useEffect(() => {
 		const getOptions = async () => {
 			setOptionsContent({
 				hasLoaded: true,
-				options: await BrowserStorage.getSyncOptions(),
+				options: await BrowserStorage.getOptions(),
 			});
 		};
 
 		void getOptions();
+	}, []);
+
+	useEffect(() => {
+		const getSyncOptions = async () => {
+			setSyncOptionsContent({
+				hasLoaded: true,
+				options: await BrowserStorage.getSyncOptions(),
+			});
+		};
+
+		void getSyncOptions();
 	}, []);
 
 	useEffect(() => {
@@ -269,21 +309,21 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const loadFirstPage = () => {
-			if (optionsContent.hasLoaded) {
+			if (syncOptionsContent.hasLoaded) {
 				loadNextPage();
 			}
 		};
 
 		loadFirstPage();
-	}, [optionsContent.hasLoaded]);
+	}, [syncOptionsContent.hasLoaded]);
 
 	let itemsToShow: Item[] = [];
-	if (optionsContent.hasLoaded && content.nextVisualPage > 0) {
+	if (syncOptionsContent.hasLoaded && content.nextVisualPage > 0) {
 		itemsToShow = content.items.slice(
-			(content.nextVisualPage - 1) * optionsContent.options.itemsPerLoad.value,
-			content.nextVisualPage * optionsContent.options.itemsPerLoad.value
+			(content.nextVisualPage - 1) * syncOptionsContent.options.itemsPerLoad.value,
+			content.nextVisualPage * syncOptionsContent.options.itemsPerLoad.value
 		);
-		if (optionsContent.options.hideSynced.value) {
+		if (syncOptionsContent.options.hideSynced.value) {
 			itemsToShow = itemsToShow.filter((x) => !x.trakt?.watchedAt);
 		}
 	}
@@ -295,17 +335,18 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	) : (
 		<>
 			<Box className="history-content">
-				<HistoryOptionsList options={Object.values(optionsContent.options)} store={store} />
+				<HistoryOptionsList options={Object.values(syncOptionsContent.options)} store={store} />
 				{itemsToShow.length > 0 ? (
 					<HistoryList
 						dateFormat={dateFormat}
 						items={itemsToShow}
 						serviceId={serviceId}
 						serviceName={serviceName}
+						sendReceiveSuggestions={optionsContent.options.sendReceiveSuggestions?.value ?? false}
 					/>
 				) : (
 					<Box className="history-content--empty">
-						<Typography variant="body1">{browser.i18n.getMessage('noMoreHistory')}</Typography>
+						<Typography variant="body1">{I18N.translate('noMoreHistory')}</Typography>
 					</Box>
 				)}
 			</Box>

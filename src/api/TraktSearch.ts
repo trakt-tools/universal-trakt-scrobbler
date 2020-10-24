@@ -1,7 +1,8 @@
-import { Item } from '../models/Item';
-import { TraktItem } from '../models/TraktItem';
+import { CorrectItem } from '../common/BrowserStorage';
 import { EventDispatcher } from '../common/Events';
 import { Requests } from '../common/Requests';
+import { Item } from '../models/Item';
+import { TraktItem } from '../models/TraktItem';
 import { TraktApi } from './TraktApi';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
@@ -55,12 +56,12 @@ class _TraktSearch extends TraktApi {
 		super();
 	}
 
-	find = async (item: Item, url?: string): Promise<TraktItem | undefined> => {
+	find = async (item: Item, correctItem?: CorrectItem): Promise<TraktItem | undefined> => {
 		let traktItem: TraktItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
-			if (url) {
-				searchItem = await this.findItemFromUrl(url);
+			if (correctItem) {
+				searchItem = await this.findItemFromIdOrUrl(correctItem);
 			} else if (item.type === 'show') {
 				searchItem = await this.findEpisode(item);
 			} else {
@@ -109,15 +110,23 @@ class _TraktSearch extends TraktApi {
 		return traktItem;
 	};
 
-	findItemFromUrl = async (url: string): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {
+	findItemFromIdOrUrl = async (
+		correctItem: CorrectItem
+	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {
+		const url = correctItem.traktId
+			? `/search/trakt/${correctItem.traktId}?type=${correctItem.type}&extended=full`
+			: `${correctItem.url}?extended=full`;
 		const searchItemResponse = await Requests.send({
-			url: `${this.API_URL}${url}?extended=full`,
+			url: `${this.API_URL}${url}`,
 			method: 'GET',
 		});
 		const searchItem = JSON.parse(searchItemResponse) as
+			| TraktSearchEpisodeItem[]
 			| TraktEpisodeItemEpisode
 			| TraktSearchMovieItemMovie;
-		if ('season' in searchItem) {
+		if (Array.isArray(searchItem)) {
+			return searchItem[0];
+		} else if ('season' in searchItem) {
 			const showResponse = await Requests.send({
 				url: `${this.API_URL}${url.replace(/\/seasons\/.*/, '')}`,
 				method: 'GET',
