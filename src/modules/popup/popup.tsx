@@ -4,6 +4,7 @@ import '../../assets/assets';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Shared } from '../../common/Shared';
+import { ThemeWrapper } from '../../components/ThemeWrapper';
 import { PopupApp } from './PopupApp';
 
 const init = async () => {
@@ -14,7 +15,12 @@ const init = async () => {
 		Errors.startRollbar();
 	}
 	const root = document.querySelector('#root');
-	ReactDOM.render(<PopupApp />, root);
+	ReactDOM.render(
+		<ThemeWrapper>
+			<PopupApp />
+		</ThemeWrapper>,
+		root
+	);
 };
 
 void init();

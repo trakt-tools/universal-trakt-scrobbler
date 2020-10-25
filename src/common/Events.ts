@@ -159,15 +159,11 @@ class _EventDispatcher {
 		eventSpecifier: string | null,
 		listener: EventDispatcherListener<K>
 	): void => {
+		if (!eventSpecifier) {
+			eventSpecifier = this.globalSpecifier;
+		}
 		if (!this.listeners[eventType]) {
 			this.listeners[eventType] = {};
-		}
-		if (!this.listeners[eventType][this.globalSpecifier]) {
-			this.listeners[eventType][this.globalSpecifier] = [];
-		}
-		this.listeners[eventType][this.globalSpecifier].push(listener);
-		if (!eventSpecifier || eventSpecifier === this.globalSpecifier) {
-			return;
 		}
 		if (!this.listeners[eventType][eventSpecifier]) {
 			this.listeners[eventType][eventSpecifier] = [];
@@ -183,16 +179,10 @@ class _EventDispatcher {
 		if (!this.listeners[eventType]) {
 			return;
 		}
-		if (this.listeners[eventType][this.globalSpecifier]) {
-			this.listeners[eventType][this.globalSpecifier] = this.listeners[eventType][
-				this.globalSpecifier
-			].filter((fn) => fn !== listener);
+		if (!eventSpecifier) {
+			eventSpecifier = this.globalSpecifier;
 		}
-		if (
-			eventSpecifier &&
-			eventSpecifier !== this.globalSpecifier &&
-			this.listeners[eventType][eventSpecifier]
-		) {
+		if (this.listeners[eventType][eventSpecifier]) {
 			this.listeners[eventType][eventSpecifier] = this.listeners[eventType][eventSpecifier].filter(
 				(fn) => fn !== listener
 			);
@@ -204,9 +194,14 @@ class _EventDispatcher {
 		eventSpecifier: string | null,
 		data: EventData[K]
 	): Promise<void> => {
-		const listeners =
-			this.listeners[eventType] &&
-			this.listeners[eventType][eventSpecifier || this.globalSpecifier];
+		if (!eventSpecifier) {
+			eventSpecifier = this.globalSpecifier;
+		}
+		const listeners = this.listeners[eventType] && [
+			...(this.listeners[eventType][this.globalSpecifier] ?? []),
+			...((eventSpecifier !== this.globalSpecifier && this.listeners[eventType][eventSpecifier]) ||
+				[]),
+		];
 		if (!listeners) {
 			return;
 		}

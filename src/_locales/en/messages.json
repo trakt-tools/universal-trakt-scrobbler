@@ -79,6 +79,9 @@
 	"couldNotScrobble": {
 		"message": "Could not scrobble."
 	},
+	"darkTheme": {
+		"message": "Dark"
+	},
 	"disableScrobblingDescription": {
 		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
 	},
@@ -140,6 +143,9 @@
 	},
 	"itemsPerLoadName": {
 		"message": "Items per load."
+	},
+	"lightTheme": {
+		"message": "Light"
 	},
 	"loadHistoryError": {
 		"message": "Failed to load history."
@@ -283,6 +289,15 @@
 	},
 	"sync": {
 		"message": "Sync"
+	},
+	"systemTheme": {
+		"message": "Use your system preference"
+	},
+	"themeDescription": {
+		"message": "Choose what theme to use."
+	},
+	"themeName": {
+		"message": "Theme"
 	},
 	"toggleAll": {
 		"message": "Toggle"
