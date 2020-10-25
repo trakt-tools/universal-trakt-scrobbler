@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { TmdbApi } from '../../../api/TmdbApi';
 import { WrongItemApi } from '../../../api/WrongItemApi';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
@@ -52,10 +53,22 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item }) => {
 		void getSendReceiveSuggestions();
 	}, []);
 
+	React.useEffect(() => {
+		const loadImage = async () => {
+			const item = await TmdbApi.loadItemImage(content.item);
+			setContent((prevContent) => ({
+				...prevContent,
+				item,
+			}));
+		};
+
+		void loadImage();
+	}, []);
+
 	return (
 		<>
 			<Box>
-				<TmdbImage item={content.item.trakt} />
+				<TmdbImage imageUrl={content.item.imageUrl} />
 				<Box className="popup-watching--content">
 					<PopupInfo>
 						<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>
