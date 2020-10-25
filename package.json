@@ -162,8 +162,7 @@
 	"prettier": {
 		"printWidth": 100,
 		"useTabs": true,
-		"singleQuote": true,
-		"endOfLine": "auto"
+		"singleQuote": true
 	},
 	"husky": {
 		"hooks": {
