@@ -1,11 +1,12 @@
 import { Box } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 import { createBrowserHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { EventDispatcher } from '../../common/Events';
 import { Session } from '../../common/Session';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { PopupHeader } from './components/PopupHeader';
 import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
@@ -15,6 +16,7 @@ const history = createBrowserHistory();
 
 export const PopupApp: React.FC = () => {
 	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
+	const theme = useTheme();
 
 	useEffect(() => {
 		const startListeners = () => {
@@ -43,7 +45,7 @@ export const PopupApp: React.FC = () => {
 	return (
 		<ErrorBoundary>
 			<PopupHeader history={history} isLoggedIn={isLoggedIn} />
-			<Box className="popup-container">
+			<Box className={`popup-container ${theme.palette.type}`}>
 				<Box className="popup-container--overlay-image" />
 				<Box className="popup-container--overlay-color" />
 				<Box className="popup-container--content">

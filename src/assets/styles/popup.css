@@ -13,8 +13,15 @@
 	height: 100%;
 }
 
-.popup-container--overlay-color {
+.popup-container.light .popup-container--overlay-color {
+	background-color: rgba(0, 0, 0, 0.25);
+}
+
+.popup-container.dark .popup-container--overlay-color {
 	background-color: rgba(0, 0, 0, 0.75);
+}
+
+.popup-container--overlay-color {
 	bottom: 0;
 	left: 0;
 	position: absolute;
