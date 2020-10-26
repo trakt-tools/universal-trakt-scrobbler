@@ -69,20 +69,17 @@ class _TmdbApi {
 		};
 	};
 
-	/**
-	 * If the image for the item is not found, returns a placeholder image.
-	 */
-	findImage = async (item?: TraktItem | null): Promise<string> => {
+	findImage = async (item?: TraktItem | null): Promise<string | null> => {
 		if (!this.config) {
 			try {
 				await this.activate();
 			} catch (err) {
 				Errors.warning('Failed to get TMDB config.', err);
-				return this.PLACEHOLDER_IMAGE;
+				return null;
 			}
 		}
 		if (!this.config || !item?.tmdbId) {
-			return this.PLACEHOLDER_IMAGE;
+			return null;
 		}
 		const cache = (await Messaging.toBackground({
 			action: 'get-cache',
@@ -114,7 +111,7 @@ class _TmdbApi {
 		} catch (err) {
 			Errors.warning('Failed to find item on TMDB.', err);
 		}
-		return this.PLACEHOLDER_IMAGE;
+		return null;
 	};
 
 	getItemUrl = (item: TraktItem): string => {
@@ -160,25 +157,28 @@ class _TmdbApi {
 				}
 			}
 			if (missingItems.length > 0) {
-				const response = await Requests.send({
-					method: 'POST',
-					url: this.DATABASE_URL,
-					body: {
-						items: missingItems.map((item) => ({
-							id: item.trakt?.id,
-							tmdbId: item.trakt?.tmdbId,
-							type: item.trakt?.type,
-							season: item.trakt?.season,
-							episode: item.trakt?.episode,
-						})),
-					},
-				});
-				const json = JSON.parse(response) as Record<string, string | null>;
+				let json;
+				try {
+					const response = await Requests.send({
+						method: 'POST',
+						url: this.DATABASE_URL,
+						body: {
+							items: missingItems.map((item) => ({
+								id: item.trakt?.id,
+								tmdbId: item.trakt?.tmdbId,
+								type: item.trakt?.type,
+								season: item.trakt?.season,
+								episode: item.trakt?.episode,
+							})),
+						},
+					});
+					json = JSON.parse(response) as Record<string, string | null>;
+				} catch (err) {}
 				for (const item of missingItems) {
 					if (!item.trakt) {
 						continue;
 					}
-					const imageUrl = json[item.trakt.id.toString()];
+					const imageUrl = json ? json[item.trakt.id.toString()] : await this.findImage(item.trakt);
 					if (imageUrl) {
 						item.imageUrl = imageUrl;
 						cache[item.trakt.id.toString()] = imageUrl;
@@ -218,23 +218,26 @@ class _TmdbApi {
 			})) as CacheValues['tmdbImages'];
 			imageUrl = cache[itemCopy.trakt.id.toString()];
 			if (!imageUrl) {
-				const response = await Requests.send({
-					method: 'POST',
-					url: this.DATABASE_URL,
-					body: {
-						items: [
-							{
-								id: itemCopy.trakt.id,
-								tmdbId: itemCopy.trakt.tmdbId,
-								type: itemCopy.trakt.type,
-								season: itemCopy.trakt.season,
-								episode: itemCopy.trakt.episode,
-							},
-						],
-					},
-				});
-				const json = JSON.parse(response) as Record<string, string | null>;
-				imageUrl = json[itemCopy.trakt.id.toString()];
+				let json;
+				try {
+					const response = await Requests.send({
+						method: 'POST',
+						url: this.DATABASE_URL,
+						body: {
+							items: [
+								{
+									id: itemCopy.trakt.id,
+									tmdbId: itemCopy.trakt.tmdbId,
+									type: itemCopy.trakt.type,
+									season: itemCopy.trakt.season,
+									episode: itemCopy.trakt.episode,
+								},
+							],
+						},
+					});
+					json = JSON.parse(response) as Record<string, string | null>;
+				} catch (err) {}
+				imageUrl = json ? json[itemCopy.trakt.id.toString()] : await this.findImage(itemCopy.trakt);
 				if (imageUrl) {
 					cache[itemCopy.trakt.id.toString()] = imageUrl;
 					await Messaging.toBackground({
