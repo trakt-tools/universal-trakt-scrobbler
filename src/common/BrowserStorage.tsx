@@ -1,3 +1,4 @@
+import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { CorrectionSuggestion, ItemBase } from '../models/Item';
@@ -22,10 +23,13 @@ export type StorageValuesOptions = {
 	streamingServices: Record<StreamingServiceId, boolean>;
 	disableScrobbling: boolean;
 	showNotifications: boolean;
-	allowRollbar: boolean;
 	sendReceiveSuggestions: boolean;
+	theme: ThemeValue;
+	allowRollbar: boolean;
 	grantCookies: boolean;
 };
+
+export type ThemeValue = 'light' | 'dark' | 'system';
 
 export type StorageValuesSyncOptions = {
 	addWithReleaseDate: boolean;
@@ -48,7 +52,12 @@ export type Options = {
 	[K in keyof StorageValuesOptions]: Option<K>;
 };
 
-export type Option<K extends keyof StorageValuesOptions> = {
+export type Option<K extends keyof StorageValuesOptions> =
+	| SwitchOption<K>
+	| SelectOption<K>
+	| ListOption<K>;
+
+export type BaseOption<K extends keyof StorageValuesOptions> = {
 	id: K;
 	name: string;
 	description: React.ReactElement | string;
@@ -57,6 +66,19 @@ export type Option<K extends keyof StorageValuesOptions> = {
 	permissions: browser.permissions.Permission[];
 	doShow: boolean;
 };
+
+export interface SwitchOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'switch';
+}
+
+export interface SelectOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'select';
+	selectItems: Record<string, string>;
+}
+
+export interface ListOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+	type: 'list';
+}
 
 export type SyncOptions = {
 	[K in keyof StorageValuesSyncOptions]: {
@@ -135,6 +157,7 @@ class _BrowserStorage {
 	getOptions = async (): Promise<Options> => {
 		const options: Options = {
 			streamingServices: {
+				type: 'list',
 				id: 'streamingServices',
 				name: '',
 				description: '',
@@ -146,6 +169,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			disableScrobbling: {
+				type: 'switch',
 				id: 'disableScrobbling',
 				name: '',
 				description: '',
@@ -155,6 +179,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			showNotifications: {
+				type: 'switch',
 				id: 'showNotifications',
 				name: '',
 				description: '',
@@ -164,19 +189,20 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			sendReceiveSuggestions: {
+				type: 'switch',
 				id: 'sendReceiveSuggestions',
 				name: '',
 				description: (
 					<>
 						{I18N.translate('sendReceiveSuggestionsDescription')}
 						<br />
-						<a
+						<Link
 							href="https://docs.google.com/spreadsheets/d/1V3m_eMYTJSREehtxz3SeNqFLJlWWIx7Bm0Dp-1WMvnk/edit?usp=sharing"
 							target="_blank"
 							rel="noreferrer"
 						>
 							Google Sheet
-						</a>
+						</Link>
 					</>
 				),
 				value: false,
@@ -184,7 +210,23 @@ class _BrowserStorage {
 				permissions: [],
 				doShow: true,
 			},
+			theme: {
+				type: 'select',
+				id: 'theme',
+				name: '',
+				description: '',
+				selectItems: {
+					light: I18N.translate('lightTheme'),
+					dark: I18N.translate('darkTheme'),
+					system: I18N.translate('systemTheme'),
+				},
+				value: 'system',
+				origins: [],
+				permissions: [],
+				doShow: true,
+			},
 			allowRollbar: {
+				type: 'switch',
 				id: 'allowRollbar',
 				name: '',
 				description: '',
@@ -194,6 +236,7 @@ class _BrowserStorage {
 				doShow: true,
 			},
 			grantCookies: {
+				type: 'switch',
 				id: 'grantCookies',
 				name: '',
 				description: '',

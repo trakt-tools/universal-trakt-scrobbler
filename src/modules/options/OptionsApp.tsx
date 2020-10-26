@@ -126,7 +126,7 @@ export const OptionsApp: React.FC = () => {
 					originsToRemove.push(...service.hostPatterns);
 				}
 			}
-			for (const option of Object.values(options)) {
+			for (const option of Object.values(options) as Option<keyof StorageValuesOptions>[]) {
 				addOptionToSave(optionsToSave, option);
 			}
 			const permissionPromises: Promise<boolean>[] = [];
