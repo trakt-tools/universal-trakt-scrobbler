@@ -7,7 +7,4 @@ import './images/uts-icon-38.png';
 import './images/uts-icon-selected-19.png';
 import './images/uts-icon-selected-38.png';
 import './styles/components.scss';
-import './styles/history.scss';
 import './styles/layout.scss';
-import './styles/options.scss';
-import './styles/popup.scss';
