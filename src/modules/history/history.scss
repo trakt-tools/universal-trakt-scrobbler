@@ -43,6 +43,12 @@
 	}
 }
 
+.history-list {
+	align-items: flex-end;
+	display: flex;
+	flex-direction: column;
+}
+
 .history-list-item {
 	display: flex;
 	justify-content: end;
