@@ -69,13 +69,26 @@
 
 .history-list-item-card {
 	margin: 8px 0;
+	position: relative;
 	text-align: center;
 	width: 350px;
+}
+
+.history-list-item-card.image {
+	color: #fff;
+}
+
+.history-list-item-card-content {
+	position: relative;
 }
 
 .history-list-item-divider {
 	margin: 8px 0;
 	width: 100%;
+}
+
+.history-list-item-card.image .history-list-item-divider {
+	background-color: rgba(255, 255, 255, 0.75);
 }
 
 .history-options-list-container {
