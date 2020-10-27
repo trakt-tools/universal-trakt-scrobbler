@@ -1,3 +1,5 @@
+$sidebarWidth: 300px;
+
 .history-actions {
 	display: flex;
 	justify-content: center;
@@ -22,8 +24,9 @@
 
 .history-content {
 	display: flex;
-	justify-content: space-evenly;
+	justify-content: center;
 	padding-bottom: 100px;
+	padding-left: $sidebarWidth;
 }
 
 .history-content--empty {
@@ -102,8 +105,13 @@
 	position: sticky;
 	top: 100px;
 
-	* > {
-		width: max-content;
+	> * {
 		margin: 8px 0;
+		width: 100%;
 	}
+}
+
+.history-options-sidebar {
+	padding: 16px;
+	width: $sidebarWidth;
 }
