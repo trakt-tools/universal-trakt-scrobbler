@@ -173,7 +173,9 @@ class _TmdbApi {
 						},
 					});
 					json = JSON.parse(response) as Record<string, string | null>;
-				} catch (err) {}
+				} catch (err) {
+					// Do nothing
+				}
 				for (const item of missingItems) {
 					if (!item.trakt) {
 						continue;
@@ -236,7 +238,9 @@ class _TmdbApi {
 						},
 					});
 					json = JSON.parse(response) as Record<string, string | null>;
-				} catch (err) {}
+				} catch (err) {
+					// Do nothing
+				}
 				imageUrl = json ? json[itemCopy.trakt.id.toString()] : await this.findImage(itemCopy.trakt);
 				if (imageUrl) {
 					cache[itemCopy.trakt.id.toString()] = imageUrl;
