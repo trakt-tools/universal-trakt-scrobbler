@@ -221,7 +221,7 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			break;
 		}
 		case 'set-cache': {
-			Cache.values[parsedRequest.key] = parsedRequest.value;
+			setCacheMessage(parsedRequest);
 			executingAction = Promise.resolve();
 			break;
 		}
@@ -284,6 +284,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				);
 			});
 	});
+};
+
+const setCacheMessage = <K extends keyof CacheValues>(message: SetCacheMessage<K>) => {
+	Cache.values[message.key] = message.value;
 };
 
 const setScrobblingTabId = async (tabId?: number): Promise<void> => {

@@ -1,15 +1,16 @@
 import { Box, Button, Typography } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { TmdbApi } from '../../../api/TmdbApi';
 import { WrongItemApi } from '../../../api/WrongItemApi';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
+import { TmdbImage } from '../../../components/TmdbImage';
 import { UtsSnackbar } from '../../../components/UtsSnackbar';
 import { WrongItemDialog } from '../../../components/WrongItemDialog';
 import { Item } from '../../../models/Item';
 import { PopupInfo } from './PopupInfo';
-import { PopupTmdbImage } from './PopupTmdbImage';
 
 export interface IPopupWatching {
 	item: Item;
@@ -52,11 +53,22 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item }) => {
 		void getSendReceiveSuggestions();
 	}, []);
 
+	React.useEffect(() => {
+		const loadImage = async () => {
+			const item = await TmdbApi.loadItemImage(content.item);
+			setContent((prevContent) => ({
+				...prevContent,
+				item,
+			}));
+		};
+
+		void loadImage();
+	}, []);
+
 	return (
 		<>
 			<Box>
-				<PopupTmdbImage item={content.item} />
-				<Box className="popup-watching--overlay-color" />
+				<TmdbImage imageUrl={content.item.imageUrl} />
 				<Box className="popup-watching--content">
 					<PopupInfo>
 						<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>

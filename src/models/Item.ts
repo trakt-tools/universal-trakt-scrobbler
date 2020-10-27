@@ -36,6 +36,7 @@ export interface ItemExtra {
 	isSelected?: boolean;
 	index?: number;
 	correctionSuggestions?: CorrectionSuggestion[] | null;
+	imageUrl?: string | null;
 }
 
 export interface CorrectionSuggestion {
@@ -62,6 +63,7 @@ export class Item implements IItem {
 	isSelected?: boolean;
 	index?: number;
 	correctionSuggestions?: CorrectionSuggestion[] | null;
+	imageUrl?: string | null;
 
 	constructor(options: IItem) {
 		this.serviceId = options.serviceId;
@@ -79,6 +81,7 @@ export class Item implements IItem {
 		this.watchedAt = options.watchedAt;
 		this.trakt = options.trakt;
 		this.correctionSuggestions = options.correctionSuggestions;
+		this.imageUrl = options.imageUrl;
 	}
 
 	static getBase = (item: Item): ItemBase => {
