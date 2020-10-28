@@ -18,7 +18,7 @@ interface NrkProgressResponse {
 	progresses: NrkProgressItem[];
 	_links: {
 		backwards?: NrkLinkObject;
-		next?: NrkLinkObject;
+		next: NrkLinkObject;
 		self: NrkLinkObject;
 	};
 }
@@ -118,7 +118,7 @@ class _NrkApi extends Api {
 			method: 'GET',
 		});
 		const userData = JSON.parse(response) as NrkUserData;
-		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress`;
+		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
 		this.isActivated = true;
 	};
 
@@ -132,7 +132,7 @@ class _NrkApi extends Api {
 			const historyItems: NrkProgressItem[] = [];
 			do {
 				const responseText = await Requests.send({
-					url: `${this.HISTORY_API_URL}?sortorder=descending&pageSize=10`,
+					url: this.HISTORY_API_URL,
 					method: 'GET',
 					headers: {
 						Authorization: 'Bearer ' + this.token,
@@ -140,6 +140,7 @@ class _NrkApi extends Api {
 				});
 				const responseJson = JSON.parse(responseText) as NrkProgressResponse;
 				const { progresses } = responseJson;
+				this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
 				if (progresses.length > 0) {
 					itemsToLoad -= progresses.length;
 					historyItems.push(...progresses);
