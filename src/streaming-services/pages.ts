@@ -4,6 +4,7 @@ import './hbo-go/HboGoApi';
 import './netflix/NetflixApi';
 import './nrk/NrkApi';
 import './viaplay/ViaplayApi';
+import './telia-play/telia-play';
 
 export interface StreamingServicePage extends StreamingService {
 	path: string;
