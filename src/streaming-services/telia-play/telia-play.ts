@@ -272,7 +272,7 @@ class _TeliaApi extends Api {
 	parseHistoryItem = (mediaObject: TeliaMediaObject, watched: TeliaWatchedItem): Item => {
 		let item: Item;
 		const serviceId = this.id;
-		const id = mediaObject.titleId;
+		const id = mediaObject.loopId;
 		const type = mediaObject.categories.includes('Film') ? 'movie' : 'show';
 		const year = parseInt(mediaObject.productionYear);
 		const percentageWatched = this.pctWatched(watched);
