@@ -81,24 +81,26 @@ export interface ViaplayProductUserInfo {
 }
 
 class _ViaplayApi extends Api {
-	HOST_URL: string;
-	HISTORY_API_URL: string;
-	HISTORY_API_NEXT_PAGE_URL: string;
-	AUTH_URL: string;
-	isActivated: boolean;
+	INITIAL_URL = 'https://viaplay.com/';
+	HOST_URL = '';
+	HISTORY_API_URL = '';
+	HISTORY_API_NEXT_PAGE_URL = '';
+	AUTH_URL = '';
+	isActivated = false;
 
 	constructor() {
 		super('viaplay');
-
-		this.HOST_URL = 'https://content.viaplay.no';
-		this.HISTORY_API_URL = `${this.HOST_URL}/pcdash-no/watched`;
-		this.AUTH_URL = 'https://login.viaplay.no/api/persistentLogin/v1?deviceKey=pcdash-no';
-		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
-
-		this.isActivated = false;
 	}
 
 	activate = async () => {
+		const response = await fetch(this.INITIAL_URL);
+		const host = response.url.split('//')[1];
+
+		this.HOST_URL = `https://content.${host}`;
+		this.HISTORY_API_URL = `${this.HOST_URL}pcdash-no/watched`;
+		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-no`;
+		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
+
 		await Requests.send({
 			url: this.AUTH_URL,
 			method: 'GET',
