@@ -350,7 +350,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					</Box>
 				)}
 			</Box>
-			<HistoryActions onNextPageClick={onNextPageClick} onSyncClick={onSyncClick} />
+			<HistoryActions
+				hasNextPage={!content.isLastPage}
+				onNextPageClick={onNextPageClick}
+				onSyncClick={onSyncClick}
+			/>
 		</>
 	);
 };
