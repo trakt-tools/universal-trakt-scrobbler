@@ -147,7 +147,7 @@ class _TmdbApi {
 			const missingItems = [];
 			for (const item of items) {
 				if (!item.trakt) {
-					return;
+					continue;
 				}
 				const imageUrl = cache[item.trakt.id.toString()];
 				if (imageUrl) {
