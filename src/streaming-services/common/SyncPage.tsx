@@ -55,6 +55,7 @@ interface Content {
 	items: Item[];
 	visibleItems: Item[];
 	page: number;
+	itemsPerPage: number;
 	hasReachedEnd: boolean;
 }
 
@@ -83,8 +84,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		if (content.hasReachedEnd) {
 			return;
 		}
-		const itemsToLoad =
-			(content.page + 1) * syncOptionsContent.options.itemsPerLoad.value - content.items.length;
+		const itemsToLoad = (content.page + 1) * store.data.itemsPerPage - content.items.length;
+		store.goToNextPage();
 		if (itemsToLoad > 0) {
 			setContent((prevContent) => ({
 				...prevContent,
@@ -92,7 +93,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}));
 			void api.loadHistory(itemsToLoad);
 		} else {
-			void store.goToNextPage().update();
+			void store.update();
 		}
 	};
 
@@ -266,6 +267,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						hasLoaded: true,
 						options,
 					});
+					if (data.id === 'itemsPerLoad' && typeof data.value === 'number') {
+						checkItemsPerPage(data.value);
+					}
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
@@ -280,9 +284,24 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				});
 		};
 
+		const checkItemsPerPage = (itemsPerPage: number) => {
+			const itemsToLoad = (store.data.page + 1) * itemsPerPage - store.data.items.length;
+			if (itemsToLoad > 0 && !content.isLoading) {
+				store.setData({ itemsPerPage });
+				setContent((prevContent) => ({
+					...prevContent,
+					isLoading: true,
+					itemsPerPage,
+				}));
+				void api.loadHistory(itemsToLoad);
+			} else {
+				void store.update({ itemsPerPage });
+			}
+		};
+
 		startListeners();
 		return stopListeners;
-	}, [syncOptionsContent.options]);
+	}, [syncOptionsContent.options, content.isLoading]);
 
 	useEffect(() => {
 		const getOptions = async () => {

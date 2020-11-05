@@ -91,6 +91,7 @@ export class SyncStore {
 	};
 
 	setData = (data: Partial<SyncStoreData>): SyncStore => {
+		const itemsPerPage = this.data.itemsPerPage;
 		this.data = {
 			...this.data,
 			...data,
@@ -100,11 +101,21 @@ export class SyncStore {
 			})),
 			visibleItems: [],
 		};
+		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
+			this.updatePage(itemsPerPage);
+		}
 		return this;
 	};
 
 	resetData = (): SyncStore => {
 		this.data = SyncStore.getInitialData();
+		return this;
+	};
+
+	updatePage = (oldItemsPerPage: number): SyncStore => {
+		const oldIndex = (this.data.page - 1) * oldItemsPerPage;
+		const newPage = Math.floor(oldIndex / this.data.itemsPerPage) + 1;
+		this.data.page = newPage;
 		return this;
 	};
 
