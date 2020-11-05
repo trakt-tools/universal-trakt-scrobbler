@@ -3,17 +3,22 @@ import * as React from 'react';
 import { I18N } from '../../../common/I18N';
 
 interface HistoryActionsProps {
+	hasPreviousPage: boolean;
 	hasNextPage: boolean;
+	onPreviousPageClick: () => void;
 	onNextPageClick: () => void;
 	onSyncClick: () => void;
 }
 
 export const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProps) => {
-	const { hasNextPage, onNextPageClick, onSyncClick } = props;
+	const { hasPreviousPage, hasNextPage, onPreviousPageClick, onNextPageClick, onSyncClick } = props;
 	return (
 		<Box className="history-actions--container">
 			<Divider />
 			<Box className="history-actions">
+				<Button disabled={!hasPreviousPage} onClick={onPreviousPageClick} variant="contained">
+					{I18N.translate('previousPage')}
+				</Button>
 				<Button disabled={!hasNextPage} onClick={onNextPageClick} variant="contained">
 					{I18N.translate('nextPage')}
 				</Button>
