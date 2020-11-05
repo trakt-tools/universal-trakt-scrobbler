@@ -69,15 +69,15 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		options: {} as SyncOptions,
 	});
 	const [content, setContent] = useState<Content>({
-		isLoading: true,
-		isLastPage: false,
-		nextPage: 0,
-		nextVisualPage: 0,
-		items: [],
+		isLoading: store.data.nextVisualPage === 0,
+		...store.data,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
 	const loadNextPage = () => {
+		if (content.isLastPage) {
+			return;
+		}
 		const itemsToLoad =
 			(content.nextVisualPage + 1) * syncOptionsContent.options.itemsPerLoad.value -
 			content.items.length;
