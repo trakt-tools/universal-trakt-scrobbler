@@ -1,23 +1,32 @@
-import { Item } from '../../models/Item';
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
+import { Item } from '../../models/Item';
 
-export interface StoreData {
-	isLastPage: boolean;
-	nextPage: number;
-	nextVisualPage: number;
+export interface SyncStoreData {
 	items: Item[];
+	visibleItems: Item[];
+	page: number;
+	itemsPerPage: number;
+	nextPage: number;
+	hasReachedEnd: boolean;
 }
 
 export class SyncStore {
-	data: StoreData;
+	data: SyncStoreData;
+
 	constructor() {
-		this.data = {
-			isLastPage: false,
-			nextPage: 0,
-			nextVisualPage: 0,
-			items: [],
-		};
+		this.data = SyncStore.getInitialData();
 	}
+
+	static getInitialData = (): SyncStoreData => {
+		return {
+			items: [],
+			visibleItems: [],
+			page: 0,
+			itemsPerPage: 0,
+			nextPage: 0,
+			hasReachedEnd: false,
+		};
+	};
 
 	startListeners = (): void => {
 		EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
@@ -71,21 +80,53 @@ export class SyncStore {
 		void this.update();
 	};
 
-	update = async (data?: Partial<StoreData>, doClear = false): Promise<void> => {
-		if (data) {
-			if (data.items) {
-				data.items = data.items.map((item, index) => {
-					item.index = index;
-					return item;
-				});
-			}
-			this.data = {
-				...this.data,
-				...data,
-				items: doClear ? [...(data.items || [])] : [...this.data.items, ...(data.items || [])],
-			};
+	goToPreviousPage = (): SyncStore => {
+		if (this.data.page > 1) {
+			this.data.page -= 1;
 		}
-		await EventDispatcher.dispatch('STREAMING_SERVICE_STORE_UPDATE', null, {
+		return this;
+	};
+
+	goToNextPage = (): SyncStore => {
+		this.data.page += 1;
+		return this;
+	};
+
+	setData = (data: Partial<SyncStoreData>): SyncStore => {
+		this.data = {
+			...this.data,
+			...data,
+			items: [...this.data.items, ...(data.items ?? [])].map((item, index) => ({
+				...item,
+				index,
+			})),
+			visibleItems: [],
+		};
+		return this;
+	};
+
+	resetData = (): SyncStore => {
+		this.data = SyncStore.getInitialData();
+		return this;
+	};
+
+	updateVisibleItems = (): SyncStore => {
+		this.data.visibleItems = [];
+		if (this.data.page > 0) {
+			this.data.visibleItems = this.data.items.slice(
+				(this.data.page - 1) * this.data.itemsPerPage,
+				this.data.page * this.data.itemsPerPage
+			);
+		}
+		return this;
+	};
+
+	update = (data?: Partial<SyncStoreData>): Promise<void> => {
+		if (data) {
+			this.setData(data);
+		}
+		this.updateVisibleItems();
+		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, {
 			data: this.data,
 		});
 	};

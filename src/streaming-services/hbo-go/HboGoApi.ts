@@ -197,11 +197,7 @@ class _HboGoApi extends Api {
 			.replace(/{ageRating}/i, '0');
 	};
 
-	loadHistory = async (
-		nextPage: number,
-		nextVisualPage: number,
-		itemsToLoad: number
-	): Promise<void> => {
+	loadHistory = async (itemsToLoad: number): Promise<void> => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -209,7 +205,8 @@ class _HboGoApi extends Api {
 			if (!this.checkParams(this.apiParams)) {
 				throw new Error('Invalid API params');
 			}
-			let isLastPage = false;
+			const store = getSyncStore('hbo-go');
+			let { nextPage, hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems = [];
 			do {
@@ -227,19 +224,19 @@ class _HboGoApi extends Api {
 						itemsToLoad -= responseItems.length;
 						historyItems.push(...responseItems);
 					} else {
-						isLastPage = true;
+						hasReachedEnd = true;
 					}
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('hbo-go')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
+			store
+				.goToNextPage()
+				.update({ items, nextPage, hasReachedEnd })
 				.catch(() => {
 					/** Do nothing */
 				});

@@ -106,12 +106,13 @@ class _ViaplayApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
-			let isLastPage = false;
+			const store = getSyncStore('viaplay');
+			let { hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: ViaplayProduct[] = [];
 
@@ -134,21 +135,20 @@ class _ViaplayApi extends Api {
 					itemsToLoad -= viaplayProducts.length;
 					historyItems.push(...viaplayProducts);
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
-				nextPage += 1;
 				const url = historyPage._links?.next?.href;
 				this.HISTORY_API_NEXT_PAGE_URL = url;
 				if (!url) {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('viaplay')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
+			store
+				.goToNextPage()
+				.update({ items, hasReachedEnd })
 				.catch(() => {
 					/** Do nothing */
 				});

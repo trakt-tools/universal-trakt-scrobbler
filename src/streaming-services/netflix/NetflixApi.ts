@@ -201,7 +201,7 @@ class _NetflixApi extends Api {
 		);
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -209,7 +209,8 @@ class _NetflixApi extends Api {
 			if (!this.checkParams(this.apiParams)) {
 				throw new Error('Invalid API params');
 			}
-			let isLastPage = false;
+			const store = getSyncStore('netflix');
+			let { nextPage, hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: NetflixHistoryItem[] = [];
 			do {
@@ -222,17 +223,17 @@ class _NetflixApi extends Api {
 					itemsToLoad -= responseJson.viewedItems.length;
 					historyItems.push(...responseJson.viewedItems);
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('netflix')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
+			store
+				.goToNextPage()
+				.update({ items, nextPage, hasReachedEnd })
 				.catch(() => {
 					/** Do nothing */
 				});

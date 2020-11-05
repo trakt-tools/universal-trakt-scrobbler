@@ -108,6 +108,4 @@ export class Item implements IItem {
 		}
 		return `${this.title} (${this.year})`;
 	};
-
-	isSyncable = () => this.trakt && !this.trakt.watchedAt;
 }

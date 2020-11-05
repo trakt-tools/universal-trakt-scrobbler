@@ -4,7 +4,7 @@ import { TraktSearchItem } from '../api/TraktSearch';
 import { MissingWatchedDateType } from '../components/MissingWatchedDateDialog';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { StoreData } from '../streaming-services/common/SyncStore';
+import { SyncStoreData } from '../streaming-services/common/SyncStore';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
 import { Errors } from './Errors';
@@ -35,7 +35,7 @@ export interface EventData {
 	WRONG_ITEM_DIALOG_SHOW: WrongItemDialogShowData;
 	WRONG_ITEM_CORRECTED: WrongItemCorrectedData;
 	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
-	STREAMING_SERVICE_STORE_UPDATE: StreamingServiceStoreUpdateData;
+	SYNC_STORE_UPDATE: SyncStoreUpdateData;
 	STREAMING_SERVICE_HISTORY_LOAD_ERROR: ErrorData;
 	STREAMING_SERVICE_HISTORY_CHANGE: StreamingServiceHistoryChangeData;
 	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
@@ -123,8 +123,8 @@ export interface HistoryOptionsChangeData {
 	value: boolean | number;
 }
 
-export interface StreamingServiceStoreUpdateData {
-	data: StoreData;
+export interface SyncStoreUpdateData {
+	data: SyncStoreData;
 }
 
 export interface StreamingServiceHistoryChangeData {

@@ -19,7 +19,7 @@ import {
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	MissingWatchedDateAddedData,
-	StreamingServiceStoreUpdateData,
+	SyncStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
 import { I18N } from '../../common/I18N';
@@ -52,11 +52,10 @@ interface SyncOptionsContent {
 
 interface Content {
 	isLoading: boolean;
-	isLastPage: boolean;
-	nextPage: number;
-	nextVisualPage: number;
 	items: Item[];
 	visibleItems: Item[];
+	page: number;
+	hasReachedEnd: boolean;
 }
 
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
@@ -71,37 +70,29 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		options: {} as SyncOptions,
 	});
 	const [content, setContent] = useState<Content>({
-		isLoading: store.data.nextVisualPage === 0,
-		visibleItems: [],
+		isLoading: store.data.page === 0,
 		...store.data,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
 	const loadPreviousPage = () => {
-		if (content.nextVisualPage > 1) {
-			void store.update({
-				nextVisualPage: content.nextVisualPage - 1,
-			});
-		}
+		void store.goToPreviousPage().update();
 	};
 
 	const loadNextPage = () => {
-		if (content.isLastPage) {
+		if (content.hasReachedEnd) {
 			return;
 		}
 		const itemsToLoad =
-			(content.nextVisualPage + 1) * syncOptionsContent.options.itemsPerLoad.value -
-			content.items.length;
+			(content.page + 1) * syncOptionsContent.options.itemsPerLoad.value - content.items.length;
 		if (itemsToLoad > 0) {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: true,
 			}));
-			void api.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
+			void api.loadHistory(itemsToLoad);
 		} else {
-			void store.update({
-				nextVisualPage: content.nextVisualPage + 1,
-			});
+			void store.goToNextPage().update();
 		}
 	};
 
@@ -136,7 +127,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.subscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
@@ -147,7 +138,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.unsubscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.unsubscribe(
@@ -161,7 +152,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			store.stopListeners();
 		};
 
-		const onStoreUpdate = (data: StreamingServiceStoreUpdateData) => {
+		const onStoreUpdate = (data: SyncStoreUpdateData) => {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: false,
@@ -326,33 +317,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	useEffect(() => {
 		const loadFirstPage = () => {
 			if (syncOptionsContent.hasLoaded) {
+				store.setData({ itemsPerPage: syncOptionsContent.options.itemsPerLoad.value });
 				loadNextPage();
 			}
 		};
 
 		loadFirstPage();
 	}, [syncOptionsContent.hasLoaded]);
-
-	useEffect(() => {
-		const setVisibleItems = async () => {
-			let visibleItems: Item[] = [];
-			if (syncOptionsContent.hasLoaded && content.nextVisualPage > 0) {
-				visibleItems = content.items.slice(
-					(content.nextVisualPage - 1) * syncOptionsContent.options.itemsPerLoad.value,
-					content.nextVisualPage * syncOptionsContent.options.itemsPerLoad.value
-				);
-				if (syncOptionsContent.options.hideSynced.value) {
-					visibleItems = visibleItems.filter((item) => !item.trakt?.watchedAt);
-				}
-			}
-			setContent((prevContent) => ({
-				...prevContent,
-				visibleItems,
-			}));
-		};
-
-		setVisibleItems();
-	}, [syncOptionsContent.hasLoaded, content.nextVisualPage, content.items]);
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -368,6 +339,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		loadData();
 	}, [content.visibleItems]);
 
+	let filteredItems = content.visibleItems;
+	if (syncOptionsContent.hasLoaded && syncOptionsContent.options.hideSynced.value) {
+		filteredItems = filteredItems.filter((item) => !item.trakt?.watchedAt);
+	}
+
 	return content.isLoading ? (
 		<UtsCenter>
 			<CircularProgress />
@@ -376,10 +352,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		<>
 			<Box className="history-content">
 				<HistoryOptionsList options={Object.values(syncOptionsContent.options)} store={store} />
-				{content.visibleItems.length > 0 ? (
+				{filteredItems.length > 0 ? (
 					<HistoryList
 						dateFormat={dateFormat}
-						items={content.visibleItems}
+						items={filteredItems}
 						serviceId={serviceId}
 						serviceName={serviceName}
 						sendReceiveSuggestions={optionsContent.options.sendReceiveSuggestions?.value ?? false}
@@ -391,8 +367,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				)}
 			</Box>
 			<HistoryActions
-				hasPreviousPage={content.nextVisualPage > 1}
-				hasNextPage={!content.isLastPage}
+				hasPreviousPage={content.page > 1}
+				hasNextPage={!content.hasReachedEnd}
 				onPreviousPageClick={onPreviousPageClick}
 				onNextPageClick={onNextPageClick}
 				onSyncClick={onSyncClick}

@@ -15,11 +15,7 @@ export abstract class Api {
 		this.id = id;
 	}
 
-	abstract loadHistory(
-		nextPage: number,
-		nextVisualPage: number,
-		itemsToLoad: number
-	): Promise<void>;
+	abstract loadHistory(itemsToLoad: number): Promise<void>;
 
 	loadTraktHistory = async (items: Item[]) => {
 		const missingItems = items.filter((item) => typeof item.trakt === 'undefined');

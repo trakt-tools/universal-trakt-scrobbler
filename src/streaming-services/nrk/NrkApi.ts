@@ -120,12 +120,13 @@ class _NrkApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
-			let isLastPage = false;
+			const store = getSyncStore('nrk');
+			let { hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: NrkProgressItem[] = [];
 			do {
@@ -141,21 +142,20 @@ class _NrkApi extends Api {
 				if (responseJson._links.next) {
 					this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				if (progresses.length > 0) {
 					itemsToLoad -= progresses.length;
 					historyItems.push(...progresses);
 				}
-				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const promises = historyItems.map(this.parseHistoryItem);
 				items = await Promise.all(promises);
 			}
-			nextVisualPage += 1;
-			getSyncStore('nrk')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
+			store
+				.goToNextPage()
+				.update({ items, hasReachedEnd })
 				.catch(() => {
 					/** Do nothing */
 				});
