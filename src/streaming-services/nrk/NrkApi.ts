@@ -148,8 +148,6 @@ class _NrkApi extends Api {
 				if (progresses.length > 0) {
 					itemsToLoad -= progresses.length;
 					historyItems.push(...progresses);
-				} else {
-					isLastPage = true;
 				}
 				nextPage += 1;
 			} while (!isLastPage && itemsToLoad > 0);
