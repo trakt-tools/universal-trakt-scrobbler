@@ -209,6 +209,9 @@
 	"options": {
 		"message": "Alternativer"
 	},
+	"previousPage": {
+		"message": "Previous Page"
+	},
 	"progress": {
 		"message": "Fullført: $PROGRESS$%",
 		"placeholders": {
