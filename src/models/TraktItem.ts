@@ -28,9 +28,9 @@ export class TraktItem implements ITraktItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
+	releaseDate: string | null;
 	watchedAt?: Moment;
 	progress: number;
-	releaseDate: string | null;
 
 	constructor(options: ITraktItem) {
 		this.id = options.id;
@@ -44,7 +44,7 @@ export class TraktItem implements ITraktItem {
 			this.episodeTitle = options.episodeTitle;
 		}
 		this.releaseDate = options.releaseDate;
-		this.watchedAt = options.watchedAt;
+		this.watchedAt = options.watchedAt?.clone();
 		this.progress = options.progress ?? 0;
 	}
 

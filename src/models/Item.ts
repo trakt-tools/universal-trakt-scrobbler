@@ -77,9 +77,11 @@ export class Item implements IItem {
 			this.episodeTitle = options.episodeTitle;
 			this.isCollection = options.isCollection;
 		}
+		this.watchedAt = options.watchedAt?.clone();
 		this.percentageWatched = options.percentageWatched ?? 0;
-		this.watchedAt = options.watchedAt;
-		this.trakt = options.trakt;
+		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
+		this.isSelected = options.isSelected;
+		this.index = options.index;
 		this.correctionSuggestions = options.correctionSuggestions;
 		this.imageUrl = options.imageUrl;
 	}
@@ -106,4 +108,6 @@ export class Item implements IItem {
 		}
 		return `${this.title} (${this.year})`;
 	};
+
+	isSyncable = () => this.trakt && !this.trakt.watchedAt;
 }
