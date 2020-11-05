@@ -106,7 +106,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	const onSyncClick = async () => {
 		if (!syncOptionsContent.options.addWithReleaseDate.value) {
-			const missingWatchedDate = store.data.items.find((item) => !item.watchedAt);
+			const missingWatchedDate = content.visibleItems.find((item) => !item.watchedAt);
 			if (missingWatchedDate) {
 				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
 					title: I18N.translate('cannotSync'),
@@ -118,7 +118,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			...prevContent,
 			isLoading: true,
 		}));
-		await TraktSync.sync(store.data.items, syncOptionsContent.options.addWithReleaseDate.value);
+		await TraktSync.sync(content.visibleItems, syncOptionsContent.options.addWithReleaseDate.value);
 		setContent((prevContent) => ({
 			...prevContent,
 			isLoading: false,

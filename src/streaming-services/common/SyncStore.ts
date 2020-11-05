@@ -53,31 +53,29 @@ export class SyncStore {
 		void this.update();
 	};
 
-	selectAll = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
+	selectAll = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			if (item.trakt && !item.trakt.watchedAt) {
 				item.isSelected = true;
 			}
 		}
-		void this.update();
+		return this;
 	};
 
-	selectNone = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
-				item.isSelected = false;
-			}
+	selectNone = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			item.isSelected = false;
 		}
-		void this.update();
+		return this;
 	};
 
-	toggleAll = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
+	toggleAll = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			if (item.trakt && !item.trakt.watchedAt) {
 				item.isSelected = !item.isSelected;
 			}
 		}
-		void this.update();
+		return this;
 	};
 
 	goToPreviousPage = (): SyncStore => {
