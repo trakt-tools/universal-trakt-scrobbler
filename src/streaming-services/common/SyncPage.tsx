@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { TmdbApi } from '../../api/TmdbApi';
 import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
 import { WrongItemApi } from '../../api/WrongItemApi';
@@ -55,6 +56,7 @@ interface Content {
 	nextPage: number;
 	nextVisualPage: number;
 	items: Item[];
+	visibleItems: Item[];
 }
 
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
@@ -70,6 +72,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	});
 	const [content, setContent] = useState<Content>({
 		isLoading: store.data.nextVisualPage === 0,
+		visibleItems: [],
 		...store.data,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
@@ -159,10 +162,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onStoreUpdate = (data: StreamingServiceStoreUpdateData) => {
-			setContent({
+			setContent((prevContent) => ({
+				...prevContent,
 				isLoading: false,
 				...data.data,
-			});
+			}));
 		};
 
 		const onHistoryLoadError = async () => {
@@ -329,16 +333,40 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		loadFirstPage();
 	}, [syncOptionsContent.hasLoaded]);
 
-	let itemsToShow: Item[] = [];
-	if (syncOptionsContent.hasLoaded && content.nextVisualPage > 0) {
-		itemsToShow = content.items.slice(
-			(content.nextVisualPage - 1) * syncOptionsContent.options.itemsPerLoad.value,
-			content.nextVisualPage * syncOptionsContent.options.itemsPerLoad.value
-		);
-		if (syncOptionsContent.options.hideSynced.value) {
-			itemsToShow = itemsToShow.filter((x) => !x.trakt?.watchedAt);
-		}
-	}
+	useEffect(() => {
+		const setVisibleItems = async () => {
+			let visibleItems: Item[] = [];
+			if (syncOptionsContent.hasLoaded && content.nextVisualPage > 0) {
+				visibleItems = content.items.slice(
+					(content.nextVisualPage - 1) * syncOptionsContent.options.itemsPerLoad.value,
+					content.nextVisualPage * syncOptionsContent.options.itemsPerLoad.value
+				);
+				if (syncOptionsContent.options.hideSynced.value) {
+					visibleItems = visibleItems.filter((item) => !item.trakt?.watchedAt);
+				}
+			}
+			setContent((prevContent) => ({
+				...prevContent,
+				visibleItems,
+			}));
+		};
+
+		setVisibleItems();
+	}, [syncOptionsContent.hasLoaded, content.nextVisualPage, content.items]);
+
+	useEffect(() => {
+		const loadData = async () => {
+			try {
+				await getApi(serviceId).loadTraktHistory(content.visibleItems);
+				await TmdbApi.loadImages(serviceId, content.visibleItems);
+				await WrongItemApi.loadSuggestions(serviceId, content.visibleItems);
+			} catch (err) {
+				// Do nothing
+			}
+		};
+
+		loadData();
+	}, [content.visibleItems]);
 
 	return content.isLoading ? (
 		<UtsCenter>
@@ -348,10 +376,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		<>
 			<Box className="history-content">
 				<HistoryOptionsList options={Object.values(syncOptionsContent.options)} store={store} />
-				{itemsToShow.length > 0 ? (
+				{content.visibleItems.length > 0 ? (
 					<HistoryList
 						dateFormat={dateFormat}
-						items={itemsToShow}
+						items={content.visibleItems}
 						serviceId={serviceId}
 						serviceName={serviceName}
 						sendReceiveSuggestions={optionsContent.options.sendReceiveSuggestions?.value ?? false}

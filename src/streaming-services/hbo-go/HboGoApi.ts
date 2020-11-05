@@ -1,5 +1,3 @@
-import { TmdbApi } from '../../api/TmdbApi';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
@@ -242,9 +240,6 @@ class _HboGoApi extends Api {
 			nextVisualPage += 1;
 			getSyncStore('hbo-go')
 				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => TmdbApi.loadImages(this.id))
-				.then(() => WrongItemApi.loadSuggestions(this.id))
 				.catch(() => {
 					/** Do nothing */
 				});

@@ -21,7 +21,11 @@ export abstract class Api {
 		itemsToLoad: number
 	): Promise<void>;
 
-	loadTraktHistory = async () => {
+	loadTraktHistory = async (items: Item[]) => {
+		const missingItems = items.filter((item) => typeof item.trakt === 'undefined');
+		if (missingItems.length === 0) {
+			return;
+		}
 		try {
 			const storage = await BrowserStorage.get(['correctItems', 'traktCache']);
 			const { correctItems } = storage;
@@ -30,8 +34,7 @@ export abstract class Api {
 				traktCache = {};
 			}
 			const promises = [];
-			const items = getSyncStore(this.id).data.items;
-			for (const item of items) {
+			for (const item of missingItems) {
 				promises.push(
 					this.loadTraktItemHistory(item, traktCache, correctItems?.[this.id]?.[item.id])
 				);
