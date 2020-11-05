@@ -38,7 +38,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		id: 'nrk',
 		name: 'NRK',
 		homePage: 'https://tv.nrk.no/',
-		hostPatterns: ['*://*.tv.nrk.no/*'],
+		hostPatterns: ['*://*.nrk.no/*'],
 		hasScrobbler: false,
 		hasSync: true,
 	},
