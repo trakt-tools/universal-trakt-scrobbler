@@ -348,8 +348,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		const loadData = async () => {
 			try {
 				await getApi(serviceId).loadTraktHistory(content.visibleItems);
-				await TmdbApi.loadImages(serviceId, content.visibleItems);
-				await WrongItemApi.loadSuggestions(serviceId, content.visibleItems);
+				await Promise.all([
+					WrongItemApi.loadSuggestions(serviceId, content.visibleItems),
+					TmdbApi.loadImages(serviceId, content.visibleItems),
+				]);
 			} catch (err) {
 				// Do nothing
 			}
