@@ -74,6 +74,14 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
+	const loadPreviousPage = () => {
+		if (content.nextVisualPage > 1) {
+			void store.update({
+				nextVisualPage: content.nextVisualPage - 1,
+			});
+		}
+	};
+
 	const loadNextPage = () => {
 		if (content.isLastPage) {
 			return;
@@ -92,6 +100,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				nextVisualPage: content.nextVisualPage + 1,
 			});
 		}
+	};
+
+	const onPreviousPageClick = () => {
+		loadPreviousPage();
 	};
 
 	const onNextPageClick = () => {
@@ -351,7 +363,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				)}
 			</Box>
 			<HistoryActions
+				hasPreviousPage={content.nextVisualPage > 1}
 				hasNextPage={!content.isLastPage}
+				onPreviousPageClick={onPreviousPageClick}
 				onNextPageClick={onNextPageClick}
 				onSyncClick={onSyncClick}
 			/>
