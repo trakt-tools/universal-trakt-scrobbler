@@ -18,7 +18,7 @@ interface NrkProgressResponse {
 	progresses: NrkProgressItem[];
 	_links: {
 		backwards?: NrkLinkObject;
-		next: NrkLinkObject;
+		next?: NrkLinkObject;
 		self: NrkLinkObject;
 	};
 }
@@ -140,7 +140,11 @@ class _NrkApi extends Api {
 				});
 				const responseJson = JSON.parse(responseText) as NrkProgressResponse;
 				const { progresses } = responseJson;
-				this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
+				if (responseJson._links.next) {
+					this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
+				} else {
+					isLastPage = true;
+				}
 				if (progresses.length > 0) {
 					itemsToLoad -= progresses.length;
 					historyItems.push(...progresses);
@@ -177,6 +181,7 @@ class _NrkApi extends Api {
 		const programPage = await this.lookupNrkItem(programInfo._links.self.href);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
 		const titleInfo = programInfo.titles;
+		//TOD This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
 		const title = programPage.moreInformation.originalTitle ?? titleInfo.title;
 		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
 
