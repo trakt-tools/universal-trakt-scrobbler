@@ -147,7 +147,6 @@ class _TeliaApi extends Api {
 		this.VIDEOS_URL = `${this.IPTV_URL}/videos?seriesIds={SERIES_IDS}&oneCoverIds={SERIES_IDS}&parental=false&fromIndex=0&toIndex=5000`;
 		this.EPISODES_URL = `${this.IPTV_URL}/series/{SHOW_ID}/season/{SEASON_ID}/episodes?sort=episode_asc&parental=false&fromIndex=0&toIndex=5000`;
 		this.WATCHED_URL = `${this.OTTAPI_URL}/continuewatching/rest/secure/v2/watchedItems/map/?serviceType=SVOD&mediaIds={EPISODE_IDS}`;
-		// https://iptvsearch-playplus-prod.han.telia.se/v1/videos?seriesIds=2132808220&oneCoverIds=2132808220&format=dash&parental=false&toIndex=1
 		this.isActivated = false;
 		this.jwt = '';
 	}
@@ -242,9 +241,12 @@ class _TeliaApi extends Api {
 				.filter((o) => this.parseType(o) === 'movie');
 			const watchedMovies = movies.filter((m) => this.pctWatched(wMap.get(m.loopId)));
 
+			//Skip season and episode-less shows (news shows and such)
+			const validEps = watchedEps.filter((ep) => ep.seasonNumber > 0 && ep.episodeNumber > 0);
+
 			//Convert to items
 			const items: Item[] = [];
-			items.push(...watchedEps.map((ep) => this.parseHistoryItem(ep, wMap.get(ep.loopId))));
+			items.push(...validEps.map((ep) => this.parseHistoryItem(ep, wMap.get(ep.loopId))));
 			items.push(...watchedMovies.map((m) => this.parseHistoryItem(m, wMap.get(m.loopId))));
 
 			nextVisualPage += 1;
@@ -264,12 +266,16 @@ class _TeliaApi extends Api {
 		}
 	};
 
-	doGet = (url: string) => {
-		return Requests.send({
+	doGet = async (url: string) => {
+		const response = await Requests.send({
 			url: url,
 			method: 'GET',
 			headers: { Authorization: `Bearer ${this.jwt}` },
 		});
+
+		// console.log(url, JSON.parse(response));
+
+		return response;
 	};
 
 	pctWatched = (watched: TeliaWatchedItem | undefined) => {
@@ -296,7 +302,15 @@ class _TeliaApi extends Api {
 			const title = mediaObject.seriesTitle;
 			const season = mediaObject.seasonNumber;
 			const episode = mediaObject.episodeNumber;
-			const episodeTitle = mediaObject.title;
+
+			//Cleanup HBO titles on the format "01:01 I Was Flying - Avenue 5"
+			let episodeTitle = mediaObject.title;
+			if (mediaObject.contentproviderName === 'HBO') {
+				if (episodeTitle.search(/^\d\d:\d\d\s/) > -1 && episodeTitle.search(` - ${title}`) > 0) {
+					episodeTitle = episodeTitle.replace(/^\d\d:\d\d\s/, '').replace(` - ${title}`, '');
+				}
+			}
+
 			item = new Item({
 				serviceId,
 				id,
