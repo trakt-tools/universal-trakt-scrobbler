@@ -1,4 +1,3 @@
-import { TextsmsSharp } from '@material-ui/icons';
 import * as moment from 'moment';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
@@ -272,8 +271,6 @@ class _TeliaApi extends Api {
 			method: 'GET',
 			headers: { Authorization: `Bearer ${this.jwt}` },
 		});
-
-		// console.log(url, JSON.parse(response));
 
 		return response;
 	};
