@@ -147,6 +147,9 @@ class _TraktSearch extends TraktApi {
 		const searchItems = JSON.parse(responseText) as TraktSearchItem[];
 		if (item.type === 'show') {
 			searchItem = searchItems[0] as TraktSearchShowItem; //TODO can probably avoid assigning with clever generics
+		} else if (searchItems.length === 1) {
+			// If there is only one search result, use it
+			searchItem = searchItems[0] as TraktSearchMovieItem;
 		} else {
 			// Get the exact match if there are multiple movies with the same name by checking the year.
 			searchItem = (searchItems as TraktSearchMovieItem[]).find(
