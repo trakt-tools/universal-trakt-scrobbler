@@ -180,7 +180,17 @@ class _NrkApi extends Api {
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
 		const titleInfo = programInfo.titles;
 		//TOD This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
-		const title = programPage.moreInformation.originalTitle ?? titleInfo.title;
+		let title = titleInfo.title;
+		const { originalTitle } = programPage.moreInformation;
+		if (originalTitle && !originalTitle.toLowerCase().includes(title.toLowerCase())) {
+			//A few times the originalTitle could be a mix of title, season, episode number etc. But follows different patterns. Some Examples:
+			//Mr. Robot, s. 4 - UNAUTHORIZED
+			//BLINDPASSASJER 1:3.
+			//Therese - jenta som forsvant - En kald sak
+			//Chris Tarrant's Extreme Railways s. 6
+			//Folkeopplysningen 6 - Kroppen på service
+			title = originalTitle;
+		}
 		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
 
 		const baseItem: IItem = {
