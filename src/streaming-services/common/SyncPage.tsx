@@ -335,7 +335,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const loadFirstPage = () => {
-			if (syncOptionsContent.hasLoaded) {
+			if (syncOptionsContent.hasLoaded && content.page === 0) {
 				store.setData({ itemsPerPage: syncOptionsContent.options.itemsPerLoad.value });
 				loadNextPage();
 			}
