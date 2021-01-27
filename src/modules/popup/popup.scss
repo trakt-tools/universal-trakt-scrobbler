@@ -3,19 +3,8 @@
 .popup-container {
 	height: 200px;
 	padding: 8px;
+	position: relative;
 	width: 400px;
-
-	&.light {
-		.popup-container--overlay-color {
-			background-color: rgba(0, 0, 0, 0.25);
-		}
-	}
-
-	&.dark {
-		.popup-container--overlay-color {
-			background-color: rgba(0, 0, 0, 0.75);
-		}
-	}
 }
 
 .popup-container--content {
@@ -29,13 +18,13 @@
 
 .popup-container--overlay-color {
 	@extend %full-view;
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 .popup-container--overlay-image {
 	@extend %full-view;
 	background-image: url('../../assets/images/background.jpg');
-	background-size: cover !important;
-	filter: blur(2px) grayscale(0.5);
+	filter: blur(1px) grayscale(0.5);
 }
 
 .popup-header {
