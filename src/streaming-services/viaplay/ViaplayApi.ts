@@ -95,7 +95,7 @@ class _ViaplayApi extends Api {
 	activate = async () => {
 		const response = await fetch(this.INITIAL_URL);
 		const host = response.url.split('//')[1];
-		const region = host.match(/no|se|dk|fi/)![0]
+		const region = /no|se|dk|fi/.exec(host)?.[0] ?? 'no';
 
 		this.HOST_URL = `https://content.${host}`;
 		this.HISTORY_API_URL = `${this.HOST_URL}pcdash-${region}/watched`;
