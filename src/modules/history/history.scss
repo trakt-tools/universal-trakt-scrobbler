@@ -85,6 +85,13 @@ $sidebarWidth: 300px;
 	align-self: center;
 }
 
+.history-list-item-progress {
+	bottom: 0;
+	height: 8px;
+	position: absolute;
+	width: 100%;
+}
+
 .history-list-item-status {
 	align-items: center;
 	color: #ffffff;
