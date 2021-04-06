@@ -45,7 +45,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		name: 'NRK',
 		homePage: 'https://tv.nrk.no/',
 		hostPatterns: ['*://*.nrk.no/*'],
-		hasScrobbler: false,
+		hasScrobbler: true,
 		hasSync: true,
 	},
 	viaplay: {
