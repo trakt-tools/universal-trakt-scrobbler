@@ -85,6 +85,7 @@ interface NrkProgramPage {
 		titles: {
 			title: string;
 		};
+		image: NrkImage[];
 	};
 	_links: {
 		seriesPage?: {
@@ -97,6 +98,11 @@ interface NrkProgramPage {
 			title: string;
 		};
 	};
+}
+
+interface NrkImage {
+	url: string;
+	width: 300 | 600 | 960 | 1280 | 1600 | 1920;
 }
 
 export interface NrkSession {
@@ -212,7 +218,7 @@ class _NrkApi extends Api {
 		const programPage = await this.lookupNrkItem(programInfo._links.self.href);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
 		const titleInfo = programInfo.titles;
-		//TOD This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
+		//TODO This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
 		const title = this.getTitle(programPage);
 		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
 
@@ -269,8 +275,6 @@ class _NrkApi extends Api {
 			//Chris Tarrant's Extreme Railways s. 6
 			//Folkeopplysningen 6 - Kroppen på service
 			return originalTitle;
-		} else {
-			console.warn('it as part of another', originalTitle, '|', title);
 		}
 		return title;
 	};
@@ -286,7 +290,6 @@ class _NrkApi extends Api {
 	getSession = (): Promise<NrkSession | undefined | null> => {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
-				console.warn('trying firefox');
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
 				let session: NrkSession | undefined | null;
 				const { player } = window.wrappedJSObject;

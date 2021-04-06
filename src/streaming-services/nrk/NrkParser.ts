@@ -8,11 +8,9 @@ class _ScrobblerTemplateParser implements ScrobbleParser {
 		const player = await NrkApi.getSession();
 		const id = player?.mediaItem.id;
 		if (!id) {
-			console.warn('no id');
 			return;
 		}
 		const item = await NrkApi.getItem(id);
-		console.warn('got item', item);
 		return item;
 	};
 }

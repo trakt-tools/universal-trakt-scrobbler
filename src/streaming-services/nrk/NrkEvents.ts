@@ -56,57 +56,15 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 					// eslint-disable-next-line @typescript-eslint/no-misused-promises
 					window.addEventListener('beforeunload', async () => {
 						if (this.isPlaying) {
-							console.warn('will stop');
 							await this.stop();
 						}
 					});
 					this.setBeforeUnloadEvent = true;
 				}
-			} else {
-				console.warn('not player 1', player);
-			}
-		} else {
-			console.warn('not player 2', player);
-			const newUrl = this.getLocation();
-			if (this.url !== newUrl) {
-				console.warn('NEW URL!', this.url, '|', newUrl);
-				// await this.onUrlChange(this.url, newUrl);
-				this.url = newUrl;
-			}
-			if (this.isPlaying) {
-				// const newProgress = NrkParser.parseProgress();
-				// if (this.progress === newProgress) {
-				// 	if (!this.isPaused) {
-				// 		await this.pause();
-				// 		this.isPaused = true;
-				// 	}
-				// } else {
-				// 	if (this.isPaused) {
-				// 		await this.start();
-				// 		this.isPaused = false;
-				// 	}
-				// 	await this.updateProgress(newProgress);
-				// 	this.progress = newProgress;
-				// }
 			}
 		}
 
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
-
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
-		if (oldUrl.includes('avspiller') && newUrl.includes('avspiller')) {
-			await this.stop();
-			await this.start();
-			this.isPlaying = true;
-		} else if (oldUrl.includes('avspiller') && !newUrl.includes('avspiller')) {
-			await this.stop();
-			this.isPlaying = false;
-		} else if (!oldUrl.includes('avspiller') && newUrl.includes('avspiller')) {
-			console.warn('started, but wrong item?');
-			await this.start();
-			this.isPlaying = true;
-		}
 	};
 }
 
