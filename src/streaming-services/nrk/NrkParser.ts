@@ -10,8 +10,7 @@ class _ScrobblerTemplateParser implements ScrobbleParser {
 		if (!id) {
 			return;
 		}
-		const item = await NrkApi.getItem(id);
-		return item;
+		return await NrkApi.getItem(id);
 	};
 }
 

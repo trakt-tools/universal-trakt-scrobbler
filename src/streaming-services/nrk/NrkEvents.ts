@@ -14,29 +14,29 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 		if (typeof player !== 'undefined') {
 			if (player) {
 				if (this.videoId !== player.mediaItem.id) {
-					console.warn('new sessinoID', player.mediaItem.id);
-					if (this.isPlaying || this.playbackStarted) {
-						console.warn('stopping current scrobbling');
+					this.videoId = player.mediaItem.id;
+					if (this.playbackStarted) {
 						await this.stop();
 						this.isPlaying = false;
 					}
-					if (player.playbackStarted && !player.sequenceObserver.isPaused) {
-						console.warn('start new scrobbling');
+					if (
+						player.playbackStarted &&
+						!player.sequenceObserver.isPaused &&
+						this.videoId !== undefined
+					) {
 						await this.start();
 						this.isPlaying = true;
 					}
-					this.videoId = player.mediaItem.id;
-					this.isPaused = false;
+
+					this.isPaused = !this.isPlaying;
 					this.playbackStarted = player.playbackStarted;
 				} else if (player.playbackStarted) {
 					if (player.sequenceObserver.isPaused) {
 						if (!this.isPaused) {
-							console.warn('pause');
 							await this.pause();
 						}
 					} else {
 						if (!this.isPlaying) {
-							console.warn('start');
 							await this.start();
 						}
 					}
@@ -55,7 +55,7 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 				if (!this.setBeforeUnloadEvent) {
 					// eslint-disable-next-line @typescript-eslint/no-misused-promises
 					window.addEventListener('beforeunload', async () => {
-						if (this.isPlaying) {
+						if (this.playbackStarted) {
 							await this.stop();
 						}
 					});
