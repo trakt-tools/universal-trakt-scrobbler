@@ -56,7 +56,7 @@ interface NrkProgressItemInProgress extends NrkProgressItemCommon {
 	progress: 'inProgress';
 	registeredAt: string;
 	inProgress: {
-		precentage: number;
+		percentage: number;
 		time: string;
 	};
 }
@@ -229,7 +229,7 @@ class _NrkApi extends Api {
 			title,
 			year: programPage.moreInformation.productionYear,
 			percentageWatched:
-				historyItem.progress === 'inProgress' ? historyItem.inProgress.precentage : 100,
+				historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
 			watchedAt,
 		};
 
