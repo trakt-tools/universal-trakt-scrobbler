@@ -41,6 +41,9 @@ const loaders = {
 	css: {
 		loader: 'css-loader',
 	},
+	sass: {
+		loader: 'sass-loader',
+	},
 	style: {
 		loader: 'style-loader',
 		options: {
@@ -132,6 +135,10 @@ const getWebpackConfig = (env: Environment) => {
 						outputPath: './images/',
 						publicPath: '../images/',
 					},
+				},
+				{
+					test: /\.scss$/,
+					loaders: [loaders.style, loaders.css, loaders.sass],
 				},
 				{
 					test: /\.css$/,

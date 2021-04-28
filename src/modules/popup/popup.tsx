@@ -5,6 +5,7 @@ import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Shared } from '../../common/Shared';
 import { ThemeWrapper } from '../../components/ThemeWrapper';
+import './popup.scss';
 import { PopupApp } from './PopupApp';
 
 const init = async () => {

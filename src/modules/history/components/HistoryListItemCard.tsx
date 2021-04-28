@@ -4,6 +4,7 @@ import {
 	CardContent,
 	CircularProgress,
 	Divider,
+	LinearProgress,
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
@@ -73,11 +74,6 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									<Typography variant="subtitle2">{item.title}</Typography>
 									<Divider className="history-list-item-divider" />
 									{watchedAtComponent}
-									{'percentageWatched' in item && item.percentageWatched !== undefined && (
-										<Typography variant="caption">
-											{I18N.translate('progress', item.percentageWatched.toString())}
-										</Typography>
-									)}
 								</>
 							) : (
 								<>
@@ -85,11 +81,6 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									<Typography variant="h6">{item.title}</Typography>
 									<Divider className="history-list-item-divider" />
 									{watchedAtComponent}
-									{'percentageWatched' in item && item.percentageWatched !== undefined && (
-										<Typography variant="caption">
-											{I18N.translate('progress', item.percentageWatched.toString())}
-										</Typography>
-									)}
 								</>
 							)}
 							{openWrongItemDialog && (
@@ -114,6 +105,14 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 					)}
 				</UtsCenter>
 			</CardContent>
+			{item && 'percentageWatched' in item && item.percentageWatched !== undefined && (
+				<LinearProgress
+					classes={{ root: 'history-list-item-progress' }}
+					title={I18N.translate('progress', item.percentageWatched.toString())}
+					value={item.percentageWatched}
+					variant="determinate"
+				/>
+			)}
 		</Card>
 	);
 };

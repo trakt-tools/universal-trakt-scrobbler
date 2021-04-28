@@ -1,0 +1,50 @@
+@import '../../assets/styles/common.scss';
+
+.popup-container {
+	height: 200px;
+	padding: 8px;
+	position: relative;
+	width: 400px;
+}
+
+.popup-container--content {
+	height: 100%;
+	position: relative;
+
+	> * {
+		height: 100%;
+	}
+}
+
+.popup-container--overlay-color {
+	@extend %full-view;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-container--overlay-image {
+	@extend %full-view;
+	background-image: url('../../assets/images/background.jpg');
+	filter: blur(1px) grayscale(0.5);
+}
+
+.popup-header {
+	color: #fff;
+}
+
+.popup-info {
+	color: #fff;
+	text-align: center;
+
+	> * {
+		margin: 8px 0;
+	}
+}
+
+.popup-watching--content {
+	height: 100%;
+	position: relative;
+
+	> * {
+		height: 100%;
+	}
+}
