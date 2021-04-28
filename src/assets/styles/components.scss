@@ -1,0 +1,22 @@
+@import 'common';
+
+.missing-watched-date-dialog,
+.wrong-item-dialog {
+	min-height: 150px;
+	min-width: 300px;
+}
+
+.tmdb-image {
+	@extend %full-view;
+	background-position: center;
+	background-size: cover !important;
+}
+
+.tmdb-image-overlay {
+	@extend %full-view;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.wrong-item-dialog-suggestions-title {
+	margin-top: 8px;
+}

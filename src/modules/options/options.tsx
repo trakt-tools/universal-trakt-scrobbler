@@ -5,6 +5,7 @@ import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Shared } from '../../common/Shared';
 import { ThemeWrapper } from '../../components/ThemeWrapper';
+import './options.scss';
 import { OptionsApp } from './OptionsApp';
 
 const init = async () => {

@@ -1,4 +1,8 @@
 import { AppBar, Button, Toolbar } from '@material-ui/core';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import HomeIcon from '@material-ui/icons/Home';
+import InfoIcon from '@material-ui/icons/Info';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { History } from 'history';
 import * as React from 'react';
 import { I18N } from '../../../common/I18N';
@@ -33,24 +37,33 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 					centerVertically={true}
 					left={
 						<>
-							<Button color="inherit" onClick={() => onRouteClick('/home')}>
-								{I18N.translate('home')}
-							</Button>
-							<Button color="inherit" onClick={() => onRouteClick('/about')}>
-								{I18N.translate('about')}
+							<Button
+								color="inherit"
+								title={I18N.translate('home')}
+								onClick={() => onRouteClick('/home')}
+							>
+								<HomeIcon />
 							</Button>
 							<Button
 								color="inherit"
+								title={I18N.translate('about')}
+								onClick={() => onRouteClick('/about')}
+							>
+								<InfoIcon />
+							</Button>
+							<Button
+								color="inherit"
+								title={I18N.translate('options')}
 								onClick={() => onLinkClick(browser.runtime.getURL('/html/options.html'))}
 							>
-								{I18N.translate('options')}
+								<SettingsIcon />
 							</Button>
 						</>
 					}
 					right={
 						isLoggedIn ? (
-							<Button color="inherit" onClick={onLogoutClick}>
-								{I18N.translate('logout')}
+							<Button color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
+								<ExitToAppIcon />
 							</Button>
 						) : undefined
 					}
