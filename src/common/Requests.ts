@@ -1,3 +1,4 @@
+import axios, { AxiosResponse, Method } from 'axios';
 import { TraktAuth } from '../api/TraktAuth';
 import { BrowserStorage } from './BrowserStorage';
 import { Messaging } from './Messaging';
@@ -15,8 +16,6 @@ export type RequestDetails = {
 	headers?: Record<string, string>;
 	body?: unknown;
 };
-
-export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 class _Requests {
 	send = async (request: RequestDetails, tabId = 0): Promise<string> => {
@@ -43,7 +42,7 @@ class _Requests {
 		try {
 			const response = await this.fetch(request, tabId);
 			responseStatus = response.status;
-			responseText = await response.text();
+			responseText = response.data;
 			if (responseStatus < 200 || responseStatus >= 400) {
 				throw responseText;
 			}
@@ -57,16 +56,16 @@ class _Requests {
 		return responseText;
 	};
 
-	fetch = async (request: RequestDetails, tabId = 0): Promise<Response> => {
-		let fetch = window.fetch;
+	fetch = async (request: RequestDetails, tabId = 0): Promise<AxiosResponse> => {
 		let options = await this.getOptions(request, tabId);
-		if (window.wrappedJSObject) {
-			// Firefox wraps page objects, so if we want to send the request from a container, we have to unwrap them.
-			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch);
-			window.wrappedJSObject.fetchOptions = cloneInto(options, window);
-			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions);
-		}
-		return fetch(request.url, options);
+		return axios.request({
+			url: request.url,
+			method: options.method as Method,
+			headers: options.headers,
+			data: options.body,
+			responseType: 'text',
+			transformResponse: (res) => res,
+		});
 	};
 
 	getOptions = async (request: RequestDetails, tabId = 0): Promise<RequestInit> => {

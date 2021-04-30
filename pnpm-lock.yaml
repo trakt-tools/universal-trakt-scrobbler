@@ -4,6 +4,7 @@ dependencies:
   '@material-ui/icons': 4.9.1_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/lab': 4.0.0-alpha.56_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/pickers': 3.2.10_1f98156bd48bdafcda5c0dbaa7af31be
+  axios: 0.21.1
   history: 4.10.1
   moment: 2.27.0
   prop-types: 15.7.2
@@ -2724,6 +2725,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
+  /axios/0.21.1:
+    dependencies:
+      follow-redirects: 1.14.0
+    dev: false
+    resolution:
+      integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   /babel-eslint/10.1.0_eslint@7.7.0:
     dependencies:
       '@babel/code-frame': 7.10.4
@@ -4618,6 +4625,17 @@ packages:
     dev: true
     resolution:
       integrity: sha512-3Z4XhFZ3992uIq0XOqb9AreonueSYphE6oYbpt5+3u06JWklbsPkNv3ZKkP9Bz/r+1MWCaMoSQ28P85+1Yc77w==
+  /follow-redirects/1.14.0:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-0vRwd7RKQBTt+mgu87mtYeofLFZpTas2S9zY+jIeuLJMNvudIgF52nr19q40HOwH5RrhWIPuj9puybzSJiRrVg==
   /for-in/0.1.8:
     dev: true
     engines:
@@ -9177,6 +9195,7 @@ specifiers:
   '@types/webpack': ^4.41.21
   '@typescript-eslint/eslint-plugin': ^3.10.1
   '@typescript-eslint/parser': ^3.10.1
+  axios: ^0.21.1
   babel-eslint: ^10.1.0
   babel-loader: ^8.1.0
   babel-preset-minify: ^0.5.1
