@@ -8,6 +8,10 @@ import { IItem, Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
+export interface NrkGlobalObject {
+	getPlaybackSession: () => NrkSession;
+}
+
 interface NrkUserData {
 	name: string;
 	profileType: string;
@@ -52,7 +56,7 @@ interface NrkProgressItemInProgress extends NrkProgressItemCommon {
 	progress: 'inProgress';
 	registeredAt: string;
 	inProgress: {
-		precentage: number;
+		percentage: number;
 		time: string;
 	};
 }
@@ -77,12 +81,43 @@ interface NrkProgramPage {
 		originalTitle: string;
 		productionYear: number;
 	};
+	programInformation: {
+		titles: {
+			title: string;
+		};
+		image: NrkImage[];
+	};
 	_links: {
 		seriesPage?: {
 			href: string;
 			name: string;
 			title: string;
 		};
+		season: {
+			name: string;
+			title: string;
+		};
+	};
+}
+
+interface NrkImage {
+	url: string;
+	width: 300 | 600 | 960 | 1280 | 1600 | 1920;
+}
+
+export interface NrkSession {
+	currentTime: number;
+	duration: number;
+	mediaItem: {
+		id: string;
+		title: string;
+		subtitle: string;
+	};
+	playbackSessionId: string;
+	// paused: boolean;
+	playbackStarted: boolean;
+	sequenceObserver: {
+		isPaused: boolean;
 	};
 }
 
@@ -92,8 +127,11 @@ class _NrkApi extends Api {
 	HISTORY_API_URL: string;
 	TOKEN_URL: string;
 	USERDATA_URL: string;
+	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
+	hasInjectedSessionScript: any;
+	sessionListener: any;
 
 	constructor() {
 		super('nrk');
@@ -103,6 +141,7 @@ class _NrkApi extends Api {
 		this.HISTORY_API_URL = '';
 		this.TOKEN_URL = `${this.HOST_URL}/auth/token`;
 		this.USERDATA_URL = `${this.HOST_URL}/auth/userdata`;
+		this.PROGRAM_URL = '/tv/catalog/programs/';
 		this.token = '';
 		this.isActivated = false;
 	}
@@ -179,18 +218,8 @@ class _NrkApi extends Api {
 		const programPage = await this.lookupNrkItem(programInfo._links.self.href);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
 		const titleInfo = programInfo.titles;
-		//TOD This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
-		let title = titleInfo.title;
-		const { originalTitle } = programPage.moreInformation;
-		if (originalTitle && !originalTitle.toLowerCase().includes(title.toLowerCase())) {
-			//A few times the originalTitle could be a mix of title, season, episode number etc. But follows different patterns. Some Examples:
-			//Mr. Robot, s. 4 - UNAUTHORIZED
-			//BLINDPASSASJER 1:3.
-			//Therese - jenta som forsvant - En kald sak
-			//Chris Tarrant's Extreme Railways s. 6
-			//Folkeopplysningen 6 - Kroppen på service
-			title = originalTitle;
-		}
+		//TODO This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
+		const title = this.getTitle(programPage);
 		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
 
 		const baseItem: IItem = {
@@ -200,7 +229,7 @@ class _NrkApi extends Api {
 			title,
 			year: programPage.moreInformation.productionYear,
 			percentageWatched:
-				historyItem.progress === 'inProgress' ? historyItem.inProgress.precentage : 100,
+				historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
 			watchedAt,
 		};
 
@@ -234,12 +263,136 @@ class _NrkApi extends Api {
 		}
 	};
 
+	getTitle = (programPage: NrkProgramPage) => {
+		const title =
+			programPage._links?.seriesPage?.title || programPage.programInformation.titles.title;
+		const { originalTitle } = programPage.moreInformation;
+		if (originalTitle && !originalTitle.toLowerCase().includes(title.toLowerCase())) {
+			//A few times the originalTitle could be a mix of title, season, episode number etc. But follows different patterns. Some Examples:
+			//Mr. Robot, s. 4 - UNAUTHORIZED
+			//BLINDPASSASJER 1:3.
+			//Therese - jenta som forsvant - En kald sak
+			//Chris Tarrant's Extreme Railways s. 6
+			//Folkeopplysningen 6 - Kroppen på service
+			return originalTitle;
+		}
+		return title;
+	};
+
 	lookupNrkItem = async (url: string) => {
 		const response = await Requests.send({
 			url: this.API_HOST_URL + url,
 			method: 'GET',
 		});
 		return JSON.parse(response) as NrkProgramPage;
+	};
+
+	getSession = (): Promise<NrkSession | undefined | null> => {
+		return new Promise((resolve) => {
+			if ('wrappedJSObject' in window && window.wrappedJSObject) {
+				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
+				let session: NrkSession | undefined | null;
+				const { player } = window.wrappedJSObject;
+				if (player && player.getPlaybackSession()) {
+					const playbacksession = player.getPlaybackSession();
+					session = {
+						currentTime: playbacksession.currentTime,
+						duration: playbacksession.duration,
+						mediaItem: {
+							id: playbacksession.mediaItem?.id,
+							title: playbacksession.mediaItem?.title,
+							subtitle: playbacksession.mediaItem?.subtitle,
+						},
+						playbackSessionId: playbacksession.playbackSessionId,
+						playbackStarted: playbacksession.playbackStarted,
+						sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
+					};
+				}
+				resolve(session);
+			} else {
+				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
+				if (!this.hasInjectedSessionScript) {
+					const script = document.createElement('script');
+					script.textContent = `
+						window.addEventListener('uts-getSession', () => {
+							let session;
+							if (window.player && window.player.getPlaybackSession()) {
+								const playbacksession = window.player.getPlaybackSession()
+								session = {
+									currentTime: playbacksession.currentTime,
+									duration: playbacksession.duration,
+									mediaItem: {
+										id: playbacksession.mediaItem?.id,
+										title: playbacksession.mediaItem?.title,
+										subtitle: playbacksession.mediaItem?.subtitle,
+									},
+									playbackSessionId: playbacksession.playbackSessionId,
+									playbackStarted: playbacksession.playbackStarted,
+									sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
+								}
+							}
+							const event = new CustomEvent('uts-onSessionReceived', {
+								detail: { session: JSON.stringify(session) },
+							});
+							window.dispatchEvent(event);
+						});
+					`;
+					document.body.appendChild(script);
+					this.hasInjectedSessionScript = true;
+				}
+				if (this.sessionListener) {
+					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
+				}
+				this.sessionListener = (event: Event) => {
+					const session = (event as CustomEvent<Record<'session', string | undefined>>).detail
+						.session;
+					if (typeof session === 'undefined') {
+						resolve(session);
+					} else {
+						resolve(JSON.parse(session) as NrkSession | null);
+					}
+				};
+				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
+				const event = new CustomEvent('uts-getSession');
+				window.dispatchEvent(event);
+			}
+		});
+	};
+
+	getItem = async (id: string): Promise<Item | undefined> => {
+		const programPage = await this.lookupNrkItem(this.PROGRAM_URL + id);
+		const title = this.getTitle(programPage);
+		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
+		const baseItem: IItem = {
+			id,
+			serviceId: this.id,
+			type,
+			title,
+			year: programPage.moreInformation.productionYear,
+		};
+		if (type === 'show') {
+			const { title } = programPage.programInformation.titles;
+			const capturedEpisodeData = [...title.matchAll(/([0-9]+)[.] (.+)/g)];
+			let episodeTitle;
+			let extraInfo;
+			if (capturedEpisodeData.length) {
+				const epInfo = capturedEpisodeData[0];
+				episodeTitle = epInfo[2] === 'episode' ? epInfo[0] : epInfo[2]; //If title is not present, use the whole string.
+				extraInfo = {
+					season: Number.parseInt(programPage._links.season.name),
+					episode: Number.parseInt(epInfo[1]),
+				};
+			} else {
+				episodeTitle = title;
+			}
+			return new Item({
+				...baseItem,
+				episodeTitle,
+				...extraInfo,
+			});
+		} else {
+			return new Item(baseItem);
+		}
 	};
 }
 

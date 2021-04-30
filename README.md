@@ -44,7 +44,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 - Amazon Prime (Scrobble only)
 - HBO Go (Scrobble only - tested only for Latin America)
 - Netflix
-- NRK (Sync only)
+- NRK
 - Viaplay (Sync only)
 - Telia Play (Sync only)
 
