@@ -5,6 +5,7 @@ declare interface Window {
 		localStorage: Storage;
 		netflix?: import('./streaming-services/netflix/NetflixApi').NetflixGlobalObject;
 		sdk?: import('./streaming-services/hbo-go/HboGoApi').HboGoGlobalObject;
+		player?: import('./streaming-services/nrk/NrkApi').NrkGlobalObject;
 	};
 	Rollbar?: import('rollbar');
 }

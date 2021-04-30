@@ -20,6 +20,7 @@ export type MessageRequest =
 	| SetCacheMessage<keyof CacheValues>
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
+	| CheckScrobbleMessage
 	| StartScrobbleMessage
 	| StopScrobbleMessage
 	| SendRequestMessage
@@ -72,6 +73,10 @@ export interface ShowNotificationMessage {
 	action: 'show-notification';
 	title: string;
 	message: string;
+}
+
+export interface CheckScrobbleMessage {
+	action: 'check-scrobble';
 }
 
 export interface StartScrobbleMessage {
@@ -235,6 +240,14 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'set-inactive-icon': {
 			executingAction = BrowserAction.setInactiveIcon();
+			break;
+		}
+		case 'check-scrobble': {
+			if (sender.tab?.id) {
+				executingAction = onTabRemoved(sender.tab.id);
+			} else {
+				executingAction = Promise.resolve();
+			}
 			break;
 		}
 		case 'start-scrobble': {

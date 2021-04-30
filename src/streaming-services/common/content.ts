@@ -9,6 +9,7 @@ import { getScrobbleController, getScrobbleEvents } from './common';
 
 export const init = async (serviceId: StreamingServiceId) => {
 	Shared.pageType = 'content';
+	await Messaging.toBackground({ action: 'check-scrobble' });
 	await BrowserStorage.sync();
 	const { options } = await BrowserStorage.get('options');
 	if (options) {

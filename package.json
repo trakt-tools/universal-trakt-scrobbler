@@ -123,6 +123,8 @@
 		"pretty-format": "^22.0.3",
 		"progress-bar-webpack-plugin": "^2.1.0",
 		"react-svg-loader": "^3.0.3",
+		"sass": "^1.32.5",
+		"sass-loader": "^10.0.4",
 		"string-replace-loader": "^2.3.0",
 		"style-loader": "^1.2.1",
 		"ts-node": "^9.0.0",

@@ -6,6 +6,15 @@ body {
 	margin: 0;
 }
 
+.button-group-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.button-group {
+	align-self: center;
+}
+
 .container--center-horizontal {
 	align-items: center;
 	display: flex;

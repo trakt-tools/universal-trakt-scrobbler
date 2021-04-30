@@ -19,7 +19,7 @@ export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps)
 
 	return (
 		<>
-			<List>
+			<List className="history-list">
 				{items.map((item) => (
 					<HistoryListItem
 						key={item.index}

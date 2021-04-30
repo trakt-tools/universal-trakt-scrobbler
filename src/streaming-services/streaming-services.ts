@@ -1,4 +1,10 @@
-export type StreamingServiceId = 'amazon-prime' | 'hbo-go' | 'netflix' | 'nrk' | 'viaplay';
+export type StreamingServiceId =
+	| 'amazon-prime'
+	| 'hbo-go'
+	| 'netflix'
+	| 'nrk'
+	| 'viaplay'
+	| 'telia-play';
 
 export interface StreamingService {
 	id: StreamingServiceId;
@@ -39,7 +45,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		name: 'NRK',
 		homePage: 'https://tv.nrk.no/',
 		hostPatterns: ['*://*.nrk.no/*'],
-		hasScrobbler: false,
+		hasScrobbler: true,
 		hasSync: true,
 	},
 	viaplay: {
@@ -53,6 +59,14 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 			'*://*.viaplay.dk/*',
 			'*://*.viaplay.fi/*',
 		],
+		hasScrobbler: false,
+		hasSync: true,
+	},
+	'telia-play': {
+		id: 'telia-play',
+		name: 'Telia Play',
+		homePage: 'https://teliaplay.se/',
+		hostPatterns: ['*://*.teliaplay.se/*', '*://*.telia.net/*', '*://*.telia.se/*'],
 		hasScrobbler: false,
 		hasSync: true,
 	},

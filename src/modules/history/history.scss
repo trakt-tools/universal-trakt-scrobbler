@@ -1,0 +1,124 @@
+$sidebarWidth: 300px;
+
+.history-actions {
+	display: flex;
+	justify-content: center;
+	padding: 16px;
+
+	> * {
+		margin: 0 8px;
+	}
+}
+
+.history-actions--container {
+	background-color: #fff;
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	right: 0;
+}
+
+.history-container {
+	padding-top: 16px;
+}
+
+.history-content {
+	display: flex;
+	justify-content: center;
+	padding-bottom: 100px;
+	padding-left: $sidebarWidth;
+}
+
+.history-content--empty {
+	text-align: center;
+	width: 100%;
+}
+
+.history-header {
+	color: #fff;
+}
+
+.history-info {
+	text-align: center;
+
+	> * {
+		margin: 8px 0;
+	}
+}
+
+.history-list {
+	align-items: flex-end;
+	display: flex;
+	flex-direction: column;
+}
+
+.history-list-item {
+	display: flex;
+	justify-content: end;
+
+	> * {
+		margin: 0 8px;
+	}
+}
+
+.history-list-item-card {
+	margin: 8px 0;
+	position: relative;
+	text-align: center;
+	width: 350px;
+
+	&.image {
+		color: #fff;
+
+		.history-list-item-divider {
+			background-color: rgba(255, 255, 255, 0.75);
+		}
+	}
+}
+
+.history-list-item-card-content {
+	position: relative;
+}
+
+.history-list-item-checkbox,
+.history-list-item-status {
+	align-self: center;
+}
+
+.history-list-item-progress {
+	bottom: 0;
+	height: 8px;
+	position: absolute;
+	width: 100%;
+}
+
+.history-list-item-status {
+	align-items: center;
+	color: #ffffff;
+	display: flex;
+	justify-content: center;
+	margin: 0;
+	padding: 4px;
+	width: 32px;
+}
+
+.history-list-item-divider {
+	margin: 8px 0;
+	width: 100%;
+}
+
+.history-options-list-container {
+	height: min-content;
+	position: sticky;
+	top: 100px;
+
+	> * {
+		margin: 8px 0;
+		width: 100%;
+	}
+}
+
+.history-options-sidebar {
+	padding: 16px;
+	width: $sidebarWidth;
+}

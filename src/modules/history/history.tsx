@@ -5,6 +5,7 @@ import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Shared } from '../../common/Shared';
 import { ThemeWrapper } from '../../components/ThemeWrapper';
+import './history.scss';
 import { HistoryApp } from './HistoryApp';
 
 const init = async () => {
