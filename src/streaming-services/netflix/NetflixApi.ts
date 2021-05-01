@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
@@ -233,7 +233,7 @@ class _NetflixApi extends Api {
 			}
 			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Netflix history.', err);
 				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 					error: err as Error,
@@ -330,7 +330,7 @@ class _NetflixApi extends Api {
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

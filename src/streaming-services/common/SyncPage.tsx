@@ -23,6 +23,7 @@ import {
 	WrongItemCorrectedData,
 } from '../../common/Events';
 import { I18N } from '../../common/I18N';
+import { RequestException } from '../../common/Requests';
 import { UtsCenter } from '../../components/UtsCenter';
 import { Item } from '../../models/Item';
 import { HistoryActions } from '../../modules/history/components/HistoryActions';
@@ -195,7 +196,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			try {
 				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
 			} catch (err) {
-				if (!err.canceled) {
+				if (!(err as RequestException).canceled) {
 					Errors.error('Failed to save suggestion.', err);
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveSuggestionFailed',
@@ -370,7 +371,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 		};
 
-		loadData();
+		void loadData();
 	}, [content.visibleItems]);
 
 	let filteredItems = content.visibleItems;

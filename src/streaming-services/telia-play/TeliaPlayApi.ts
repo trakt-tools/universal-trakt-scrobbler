@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -243,7 +243,7 @@ class _TeliaPlayApi extends Api {
 
 			getSyncStore('telia-play').setData({ items });
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load telia history.', err);
 				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 					error: err as Error,

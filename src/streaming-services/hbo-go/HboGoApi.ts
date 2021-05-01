@@ -1,7 +1,7 @@
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
@@ -236,7 +236,7 @@ class _HboGoApi extends Api {
 			}
 			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load HBO Go history.', err as Error);
 				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 					error: err as Error,

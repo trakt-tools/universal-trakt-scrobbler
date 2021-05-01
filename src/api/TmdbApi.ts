@@ -1,7 +1,7 @@
 import { CacheValues } from '../common/Cache';
 import { Errors } from '../common/Errors';
 import { Messaging } from '../common/Messaging';
-import { Requests } from '../common/Requests';
+import { RequestException, Requests } from '../common/Requests';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { secrets } from '../secrets';
@@ -74,7 +74,7 @@ class _TmdbApi {
 			try {
 				await this.activate();
 			} catch (err) {
-				if (!err.canceled) {
+				if (!(err as RequestException).canceled) {
 					Errors.warning('Failed to get TMDB config.', err);
 				}
 				return null;
@@ -111,7 +111,7 @@ class _TmdbApi {
 				}
 			}
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.warning('Failed to find item on TMDB.', err);
 			}
 		}

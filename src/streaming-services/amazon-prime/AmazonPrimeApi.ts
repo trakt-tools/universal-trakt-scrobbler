@@ -1,6 +1,6 @@
 import { Item } from '../../models/Item';
 import { Errors } from '../../common/Errors';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Api } from '../common/Api';
 import { registerApi } from '../common/common';
 
@@ -51,7 +51,7 @@ class _AmazonPrimeApi extends Api {
 			});
 			item = this.parseMetadata(JSON.parse(responseText) as AmazonPrimeMetadataItem);
 		} catch (err) {
-			if (!err.canceled) {
+			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

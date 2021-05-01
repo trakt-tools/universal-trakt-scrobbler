@@ -9,6 +9,7 @@ export type RequestException = {
 	request: RequestDetails;
 	status: number;
 	text: string;
+	canceled: boolean;
 };
 
 export type RequestDetails = {
@@ -77,8 +78,8 @@ class _Requests {
 		return responseText;
 	};
 
-	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse> => {
-		let options = await this.getOptions(request, tabId);
+	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> => {
+		const options = await this.getOptions(request, tabId);
 		const cancelKey = request.cancelKey || 'default';
 		if (!this.cancelTokens.has(cancelKey)) {
 			this.cancelTokens.set(cancelKey, axios.CancelToken.source());
@@ -91,7 +92,7 @@ class _Requests {
 			data: options.body,
 			responseType: 'text',
 			cancelToken,
-			transformResponse: (res) => res,
+			transformResponse: (res: string) => res,
 		});
 	};
 
