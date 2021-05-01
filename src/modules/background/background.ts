@@ -12,6 +12,7 @@ import { TraktItem } from '../../models/TraktItem';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
+	| GetTabIdMessage
 	| CheckLoginMessage
 	| FinishLoginMessage
 	| LoginMessage
@@ -27,6 +28,10 @@ export type MessageRequest =
 	| ShowNotificationMessage
 	| WrongItemCorrectedMessage
 	| SaveCorrectionSuggestionMessage;
+
+export interface GetTabIdMessage {
+	action: 'get-tab-id';
+}
 
 export interface CheckLoginMessage {
 	action: 'check-login';
@@ -205,6 +210,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 	let executingAction: Promise<unknown>;
 	const parsedRequest = JSON.parse(request) as MessageRequest;
 	switch (parsedRequest.action) {
+		case 'get-tab-id': {
+			executingAction = Promise.resolve({ tabId: sender.tab?.id });
+			break;
+		}
 		case 'check-login': {
 			executingAction = TraktAuth.validateToken();
 			break;

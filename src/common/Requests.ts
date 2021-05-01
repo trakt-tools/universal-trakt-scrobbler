@@ -18,11 +18,11 @@ export type RequestDetails = {
 };
 
 class _Requests {
-	send = async (request: RequestDetails, tabId = 0): Promise<string> => {
+	send = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
 		let responseText = '';
 		if (
 			Shared.pageType === 'background' ||
-			(Shared.pageType === 'popup' && tabId) ||
+			(Shared.pageType === 'popup' && typeof tabId !== 'undefined') ||
 			(Shared.pageType === 'content' && request.url.includes(window.location.host))
 		) {
 			responseText = await this.sendDirectly(request, tabId);
@@ -36,7 +36,7 @@ class _Requests {
 		return responseText;
 	};
 
-	sendDirectly = async (request: RequestDetails, tabId = 0): Promise<string> => {
+	sendDirectly = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
 		let responseStatus = 0;
 		let responseText = '';
 		try {
@@ -56,7 +56,7 @@ class _Requests {
 		return responseText;
 	};
 
-	fetch = async (request: RequestDetails, tabId = 0): Promise<AxiosResponse> => {
+	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse> => {
 		let options = await this.getOptions(request, tabId);
 		return axios.request({
 			url: request.url,
@@ -68,7 +68,7 @@ class _Requests {
 		});
 	};
 
-	getOptions = async (request: RequestDetails, tabId = 0): Promise<RequestInit> => {
+	getOptions = async (request: RequestDetails, tabId = Shared.tabId): Promise<RequestInit> => {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request, tabId),
@@ -76,7 +76,7 @@ class _Requests {
 		};
 	};
 
-	getHeaders = async (request: RequestDetails, tabId = 0): Promise<HeadersInit> => {
+	getHeaders = async (request: RequestDetails, tabId = Shared.tabId): Promise<HeadersInit> => {
 		const headers: HeadersInit = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
@@ -96,7 +96,13 @@ class _Requests {
 		return headers;
 	};
 
-	getCookies = async (request: RequestDetails, tabId = 0): Promise<string | undefined> => {
+	getCookies = async (
+		request: RequestDetails,
+		tabId = Shared.tabId
+	): Promise<string | undefined> => {
+		if (typeof tabId === 'undefined') {
+			return;
+		}
 		const storage = await BrowserStorage.get('options');
 		if (!storage.options?.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;

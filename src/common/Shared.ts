@@ -1,6 +1,7 @@
 interface SharedValues {
 	browser: BrowserName;
 	pageType: PageType;
+	tabId?: number;
 }
 
 type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
