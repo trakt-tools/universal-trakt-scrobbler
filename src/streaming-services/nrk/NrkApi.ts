@@ -192,14 +192,13 @@ class _NrkApi extends Api {
 				const promises = historyItems.map(this.parseHistoryItem);
 				items = await Promise.all(promises);
 			}
-			store.update({ items, hasReachedEnd }).catch(() => {
-				/** Do nothing */
-			});
+			store.setData({ items, hasReachedEnd });
 		} catch (err) {
 			Errors.error('Failed to load NRK history.', err);
 			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
+			throw err;
 		}
 	};
 

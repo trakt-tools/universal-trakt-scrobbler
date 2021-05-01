@@ -85,17 +85,19 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			return;
 		}
 		const itemsToLoad = (content.page + 1) * store.data.itemsPerPage - content.items.length;
-		store.goToNextPage();
 		if (itemsToLoad > 0) {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: true,
 			}));
-			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' }).then(
-				() => void api.loadHistory(itemsToLoad)
-			);
+			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
+				.then(() => api.loadHistory(itemsToLoad))
+				.then(() => store.goToNextPage().update())
+				.catch(() => {
+					// Do nothing
+				});
 		} else {
-			void store.update();
+			void store.goToNextPage().update();
 		}
 	};
 
@@ -297,9 +299,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					isLoading: true,
 					itemsPerPage,
 				}));
-				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' }).then(
-					() => void api.loadHistory(itemsToLoad)
-				);
+				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
+					.then(() => api.loadHistory(itemsToLoad))
+					.then(() => store.update())
+					.catch(() => {
+						// Do nothing
+					});
 			} else {
 				void store.update({ itemsPerPage });
 			}

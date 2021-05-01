@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { Requests } from '../../common/Requests';
@@ -120,7 +119,7 @@ export interface TeliaWatchedItem {
 	hidden: boolean;
 }
 
-class _TeliaApi extends Api {
+class _TeliaPlayApi extends Api {
 	OTTAPI_URL: string;
 	CONTINUE_WATCHING_API_URL: string;
 	MY_LIST_API_URL: string;
@@ -161,17 +160,11 @@ class _TeliaApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (
-		nextPage: number,
-		nextVisualPage: number,
-		itemsToLoad: number
-	): Promise<void> => {
+	loadHistory = async (itemsToLoad: number): Promise<void> => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
-			const itemsLoaded = 0;
-			const isLastPage = false;
 
 			//Get Continue Watching
 			const cwResponseText = await this.doGet(`${this.CONTINUE_WATCHING_API_URL}`);
@@ -248,20 +241,13 @@ class _TeliaApi extends Api {
 			items.push(...validEps.map((ep) => this.parseHistoryItem(ep, wMap.get(ep.loopId))));
 			items.push(...watchedMovies.map((m) => this.parseHistoryItem(m, wMap.get(m.loopId))));
 
-			nextVisualPage += 1;
-
-			await getSyncStore('telia-play')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => WrongItemApi.loadSuggestions(this.id))
-				.catch(() => {
-					/** Do nothing */
-				});
+			getSyncStore('telia-play').setData({ items });
 		} catch (err) {
 			Errors.error('Failed to load telia history.', err);
 			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
+			throw err;
 		}
 	};
 
@@ -329,6 +315,6 @@ class _TeliaApi extends Api {
 	};
 }
 
-export const TeliaApi = new _TeliaApi();
+export const TeliaPlayApi = new _TeliaPlayApi();
 
-registerApi('telia-play', TeliaApi);
+registerApi('telia-play', TeliaPlayApi);

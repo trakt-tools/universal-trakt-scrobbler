@@ -231,14 +231,13 @@ class _NetflixApi extends Api {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			store.update({ items, nextPage, hasReachedEnd }).catch(() => {
-				/** Do nothing */
-			});
+			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
 			Errors.error('Failed to load Netflix history.', err);
 			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
+			throw err;
 		}
 	};
 

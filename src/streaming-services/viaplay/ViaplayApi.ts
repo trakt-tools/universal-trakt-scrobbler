@@ -147,14 +147,13 @@ class _ViaplayApi extends Api {
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			store.update({ items, hasReachedEnd }).catch(() => {
-				/** Do nothing */
-			});
+			store.setData({ items, hasReachedEnd });
 		} catch (err) {
 			Errors.error('Failed to load Viaplay history.', err);
 			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
 				error: err as Error,
 			});
+			throw err;
 		}
 	};
 

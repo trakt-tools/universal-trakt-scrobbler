@@ -26,7 +26,7 @@ class _SyncTemplateApi extends Api {
 			nextPage += 1;
 			hasReachedEnd = this.checkLastPage();
 		}
-		await store.update({ items, nextPage, hasReachedEnd });
+		store.setData({ items, nextPage, hasReachedEnd });
 	};
 
 	// Define any methods you need here.
