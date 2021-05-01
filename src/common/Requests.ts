@@ -71,6 +71,7 @@ class _Requests {
 				request,
 				status: responseStatus,
 				text: responseText,
+				canceled: err instanceof axios.Cancel,
 			};
 		}
 		return responseText;

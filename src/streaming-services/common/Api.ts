@@ -39,10 +39,12 @@ export abstract class Api {
 			await BrowserStorage.set({ traktCache }, false);
 			await getSyncStore(this.id).update();
 		} catch (err) {
-			Errors.error('Failed to load Trakt history.', err);
-			await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to load Trakt history.', err);
+				await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
 		}
 	};
 

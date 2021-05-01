@@ -102,11 +102,13 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				date: dialog.date,
 			});
 		} catch (err) {
-			Errors.error('Failed to add missing watched date.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'addMissingWatchedDateFailed',
-				severity: 'error',
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to add missing watched date.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'addMissingWatchedDateFailed',
+					severity: 'error',
+				});
+			}
 		}
 		setDialog((prevDialog) => ({
 			...prevDialog,

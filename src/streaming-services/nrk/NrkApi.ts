@@ -194,10 +194,12 @@ class _NrkApi extends Api {
 			}
 			store.setData({ items, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load NRK history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to load NRK history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
 			throw err;
 		}
 	};

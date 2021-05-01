@@ -74,7 +74,9 @@ class _TmdbApi {
 			try {
 				await this.activate();
 			} catch (err) {
-				Errors.warning('Failed to get TMDB config.', err);
+				if (!err.canceled) {
+					Errors.warning('Failed to get TMDB config.', err);
+				}
 				return null;
 			}
 		}
@@ -109,7 +111,9 @@ class _TmdbApi {
 				}
 			}
 		} catch (err) {
-			Errors.warning('Failed to find item on TMDB.', err);
+			if (!err.canceled) {
+				Errors.warning('Failed to find item on TMDB.', err);
+			}
 		}
 		return null;
 	};

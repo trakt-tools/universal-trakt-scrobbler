@@ -195,11 +195,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			try {
 				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
 			} catch (err) {
-				Errors.error('Failed to save suggestion.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'saveSuggestionFailed',
-					severity: 'error',
-				});
+				if (!err.canceled) {
+					Errors.error('Failed to save suggestion.', err);
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveSuggestionFailed',
+						severity: 'error',
+					});
+				}
 			}
 			await BrowserStorage.set({ traktCache }, false);
 			await getSyncStore(serviceId).update();

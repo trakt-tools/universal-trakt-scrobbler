@@ -243,10 +243,12 @@ class _TeliaPlayApi extends Api {
 
 			getSyncStore('telia-play').setData({ items });
 		} catch (err) {
-			Errors.error('Failed to load telia history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to load telia history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
 			throw err;
 		}
 	};

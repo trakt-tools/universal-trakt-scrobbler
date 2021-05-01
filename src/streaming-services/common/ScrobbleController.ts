@@ -50,7 +50,9 @@ export class ScrobbleController {
 				}
 			}
 		} catch (err) {
-			Errors.log('Failed to parse item.', err);
+			if (!err.canceled) {
+				Errors.log('Failed to parse item.', err);
+			}
 		}
 	};
 
@@ -119,11 +121,13 @@ export class ScrobbleController {
 				throw response.error;
 			}
 		} catch (err) {
-			Errors.error('Failed to save suggestion.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'saveSuggestionFailed',
-				severity: 'error',
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to save suggestion.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'saveSuggestionFailed',
+					severity: 'error',
+				});
+			}
 		}
 	};
 }

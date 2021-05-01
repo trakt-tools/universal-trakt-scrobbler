@@ -233,10 +233,12 @@ class _NetflixApi extends Api {
 			}
 			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load Netflix history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to load Netflix history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
 			throw err;
 		}
 	};
@@ -328,7 +330,9 @@ class _NetflixApi extends Api {
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
 		} catch (err) {
-			Errors.error('Failed to get item.', err);
+			if (!err.canceled) {
+				Errors.error('Failed to get item.', err);
+			}
 		}
 		return item;
 	};

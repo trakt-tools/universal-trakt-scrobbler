@@ -236,10 +236,12 @@ class _HboGoApi extends Api {
 			}
 			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load HBO Go history.', err as Error);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to load HBO Go history.', err as Error);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
 			throw err;
 		}
 	};

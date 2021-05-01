@@ -51,7 +51,9 @@ class _AmazonPrimeApi extends Api {
 			});
 			item = this.parseMetadata(JSON.parse(responseText) as AmazonPrimeMetadataItem);
 		} catch (err) {
-			Errors.error('Failed to get item.', err);
+			if (!err.canceled) {
+				Errors.error('Failed to get item.', err);
+			}
 		}
 		return item;
 	};

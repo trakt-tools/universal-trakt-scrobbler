@@ -98,8 +98,10 @@ class _TraktSync extends TraktApi {
 				added: responseJson.added,
 			});
 		} catch (err) {
-			Errors.error('Failed to sync history.', err);
-			await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
+			if (!err.canceled) {
+				Errors.error('Failed to sync history.', err);
+				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
+			}
 		}
 	};
 }

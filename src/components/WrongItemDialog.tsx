@@ -114,11 +114,13 @@ export const WrongItemDialog: React.FC = () => {
 				}
 			}
 		} catch (err) {
-			Errors.error('Failed to correct item.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'correctWrongItemFailed',
-				severity: 'error',
-			});
+			if (!err.canceled) {
+				Errors.error('Failed to correct item.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'correctWrongItemFailed',
+					severity: 'error',
+				});
+			}
 		}
 		setDialog((prevDialog) => ({
 			...prevDialog,
