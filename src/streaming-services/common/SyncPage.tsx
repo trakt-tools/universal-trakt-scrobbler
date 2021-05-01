@@ -91,7 +91,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				...prevContent,
 				isLoading: true,
 			}));
-			void api.loadHistory(itemsToLoad);
+			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' }).then(
+				() => void api.loadHistory(itemsToLoad)
+			);
 		} else {
 			void store.update();
 		}
@@ -151,6 +153,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.stopListeners();
+
+			void EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' });
 		};
 
 		const onStoreUpdate = (data: SyncStoreUpdateData) => {
@@ -293,7 +297,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					isLoading: true,
 					itemsPerPage,
 				}));
-				void api.loadHistory(itemsToLoad);
+				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' }).then(
+					() => void api.loadHistory(itemsToLoad)
+				);
 			} else {
 				void store.update({ itemsPerPage });
 			}

@@ -1,6 +1,7 @@
-import axios, { AxiosResponse, Method } from 'axios';
+import axios, { AxiosResponse, CancelTokenSource, Method } from 'axios';
 import { TraktAuth } from '../api/TraktAuth';
 import { BrowserStorage } from './BrowserStorage';
+import { EventDispatcher, RequestsCancelData } from './Events';
 import { Messaging } from './Messaging';
 import { Shared } from './Shared';
 
@@ -15,9 +16,28 @@ export type RequestDetails = {
 	method: string;
 	headers?: Record<string, string>;
 	body?: unknown;
+	cancelKey?: string;
 };
 
 class _Requests {
+	cancelTokens = new Map<string, CancelTokenSource>();
+
+	startListeners = () => {
+		EventDispatcher.subscribe('REQUESTS_CANCEL', null, this.cancelRequests);
+	};
+
+	stopListeners = () => {
+		EventDispatcher.unsubscribe('REQUESTS_CANCEL', null, this.cancelRequests);
+	};
+
+	cancelRequests = (data: RequestsCancelData) => {
+		const cancelToken = this.cancelTokens.get(data.key);
+		if (cancelToken) {
+			cancelToken.cancel();
+			this.cancelTokens.delete(data.key);
+		}
+	};
+
 	send = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
 		let responseText = '';
 		if (
@@ -58,12 +78,18 @@ class _Requests {
 
 	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse> => {
 		let options = await this.getOptions(request, tabId);
+		const cancelKey = request.cancelKey || 'default';
+		if (!this.cancelTokens.has(cancelKey)) {
+			this.cancelTokens.set(cancelKey, axios.CancelToken.source());
+		}
+		const cancelToken = this.cancelTokens.get(cancelKey)?.token;
 		return axios.request({
 			url: request.url,
 			method: options.method as Method,
 			headers: options.headers,
 			data: options.body,
 			responseType: 'text',
+			cancelToken,
 			transformResponse: (res) => res,
 		});
 	};

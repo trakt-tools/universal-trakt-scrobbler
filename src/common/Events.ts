@@ -41,6 +41,7 @@ export interface EventData {
 	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
+	REQUESTS_CANCEL: RequestsCancelData;
 }
 
 export type Event = keyof EventData;
@@ -137,6 +138,10 @@ export interface HistorySyncSuccessData {
 		episodes: number;
 		movies: number;
 	};
+}
+
+export interface RequestsCancelData {
+	key: string;
 }
 
 export type EventDispatcherListeners = Record<

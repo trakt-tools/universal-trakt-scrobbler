@@ -4,6 +4,7 @@ import '../../assets/assets';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { Messaging } from '../../common/Messaging';
+import { Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { ThemeWrapper } from '../../components/ThemeWrapper';
 import './history.scss';
@@ -17,6 +18,7 @@ const init = async () => {
 	if (values.options && values.options.allowRollbar) {
 		Errors.startRollbar();
 	}
+	Requests.startListeners();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
 		<ThemeWrapper>
