@@ -177,13 +177,6 @@ const getWebpackConfig = (env: Environment) => {
 };
 
 const getManifest = (config: Config, browserName: string): string => {
-	const streamingServiceScripts: Manifest['content_scripts'] = Object.values(streamingServices)
-		.filter((service) => service.hasScrobbler)
-		.map((service) => ({
-			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
-			matches: service.hostPatterns,
-			run_at: 'document_idle',
-		}));
 	const manifest: Manifest = {
 		manifest_version: 2,
 		name: 'Universal Trakt Scrobbler',
@@ -203,12 +196,12 @@ const getManifest = (config: Config, browserName: string): string => {
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
-			...streamingServiceScripts,
 		],
 		default_locale: 'en',
 		optional_permissions: [
 			'cookies',
 			'notifications',
+			'webNavigation',
 			'webRequest',
 			'webRequestBlocking',
 			'*://api.rollbar.com/*',
