@@ -12,7 +12,7 @@ import { HistoryApp } from './HistoryApp';
 
 const init = async () => {
 	Shared.pageType = 'popup';
-	Shared.tabId = (await Messaging.toBackground({ action: 'get-tab-id' })).tabId;
+	Shared.tabId = (await Messaging.toBackground({ action: 'get-tab-id' }))?.tabId;
 	await BrowserStorage.sync();
 	const values = await BrowserStorage.get('options');
 	if (values.options && values.options.allowRollbar) {

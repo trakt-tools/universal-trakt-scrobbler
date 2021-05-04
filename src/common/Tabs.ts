@@ -19,7 +19,7 @@ class _Tabs {
 	open = async (
 		url: string,
 		extraProperties: TabProperties = {}
-	): Promise<browser.tabs.Tab | undefined> => {
+	): Promise<browser.tabs.Tab | null> => {
 		if (Shared.pageType === 'content') {
 			return Messaging.toBackground({
 				action: 'open-tab',
@@ -29,7 +29,7 @@ class _Tabs {
 		}
 		const tabs = await browser.tabs.query({ active: true, currentWindow: true });
 		if (tabs.length === 0) {
-			return;
+			return null;
 		}
 		const tabProperties: TabProperties = {
 			index: tabs[0].index + 1,

@@ -1,5 +1,5 @@
 import { Item } from '../models/Item';
-import { MessageRequest, ReturnTypes } from '../modules/background/background';
+import { ErrorReturnType, MessageRequest, ReturnTypes } from '../modules/background/background';
 import { Errors } from './Errors';
 import { EventDispatcher } from './Events';
 
@@ -42,9 +42,17 @@ class _Messaging {
 
 	toBackground = async <T extends MessageRequest>(
 		message: T
-	): Promise<ReturnTypes[T['action']]> => {
-		const response: string = await browser.runtime.sendMessage(JSON.stringify(message));
-		return JSON.parse(response) as ReturnTypes[T['action']];
+	): Promise<ReturnTypes[T['action']] | null> => {
+		const responseText: string = await browser.runtime.sendMessage(JSON.stringify(message));
+		const response = JSON.parse(responseText) as ReturnTypes[T['action']] | ErrorReturnType | null;
+		if (
+			response !== null &&
+			typeof response === 'object' &&
+			'error' in (response as Record<string, unknown>)
+		) {
+			throw (response as ErrorReturnType).error;
+		}
+		return response as ReturnTypes[T['action']] | null;
 	};
 
 	toContent = async (message: MessageRequest, tabId: number): Promise<void> => {

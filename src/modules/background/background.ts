@@ -31,7 +31,7 @@ export type MessageRequest =
 	| WrongItemCorrectedMessage
 	| SaveCorrectionSuggestionMessage;
 
-export type ReturnTypes = {
+export interface ReturnTypes {
 	'open-tab': browser.tabs.Tab;
 	'get-tab-id': {
 		tabId?: number;
@@ -51,7 +51,13 @@ export type ReturnTypes = {
 	'show-notification': string;
 	'wrong-item-corrected': null;
 	'save-correction-suggestion': null;
-};
+}
+
+export interface ErrorReturnType {
+	error: {
+		message: string;
+	};
+}
 
 export interface OpenTabMessage {
 	action: 'open-tab';
@@ -465,7 +471,7 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				Errors.log('Failed to execute action.', err);
 				resolve(
 					JSON.stringify({
-						error: err.message ? { message: err.message } : err,
+						error: { message: err.message },
 					})
 				);
 			});
