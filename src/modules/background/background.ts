@@ -1,4 +1,4 @@
-import { TraktAuth } from '../../api/TraktAuth';
+import { TraktAuth, TraktAuthDetails } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
@@ -7,11 +7,13 @@ import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
+import { TabProperties, Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
+	| OpenTabMessage
 	| GetTabIdMessage
 	| CheckLoginMessage
 	| FinishLoginMessage
@@ -28,6 +30,40 @@ export type MessageRequest =
 	| ShowNotificationMessage
 	| WrongItemCorrectedMessage
 	| SaveCorrectionSuggestionMessage;
+
+export interface ReturnTypes {
+	'open-tab': browser.tabs.Tab;
+	'get-tab-id': {
+		tabId?: number;
+	};
+	'check-login': TraktAuthDetails;
+	'finish-login': null;
+	login: TraktAuthDetails;
+	logout: null;
+	'get-cache': CacheValues[keyof CacheValues];
+	'set-cache': null;
+	'set-active-icon': null;
+	'set-inactive-icon': null;
+	'check-scrobble': null;
+	'start-scrobble': null;
+	'stop-scrobble': null;
+	'send-request': string;
+	'show-notification': string;
+	'wrong-item-corrected': null;
+	'save-correction-suggestion': null;
+}
+
+export interface ErrorReturnType {
+	error: {
+		message: string;
+	};
+}
+
+export interface OpenTabMessage {
+	action: 'open-tab';
+	url: string;
+	extraProperties?: TabProperties;
+}
 
 export interface GetTabIdMessage {
 	action: 'get-tab-id';
@@ -107,6 +143,15 @@ export interface SaveCorrectionSuggestionMessage {
 	url: string;
 }
 
+export interface NavigationCommittedParams {
+	transitionType: browser.webNavigation.TransitionType;
+	tabId: number;
+	url: string;
+}
+
+const injectedTabs = new Set();
+let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+
 const init = async () => {
 	Shared.pageType = 'background';
 	await BrowserStorage.sync();
@@ -116,16 +161,45 @@ const init = async () => {
 	}
 	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
+	if (storage.options?.streamingServices) {
+		const scrobblerEnabled = (Object.entries(storage.options.streamingServices) as [
+			StreamingServiceId,
+			boolean
+		][]).some(
+			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+		);
+		if (scrobblerEnabled) {
+			addWebNavigationListener(storage.options);
+		}
+	}
 	if (storage.options?.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
 };
 
+const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
+	void injectScript(tab);
+};
+
 /**
  * Checks if the tab that was closed was the tab that was scrobbling and, if that's the case, stops the scrobble.
  */
 const onTabRemoved = async (tabId: number) => {
+	try {
+		/**
+		 * Some single-page apps trigger the onTabRemoved event when navigating through pages,
+		 * so we double check here to make sure that the tab was actually removed.
+		 * If the tab was removed, this will throw an error.
+		 */
+		await browser.tabs.get(tabId);
+		return;
+	} catch (err) {
+		// Do nothing
+	}
+	if (injectedTabs.has(tabId)) {
+		injectedTabs.delete(tabId);
+	}
 	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
 	if (tabId !== scrobblingTabId) {
 		return;
@@ -139,6 +213,32 @@ const onTabRemoved = async (tabId: number) => {
 	await BrowserAction.setInactiveIcon();
 };
 
+const injectScript = async (tab: Partial<browser.tabs.Tab>, reload = false) => {
+	if (
+		!streamingServiceScripts ||
+		tab.status !== 'complete' ||
+		!tab.id ||
+		!tab.url ||
+		!tab.url.startsWith('http') ||
+		(injectedTabs.has(tab.id) && !reload)
+	) {
+		return;
+	}
+	for (const { matches, js, run_at: runAt } of streamingServiceScripts) {
+		if (!js || !runAt) {
+			continue;
+		}
+		const isMatch = matches.find((match) => tab.url?.match(match));
+		if (isMatch) {
+			injectedTabs.add(tab.id);
+			for (const file of js) {
+				await browser.tabs.executeScript(tab.id, { file, runAt });
+			}
+			break;
+		}
+	}
+};
+
 const onStorageChanged = (
 	changes: browser.storage.ChangeDict,
 	areaName: browser.storage.StorageName
@@ -149,11 +249,77 @@ const onStorageChanged = (
 	if (!changes.options) {
 		return;
 	}
-	if ((changes.options.newValue as StorageValuesOptions)?.grantCookies) {
+	const newValue = changes.options.newValue as StorageValuesOptions | undefined;
+	if (!newValue) {
+		return;
+	}
+	if (newValue.streamingServices) {
+		const scrobblerEnabled = (Object.entries(newValue.streamingServices) as [
+			StreamingServiceId,
+			boolean
+		][]).some(
+			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+		);
+		if (scrobblerEnabled) {
+			addWebNavigationListener(newValue);
+		} else {
+			removeWebNavigationListener();
+		}
+	}
+	if (newValue.grantCookies) {
 		addWebRequestListener();
 	} else {
 		removeWebRequestListener();
 	}
+};
+
+const addWebNavigationListener = (options: StorageValuesOptions) => {
+	streamingServiceScripts = Object.values(streamingServices)
+		.filter((service) => options.streamingServices[service.id] && service.hasScrobbler)
+		.map((service) => ({
+			matches: service.hostPatterns.map((hostPattern) =>
+				hostPattern.replace(/^\*:\/\/\*\./, 'https?://(www.)?').replace(/\/\*$/, '')
+			),
+			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
+			run_at: 'document_idle',
+		}));
+	if (!browser.tabs.onUpdated.hasListener(onTabUpdated)) {
+		browser.tabs.onUpdated.addListener(onTabUpdated);
+	}
+	if (
+		!browser.webNavigation ||
+		browser.webNavigation.onCommitted.hasListener(onNavigationCommitted)
+	) {
+		return;
+	}
+	browser.webNavigation.onCommitted.addListener(onNavigationCommitted);
+};
+
+const removeWebNavigationListener = () => {
+	if (browser.tabs.onUpdated.hasListener(onTabUpdated)) {
+		browser.tabs.onUpdated.removeListener(onTabUpdated);
+	}
+	if (
+		!browser.webNavigation ||
+		!browser.webNavigation.onCommitted.hasListener(onNavigationCommitted)
+	) {
+		return;
+	}
+	browser.webNavigation.onCommitted.removeListener(onNavigationCommitted);
+};
+
+const onNavigationCommitted = ({ transitionType, tabId, url }: NavigationCommittedParams) => {
+	if (transitionType !== 'reload') {
+		return;
+	}
+	void injectScript(
+		{
+			status: 'complete',
+			id: tabId,
+			url: url,
+		},
+		true
+	);
 };
 
 const addWebRequestListener = () => {
@@ -210,6 +376,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 	let executingAction: Promise<unknown>;
 	const parsedRequest = JSON.parse(request) as MessageRequest;
 	switch (parsedRequest.action) {
+		case 'open-tab': {
+			executingAction = Tabs.open(parsedRequest.url, parsedRequest.extraProperties);
+			break;
+		}
 		case 'get-tab-id': {
 			executingAction = Promise.resolve({ tabId: sender.tab?.id });
 			break;
@@ -301,7 +471,7 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 				Errors.log('Failed to execute action.', err);
 				resolve(
 					JSON.stringify({
-						error: err.message ? { message: err.message } : err,
+						error: { message: err.message },
 					})
 				);
 			});

@@ -177,13 +177,6 @@ const getWebpackConfig = (env: Environment) => {
 };
 
 const getManifest = (config: Config, browserName: string): string => {
-	const streamingServiceScripts: Manifest['content_scripts'] = Object.values(streamingServices)
-		.filter((service) => service.hasScrobbler)
-		.map((service) => ({
-			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
-			matches: service.hostPatterns,
-			run_at: 'document_idle',
-		}));
 	const manifest: Manifest = {
 		manifest_version: 2,
 		name: 'Universal Trakt Scrobbler',
@@ -203,12 +196,13 @@ const getManifest = (config: Config, browserName: string): string => {
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
-			...streamingServiceScripts,
 		],
 		default_locale: 'en',
 		optional_permissions: [
 			'cookies',
 			'notifications',
+			'tabs',
+			'webNavigation',
 			'webRequest',
 			'webRequestBlocking',
 			'*://api.rollbar.com/*',
@@ -226,7 +220,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			default_popup: 'html/popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
-		permissions: ['identity', 'storage', 'tabs', 'unlimitedStorage', '*://*.trakt.tv/*'],
+		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
 		web_accessible_resources: [
 			'images/uts-icon-38.png',
 			'images/uts-icon-selected-38.png',

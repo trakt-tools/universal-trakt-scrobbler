@@ -112,15 +112,12 @@ export class ScrobbleController {
 		});
 		await this.onStart();
 		try {
-			const response = await Messaging.toBackground({
+			await Messaging.toBackground({
 				action: 'save-correction-suggestion',
 				serviceId: this.item.serviceId,
 				item: this.item,
 				url: data.url,
 			});
-			if (response?.error) {
-				throw response.error;
-			}
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to save suggestion.', err);

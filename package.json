@@ -51,7 +51,7 @@
 		"react-router-dom": "^5.2.0",
 		"rollbar": "^2.19.3",
 		"typeface-roboto": "^0.0.75",
-		"webextension-polyfill": "^0.6.0"
+		"webextension-polyfill": "^0.8.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.11.4",

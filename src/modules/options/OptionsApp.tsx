@@ -129,11 +129,17 @@ export const OptionsApp: React.FC = () => {
 			for (const option of Object.values(options) as Option<keyof StorageValuesOptions>[]) {
 				addOptionToSave(optionsToSave, option);
 			}
+			const scrobblerEnabled = (Object.entries(optionsToSave.streamingServices) as [
+				StreamingServiceId,
+				boolean
+			][]).some(
+				([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+			);
 			const permissionPromises: Promise<boolean>[] = [];
 			if (originsToAdd.length > 0) {
 				permissionPromises.push(
 					browser.permissions.request({
-						permissions: [],
+						permissions: scrobblerEnabled ? ['tabs', 'webNavigation'] : [],
 						origins: originsToAdd,
 					})
 				);
@@ -141,7 +147,7 @@ export const OptionsApp: React.FC = () => {
 			if (originsToRemove.length > 0) {
 				permissionPromises.push(
 					browser.permissions.remove({
-						permissions: [],
+						permissions: scrobblerEnabled ? [] : ['tabs', 'webNavigation'],
 						origins: originsToRemove,
 					})
 				);

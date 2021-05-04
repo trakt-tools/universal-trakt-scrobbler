@@ -49,9 +49,8 @@ class _Requests {
 			responseText = await this.sendDirectly(request, tabId);
 		} else {
 			const response = await Messaging.toBackground({ action: 'send-request', request });
-			responseText = (response as unknown) as string;
-			if (response.error) {
-				throw response.error;
+			if (response) {
+				responseText = response;
 			}
 		}
 		return responseText;
