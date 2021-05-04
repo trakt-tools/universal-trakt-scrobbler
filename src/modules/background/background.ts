@@ -7,11 +7,13 @@ import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
+import { TabProperties, Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
+	| OpenTabMessage
 	| GetTabIdMessage
 	| CheckLoginMessage
 	| FinishLoginMessage
@@ -30,6 +32,7 @@ export type MessageRequest =
 	| SaveCorrectionSuggestionMessage;
 
 export type ReturnTypes = {
+	'open-tab': browser.tabs.Tab;
 	'get-tab-id': {
 		tabId?: number;
 	};
@@ -49,6 +52,12 @@ export type ReturnTypes = {
 	'wrong-item-corrected': null;
 	'save-correction-suggestion': null;
 };
+
+export interface OpenTabMessage {
+	action: 'open-tab';
+	url: string;
+	extraProperties?: TabProperties;
+}
 
 export interface GetTabIdMessage {
 	action: 'get-tab-id';
@@ -361,6 +370,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 	let executingAction: Promise<unknown>;
 	const parsedRequest = JSON.parse(request) as MessageRequest;
 	switch (parsedRequest.action) {
+		case 'open-tab': {
+			executingAction = Tabs.open(parsedRequest.url, parsedRequest.extraProperties);
+			break;
+		}
 		case 'get-tab-id': {
 			executingAction = Promise.resolve({ tabId: sender.tab?.id });
 			break;

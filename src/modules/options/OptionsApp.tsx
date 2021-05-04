@@ -139,7 +139,7 @@ export const OptionsApp: React.FC = () => {
 			if (originsToAdd.length > 0) {
 				permissionPromises.push(
 					browser.permissions.request({
-						permissions: scrobblerEnabled ? ['webNavigation'] : [],
+						permissions: scrobblerEnabled ? ['tabs', 'webNavigation'] : [],
 						origins: originsToAdd,
 					})
 				);
@@ -147,7 +147,7 @@ export const OptionsApp: React.FC = () => {
 			if (originsToRemove.length > 0) {
 				permissionPromises.push(
 					browser.permissions.remove({
-						permissions: scrobblerEnabled ? [] : ['webNavigation'],
+						permissions: scrobblerEnabled ? [] : ['tabs', 'webNavigation'],
 						origins: originsToRemove,
 					})
 				);

@@ -201,6 +201,7 @@ const getManifest = (config: Config, browserName: string): string => {
 		optional_permissions: [
 			'cookies',
 			'notifications',
+			'tabs',
 			'webNavigation',
 			'webRequest',
 			'webRequestBlocking',
@@ -219,7 +220,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			default_popup: 'html/popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
-		permissions: ['identity', 'storage', 'tabs', 'unlimitedStorage', '*://*.trakt.tv/*'],
+		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
 		web_accessible_resources: [
 			'images/uts-icon-38.png',
 			'images/uts-icon-selected-38.png',
