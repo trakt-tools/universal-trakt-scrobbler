@@ -1,4 +1,4 @@
-import { TraktAuth } from '../../api/TraktAuth';
+import { TraktAuth, TraktAuthDetails } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
@@ -28,6 +28,27 @@ export type MessageRequest =
 	| ShowNotificationMessage
 	| WrongItemCorrectedMessage
 	| SaveCorrectionSuggestionMessage;
+
+export type ReturnTypes = {
+	'get-tab-id': {
+		tabId?: number;
+	};
+	'check-login': TraktAuthDetails;
+	'finish-login': null;
+	login: TraktAuthDetails;
+	logout: null;
+	'get-cache': CacheValues[keyof CacheValues];
+	'set-cache': null;
+	'set-active-icon': null;
+	'set-inactive-icon': null;
+	'check-scrobble': null;
+	'start-scrobble': null;
+	'stop-scrobble': null;
+	'send-request': string;
+	'show-notification': string;
+	'wrong-item-corrected': null;
+	'save-correction-suggestion': null;
+};
 
 export interface GetTabIdMessage {
 	action: 'get-tab-id';

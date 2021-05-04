@@ -1,14 +1,7 @@
 import { Item } from '../models/Item';
-import { GetCacheMessage, GetTabIdMessage, MessageRequest } from '../modules/background/background';
-import { CacheValues } from './Cache';
+import { MessageRequest, ReturnTypes } from '../modules/background/background';
 import { Errors } from './Errors';
 import { EventDispatcher } from './Events';
-
-export type ReturnTypes<T extends MessageRequest> = T extends GetTabIdMessage
-	? { tabId: number | undefined }
-	: T extends GetCacheMessage
-	? CacheValues[keyof CacheValues]
-	: Record<string, unknown>;
 
 class _Messaging {
 	startListeners = () => {
@@ -47,9 +40,11 @@ class _Messaging {
 		});
 	};
 
-	toBackground = async <T extends MessageRequest>(message: T): Promise<ReturnTypes<T>> => {
+	toBackground = async <T extends MessageRequest>(
+		message: T
+	): Promise<ReturnTypes[T['action']]> => {
 		const response: string = await browser.runtime.sendMessage(JSON.stringify(message));
-		return JSON.parse(response) as ReturnTypes<T>;
+		return JSON.parse(response) as ReturnTypes[T['action']];
 	};
 
 	toContent = async (message: MessageRequest, tabId: number): Promise<void> => {
