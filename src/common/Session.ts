@@ -1,6 +1,7 @@
 import { Errors } from './Errors';
 import { EventDispatcher } from './Events';
 import { Messaging } from './Messaging';
+import { RequestException } from './Requests';
 
 class _Session {
 	isLoggedIn: boolean;
@@ -34,9 +35,11 @@ class _Session {
 				throw auth;
 			}
 		} catch (err) {
-			Errors.error('Failed to log in.', err);
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to log in.', err);
+				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
+			}
 		}
 	};
 
@@ -46,9 +49,11 @@ class _Session {
 			this.isLoggedIn = false;
 			await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
 		} catch (err) {
-			Errors.error('Failed to log out.', err);
 			this.isLoggedIn = true;
-			await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err as Error });
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to log out.', err);
+				await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err as Error });
+			}
 		}
 	};
 

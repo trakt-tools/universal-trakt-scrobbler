@@ -1,9 +1,7 @@
 import * as moment from 'moment';
-import { TmdbApi } from '../../api/TmdbApi';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { IItem, Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -161,12 +159,13 @@ class _NrkApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
-			let isLastPage = false;
+			const store = getSyncStore('nrk');
+			let { hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: NrkProgressItem[] = [];
 			do {
@@ -182,32 +181,26 @@ class _NrkApi extends Api {
 				if (responseJson._links.next) {
 					this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				if (progresses.length > 0) {
 					itemsToLoad -= progresses.length;
 					historyItems.push(...progresses);
 				}
-				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const promises = historyItems.map(this.parseHistoryItem);
 				items = await Promise.all(promises);
 			}
-			nextVisualPage += 1;
-			getSyncStore('nrk')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => TmdbApi.loadImages(this.id))
-				.then(() => WrongItemApi.loadSuggestions(this.id))
-				.catch(() => {
-					/** Do nothing */
-				});
+			store.setData({ items, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load NRK history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load NRK history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+			throw err;
 		}
 	};
 

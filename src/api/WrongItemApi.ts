@@ -9,7 +9,11 @@ import { StreamingServiceId } from '../streaming-services/streaming-services';
 class _WrongItemApi {
 	URL = 'https://script.google.com/macros/s/AKfycbyz0AYx9-R2cKHxyyRNrMYbqUnqvJbiYxSZTFV0/exec';
 
-	loadSuggestions = async (serviceId: StreamingServiceId): Promise<void> => {
+	loadSuggestions = async (serviceId: StreamingServiceId, items: Item[]): Promise<void> => {
+		const missingItems = items.filter((item) => typeof item.correctionSuggestions === 'undefined');
+		if (missingItems.length === 0) {
+			return;
+		}
 		const { options } = await BrowserStorage.get('options');
 		if (
 			!options?.sendReceiveSuggestions ||
@@ -19,35 +23,34 @@ class _WrongItemApi {
 		) {
 			return;
 		}
-		let items = getSyncStore(serviceId).data.items;
 		try {
 			const cache = (await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'correctionSuggestions',
 			})) as CacheValues['correctionSuggestions'];
 			let serviceSuggestions = cache[serviceId];
-			const missingItems = [];
-			for (const item of items) {
+			const itemsToFetch = [];
+			for (const item of missingItems) {
 				const suggestions = serviceSuggestions?.[item.id];
 				if (suggestions) {
 					item.correctionSuggestions = suggestions;
 				} else {
-					missingItems.push(item);
+					itemsToFetch.push(item);
 				}
 			}
-			if (missingItems.length > 0) {
+			if (itemsToFetch.length > 0) {
 				const response = await Requests.send({
 					method: 'GET',
 					url: `${this.URL}?serviceId=${encodeURIComponent(
 						serviceId
-					)}&ids=${missingItems.map((item) => encodeURIComponent(item.id)).join(',')}`,
+					)}&ids=${itemsToFetch.map((item) => encodeURIComponent(item.id)).join(',')}`,
 				});
 				const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
 				if (!serviceSuggestions) {
 					serviceSuggestions = {};
 					cache[serviceId] = serviceSuggestions;
 				}
-				for (const item of missingItems) {
+				for (const item of itemsToFetch) {
 					serviceSuggestions[item.id] = json[item.id]?.sort((a, b) => {
 						if (a.count > b.count) {
 							return -1;
@@ -68,11 +71,10 @@ class _WrongItemApi {
 		} catch (err) {
 			// Do nothing
 		}
-		items = items.map((item) => ({
-			...item,
-			correctionSuggestions: item.correctionSuggestions ?? null,
-		}));
-		await getSyncStore(serviceId).update({ items }, true);
+		for (const item of missingItems) {
+			item.correctionSuggestions = item.correctionSuggestions ?? null;
+		}
+		await getSyncStore(serviceId).update();
 	};
 
 	loadItemSuggestions = async (item: Item): Promise<Item> => {

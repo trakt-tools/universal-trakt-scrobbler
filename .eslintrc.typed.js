@@ -11,10 +11,10 @@ module.exports = {
 	overrides: [
 		{
 			files: ['**/_locales/**/*.json'],
-			plugins: ['@rafaelgssa/local'],
-			extends: ['plugin:@rafaelgssa/local/recommended'],
+			plugins: ['@rafaelgomesxyz/i18n-json'],
+			extends: ['plugin:@rafaelgomesxyz/i18n-json/recommended'],
 			rules: {
-				'@rafaelgssa/local/identical-keys': [
+				'@rafaelgomesxyz/i18n-json/identical-keys': [
 					'error',
 					{
 						filePath: path.resolve('./src/_locales/en/messages.json'),
@@ -23,7 +23,7 @@ module.exports = {
 				],
 			},
 			settings: {
-				'@rafaelgssa/local/ignore-keys': ['*.description', '*.placeholders'],
+				'@rafaelgomesxyz/i18n-json/ignore-keys': ['*.description', '*.placeholders'],
 			},
 		},
 		{
@@ -53,7 +53,7 @@ module.exports = {
 				tsconfigRootDir: __dirname,
 				project: ['./tsconfig.json'],
 			},
-			plugins: ['@rafaelgssa/local', 'prefer-arrow'],
+			plugins: ['prefer-arrow'],
 			extends: [
 				'eslint:recommended',
 				'plugin:react/recommended',

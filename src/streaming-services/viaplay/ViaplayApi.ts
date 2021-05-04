@@ -1,9 +1,7 @@
 import * as moment from 'moment';
-import { TmdbApi } from '../../api/TmdbApi';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -109,12 +107,13 @@ class _ViaplayApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
-			let isLastPage = false;
+			const store = getSyncStore('viaplay');
+			let { hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: ViaplayProduct[] = [];
 
@@ -137,32 +136,26 @@ class _ViaplayApi extends Api {
 					itemsToLoad -= viaplayProducts.length;
 					historyItems.push(...viaplayProducts);
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
-				nextPage += 1;
 				const url = historyPage._links?.next?.href;
 				this.HISTORY_API_NEXT_PAGE_URL = url;
 				if (!url) {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('viaplay')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => TmdbApi.loadImages(this.id))
-				.then(() => WrongItemApi.loadSuggestions(this.id))
-				.catch(() => {
-					/** Do nothing */
-				});
+			store.setData({ items, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load Viaplay history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load Viaplay history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+			throw err;
 		}
 	};
 

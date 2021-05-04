@@ -1,5 +1,7 @@
+import axios, { AxiosResponse, CancelTokenSource, Method } from 'axios';
 import { TraktAuth } from '../api/TraktAuth';
 import { BrowserStorage } from './BrowserStorage';
+import { EventDispatcher, RequestsCancelData } from './Events';
 import { Messaging } from './Messaging';
 import { Shared } from './Shared';
 
@@ -7,6 +9,7 @@ export type RequestException = {
 	request: RequestDetails;
 	status: number;
 	text: string;
+	canceled: boolean;
 };
 
 export type RequestDetails = {
@@ -14,16 +17,33 @@ export type RequestDetails = {
 	method: string;
 	headers?: Record<string, string>;
 	body?: unknown;
+	cancelKey?: string;
 };
 
-export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
-
 class _Requests {
-	send = async (request: RequestDetails, tabId = 0): Promise<string> => {
+	cancelTokens = new Map<string, CancelTokenSource>();
+
+	startListeners = () => {
+		EventDispatcher.subscribe('REQUESTS_CANCEL', null, this.cancelRequests);
+	};
+
+	stopListeners = () => {
+		EventDispatcher.unsubscribe('REQUESTS_CANCEL', null, this.cancelRequests);
+	};
+
+	cancelRequests = (data: RequestsCancelData) => {
+		const cancelToken = this.cancelTokens.get(data.key);
+		if (cancelToken) {
+			cancelToken.cancel();
+			this.cancelTokens.delete(data.key);
+		}
+	};
+
+	send = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
 		let responseText = '';
 		if (
 			Shared.pageType === 'background' ||
-			(Shared.pageType === 'popup' && tabId) ||
+			(Shared.pageType === 'popup' && typeof tabId !== 'undefined') ||
 			(Shared.pageType === 'content' && request.url.includes(window.location.host))
 		) {
 			responseText = await this.sendDirectly(request, tabId);
@@ -37,13 +57,13 @@ class _Requests {
 		return responseText;
 	};
 
-	sendDirectly = async (request: RequestDetails, tabId = 0): Promise<string> => {
+	sendDirectly = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
 		let responseStatus = 0;
 		let responseText = '';
 		try {
 			const response = await this.fetch(request, tabId);
 			responseStatus = response.status;
-			responseText = await response.text();
+			responseText = response.data;
 			if (responseStatus < 200 || responseStatus >= 400) {
 				throw responseText;
 			}
@@ -52,24 +72,31 @@ class _Requests {
 				request,
 				status: responseStatus,
 				text: responseText,
+				canceled: err instanceof axios.Cancel,
 			};
 		}
 		return responseText;
 	};
 
-	fetch = async (request: RequestDetails, tabId = 0): Promise<Response> => {
-		let fetch = window.fetch;
-		let options = await this.getOptions(request, tabId);
-		if (window.wrappedJSObject) {
-			// Firefox wraps page objects, so if we want to send the request from a container, we have to unwrap them.
-			fetch = XPCNativeWrapper(window.wrappedJSObject.fetch);
-			window.wrappedJSObject.fetchOptions = cloneInto(options, window);
-			options = XPCNativeWrapper(window.wrappedJSObject.fetchOptions);
+	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> => {
+		const options = await this.getOptions(request, tabId);
+		const cancelKey = request.cancelKey || 'default';
+		if (!this.cancelTokens.has(cancelKey)) {
+			this.cancelTokens.set(cancelKey, axios.CancelToken.source());
 		}
-		return fetch(request.url, options);
+		const cancelToken = this.cancelTokens.get(cancelKey)?.token;
+		return axios.request({
+			url: request.url,
+			method: options.method as Method,
+			headers: options.headers,
+			data: options.body,
+			responseType: 'text',
+			cancelToken,
+			transformResponse: (res: string) => res,
+		});
 	};
 
-	getOptions = async (request: RequestDetails, tabId = 0): Promise<RequestInit> => {
+	getOptions = async (request: RequestDetails, tabId = Shared.tabId): Promise<RequestInit> => {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request, tabId),
@@ -77,7 +104,7 @@ class _Requests {
 		};
 	};
 
-	getHeaders = async (request: RequestDetails, tabId = 0): Promise<HeadersInit> => {
+	getHeaders = async (request: RequestDetails, tabId = Shared.tabId): Promise<HeadersInit> => {
 		const headers: HeadersInit = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
@@ -97,7 +124,13 @@ class _Requests {
 		return headers;
 	};
 
-	getCookies = async (request: RequestDetails, tabId = 0): Promise<string | undefined> => {
+	getCookies = async (
+		request: RequestDetails,
+		tabId = Shared.tabId
+	): Promise<string | undefined> => {
+		if (typeof tabId === 'undefined') {
+			return;
+		}
 		const storage = await BrowserStorage.get('options');
 		if (!storage.options?.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;

@@ -12,7 +12,7 @@ class _ScrobblerTemplateApi extends Api {
 	}
 
 	// This method is only required for syncing, but since it is an abstract method, we have to implement at least a basic block for it.
-	loadHistory = (nextPage: number, nextVisualPage: number, itemsToLoad: number): Promise<void> => {
+	loadHistory = (itemsToLoad: number): Promise<void> => {
 		return Promise.resolve();
 	};
 

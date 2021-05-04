@@ -4,6 +4,7 @@ dependencies:
   '@material-ui/icons': 4.9.1_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/lab': 4.0.0-alpha.56_fbf7b062eed057bd42835e13c128ad4c
   '@material-ui/pickers': 3.2.10_1f98156bd48bdafcda5c0dbaa7af31be
+  axios: 0.21.1
   history: 4.10.1
   moment: 2.27.0
   prop-types: 15.7.2
@@ -22,7 +23,7 @@ devDependencies:
   '@babel/preset-typescript': 7.10.4_@babel+core@7.11.4
   '@babel/runtime': 7.11.2
   '@octokit/rest': 18.0.4
-  '@rafaelgssa/eslint-plugin-local': 1.1.0
+  '@rafaelgomesxyz/eslint-plugin-i18n-json': 3.1.2_eslint@7.7.0
   '@svgr/webpack': 5.4.0
   '@types/fs-extra': 9.0.1
   '@types/gulp': 4.0.6
@@ -40,7 +41,6 @@ devDependencies:
   babel-eslint: 10.1.0_eslint@7.7.0
   babel-loader: 8.1.0_fbab4801791d746d265885e0d19f0bda
   babel-preset-minify: 0.5.1
-  chalk: 2.4.2
   clean-webpack-plugin: 3.0.0_webpack@4.44.1
   css-loader: 4.2.2_webpack@4.44.1
   eslint: 7.7.0
@@ -53,21 +53,10 @@ devDependencies:
   gulp: 4.0.2
   gulp-zip: 5.0.2_gulp@4.0.2
   husky: 4.2.5
-  indent-string: 3.2.0
-  intl-messageformat-parser: 3.6.4
-  jest-diff: 22.4.3
   jsonlint: 1.6.3
   lint-staged: 10.2.13
-  lodash.get: 4.4.2
-  lodash.isequal: 4.5.0
-  lodash.isplainobject: 4.0.6
-  lodash.set: 4.3.2
-  log-symbols: 2.2.0
-  micromatch: 4.0.2
   npm-run-all: 4.1.5
-  plur: 2.1.2
   prettier: 2.1.1
-  pretty-format: 22.4.3
   progress-bar-webpack-plugin: 2.1.0_webpack@4.44.1
   react-svg-loader: 3.0.3
   sass: 1.32.5
@@ -1459,17 +1448,19 @@ packages:
     dev: false
     resolution:
       integrity: sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==
-  /@formatjs/intl-unified-numberformat/3.3.7:
+  /@formatjs/ecma402-abstract/1.4.0:
     dependencies:
-      '@formatjs/intl-utils': 2.3.0
-    deprecated: We have renamed the package to @formatjs/intl-numberformat
+      tslib: 2.2.0
     dev: true
     resolution:
-      integrity: sha512-KnWgLRHzCAgT9eyt3OS34RHoyD7dPDYhRcuKn+/6Kv2knDF8Im43J6vlSW6Hm1w63fNq3ZIT1cFk7RuVO3Psag==
-  /@formatjs/intl-utils/2.3.0:
+      integrity: sha512-Mv027hcLFjE45K8UJ8PjRpdDGfR0aManEFj1KzoN8zXNveHGEygpZGfFf/FTTMl+QEVSrPAUlyxaCApvmv47AQ==
+  /@formatjs/intl-numberformat/5.7.6:
+    dependencies:
+      '@formatjs/ecma402-abstract': 1.4.0
+      tslib: 2.2.0
     dev: true
     resolution:
-      integrity: sha512-KWk80UPIzPmUg+P0rKh6TqspRw0G6eux1PuJr+zz47ftMaZ9QDwbGzHZbtzWkl5hgayM/qrKRutllRC7D/vVXQ==
+      integrity: sha512-ZlZfYtvbVHYZY5OG3RXizoCwxKxEKOrzEe2YOw9wbzoxF3PmFn0SAgojCFGLyNXkkR6xVxlylhbuOPf1dkIVNg==
   /@material-ui/core/4.11.0_cf9b8f424c3b21f800381c1e20e82bf8:
     dependencies:
       '@babel/runtime': 7.11.2
@@ -1738,10 +1729,29 @@ packages:
     dev: true
     resolution:
       integrity: sha512-OlMlSySBJoJ6uozkr/i03nO5dlYQyE05vmQNZhAh9MyO4DPBP88QlwsDVLmVjIMFssvIZB6WO0ctIGMRG+xsJQ==
-  /@rafaelgssa/eslint-plugin-local/1.1.0:
+  /@rafaelgomesxyz/eslint-plugin-i18n-json/3.1.2_eslint@7.7.0:
+    dependencies:
+      chalk: 2.4.2
+      eslint: 7.7.0
+      indent-string: 3.2.0
+      intl-messageformat-parser: 5.5.1
+      jest-diff: 22.4.3
+      jsonlint: 1.6.3
+      lodash.get: 4.4.2
+      lodash.isequal: 4.5.0
+      lodash.isplainobject: 4.0.6
+      lodash.set: 4.3.2
+      log-symbols: 2.2.0
+      micromatch: 3.1.10
+      plur: 2.1.2
+      pretty-format: 22.4.3
     dev: true
+    engines:
+      node: '>=6.0.0'
+    peerDependencies:
+      eslint: '>=4.0.0'
     resolution:
-      integrity: sha512-IpQhUwMMVTUbPs6VOv53pcDWVdorVpLih9+8HOt/4Dcay06XGxNwtGDsyx4R235s9BwQ5c6pvwnHzCJbHiNREA==
+      integrity: sha512-EoqmiMvZgPB+PxeNJUYlgJbajrx+4Bd5sKqamxyEdXHRQWfw591YQuRZ3kJrt9n6N/0mOT0/oBLgMpv5SOtvCQ==
   /@svgr/babel-plugin-add-jsx-attribute/5.4.0:
     dev: true
     engines:
@@ -2724,6 +2734,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
+  /axios/0.21.1:
+    dependencies:
+      follow-redirects: 1.14.0
+    dev: false
+    resolution:
+      integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   /babel-eslint/10.1.0_eslint@7.7.0:
     dependencies:
       '@babel/code-frame': 7.10.4
@@ -4618,6 +4634,17 @@ packages:
     dev: true
     resolution:
       integrity: sha512-3Z4XhFZ3992uIq0XOqb9AreonueSYphE6oYbpt5+3u06JWklbsPkNv3ZKkP9Bz/r+1MWCaMoSQ28P85+1Yc77w==
+  /follow-redirects/1.14.0:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-0vRwd7RKQBTt+mgu87mtYeofLFZpTas2S9zY+jIeuLJMNvudIgF52nr19q40HOwH5RrhWIPuj9puybzSJiRrVg==
   /for-in/0.1.8:
     dev: true
     engines:
@@ -5232,12 +5259,13 @@ packages:
       node: '>= 0.10'
     resolution:
       integrity: sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==
-  /intl-messageformat-parser/3.6.4:
+  /intl-messageformat-parser/5.5.1:
     dependencies:
-      '@formatjs/intl-unified-numberformat': 3.3.7
+      '@formatjs/intl-numberformat': 5.7.6
+    deprecated: We've written a new parser that's 6x faster and is backwards compatible. Please use @formatjs/icu-messageformat-parser
     dev: true
     resolution:
-      integrity: sha512-RgPGwue0mJtoX2Ax8EmMzJzttxjnva7gx0Q7mKJ4oALrTZvtmCeAw5Msz2PcjW4dtCh/h7vN/8GJCxZO1uv+OA==
+      integrity: sha512-TvB3LqF2VtP6yI6HXlRT5TxX98HKha6hCcrg9dwlPwNaedVNuQA9KgBdtWKgiyakyCTYHQ+KJeFEstNKfZr64w==
   /invariant/2.2.4:
     dependencies:
       loose-envify: 1.4.0
@@ -8550,6 +8578,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
+  /tslib/2.2.0:
+    dev: true
+    resolution:
+      integrity: sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
   /tsutils/3.17.1_typescript@4.0.2:
     dependencies:
       tslib: 1.13.0
@@ -9162,7 +9194,7 @@ specifiers:
   '@material-ui/lab': ^4.0.0-alpha.56
   '@material-ui/pickers': ^3.2.10
   '@octokit/rest': ^18.0.4
-  '@rafaelgssa/eslint-plugin-local': ^1.1.0
+  '@rafaelgomesxyz/eslint-plugin-i18n-json': ^3.1.2
   '@svgr/webpack': ^5.4.0
   '@types/fs-extra': ^9.0.1
   '@types/gulp': ^4.0.6
@@ -9177,10 +9209,10 @@ specifiers:
   '@types/webpack': ^4.41.21
   '@typescript-eslint/eslint-plugin': ^3.10.1
   '@typescript-eslint/parser': ^3.10.1
+  axios: ^0.21.1
   babel-eslint: ^10.1.0
   babel-loader: ^8.1.0
   babel-preset-minify: ^0.5.1
-  chalk: ^2.3.2
   clean-webpack-plugin: ^3.0.0
   css-loader: ^4.2.2
   eslint: ^7.7.0
@@ -9194,22 +9226,11 @@ specifiers:
   gulp-zip: ^5.0.2
   history: ^4.10.1
   husky: ^4.2.5
-  indent-string: ^3.2.0
-  intl-messageformat-parser: ^3.0.7
-  jest-diff: ^22.0.3
   jsonlint: ^1.6.2
   lint-staged: ^10.2.13
-  lodash.get: ^4.4.2
-  lodash.isequal: ^4.5.0
-  lodash.isplainobject: ^4.0.6
-  lodash.set: ^4.3.2
-  log-symbols: ^2.2.0
-  micromatch: ^4.0.2
   moment: ^2.27.0
   npm-run-all: ^4.1.5
-  plur: ^2.1.2
   prettier: ^2.1.1
-  pretty-format: ^22.0.3
   progress-bar-webpack-plugin: ^2.1.0
   prop-types: ^15.7.2
   react: ^16.13.1

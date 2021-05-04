@@ -83,8 +83,9 @@ export interface ListOption<K extends keyof StorageValuesOptions> extends BaseOp
 export type SyncOptions = {
 	[K in keyof StorageValuesSyncOptions]: {
 		id: K;
-		value: StorageValuesSyncOptions[K];
 		name: string;
+		value: StorageValuesSyncOptions[K];
+		minValue?: number;
 	};
 };
 
@@ -281,12 +282,16 @@ class _BrowserStorage {
 				id: 'itemsPerLoad',
 				name: '',
 				value: 10,
+				minValue: 1,
 			},
 		};
 		const values = await BrowserStorage.get('syncOptions');
 		for (const option of Object.values(options)) {
 			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
+			if (typeof option.value === 'number' && typeof option.minValue !== 'undefined') {
+				option.value = Math.max(option.value, option.minValue);
+			}
 		}
 		return options;
 	};

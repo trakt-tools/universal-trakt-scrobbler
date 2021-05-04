@@ -17,6 +17,7 @@ import * as React from 'react';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, MissingWatchedDateDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
+import { RequestException } from '../common/Requests';
 import { Item } from '../models/Item';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
@@ -102,11 +103,13 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				date: dialog.date,
 			});
 		} catch (err) {
-			Errors.error('Failed to add missing watched date.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'addMissingWatchedDateFailed',
-				severity: 'error',
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to add missing watched date.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'addMissingWatchedDateFailed',
+					severity: 'error',
+				});
+			}
 		}
 		setDialog((prevDialog) => ({
 			...prevDialog,

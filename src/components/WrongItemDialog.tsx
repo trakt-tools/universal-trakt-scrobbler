@@ -18,6 +18,7 @@ import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
 import { Messaging } from '../common/Messaging';
+import { RequestException } from '../common/Requests';
 import { Shared } from '../common/Shared';
 import { CorrectionSuggestion, Item } from '../models/Item';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
@@ -114,11 +115,13 @@ export const WrongItemDialog: React.FC = () => {
 				}
 			}
 		} catch (err) {
-			Errors.error('Failed to correct item.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'correctWrongItemFailed',
-				severity: 'error',
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to correct item.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'correctWrongItemFailed',
+					severity: 'error',
+				});
+			}
 		}
 		setDialog((prevDialog) => ({
 			...prevDialog,

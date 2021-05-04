@@ -1,7 +1,7 @@
 import { CacheValues } from '../common/Cache';
 import { Errors } from '../common/Errors';
 import { Messaging } from '../common/Messaging';
-import { Requests } from '../common/Requests';
+import { RequestException, Requests } from '../common/Requests';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { secrets } from '../secrets';
@@ -74,7 +74,9 @@ class _TmdbApi {
 			try {
 				await this.activate();
 			} catch (err) {
-				Errors.warning('Failed to get TMDB config.', err);
+				if (!(err as RequestException).canceled) {
+					Errors.warning('Failed to get TMDB config.', err);
+				}
 				return null;
 			}
 		}
@@ -109,7 +111,9 @@ class _TmdbApi {
 				}
 			}
 		} catch (err) {
-			Errors.warning('Failed to find item on TMDB.', err);
+			if (!(err as RequestException).canceled) {
+				Errors.warning('Failed to find item on TMDB.', err);
+			}
 		}
 		return null;
 	};
@@ -130,7 +134,11 @@ class _TmdbApi {
 		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
 	};
 
-	loadImages = async (serviceId: StreamingServiceId): Promise<void> => {
+	loadImages = async (serviceId: StreamingServiceId, items: Item[]): Promise<void> => {
+		const missingItems = items.filter((item) => typeof item.imageUrl === 'undefined');
+		if (missingItems.length === 0) {
+			return;
+		}
 		if (
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
@@ -138,14 +146,13 @@ class _TmdbApi {
 		) {
 			return;
 		}
-		let items = getSyncStore(serviceId).data.items;
 		try {
 			const cache = (await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'tmdbImages',
 			})) as CacheValues['tmdbImages'];
-			const missingItems = [];
-			for (const item of items) {
+			const itemsToFetch = [];
+			for (const item of missingItems) {
 				if (!item.trakt) {
 					continue;
 				}
@@ -153,17 +160,17 @@ class _TmdbApi {
 				if (imageUrl) {
 					item.imageUrl = imageUrl;
 				} else {
-					missingItems.push(item);
+					itemsToFetch.push(item);
 				}
 			}
-			if (missingItems.length > 0) {
+			if (itemsToFetch.length > 0) {
 				let json;
 				try {
 					const response = await Requests.send({
 						method: 'POST',
 						url: this.DATABASE_URL,
 						body: {
-							items: missingItems.map((item) => ({
+							items: itemsToFetch.map((item) => ({
 								id: item.trakt?.id,
 								tmdbId: item.trakt?.tmdbId,
 								type: item.trakt?.type,
@@ -176,7 +183,7 @@ class _TmdbApi {
 				} catch (err) {
 					// Do nothing
 				}
-				for (const item of missingItems) {
+				for (const item of itemsToFetch) {
 					if (!item.trakt) {
 						continue;
 					}
@@ -195,11 +202,10 @@ class _TmdbApi {
 		} catch (err) {
 			// Do nothing
 		}
-		items = items.map((item) => ({
-			...item,
-			imageUrl: item.imageUrl ?? this.PLACEHOLDER_IMAGE,
-		}));
-		await getSyncStore(serviceId).update({ items }, true);
+		for (const item of missingItems) {
+			item.imageUrl = item.imageUrl ?? this.PLACEHOLDER_IMAGE;
+		}
+		await getSyncStore(serviceId).update();
 	};
 
 	loadItemImage = async (item: Item): Promise<Item> => {

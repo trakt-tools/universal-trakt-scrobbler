@@ -1,9 +1,7 @@
-import { TmdbApi } from '../../api/TmdbApi';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
@@ -199,11 +197,7 @@ class _HboGoApi extends Api {
 			.replace(/{ageRating}/i, '0');
 	};
 
-	loadHistory = async (
-		nextPage: number,
-		nextVisualPage: number,
-		itemsToLoad: number
-	): Promise<void> => {
+	loadHistory = async (itemsToLoad: number): Promise<void> => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -211,7 +205,8 @@ class _HboGoApi extends Api {
 			if (!this.checkParams(this.apiParams)) {
 				throw new Error('Invalid API params');
 			}
-			let isLastPage = false;
+			const store = getSyncStore('hbo-go');
+			let { nextPage, hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems = [];
 			do {
@@ -229,30 +224,25 @@ class _HboGoApi extends Api {
 						itemsToLoad -= responseItems.length;
 						historyItems.push(...responseItems);
 					} else {
-						isLastPage = true;
+						hasReachedEnd = true;
 					}
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('hbo-go')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => TmdbApi.loadImages(this.id))
-				.then(() => WrongItemApi.loadSuggestions(this.id))
-				.catch(() => {
-					/** Do nothing */
-				});
+			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load HBO Go history.', err as Error);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load HBO Go history.', err as Error);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+			throw err;
 		}
 	};
 

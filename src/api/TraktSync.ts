@@ -1,8 +1,8 @@
 import * as moment from 'moment';
-import { Item } from '../models/Item';
 import { Errors } from '../common/Errors';
 import { EventDispatcher } from '../common/Events';
-import { Requests } from '../common/Requests';
+import { RequestException, Requests } from '../common/Requests';
+import { Item } from '../models/Item';
 import { TraktApi } from './TraktApi';
 
 export interface TraktHistoryItem {
@@ -98,8 +98,10 @@ class _TraktSync extends TraktApi {
 				added: responseJson.added,
 			});
 		} catch (err) {
-			Errors.error('Failed to sync history.', err);
-			await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to sync history.', err);
+				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
+			}
 		}
 	};
 }

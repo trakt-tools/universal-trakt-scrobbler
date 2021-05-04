@@ -1,10 +1,12 @@
 import { Item } from '../models/Item';
-import { MessageRequest, GetCacheMessage } from '../modules/background/background';
+import { GetCacheMessage, GetTabIdMessage, MessageRequest } from '../modules/background/background';
+import { CacheValues } from './Cache';
 import { Errors } from './Errors';
 import { EventDispatcher } from './Events';
-import { CacheValues } from './Cache';
 
-export type ReturnTypes<T extends MessageRequest> = T extends GetCacheMessage
+export type ReturnTypes<T extends MessageRequest> = T extends GetTabIdMessage
+	? { tabId: number | undefined }
+	: T extends GetCacheMessage
 	? CacheValues[keyof CacheValues]
 	: Record<string, unknown>;
 

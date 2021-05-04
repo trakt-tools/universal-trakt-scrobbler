@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { TmdbApi } from '../../api/TmdbApi';
 import { TraktSettings } from '../../api/TraktSettings';
 import { TraktSync } from '../../api/TraktSync';
 import { WrongItemApi } from '../../api/WrongItemApi';
@@ -18,10 +19,11 @@ import {
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	MissingWatchedDateAddedData,
-	StreamingServiceStoreUpdateData,
+	SyncStoreUpdateData,
 	WrongItemCorrectedData,
 } from '../../common/Events';
 import { I18N } from '../../common/I18N';
+import { RequestException } from '../../common/Requests';
 import { UtsCenter } from '../../components/UtsCenter';
 import { Item } from '../../models/Item';
 import { HistoryActions } from '../../modules/history/components/HistoryActions';
@@ -51,10 +53,11 @@ interface SyncOptionsContent {
 
 interface Content {
 	isLoading: boolean;
-	isLastPage: boolean;
-	nextPage: number;
-	nextVisualPage: number;
 	items: Item[];
+	visibleItems: Item[];
+	page: number;
+	itemsPerPage: number;
+	hasReachedEnd: boolean;
 }
 
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
@@ -69,29 +72,38 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		options: {} as SyncOptions,
 	});
 	const [content, setContent] = useState<Content>({
-		isLoading: true,
-		isLastPage: false,
-		nextPage: 0,
-		nextVisualPage: 0,
-		items: [],
+		isLoading: store.data.page === 0,
+		...store.data,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
+	const loadPreviousPage = () => {
+		void store.goToPreviousPage().update();
+	};
+
 	const loadNextPage = () => {
-		const itemsToLoad =
-			(content.nextVisualPage + 1) * syncOptionsContent.options.itemsPerLoad.value -
-			content.items.length;
+		if (content.hasReachedEnd) {
+			return;
+		}
+		const itemsToLoad = (content.page + 1) * store.data.itemsPerPage - content.items.length;
 		if (itemsToLoad > 0) {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: true,
 			}));
-			void api.loadHistory(content.nextPage, content.nextVisualPage, itemsToLoad);
+			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
+				.then(() => api.loadHistory(itemsToLoad))
+				.then(() => store.goToNextPage().update())
+				.catch(() => {
+					// Do nothing
+				});
 		} else {
-			void store.update({
-				nextVisualPage: content.nextVisualPage + 1,
-			});
+			void store.goToNextPage().update();
 		}
+	};
+
+	const onPreviousPageClick = () => {
+		loadPreviousPage();
 	};
 
 	const onNextPageClick = () => {
@@ -100,7 +112,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	const onSyncClick = async () => {
 		if (!syncOptionsContent.options.addWithReleaseDate.value) {
-			const missingWatchedDate = store.data.items.find((item) => !item.watchedAt);
+			const missingWatchedDate = content.visibleItems.find((item) => !item.watchedAt);
 			if (missingWatchedDate) {
 				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
 					title: I18N.translate('cannotSync'),
@@ -112,7 +124,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			...prevContent,
 			isLoading: true,
 		}));
-		await TraktSync.sync(store.data.items, syncOptionsContent.options.addWithReleaseDate.value);
+		await TraktSync.sync(content.visibleItems, syncOptionsContent.options.addWithReleaseDate.value);
 		setContent((prevContent) => ({
 			...prevContent,
 			isLoading: false,
@@ -121,7 +133,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.subscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
@@ -132,7 +144,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STREAMING_SERVICE_STORE_UPDATE', null, onStoreUpdate);
+			EventDispatcher.unsubscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
 			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.unsubscribe(
@@ -144,13 +156,16 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.stopListeners();
+
+			void EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' });
 		};
 
-		const onStoreUpdate = (data: StreamingServiceStoreUpdateData) => {
-			setContent({
+		const onStoreUpdate = (data: SyncStoreUpdateData) => {
+			setContent((prevContent) => ({
+				...prevContent,
 				isLoading: false,
 				...data.data,
-			});
+			}));
 		};
 
 		const onHistoryLoadError = async () => {
@@ -181,11 +196,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			try {
 				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
 			} catch (err) {
-				Errors.error('Failed to save suggestion.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'saveSuggestionFailed',
-					severity: 'error',
-				});
+				if (!(err as RequestException).canceled) {
+					Errors.error('Failed to save suggestion.', err);
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveSuggestionFailed',
+						severity: 'error',
+					});
+				}
 			}
 			await BrowserStorage.set({ traktCache }, false);
 			await getSyncStore(serviceId).update();
@@ -259,6 +276,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						hasLoaded: true,
 						options,
 					});
+					if (data.id === 'itemsPerLoad' && typeof data.value === 'number') {
+						checkItemsPerPage(data.value);
+					}
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
@@ -273,9 +293,29 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				});
 		};
 
+		const checkItemsPerPage = (itemsPerPage: number) => {
+			const itemsToLoad = (store.data.page + 1) * itemsPerPage - store.data.items.length;
+			if (itemsToLoad > 0 && !content.isLoading) {
+				store.setData({ itemsPerPage });
+				setContent((prevContent) => ({
+					...prevContent,
+					isLoading: true,
+					itemsPerPage,
+				}));
+				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
+					.then(() => api.loadHistory(itemsToLoad))
+					.then(() => store.update())
+					.catch(() => {
+						// Do nothing
+					});
+			} else {
+				void store.update({ itemsPerPage });
+			}
+		};
+
 		startListeners();
 		return stopListeners;
-	}, [syncOptionsContent.options]);
+	}, [syncOptionsContent.options, content.isLoading]);
 
 	useEffect(() => {
 		const getOptions = async () => {
@@ -309,7 +349,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const loadFirstPage = () => {
-			if (syncOptionsContent.hasLoaded) {
+			if (syncOptionsContent.hasLoaded && content.page === 0) {
+				store.setData({ itemsPerPage: syncOptionsContent.options.itemsPerLoad.value });
 				loadNextPage();
 			}
 		};
@@ -317,15 +358,25 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		loadFirstPage();
 	}, [syncOptionsContent.hasLoaded]);
 
-	let itemsToShow: Item[] = [];
-	if (syncOptionsContent.hasLoaded && content.nextVisualPage > 0) {
-		itemsToShow = content.items.slice(
-			(content.nextVisualPage - 1) * syncOptionsContent.options.itemsPerLoad.value,
-			content.nextVisualPage * syncOptionsContent.options.itemsPerLoad.value
-		);
-		if (syncOptionsContent.options.hideSynced.value) {
-			itemsToShow = itemsToShow.filter((x) => !x.trakt?.watchedAt);
-		}
+	useEffect(() => {
+		const loadData = async () => {
+			try {
+				await getApi(serviceId).loadTraktHistory(content.visibleItems);
+				await Promise.all([
+					WrongItemApi.loadSuggestions(serviceId, content.visibleItems),
+					TmdbApi.loadImages(serviceId, content.visibleItems),
+				]);
+			} catch (err) {
+				// Do nothing
+			}
+		};
+
+		void loadData();
+	}, [content.visibleItems]);
+
+	let filteredItems = content.visibleItems;
+	if (syncOptionsContent.hasLoaded && syncOptionsContent.options.hideSynced.value) {
+		filteredItems = filteredItems.filter((item) => !item.trakt?.watchedAt);
 	}
 
 	return content.isLoading ? (
@@ -336,10 +387,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		<>
 			<Box className="history-content">
 				<HistoryOptionsList options={Object.values(syncOptionsContent.options)} store={store} />
-				{itemsToShow.length > 0 ? (
+				{filteredItems.length > 0 ? (
 					<HistoryList
 						dateFormat={dateFormat}
-						items={itemsToShow}
+						items={filteredItems}
 						serviceId={serviceId}
 						serviceName={serviceName}
 						sendReceiveSuggestions={optionsContent.options.sendReceiveSuggestions?.value ?? false}
@@ -350,7 +401,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					</Box>
 				)}
 			</Box>
-			<HistoryActions onNextPageClick={onNextPageClick} onSyncClick={onSyncClick} />
+			<HistoryActions
+				hasPreviousPage={content.page > 1}
+				hasNextPage={!content.hasReachedEnd}
+				onPreviousPageClick={onPreviousPageClick}
+				onNextPageClick={onNextPageClick}
+				onSyncClick={onSyncClick}
+			/>
 		</>
 	);
 };

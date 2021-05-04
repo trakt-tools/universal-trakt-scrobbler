@@ -1,9 +1,7 @@
 import * as moment from 'moment';
-import { TmdbApi } from '../../api/TmdbApi';
-import { WrongItemApi } from '../../api/WrongItemApi';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
@@ -203,7 +201,7 @@ class _NetflixApi extends Api {
 		);
 	};
 
-	loadHistory = async (nextPage: number, nextVisualPage: number, itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -211,7 +209,8 @@ class _NetflixApi extends Api {
 			if (!this.checkParams(this.apiParams)) {
 				throw new Error('Invalid API params');
 			}
-			let isLastPage = false;
+			const store = getSyncStore('netflix');
+			let { nextPage, hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems: NetflixHistoryItem[] = [];
 			do {
@@ -224,28 +223,23 @@ class _NetflixApi extends Api {
 					itemsToLoad -= responseJson.viewedItems.length;
 					historyItems.push(...responseJson.viewedItems);
 				} else {
-					isLastPage = true;
+					hasReachedEnd = true;
 				}
 				nextPage += 1;
-			} while (!isLastPage && itemsToLoad > 0);
+			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			nextVisualPage += 1;
-			getSyncStore('netflix')
-				.update({ isLastPage, nextPage, nextVisualPage, items })
-				.then(this.loadTraktHistory)
-				.then(() => TmdbApi.loadImages(this.id))
-				.then(() => WrongItemApi.loadSuggestions(this.id))
-				.catch(() => {
-					/** Do nothing */
-				});
+			store.setData({ items, nextPage, hasReachedEnd });
 		} catch (err) {
-			Errors.error('Failed to load Netflix history.', err);
-			await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-				error: err as Error,
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load Netflix history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+			throw err;
 		}
 	};
 
@@ -336,7 +330,9 @@ class _NetflixApi extends Api {
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
 		} catch (err) {
-			Errors.error('Failed to get item.', err);
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to get item.', err);
+			}
 		}
 		return item;
 	};

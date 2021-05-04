@@ -209,6 +209,9 @@
 	"options": {
 		"message": "Options"
 	},
+	"previousPage": {
+		"message": "Previous Page"
+	},
 	"progress": {
 		"message": "Progress: $PROGRESS$%",
 		"placeholders": {

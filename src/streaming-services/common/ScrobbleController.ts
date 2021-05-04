@@ -4,6 +4,7 @@ import { BrowserStorage, ScrobblingItem } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '../../common/Events';
 import { Messaging } from '../../common/Messaging';
+import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 
@@ -50,7 +51,9 @@ export class ScrobbleController {
 				}
 			}
 		} catch (err) {
-			Errors.log('Failed to parse item.', err);
+			if (!(err as RequestException).canceled) {
+				Errors.log('Failed to parse item.', err);
+			}
 		}
 	};
 
@@ -119,11 +122,13 @@ export class ScrobbleController {
 				throw response.error;
 			}
 		} catch (err) {
-			Errors.error('Failed to save suggestion.', err);
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-				messageName: 'saveSuggestionFailed',
-				severity: 'error',
-			});
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to save suggestion.', err);
+				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'saveSuggestionFailed',
+					severity: 'error',
+				});
+			}
 		}
 	};
 }

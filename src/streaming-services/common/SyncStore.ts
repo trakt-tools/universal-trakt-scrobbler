@@ -1,23 +1,32 @@
-import { Item } from '../../models/Item';
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
+import { Item } from '../../models/Item';
 
-export interface StoreData {
-	isLastPage: boolean;
-	nextPage: number;
-	nextVisualPage: number;
+export interface SyncStoreData {
 	items: Item[];
+	visibleItems: Item[];
+	page: number;
+	itemsPerPage: number;
+	nextPage: number;
+	hasReachedEnd: boolean;
 }
 
 export class SyncStore {
-	data: StoreData;
+	data: SyncStoreData;
+
 	constructor() {
-		this.data = {
-			isLastPage: false,
-			nextPage: 0,
-			nextVisualPage: 0,
-			items: [],
-		};
+		this.data = SyncStore.getInitialData();
 	}
+
+	static getInitialData = (): SyncStoreData => {
+		return {
+			items: [],
+			visibleItems: [],
+			page: 0,
+			itemsPerPage: 0,
+			nextPage: 0,
+			hasReachedEnd: false,
+		};
+	};
 
 	startListeners = (): void => {
 		EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
@@ -44,48 +53,89 @@ export class SyncStore {
 		void this.update();
 	};
 
-	selectAll = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
+	selectAll = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			if (item.trakt && !item.trakt.watchedAt) {
 				item.isSelected = true;
 			}
 		}
-		void this.update();
+		return this;
 	};
 
-	selectNone = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
-				item.isSelected = false;
-			}
+	selectNone = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			item.isSelected = false;
 		}
-		void this.update();
+		return this;
 	};
 
-	toggleAll = (): void => {
-		for (const item of this.data.items) {
-			if (item.trakt && !('notFound' in item.trakt) && !item.trakt.watchedAt) {
+	toggleAll = (): SyncStore => {
+		for (const item of this.data.visibleItems) {
+			if (item.trakt && !item.trakt.watchedAt) {
 				item.isSelected = !item.isSelected;
 			}
 		}
-		void this.update();
+		return this;
 	};
 
-	update = async (data?: Partial<StoreData>, doClear = false): Promise<void> => {
-		if (data) {
-			if (data.items) {
-				data.items = data.items.map((item, index) => {
-					item.index = index;
-					return item;
-				});
-			}
-			this.data = {
-				...this.data,
-				...data,
-				items: doClear ? [...(data.items || [])] : [...this.data.items, ...(data.items || [])],
-			};
+	goToPreviousPage = (): SyncStore => {
+		if (this.data.page > 1) {
+			this.data.page -= 1;
 		}
-		await EventDispatcher.dispatch('STREAMING_SERVICE_STORE_UPDATE', null, {
+		return this;
+	};
+
+	goToNextPage = (): SyncStore => {
+		this.data.page += 1;
+		return this;
+	};
+
+	setData = (data: Partial<SyncStoreData>): SyncStore => {
+		const itemsPerPage = this.data.itemsPerPage;
+		this.data = {
+			...this.data,
+			...data,
+			items: [...this.data.items, ...(data.items ?? [])].map((item, index) => ({
+				...item,
+				index,
+			})),
+			visibleItems: [],
+		};
+		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
+			this.updatePage(itemsPerPage);
+		}
+		return this;
+	};
+
+	resetData = (): SyncStore => {
+		this.data = SyncStore.getInitialData();
+		return this;
+	};
+
+	updatePage = (oldItemsPerPage: number): SyncStore => {
+		const oldIndex = (this.data.page - 1) * oldItemsPerPage;
+		const newPage = Math.floor(oldIndex / this.data.itemsPerPage) + 1;
+		this.data.page = newPage;
+		return this;
+	};
+
+	updateVisibleItems = (): SyncStore => {
+		this.data.visibleItems = [];
+		if (this.data.page > 0) {
+			this.data.visibleItems = this.data.items.slice(
+				(this.data.page - 1) * this.data.itemsPerPage,
+				this.data.page * this.data.itemsPerPage
+			);
+		}
+		return this;
+	};
+
+	update = (data?: Partial<SyncStoreData>): Promise<void> => {
+		if (data) {
+			this.setData(data);
+		}
+		this.updateVisibleItems();
+		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, {
 			data: this.data,
 		});
 	};
