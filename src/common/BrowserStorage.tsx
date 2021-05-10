@@ -86,6 +86,7 @@ export type SyncOptions = {
 		name: string;
 		value: StorageValuesSyncOptions[K];
 		minValue?: number;
+		maxValue?: number;
 	};
 };
 
@@ -289,8 +290,13 @@ class _BrowserStorage {
 		for (const option of Object.values(options)) {
 			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
-			if (typeof option.value === 'number' && typeof option.minValue !== 'undefined') {
-				option.value = Math.max(option.value, option.minValue);
+			if (typeof option.value === 'number') {
+				if (typeof option.minValue !== 'undefined') {
+					option.value = Math.max(option.value, option.minValue);
+				}
+				if (typeof option.maxValue !== 'undefined') {
+					option.value = Math.min(option.value, option.maxValue);
+				}
 			}
 		}
 		return options;

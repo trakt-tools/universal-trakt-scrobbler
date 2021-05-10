@@ -16,10 +16,17 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 	};
 
 	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-		const value = parseInt(event.currentTarget.value || '0');
+		let value = parseInt(event.currentTarget.value || '0');
+		if (typeof option.minValue !== 'undefined') {
+			value = Math.max(value, option.minValue);
+		}
+		if (typeof option.maxValue !== 'undefined') {
+			value = Math.min(value, option.maxValue);
+		}
+
 		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
 			id: option.id,
-			value: option.minValue ? Math.max(value, option.minValue) : value,
+			value,
 		});
 	};
 
@@ -40,7 +47,10 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 					label={option.name}
 					onChange={onNumberInputChange}
 					type="number"
-					inputProps={option.minValue ? { min: 1 } : undefined}
+					inputProps={{
+						min: typeof option.minValue !== 'undefined' ? option.minValue : undefined,
+						max: typeof option.maxValue !== 'undefined' ? option.maxValue : undefined,
+					}}
 					value={option.value}
 				/>
 			);
