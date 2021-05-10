@@ -40,9 +40,15 @@ export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (
 				<Box className="button-group-container">
 					<InputLabel shrink={true}>{I18N.translate('select')}</InputLabel>
 					<ButtonGroup className="button-group" variant="contained">
-						<Button onClick={() => store.selectAll()}>{I18N.translate('selectAll')}</Button>
-						<Button onClick={() => store.selectNone()}>{I18N.translate('selectNone')}</Button>
-						<Button onClick={() => store.toggleAll()}>{I18N.translate('toggleAll')}</Button>
+						<Button onClick={() => void store.selectAll().dispatchEvent()}>
+							{I18N.translate('selectAll')}
+						</Button>
+						<Button onClick={() => void store.selectNone().dispatchEvent()}>
+							{I18N.translate('selectNone')}
+						</Button>
+						<Button onClick={() => void store.toggleAll().dispatchEvent()}>
+							{I18N.translate('toggleAll')}
+						</Button>
 					</ButtonGroup>
 				</Box>
 			</FormGroup>

@@ -46,11 +46,11 @@ export class SyncStore {
 		if (item) {
 			item.isSelected = data.checked;
 		}
-		void this.update();
+		void this.dispatchEvent();
 	};
 
 	onHistorySyncSuccess = (): void => {
-		void this.update();
+		void this.dispatchEvent();
 	};
 
 	selectAll = (): SyncStore => {
@@ -135,6 +135,10 @@ export class SyncStore {
 			this.setData(data);
 		}
 		this.updateVisibleItems();
+		return this.dispatchEvent();
+	};
+
+	dispatchEvent = (): Promise<void> => {
 		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, {
 			data: this.data,
 		});

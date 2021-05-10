@@ -7,7 +7,6 @@ import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { TraktItem, TraktItemBase } from '../../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services';
-import { getSyncStore } from './common';
 
 export abstract class Api {
 	id: StreamingServiceId;
@@ -38,7 +37,6 @@ export abstract class Api {
 			}
 			await Promise.all(promises);
 			await BrowserStorage.set({ traktCache }, false);
-			await getSyncStore(this.id).update();
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Trakt history.', err);

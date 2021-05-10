@@ -3,7 +3,6 @@ import { CacheValues } from '../common/Cache';
 import { Messaging } from '../common/Messaging';
 import { Requests } from '../common/Requests';
 import { CorrectionSuggestion, Item } from '../models/Item';
-import { getSyncStore } from '../streaming-services/common/common';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 
 class _WrongItemApi {
@@ -74,7 +73,6 @@ class _WrongItemApi {
 		for (const item of missingItems) {
 			item.correctionSuggestions = item.correctionSuggestions ?? null;
 		}
-		await getSyncStore(serviceId).update();
 	};
 
 	loadItemSuggestions = async (item: Item): Promise<Item> => {

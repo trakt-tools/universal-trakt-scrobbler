@@ -205,7 +205,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				}
 			}
 			await BrowserStorage.set({ traktCache }, false);
-			await getSyncStore(serviceId).update();
+			await getSyncStore(serviceId).dispatchEvent();
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
@@ -227,7 +227,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					break;
 				// no-default
 			}
-			await getSyncStore(serviceId).update();
+			await getSyncStore(serviceId).dispatchEvent();
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
@@ -366,6 +366,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					WrongItemApi.loadSuggestions(serviceId, content.visibleItems),
 					TmdbApi.loadImages(serviceId, content.visibleItems),
 				]);
+				await store.dispatchEvent();
 			} catch (err) {
 				// Do nothing
 			}
