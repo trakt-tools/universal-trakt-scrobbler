@@ -1,4 +1,4 @@
-import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { AppBar, IconButton, Toolbar } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HistoryIcon from '@material-ui/icons/History';
 import HomeIcon from '@material-ui/icons/Home';
@@ -37,41 +37,41 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 					centerVertically={true}
 					left={
 						<>
-							<Button
+							<IconButton
 								color="inherit"
 								title={I18N.translate('home')}
 								onClick={() => onRouteClick('/home')}
 							>
 								<HomeIcon />
-							</Button>
-							<Button
+							</IconButton>
+							<IconButton
 								color="inherit"
 								title={I18N.translate('about')}
 								onClick={() => onRouteClick('/about')}
 							>
 								<InfoIcon />
-							</Button>
-							<Button
+							</IconButton>
+							<IconButton
 								color="inherit"
 								title={I18N.translate('history')}
 								onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
 							>
 								<HistoryIcon />
-							</Button>
-							<Button
+							</IconButton>
+							<IconButton
 								color="inherit"
 								title={I18N.translate('options')}
 								onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
 							>
 								<SettingsIcon />
-							</Button>
+							</IconButton>
 						</>
 					}
 					right={
 						isLoggedIn ? (
-							<Button color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
+							<IconButton color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
 								<ExitToAppIcon />
-							</Button>
+							</IconButton>
 						) : undefined
 					}
 				/>
