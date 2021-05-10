@@ -31,6 +31,10 @@ export type StorageValuesOptions = {
 export type StreamingServiceValue = {
 	scrobble: boolean;
 	sync: boolean;
+	autoSync: boolean;
+	autoSyncDays: number;
+	lastSync: number;
+	lastSyncId: string;
 };
 
 export type ThemeValue = 'light' | 'dark' | 'system';
@@ -174,6 +178,10 @@ class _BrowserStorage {
 						{
 							scrobble: false,
 							sync: false,
+							autoSync: false,
+							autoSyncDays: 7,
+							lastSync: 0,
+							lastSyncId: '',
 						},
 					])
 				) as Record<StreamingServiceId, StreamingServiceValue>,
@@ -268,6 +276,10 @@ class _BrowserStorage {
 							{
 								scrobble: false,
 								sync: false,
+								autoSync: false,
+								autoSyncDays: 7,
+								lastSync: 0,
+								lastSyncId: '',
 							},
 						])
 				) as Record<StreamingServiceId, StreamingServiceValue>;

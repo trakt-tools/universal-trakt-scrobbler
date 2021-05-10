@@ -23,6 +23,12 @@
 	"appDescription": {
 		"message": "Um sincronizador universal para o Trakt.tv."
 	},
+	"autoSync": {
+		"message": "Sincronização Automática"
+	},
+	"autoSyncDescription": {
+		"message": "O número de dias determina com que frequência a sincronização automática será feita para o serviço de streaming. Para que a sincronização automática seja ativada, você precisa sincronizar manualmente na página de histórico do serviço de streaming primeiro, para que a data da última sincronização possa ser salva.\n\nÉ importante ressaltar que ao carregar o histórico do serviço de streaming, será carregado apenas o histórico até o último item que foi automaticamente sincronizado. Para resetar esse comportamento, você precisa limpar a data da última sincronização para o serviço de streaming."
+	},
 	"cancel": {
 		"message": "Cancelar"
 	},
@@ -31,6 +37,9 @@
 	},
 	"cannotSyncMissingWatchedDate": {
 		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
+	},
+	"clearLastSync": {
+		"message": "Limpar Data da Última Sincronização"
 	},
 	"clearStorage": {
 		"message": "Limpar Armazenamento"
@@ -53,6 +62,17 @@
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Fechar"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Você terá que sincronizar manualmente na página de histórico do serviço de streaming novamente para reativar a sincronização automática."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Limpar data da última sincronização para $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
 	},
 	"confirmClearStorageMessage": {
 		"message": "Todas as opções serão resetadas para seus valores padrões e você precisará entrar com o Trakt novamente."
@@ -81,6 +101,9 @@
 	},
 	"darkTheme": {
 		"message": "Escuro"
+	},
+	"days": {
+		"message": "Dias"
 	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("

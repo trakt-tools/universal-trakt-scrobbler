@@ -1,4 +1,5 @@
-import { Grid, ListItem, Typography } from '@material-ui/core';
+import { Grid, ListItem, Tooltip, Typography } from '@material-ui/core';
+import HelpIcon from '@material-ui/icons/Help';
 import * as React from 'react';
 import { StreamingServiceValue } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
@@ -25,6 +26,31 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 					</Grid>
 					<Grid item className="options-grid-item options-grid-item--centered" xs={1}>
 						<Typography variant="caption">{I18N.translate('serviceSync')}</Typography>
+					</Grid>
+					<Grid item className="options-grid-item options-grid-item--centered" xs={2}>
+						<Typography variant="caption">{I18N.translate('autoSync')}</Typography>
+						<Tooltip
+							className="tooltip-icon"
+							title={
+								<Typography variant="caption">
+									{I18N.translate('autoSyncDescription')
+										.split('\n\n')
+										.map((text, i, arr) => (
+											<>
+												{text}
+												{i < arr.length - 1 && (
+													<>
+														<br />
+														<br />
+													</>
+												)}
+											</>
+										))}
+								</Typography>
+							}
+						>
+							<HelpIcon color="primary" fontSize="small" />
+						</Tooltip>
 					</Grid>
 				</Grid>
 				{(Object.entries(options) as [StreamingServiceId, StreamingServiceValue][])

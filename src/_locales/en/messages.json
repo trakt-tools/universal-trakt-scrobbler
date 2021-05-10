@@ -23,6 +23,12 @@
 	"appDescription": {
 		"message": "A universal sync for Trakt.tv."
 	},
+	"autoSync": {
+		"message": "Automatic Sync"
+	},
+	"autoSyncDescription": {
+		"message": "The number of days determines how often the automatic sync will happen for the streaming service. For the automatic sync to be activated, you must sync manually in the history page of the streaming service first, so that the last sync date can be saved.\n\nIt's also important to note that when loading the history of the streaming service, it will only load the history until the last item that was automatically synced. To reset this behavior, you have to clear the last sync date for the streaming service."
+	},
 	"cancel": {
 		"message": "Cancel"
 	},
@@ -31,6 +37,9 @@
 	},
 	"cannotSyncMissingWatchedDate": {
 		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
+	},
+	"clearLastSync": {
+		"message": "Clear Last Sync Date"
 	},
 	"clearStorage": {
 		"message": "Clear Storage"
@@ -53,6 +62,17 @@
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Close"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "You'll need to sync manually in the history page of the streaming service again to reactivate the automatic sync."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Clear last sync date for $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
 	},
 	"confirmClearStorageMessage": {
 		"message": "All of the options will be reset to their default values and you will have to login again."
@@ -81,6 +101,9 @@
 	},
 	"darkTheme": {
 		"message": "Dark"
+	},
+	"days": {
+		"message": "Days"
 	},
 	"errorNotification": {
 		"message": "An error has occurred. :("

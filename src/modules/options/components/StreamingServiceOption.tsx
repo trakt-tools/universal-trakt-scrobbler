@@ -1,4 +1,5 @@
-import { Grid, Switch, Typography } from '@material-ui/core';
+import { Grid, IconButton, Switch, TextField, Tooltip, Typography } from '@material-ui/core';
+import ClearIcon from '@material-ui/icons/Clear';
 import * as React from 'react';
 import { StreamingServiceValue } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
@@ -17,6 +18,8 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	props: StreamingServiceOptionProps
 ) => {
 	const { id, value } = props;
+
+	const [autoSyncDays, setAutoSyncDays] = React.useState(value.autoSyncDays);
 
 	const service = streamingServices[id];
 
@@ -37,7 +40,40 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 			},
 		]);
 	};
+
+	const onAutoSyncChange = async () => {
+		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+			{
+				id,
+				value: { autoSync: !value.autoSync },
+			},
 		]);
+	};
+
+	const onAutoSyncDaysChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const autoSyncDays = parseInt(event.target.value);
+		setAutoSyncDays(autoSyncDays);
+		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+			{
+				id,
+				value: { autoSyncDays },
+			},
+		]);
+	};
+
+	const onClearLastSyncClick = async () => {
+		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+			title: I18N.translate('confirmClearLastSyncTitle', service.name),
+			message: I18N.translate('confirmClearLastSyncMessage'),
+			onConfirm: async () => {
+				await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+					{
+						id,
+						value: { lastSync: 0, lastSyncId: '' },
+					},
+				]);
+			},
+		});
 	};
 
 	return (
@@ -60,6 +96,43 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 					disabled={!service.hasSync}
 					onChange={onSyncChange}
 				/>
+			</Grid>
+			<Grid item className="options-grid-item options-grid-item--centered" xs={2}>
+				<Switch
+					checked={value.autoSync}
+					color="primary"
+					disabled={!service.hasSync || !service.hasAutoSync || !value.sync}
+					edge="start"
+					onChange={onAutoSyncChange}
+				/>
+				<TextField
+					className="options-grid-item--text-field"
+					disabled={!service.hasSync || !service.hasAutoSync || !value.sync || !value.autoSync}
+					label={I18N.translate('days')}
+					size="small"
+					type="number"
+					value={autoSyncDays}
+					variant="outlined"
+					onChange={onAutoSyncDaysChange}
+				/>
+				<Tooltip
+					title={<Typography variant="caption">{I18N.translate('clearLastSync')}</Typography>}
+				>
+					<IconButton
+						color="secondary"
+						disabled={
+							!service.hasSync ||
+							!service.hasAutoSync ||
+							!value.sync ||
+							!value.autoSync ||
+							value.lastSync === 0
+						}
+						size="small"
+						onClick={onClearLastSyncClick}
+					>
+						<ClearIcon fontSize="small" />
+					</IconButton>
+				</Tooltip>
 			</Grid>
 		</Grid>
 	);

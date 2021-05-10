@@ -135,6 +135,12 @@ export const OptionsApp: React.FC = () => {
 				if (streamingServiceValue.sync && !service.hasSync) {
 					streamingServiceValue.sync = false;
 				}
+				if (
+					streamingServiceValue.autoSync &&
+					(!service.hasSync || !service.hasAutoSync || !streamingServiceValue.sync)
+				) {
+					streamingServiceValue.autoSync = false;
+				}
 				if (streamingServiceValue.scrobble || streamingServiceValue.sync) {
 					originsToAdd.push(...service.hostPatterns);
 				} else {

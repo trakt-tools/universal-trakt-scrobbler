@@ -40,5 +40,11 @@
 }
 
 .options-grid-item--centered {
-	text-align: center;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.options-grid-item--text-field {
+	width: 100px;
 }
