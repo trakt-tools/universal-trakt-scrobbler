@@ -26,7 +26,7 @@ interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
 	serviceId: StreamingServiceId | null;
-	item?: Item;
+	items: Item[];
 	dateType: MissingWatchedDateType | null;
 	date: moment.Moment | null;
 	dateError: React.ReactNode | null;
@@ -39,6 +39,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		isOpen: false,
 		isLoading: false,
 		serviceId: null,
+		items: [],
 		dateType: null,
 		date: null,
 		dateError: null,
@@ -89,19 +90,37 @@ export const MissingWatchedDateDialog: React.FC = () => {
 			isLoading: true,
 		}));
 		try {
-			if (!dialog.item) {
-				throw new Error('Missing item');
+			if (!dialog.dateType) {
+				throw new Error('Missing date type');
 			}
-			if (
-				!dialog.dateType ||
-				(dialog.dateType === 'custom-date' && (!dialog.date || !!dialog.dateError))
-			) {
-				throw new Error('Missing date type or invalid date');
+			switch (dialog.dateType) {
+				case 'release-date': {
+					for (const item of dialog.items) {
+						const releaseDate = item.trakt?.releaseDate;
+						if (!releaseDate) {
+							throw new Error('Missing release date');
+						}
+						item.watchedAt = moment(releaseDate);
+					}
+					break;
+				}
+				case 'current-date':
+					for (const item of dialog.items) {
+						item.watchedAt = moment();
+					}
+					break;
+				case 'custom-date':
+					if (!dialog.date || !!dialog.dateError) {
+						throw new Error('Missing date or invalid date');
+					}
+					for (const item of dialog.items) {
+						item.watchedAt = dialog.date;
+					}
+					break;
+				// no-default
 			}
 			await EventDispatcher.dispatch('MISSING_WATCHED_DATE_ADDED', dialog.serviceId, {
-				item: dialog.item,
-				dateType: dialog.dateType,
-				date: dialog.date,
+				items: dialog.items,
 			});
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
@@ -155,7 +174,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 			<DialogTitle id="missing-watched-date-item-dialog-title">
 				{I18N.translate('missingWatchedDate')}
 			</DialogTitle>
-			{dialog.isLoading ? (
+			{dialog.isLoading || dialog.items.length === 0 ? (
 				<UtsCenter>
 					<CircularProgress />
 				</UtsCenter>
@@ -163,18 +182,21 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				<>
 					<DialogContent>
 						<DialogContentText>
-							{I18N.translate(
-								'missingWatchedDateDialogContent',
-								dialog.item
-									? `${dialog.item.title} ${
-											dialog.item.type === 'show'
-												? `S${dialog.item.season?.toString() ?? '0'} E${
-														dialog.item.episode?.toString() ?? '0'
+							{dialog.items.length > 1
+								? I18N.translate(
+										'missingWatchedDateDialogContentMultiple',
+										dialog.items.length.toString()
+								  )
+								: I18N.translate(
+										'missingWatchedDateDialogContent',
+										`${dialog.items[0].title} ${
+											dialog.items[0].type === 'show'
+												? `S${dialog.items[0].season?.toString() ?? '0'} E${
+														dialog.items[0].episode?.toString() ?? '0'
 												  }`
-												: `(${dialog.item.year.toString()})`
-									  }`
-									: 'Unknown'
-							)}
+												: `(${dialog.items[0].year.toString()})`
+										}`
+								  )}
 						</DialogContentText>
 						<RadioGroup
 							name="date-type"

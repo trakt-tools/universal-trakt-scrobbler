@@ -8,6 +8,9 @@
 	"add": {
 		"message": "Adicionar"
 	},
+	"addDate": {
+		"message": "Adicionar data"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
 	},
@@ -189,6 +192,14 @@
 		"message": "Escolha como deseja adicionar a data em que $TITLE$ foi assistido.",
 		"placeholders": {
 			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Escolha como deseja adicionar a data em que os $ITEMS$ items foram assistidos.",
+		"placeholders": {
+			"items": {
 				"content": "$1"
 			}
 		}

@@ -132,6 +132,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		}));
 	};
 
+	const onAddDateClick = async () => {
+		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
+			serviceId,
+			items: content.visibleItems.filter((item) => item.isSelected && !item.watchedAt),
+		});
+	};
+
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
@@ -217,24 +224,6 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
-			switch (data.dateType) {
-				case 'release-date': {
-					const releaseDate = data.item.trakt?.releaseDate;
-					if (releaseDate) {
-						data.item.watchedAt = moment(releaseDate);
-					}
-					break;
-				}
-				case 'current-date':
-					data.item.watchedAt = moment();
-					break;
-				case 'custom-date':
-					if (data.date) {
-						data.item.watchedAt = data.date;
-					}
-					break;
-				// no-default
-			}
 			await store.dispatchEvent();
 		};
 
@@ -400,6 +389,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			!content.hasReachedEnd) ||
 		(content.itemsPerPage > 0 &&
 			content.page < Math.ceil(content.items.length / content.itemsPerPage));
+	const showAddDateButton =
+		filteredItems.filter((item) => item.isSelected && !item.watchedAt).length > 1;
 
 	return content.isLoading ? (
 		<UtsCenter>
@@ -426,9 +417,11 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				serviceId={serviceId}
 				hasPreviousPage={content.page > 1}
 				hasNextPage={hasNextPage}
+				showAddDateButton={showAddDateButton}
 				onPreviousPageClick={onPreviousPageClick}
 				onNextPageClick={onNextPageClick}
 				onSyncClick={onSyncClick}
+				onAddDateClick={onAddDateClick}
 			/>
 		</>
 	);

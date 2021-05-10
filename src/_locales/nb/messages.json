@@ -8,6 +8,9 @@
 	"add": {
 		"message": "Legg til"
 	},
+	"addDate": {
+		"message": "Add date"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Kunne ikke legge til manglende «sett dato»."
 	},
@@ -189,6 +192,14 @@
 		"message": "Hvordan ønsker du å legge til manglede «sett datoer» for $TITLE$?",
 		"placeholders": {
 			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Choose how you want to add the missing watched date for the $ITEMS$ items.",
+		"placeholders": {
+			"items": {
 				"content": "$1"
 			}
 		}

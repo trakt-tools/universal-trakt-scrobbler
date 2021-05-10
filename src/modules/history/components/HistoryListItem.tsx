@@ -31,7 +31,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 	const openMissingWatchedDateDialog = async () => {
 		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
 			serviceId,
-			item,
+			items: [item],
 		});
 	};
 

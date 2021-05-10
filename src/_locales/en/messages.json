@@ -8,6 +8,9 @@
 	"add": {
 		"message": "Add"
 	},
+	"addDate": {
+		"message": "Add date"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Failed to add missing watched date."
 	},
@@ -189,6 +192,14 @@
 		"message": "Choose how you want to add the missing watched date for $TITLE$.",
 		"placeholders": {
 			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Choose how you want to add the missing watched date for the $ITEMS$ items.",
+		"placeholders": {
+			"items": {
 				"content": "$1"
 			}
 		}

@@ -1,7 +1,5 @@
 import { Color } from '@material-ui/lab';
-import * as moment from 'moment';
 import { TraktSearchItem } from '../api/TraktSearch';
-import { MissingWatchedDateType } from '../components/MissingWatchedDateDialog';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { SyncStoreData } from '../streaming-services/common/SyncStore';
@@ -102,13 +100,11 @@ export interface SnackbarShowData {
 
 export interface MissingWatchedDateDialogShowData {
 	serviceId: StreamingServiceId | null;
-	item?: Item;
+	items: Item[];
 }
 
 export interface MissingWatchedDateAddedData {
-	item: Item;
-	dateType: MissingWatchedDateType;
-	date: moment.Moment | null;
+	items: Item[];
 }
 
 export interface WrongItemDialogShowData {
