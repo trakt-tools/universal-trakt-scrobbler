@@ -1,7 +1,7 @@
 import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
-import { CorrectionSuggestion, ItemBase } from '../models/Item';
+import { CorrectionSuggestion, ItemBase, SavedItem } from '../models/Item';
 import { TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
@@ -13,6 +13,7 @@ export type StorageValues = {
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
 	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
+	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
 	scrobblingItem?: ScrobblingItem;
 	scrobblingTabId?: number;
@@ -44,6 +45,11 @@ export type StorageValuesSyncOptions = {
 	hideSynced: boolean;
 	itemsPerLoad: number;
 	minPercentageWatched: number;
+};
+
+export type SyncCacheValue = {
+	items: Omit<SavedItem, ''>[];
+	failed: boolean;
 };
 
 export type CorrectItem = {
