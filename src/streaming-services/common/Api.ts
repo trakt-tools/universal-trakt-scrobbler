@@ -15,9 +15,7 @@ export abstract class Api {
 		this.id = id;
 	}
 
-	abstract loadHistory(itemsToLoad: number): Promise<void>;
-
-	loadTraktHistory = async (items: Item[]) => {
+	static loadTraktHistory = async (items: Item[]) => {
 		const missingItems = items.filter((item) => typeof item.trakt === 'undefined');
 		if (missingItems.length === 0) {
 			return;
@@ -32,7 +30,7 @@ export abstract class Api {
 			const promises = [];
 			for (const item of missingItems) {
 				promises.push(
-					this.loadTraktItemHistory(item, traktCache, correctItems?.[this.id]?.[item.id])
+					Api.loadTraktItemHistory(item, traktCache, correctItems?.[item.serviceId]?.[item.id])
 				);
 			}
 			await Promise.all(promises);
@@ -47,7 +45,7 @@ export abstract class Api {
 		}
 	};
 
-	loadTraktItemHistory = async (
+	static loadTraktItemHistory = async (
 		item: Item,
 		traktCache: Record<string, TraktItemBase>,
 		correctItem?: CorrectItem
@@ -56,7 +54,7 @@ export abstract class Api {
 			return;
 		}
 		try {
-			const cacheId = this.getTraktCacheId(item);
+			const cacheId = Api.getTraktCacheId(item);
 			const cacheItem = traktCache[cacheId];
 			item.trakt =
 				correctItem || !cacheItem
@@ -71,15 +69,17 @@ export abstract class Api {
 		}
 	};
 
-	getTraktCacheId = (item: Item): string => {
+	static getTraktCacheId = (item: Item): string => {
 		return item.type === 'show'
-			? `/shows/${this.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
-					item.episode ?? this.getTraktCacheStr(item.episodeTitle ?? '0')
+			? `/shows/${Api.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
+					item.episode ?? Api.getTraktCacheStr(item.episodeTitle ?? '0')
 			  }`
-			: `/movies/${this.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
+			: `/movies/${Api.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
 	};
 
-	getTraktCacheStr = (title: string): string => {
+	static getTraktCacheStr = (title: string): string => {
 		return title.toLowerCase().replace(/[^\w]/g, '-').replace(/-+/g, '-');
 	};
+
+	abstract loadHistory(itemsToLoad: number): Promise<void>;
 }

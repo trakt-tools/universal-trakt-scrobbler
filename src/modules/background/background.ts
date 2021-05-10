@@ -154,7 +154,6 @@ export interface WrongItemCorrectedMessage {
 
 export interface SaveCorrectionSuggestionMessage {
 	action: 'save-correction-suggestion';
-	serviceId: StreamingServiceId;
 	item: Item;
 	url: string;
 }
@@ -480,11 +479,7 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'save-correction-suggestion': {
 			const item = new Item(parsedRequest.item);
-			executingAction = WrongItemApi.saveSuggestion(
-				parsedRequest.serviceId,
-				item,
-				parsedRequest.url
-			);
+			executingAction = WrongItemApi.saveSuggestion(item, parsedRequest.url);
 			break;
 		}
 	}

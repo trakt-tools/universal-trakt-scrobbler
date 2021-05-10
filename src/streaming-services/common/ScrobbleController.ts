@@ -114,7 +114,6 @@ export class ScrobbleController {
 		try {
 			await Messaging.toBackground({
 				action: 'save-correction-suggestion',
-				serviceId: this.item.serviceId,
 				item: this.item,
 				url: data.url,
 			});

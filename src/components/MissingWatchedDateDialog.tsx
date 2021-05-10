@@ -25,7 +25,7 @@ import { UtsCenter } from './UtsCenter';
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId?: StreamingServiceId;
+	serviceId: StreamingServiceId | null;
 	item?: Item;
 	dateType: MissingWatchedDateType | null;
 	date: moment.Moment | null;
@@ -38,6 +38,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<MissingWatchedDateDialogState>({
 		isOpen: false,
 		isLoading: false,
+		serviceId: null,
 		dateType: null,
 		date: null,
 		dateError: null,
@@ -88,8 +89,8 @@ export const MissingWatchedDateDialog: React.FC = () => {
 			isLoading: true,
 		}));
 		try {
-			if (!dialog.serviceId || !dialog.item) {
-				throw new Error('Missing service ID or item');
+			if (!dialog.item) {
+				throw new Error('Missing item');
 			}
 			if (
 				!dialog.dateType ||

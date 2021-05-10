@@ -9,13 +9,12 @@ import { HistoryListItem } from './HistoryListItem';
 interface HistoryListProps {
 	dateFormat: string;
 	items: Item[];
-	serviceId: StreamingServiceId;
-	serviceName: string;
+	serviceId: StreamingServiceId | null;
 	sendReceiveSuggestions: boolean;
 }
 
 export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
-	const { dateFormat, items, serviceId, serviceName, sendReceiveSuggestions } = props;
+	const { dateFormat, items, serviceId, sendReceiveSuggestions } = props;
 
 	return (
 		<>
@@ -26,7 +25,6 @@ export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps)
 						dateFormat={dateFormat}
 						item={item}
 						serviceId={serviceId}
-						serviceName={serviceName}
 						sendReceiveSuggestions={sendReceiveSuggestions}
 					/>
 				))}

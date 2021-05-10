@@ -3,7 +3,7 @@ import { Api } from './Api';
 import { ScrobbleController, ScrobbleParser } from './ScrobbleController';
 import { ScrobbleEvents } from './ScrobbleEvents';
 import { SyncPage } from './SyncPage';
-import { SyncStore } from './SyncStore';
+import { SyncStore, SyncStoreKey } from './SyncStore';
 
 const apis = {} as Record<StreamingServiceId, Api>;
 
@@ -40,24 +40,23 @@ export const getScrobbleEvents = (serviceId: StreamingServiceId) => {
 	return scrobbleEvents[serviceId];
 };
 
-const syncStores = {} as Record<StreamingServiceId, SyncStore>;
+const syncStores = {} as Record<SyncStoreKey, SyncStore>;
 
-export const getSyncStore = (serviceId: StreamingServiceId) => {
-	if (!syncStores[serviceId]) {
-		syncStores[serviceId] = new SyncStore();
+export const getSyncStore = (serviceId: StreamingServiceId | null) => {
+	const key: SyncStoreKey = serviceId || 'multiple';
+	if (!syncStores[key]) {
+		syncStores[key] = new SyncStore();
 	}
-	return syncStores[serviceId];
+	return syncStores[key];
 };
 
 const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactElement | null>;
 
 export const getSyncPageBuilder = (
-	serviceId: StreamingServiceId,
-	serviceName: string
+	serviceId: StreamingServiceId
 ): (() => React.ReactElement | null) => {
 	if (!syncPageBuilders[serviceId]) {
-		syncPageBuilders[serviceId] = () =>
-			SyncPage({ serviceId, serviceName, store: getSyncStore(serviceId), api: getApi(serviceId) });
+		syncPageBuilders[serviceId] = () => SyncPage({ serviceId });
 	}
 	return syncPageBuilders[serviceId];
 };

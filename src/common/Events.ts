@@ -101,7 +101,7 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	serviceId?: StreamingServiceId;
+	serviceId: StreamingServiceId | null;
 	item?: Item;
 }
 
@@ -112,7 +112,7 @@ export interface MissingWatchedDateAddedData {
 }
 
 export interface WrongItemDialogShowData {
-	serviceId?: StreamingServiceId;
+	serviceId: StreamingServiceId | null;
 	item?: Item;
 }
 

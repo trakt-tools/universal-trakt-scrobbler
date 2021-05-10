@@ -27,7 +27,7 @@ import { UtsCenter } from './UtsCenter';
 interface WrongItemDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId?: StreamingServiceId;
+	serviceId: StreamingServiceId | null;
 	item?: Item;
 	type: 'episode' | 'movie';
 	traktId?: number;
@@ -38,6 +38,7 @@ export const WrongItemDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<WrongItemDialogState>({
 		isOpen: false,
 		isLoading: false,
+		serviceId: null,
 		type: 'episode',
 		traktId: 0,
 		url: '',
@@ -76,8 +77,8 @@ export const WrongItemDialog: React.FC = () => {
 			isLoading: true,
 		}));
 		try {
-			if (!dialog.serviceId || !dialog.item) {
-				throw new Error('Missing service ID or item');
+			if (!dialog.item) {
+				throw new Error('Missing item');
 			}
 			if (!isValidUrl(dialog.url)) {
 				throw new Error('Invalid URL');
@@ -89,10 +90,10 @@ export const WrongItemDialog: React.FC = () => {
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
 				) as Record<StreamingServiceId, Record<string, CorrectItem>>;
 			}
-			if (!correctItems[dialog.serviceId]) {
-				correctItems[dialog.serviceId] = {};
+			if (!correctItems[dialog.item.serviceId]) {
+				correctItems[dialog.item.serviceId] = {};
 			}
-			const serviceCorrectItems = correctItems[dialog.serviceId];
+			const serviceCorrectItems = correctItems[dialog.item.serviceId];
 			if (serviceCorrectItems) {
 				serviceCorrectItems[dialog.item.id] = {
 					type: dialog.type,

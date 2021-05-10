@@ -1,5 +1,8 @@
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
 import { Item } from '../../models/Item';
+import { StreamingServiceId } from '../streaming-services';
+
+export type SyncStoreKey = StreamingServiceId | 'multiple';
 
 export interface SyncStoreData {
 	items: Item[];

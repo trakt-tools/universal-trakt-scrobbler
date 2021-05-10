@@ -5,19 +5,21 @@ import * as React from 'react';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { Item } from '../../../models/Item';
-import { StreamingServiceId } from '../../../streaming-services/streaming-services';
+import {
+	StreamingServiceId,
+	streamingServices,
+} from '../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
 	dateFormat: string;
 	item: Item;
-	serviceId: StreamingServiceId;
-	serviceName: string;
+	serviceId: StreamingServiceId | null;
 	sendReceiveSuggestions: boolean;
 }
 
 export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
-	const { dateFormat, item, serviceId, serviceName, sendReceiveSuggestions } = props;
+	const { dateFormat, item, serviceId, sendReceiveSuggestions } = props;
 
 	const onCheckboxChange = async () => {
 		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
@@ -57,7 +59,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			<HistoryListItemCard
 				dateFormat={dateFormat}
 				item={item}
-				name={serviceName}
+				name={streamingServices[item.serviceId].name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 			/>
 			<Box

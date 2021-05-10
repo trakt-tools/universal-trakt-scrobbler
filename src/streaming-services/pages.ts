@@ -16,5 +16,5 @@ export const streamingServicePages: StreamingServicePage[] = Object.values(strea
 	.map((service) => ({
 		...service,
 		path: `/${service.id}`,
-		pageBuilder: getSyncPageBuilder(service.id, service.name),
+		pageBuilder: getSyncPageBuilder(service.id),
 	}));

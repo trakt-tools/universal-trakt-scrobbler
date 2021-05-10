@@ -2,8 +2,10 @@ import { Box, Button, Divider } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { I18N } from '../../../common/I18N';
+import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 
 interface HistoryActionsProps {
+	serviceId: StreamingServiceId | null;
 	hasPreviousPage: boolean;
 	hasNextPage: boolean;
 	onPreviousPageClick: () => void;
@@ -12,19 +14,30 @@ interface HistoryActionsProps {
 }
 
 export const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActionsProps) => {
-	const { hasPreviousPage, hasNextPage, onPreviousPageClick, onNextPageClick, onSyncClick } = props;
+	const {
+		serviceId,
+		hasPreviousPage,
+		hasNextPage,
+		onPreviousPageClick,
+		onNextPageClick,
+		onSyncClick,
+	} = props;
 	const theme = useTheme();
 
 	return (
 		<Box className="history-actions--container" style={{ zIndex: theme.zIndex.appBar }}>
 			<Divider />
 			<Box className="history-actions">
-				<Button disabled={!hasPreviousPage} onClick={onPreviousPageClick} variant="contained">
-					{I18N.translate('previousPage')}
-				</Button>
-				<Button disabled={!hasNextPage} onClick={onNextPageClick} variant="contained">
-					{I18N.translate('nextPage')}
-				</Button>
+				{serviceId && (
+					<>
+						<Button disabled={!hasPreviousPage} onClick={onPreviousPageClick} variant="contained">
+							{I18N.translate('previousPage')}
+						</Button>
+						<Button disabled={!hasNextPage} onClick={onNextPageClick} variant="contained">
+							{I18N.translate('nextPage')}
+						</Button>
+					</>
+				)}
 				<Button color="primary" onClick={onSyncClick} variant="contained">
 					{I18N.translate('sync')}
 				</Button>

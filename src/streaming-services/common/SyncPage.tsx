@@ -32,13 +32,9 @@ import { HistoryOptionsList } from '../../modules/history/components/HistoryOpti
 import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
-import { SyncStore } from './SyncStore';
 
 interface PageProps {
-	serviceId: StreamingServiceId;
-	serviceName: string;
-	store: SyncStore;
-	api: Api;
+	serviceId: StreamingServiceId | null;
 }
 
 interface OptionsContent {
@@ -61,7 +57,10 @@ interface Content {
 }
 
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
-	const { serviceId, serviceName, store, api } = props;
+	const { serviceId } = props;
+
+	const store = getSyncStore(serviceId);
+	const api = serviceId ? getApi(serviceId) : null;
 
 	const [optionsContent, setOptionsContent] = useState<OptionsContent>({
 		hasLoaded: false,
@@ -72,7 +71,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		options: {} as SyncOptions,
 	});
 	const [content, setContent] = useState<Content>({
-		isLoading: store.data.page === 0,
+		isLoading: serviceId ? store.data.page === 0 : false,
 		...store.data,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
@@ -89,7 +88,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				isLoading: true,
 			}));
 			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-				.then(() => api.loadHistory(itemsToLoad))
+				.then(() => api?.loadHistory(itemsToLoad))
 				.then(() => store.goToNextPage().update())
 				.catch(() => {
 					// Do nothing
@@ -190,13 +189,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!traktCache) {
 				traktCache = {};
 			}
-			await getApi(serviceId).loadTraktItemHistory(data.item, traktCache, {
+			await Api.loadTraktItemHistory(data.item, traktCache, {
 				type: data.type,
 				traktId: data.traktId,
 				url: data.url,
 			});
 			try {
-				await WrongItemApi.saveSuggestion(serviceId, data.item, data.url);
+				await WrongItemApi.saveSuggestion(data.item, data.url);
 			} catch (err) {
 				if (!(err as RequestException).canceled) {
 					Errors.error('Failed to save suggestion.', err);
@@ -207,7 +206,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				}
 			}
 			await BrowserStorage.set({ traktCache }, false);
-			await getSyncStore(serviceId).dispatchEvent();
+			await store.dispatchEvent();
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
@@ -229,7 +228,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					break;
 				// no-default
 			}
-			await getSyncStore(serviceId).dispatchEvent();
+			await store.dispatchEvent();
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
@@ -278,7 +277,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						hasLoaded: true,
 						options,
 					});
-					if (data.id === 'itemsPerLoad' && typeof data.value === 'number') {
+					if (serviceId && data.id === 'itemsPerLoad' && typeof data.value === 'number') {
 						checkItemsPerPage(data.value);
 					}
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
@@ -305,7 +304,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					itemsPerPage,
 				}));
 				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-					.then(() => api.loadHistory(itemsToLoad))
+					.then(() => api?.loadHistory(itemsToLoad))
 					.then(() => store.update())
 					.catch(() => {
 						// Do nothing
@@ -351,7 +350,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const loadFirstPage = () => {
-			if (syncOptionsContent.hasLoaded && content.page === 0) {
+			if (serviceId && syncOptionsContent.hasLoaded && content.page === 0) {
 				store.setData({ itemsPerPage: syncOptionsContent.options.itemsPerLoad.value });
 				loadNextPage();
 			}
@@ -363,10 +362,10 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				await getApi(serviceId).loadTraktHistory(content.visibleItems);
+				await Api.loadTraktHistory(content.visibleItems);
 				await Promise.all([
-					WrongItemApi.loadSuggestions(serviceId, content.visibleItems),
-					TmdbApi.loadImages(serviceId, content.visibleItems),
+					WrongItemApi.loadSuggestions(content.visibleItems),
+					TmdbApi.loadImages(content.visibleItems),
 				]);
 				await store.dispatchEvent();
 			} catch (err) {
@@ -408,7 +407,6 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						dateFormat={dateFormat}
 						items={filteredItems}
 						serviceId={serviceId}
-						serviceName={serviceName}
 						sendReceiveSuggestions={optionsContent.options.sendReceiveSuggestions?.value ?? false}
 					/>
 				) : (
@@ -418,6 +416,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				)}
 			</Box>
 			<HistoryActions
+				serviceId={serviceId}
 				hasPreviousPage={content.page > 1}
 				hasNextPage={hasNextPage}
 				onPreviousPageClick={onPreviousPageClick}
@@ -429,8 +428,5 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 };
 
 SyncPage.propTypes = {
-	serviceId: PropTypes.any.isRequired,
-	serviceName: PropTypes.string.isRequired,
-	store: PropTypes.instanceOf(SyncStore).isRequired,
-	api: PropTypes.any.isRequired,
+	serviceId: PropTypes.any,
 };
