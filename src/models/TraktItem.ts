@@ -15,11 +15,13 @@ export interface TraktItemBase {
 }
 
 export interface TraktItemExtra {
+	syncId?: number;
 	watchedAt?: moment.Moment;
 	progress?: number;
 }
 
 export interface SavedTraktItem extends TraktItemBase {
+	syncId?: number;
 	watchedAt?: number;
 	progress: number;
 }
@@ -34,6 +36,7 @@ export class TraktItem implements ITraktItem {
 	episode?: number;
 	episodeTitle?: string;
 	releaseDate: string | null;
+	syncId?: number;
 	watchedAt?: moment.Moment;
 	progress: number;
 
@@ -49,6 +52,7 @@ export class TraktItem implements ITraktItem {
 			this.episodeTitle = options.episodeTitle;
 		}
 		this.releaseDate = options.releaseDate;
+		this.syncId = options.syncId;
 		this.watchedAt = options.watchedAt?.clone();
 		this.progress = options.progress ?? 0;
 	}
@@ -70,6 +74,7 @@ export class TraktItem implements ITraktItem {
 	static save = (item: TraktItem): SavedTraktItem => {
 		return {
 			...TraktItem.getBase(item),
+			syncId: item.syncId,
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,
 		};

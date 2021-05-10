@@ -366,6 +366,9 @@
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"
 	},
+	"wrongItemDialogSyncedWarning": {
+		"message": "ATENÇÃO: Você está corrigindo um item que já foi sincronizado. Se você prosseguir, o item previamente sincronizado será removido do seu histórico no Trakt."
+	},
 	"yes": {
 		"message": "Sim"
 	}

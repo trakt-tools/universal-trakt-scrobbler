@@ -366,6 +366,9 @@
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"
 	},
+	"wrongItemDialogSyncedWarning": {
+		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
+	},
 	"yes": {
 		"message": "Ja"
 	}

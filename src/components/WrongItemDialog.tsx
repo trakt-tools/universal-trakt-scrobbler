@@ -191,6 +191,11 @@ export const WrongItemDialog: React.FC = () => {
 			) : (
 				<>
 					<DialogContent>
+						{dialog.item?.trakt?.watchedAt && (
+							<DialogContentText color="error">
+								{I18N.translate('wrongItemDialogSyncedWarning')}
+							</DialogContentText>
+						)}
 						<DialogContentText>
 							{I18N.translate(
 								'wrongItemDialogContent',

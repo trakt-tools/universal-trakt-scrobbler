@@ -184,6 +184,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		};
 
 		const onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+			try {
+				if (data.item.trakt?.syncId) {
+					await TraktSync.removeHistory(data.item);
+				}
+			} catch (err) {
+				// Do nothing
+			}
 			const storage = await BrowserStorage.get('traktCache');
 			let { traktCache } = storage;
 			if (!traktCache) {
