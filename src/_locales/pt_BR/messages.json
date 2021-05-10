@@ -82,12 +82,6 @@
 	"darkTheme": {
 		"message": "Escuro"
 	},
-	"disableScrobblingDescription": {
-		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil caso você queira usar apenas a sincronização de histórico."
-	},
-	"disableScrobblingName": {
-		"message": "Desativar scrobbling."
-	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
 	},
@@ -264,6 +258,15 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Enviar / receber sugestões de correção."
+	},
+	"service": {
+		"message": "Serviço"
+	},
+	"serviceScrobble": {
+		"message": "Scrobble"
+	},
+	"serviceSync": {
+		"message": "Sincronização"
 	},
 	"showNotificationsDescription": {
 		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."

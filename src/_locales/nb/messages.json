@@ -82,12 +82,6 @@
 	"darkTheme": {
 		"message": "Mørkt"
 	},
-	"disableScrobblingDescription": {
-		"message": "Dersom dette valget er aktivert vil utvidelsen ikke automatisk scrobble det du ser på. Dette er nyttig om du bare ønsker å bruke sync av historikk."
-	},
-	"disableScrobblingName": {
-		"message": "Deaktiver scrobbling."
-	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
 	},
@@ -264,6 +258,15 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"service": {
+		"message": "Service"
+	},
+	"serviceScrobble": {
+		"message": "Scrobble"
+	},
+	"serviceSync": {
+		"message": "Sync"
 	},
 	"showNotificationsDescription": {
 		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."

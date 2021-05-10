@@ -30,34 +30,15 @@
 	padding-right: 64px;
 }
 
-.options--streaming-service {
+.options-grid-container {
 	align-items: center;
-	display: grid;
-	grid-gap: 0 50px;
-	grid-template-columns: 150px;
-	justify-content: space-around;
+	justify-content: center;
 }
 
-@media only screen and (min-width: 400px) {
-	.options--streaming-service {
-		grid-template-columns: repeat(2, 150px);
-	}
+.options-grid-item {
+	padding: 8px;
 }
 
-@media only screen and (min-width: 600px) {
-	.options--streaming-service {
-		grid-template-columns: repeat(3, 150px);
-	}
-}
-
-@media only screen and (min-width: 800px) {
-	.options--streaming-service {
-		grid-template-columns: repeat(4, 150px);
-	}
-}
-
-@media only screen and (min-width: 1000px) {
-	.options--streaming-service {
-		grid-template-columns: repeat(5, 150px);
-	}
+.options-grid-item--centered {
+	text-align: center;
 }

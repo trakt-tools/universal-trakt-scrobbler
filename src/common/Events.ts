@@ -6,7 +6,11 @@ import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { SyncStoreData } from '../streaming-services/common/SyncStore';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
-import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
+import {
+	StorageValuesOptions,
+	StorageValuesSyncOptions,
+	StreamingServiceValue,
+} from './BrowserStorage';
 import { Errors } from './Errors';
 import { RequestException } from './Requests';
 
@@ -80,7 +84,7 @@ export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
 
 export type StreamingServiceOptionsChangeData<K extends StreamingServiceId> = {
 	id: K;
-	value: boolean;
+	value: Partial<StreamingServiceValue>;
 }[];
 
 export interface DialogShowData {

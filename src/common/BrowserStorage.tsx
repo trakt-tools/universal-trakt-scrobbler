@@ -20,13 +20,17 @@ export type StorageValues = {
 };
 
 export type StorageValuesOptions = {
-	streamingServices: Record<StreamingServiceId, boolean>;
-	disableScrobbling: boolean;
+	streamingServices: Record<StreamingServiceId, StreamingServiceValue>;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
 	theme: ThemeValue;
 	allowRollbar: boolean;
 	grantCookies: boolean;
+};
+
+export type StreamingServiceValue = {
+	scrobble: boolean;
+	sync: boolean;
 };
 
 export type ThemeValue = 'light' | 'dark' | 'system';
@@ -165,18 +169,14 @@ class _BrowserStorage {
 				name: '',
 				description: '',
 				value: Object.fromEntries(
-					Object.keys(streamingServices).map((serviceId) => [serviceId, false])
-				) as Record<StreamingServiceId, boolean>,
-				origins: [],
-				permissions: [],
-				doShow: true,
-			},
-			disableScrobbling: {
-				type: 'switch',
-				id: 'disableScrobbling',
-				name: '',
-				description: '',
-				value: false,
+					Object.keys(streamingServices).map((serviceId) => [
+						serviceId,
+						{
+							scrobble: false,
+							sync: false,
+						},
+					])
+				) as Record<StreamingServiceId, StreamingServiceValue>,
 				origins: [],
 				permissions: [],
 				doShow: true,
@@ -258,10 +258,19 @@ class _BrowserStorage {
 			option.value = (values.options && values.options[option.id]) || option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
-					Object.keys(streamingServices)
-						.filter((serviceId) => !(serviceId in option.value))
-						.map((serviceId) => [serviceId, false])
-				) as Record<StreamingServiceId, boolean>;
+					(Object.keys(streamingServices) as StreamingServiceId[])
+						.filter(
+							(serviceId) =>
+								!(serviceId in option.value) || typeof option.value[serviceId] === 'boolean'
+						)
+						.map((serviceId) => [
+							serviceId,
+							{
+								scrobble: false,
+								sync: false,
+							},
+						])
+				) as Record<StreamingServiceId, StreamingServiceValue>;
 				option.value = { ...option.value, ...missingServices };
 			}
 		}

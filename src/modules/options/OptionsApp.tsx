@@ -1,17 +1,23 @@
 import { CircularProgress, Container } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { UtsCenter } from '../../components/UtsCenter';
-import { UtsDialog } from '../../components/UtsDialog';
-import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { BrowserStorage, Option, Options, StorageValuesOptions } from '../../common/BrowserStorage';
+import {
+	BrowserStorage,
+	Option,
+	Options,
+	StorageValuesOptions,
+	StreamingServiceValue,
+} from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import {
 	EventDispatcher,
 	OptionsChangeData,
 	StreamingServiceOptionsChangeData,
 } from '../../common/Events';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { UtsCenter } from '../../components/UtsCenter';
+import { UtsDialog } from '../../components/UtsDialog';
+import { UtsSnackbar } from '../../components/UtsSnackbar';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 import { OptionsActions } from './components/OptionsActions';
 import { OptionsHeader } from './components/OptionsHeader';
@@ -118,22 +124,33 @@ export const OptionsApp: React.FC = () => {
 			const originsToAdd = [];
 			const originsToRemove = [];
 			for (const dataOption of data) {
-				options.streamingServices.value[dataOption.id] = dataOption.value;
 				const service = streamingServices[dataOption.id];
-				if (dataOption.value) {
+				const streamingServiceValue = {
+					...options.streamingServices.value[dataOption.id],
+					...dataOption.value,
+				};
+				if (streamingServiceValue.scrobble && !service.hasScrobbler) {
+					streamingServiceValue.scrobble = false;
+				}
+				if (streamingServiceValue.sync && !service.hasSync) {
+					streamingServiceValue.sync = false;
+				}
+				if (streamingServiceValue.scrobble || streamingServiceValue.sync) {
 					originsToAdd.push(...service.hostPatterns);
 				} else {
 					originsToRemove.push(...service.hostPatterns);
 				}
+				options.streamingServices.value[dataOption.id] = streamingServiceValue;
 			}
 			for (const option of Object.values(options) as Option<keyof StorageValuesOptions>[]) {
 				addOptionToSave(optionsToSave, option);
 			}
 			const scrobblerEnabled = (Object.entries(optionsToSave.streamingServices) as [
 				StreamingServiceId,
-				boolean
+				StreamingServiceValue
 			][]).some(
-				([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+				([streamingServiceId, value]) =>
+					streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 			);
 			const permissionPromises: Promise<boolean>[] = [];
 			if (originsToAdd.length > 0) {

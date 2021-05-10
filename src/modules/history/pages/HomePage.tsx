@@ -40,7 +40,7 @@ export const HomePage: React.FC = () => {
 			}
 			const enabledServices = [];
 			for (const service of streamingServicePages) {
-				if (serviceOptions[service.id]) {
+				if (service.hasSync && serviceOptions[service.id].sync) {
 					enabledServices.push(service);
 				}
 			}

@@ -2,7 +2,11 @@ import { TraktAuth, TraktAuthDetails } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
-import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import {
+	BrowserStorage,
+	StorageValuesOptions,
+	StreamingServiceValue,
+} from '../../common/BrowserStorage';
 import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { RequestDetails, Requests } from '../../common/Requests';
@@ -176,9 +180,10 @@ const init = async () => {
 	if (storage.options?.streamingServices) {
 		const scrobblerEnabled = (Object.entries(storage.options.streamingServices) as [
 			StreamingServiceId,
-			boolean
+			StreamingServiceValue
 		][]).some(
-			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+			([streamingServiceId, value]) =>
+				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addWebNavigationListener(storage.options);
@@ -268,9 +273,10 @@ const onStorageChanged = (
 	if (newValue.streamingServices) {
 		const scrobblerEnabled = (Object.entries(newValue.streamingServices) as [
 			StreamingServiceId,
-			boolean
+			StreamingServiceValue
 		][]).some(
-			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+			([streamingServiceId, value]) =>
+				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addWebNavigationListener(newValue);
@@ -287,7 +293,7 @@ const onStorageChanged = (
 
 const addWebNavigationListener = (options: StorageValuesOptions) => {
 	streamingServiceScripts = Object.values(streamingServices)
-		.filter((service) => options.streamingServices[service.id] && service.hasScrobbler)
+		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?://(www.)?').replace(/\/\*$/, '')

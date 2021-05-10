@@ -9,7 +9,11 @@ import {
 	Switch,
 } from '@material-ui/core';
 import * as React from 'react';
-import { Option, StorageValuesOptions } from '../../../common/BrowserStorage';
+import {
+	Option,
+	StorageValuesOptions,
+	StreamingServiceValue,
+} from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { StreamingServiceId } from '../../../streaming-services/streaming-services';
@@ -43,7 +47,10 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({ id, value: true }))
+			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({
+				id,
+				value: { scrobble: true, sync: true },
+			}))
 		);
 	};
 
@@ -54,7 +61,10 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({ id, value: false }))
+			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({
+				id,
+				value: { scrobble: false, sync: false },
+			}))
 		);
 	};
 
@@ -65,10 +75,12 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.entries(option.value) as [StreamingServiceId, boolean][]).map(([id, value]) => ({
-				id,
-				value: !value,
-			}))
+			(Object.entries(option.value) as [StreamingServiceId, StreamingServiceValue][]).map(
+				([id, value]) => ({
+					id,
+					value: { scrobble: !value.scrobble, sync: !value.sync },
+				})
+			)
 		);
 	};
 
