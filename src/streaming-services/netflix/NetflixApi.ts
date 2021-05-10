@@ -57,6 +57,7 @@ export interface NetflixHistoryResponse {
 export type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
 
 export interface NetflixHistoryShowItem {
+	bookmark: number;
 	date: number;
 	duration: number;
 	episodeTitle: string;
@@ -68,6 +69,7 @@ export interface NetflixHistoryShowItem {
 }
 
 export interface NetflixHistoryMovieItem {
+	bookmark: number;
 	date: number;
 	duration: number;
 	movieID: number;
@@ -286,12 +288,14 @@ class _NetflixApi extends Api {
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
 		const watchedAt = moment(historyItem.date);
+		const percentageWatched = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
 			let season;
 			let episode;
 			const isCollection = !historyItem.seasonDescriptor.includes('Season');
 			if (!isCollection) {
+				// TODO: Some items don't have a summary response (see Friends pilot).
 				season = historyItem.summary.season;
 				episode = historyItem.summary.episode;
 			}
@@ -307,10 +311,19 @@ class _NetflixApi extends Api {
 				episodeTitle,
 				isCollection,
 				watchedAt,
+				percentageWatched,
 			});
 		} else {
 			const title = historyItem.title.trim();
-			item = new Item({ serviceId, id, type, title, year, watchedAt });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				watchedAt,
+				percentageWatched,
+			});
 		}
 		return item;
 	};
