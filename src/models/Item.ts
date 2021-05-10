@@ -1,5 +1,6 @@
+import * as moment from 'moment';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
-import { TraktItem } from './TraktItem';
+import { SavedTraktItem, TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {
@@ -30,7 +31,7 @@ export interface ItemBase {
 }
 
 export interface ItemExtra {
-	watchedAt?: import('moment').Moment;
+	watchedAt?: moment.Moment;
 	percentageWatched?: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
@@ -46,6 +47,12 @@ export interface CorrectionSuggestion {
 	count: number;
 }
 
+export interface SavedItem extends ItemBase {
+	watchedAt?: number;
+	percentageWatched?: number;
+	trakt?: Omit<SavedTraktItem, ''> | null;
+}
+
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 export class Item implements IItem {
 	serviceId: StreamingServiceId;
@@ -57,8 +64,8 @@ export class Item implements IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt?: import('moment').Moment;
-	percentageWatched: number;
+	watchedAt?: moment.Moment;
+	percentageWatched?: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
@@ -98,6 +105,25 @@ export class Item implements IItem {
 			episodeTitle: item.episodeTitle,
 			isCollection: item.isCollection,
 		};
+	};
+
+	static save = (item: Item): SavedItem => {
+		return {
+			...Item.getBase(item),
+			watchedAt: item.watchedAt?.unix(),
+			percentageWatched: item.percentageWatched,
+			trakt: item.trakt && TraktItem.save(item.trakt),
+		};
+	};
+
+	static load = (savedItem: SavedItem): Item => {
+		const options: IItem = {
+			...savedItem,
+			watchedAt:
+				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
+			trakt: savedItem.trakt && TraktItem.load(savedItem.trakt),
+		};
+		return new Item(options);
 	};
 
 	getFullTitle = () => {

@@ -1,4 +1,4 @@
-import { Moment } from 'moment';
+import * as moment from 'moment';
 
 export type ITraktItem = TraktItemBase & TraktItemExtra;
 
@@ -15,8 +15,13 @@ export interface TraktItemBase {
 }
 
 export interface TraktItemExtra {
-	watchedAt?: Moment;
+	watchedAt?: moment.Moment;
 	progress?: number;
+}
+
+export interface SavedTraktItem extends TraktItemBase {
+	watchedAt?: number;
+	progress: number;
 }
 
 export class TraktItem implements ITraktItem {
@@ -29,7 +34,7 @@ export class TraktItem implements ITraktItem {
 	episode?: number;
 	episodeTitle?: string;
 	releaseDate: string | null;
-	watchedAt?: Moment;
+	watchedAt?: moment.Moment;
 	progress: number;
 
 	constructor(options: ITraktItem) {
@@ -60,5 +65,22 @@ export class TraktItem implements ITraktItem {
 			episodeTitle: item.episodeTitle,
 			releaseDate: item.releaseDate,
 		};
+	};
+
+	static save = (item: TraktItem): SavedTraktItem => {
+		return {
+			...TraktItem.getBase(item),
+			watchedAt: item.watchedAt?.unix(),
+			progress: item.progress,
+		};
+	};
+
+	static load = (savedItem: SavedTraktItem): TraktItem => {
+		const options: ITraktItem = {
+			...savedItem,
+			watchedAt:
+				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
+		};
+		return new TraktItem(options);
 	};
 }
