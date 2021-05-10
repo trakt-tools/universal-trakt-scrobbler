@@ -9,15 +9,14 @@ import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
 
 export interface HboGoGlobalObject {
-	analytics: {
-		content: HboGoMetadataItem;
-		paused: boolean;
-	};
 	player: {
+		content?: HboGoMetadataItem;
 		currentPlaybackProgress: {
 			source: {
-				_value: {
-					progressPercent: number;
+				value: {
+					duration?: number;
+					progressMs?: number;
+					progressPercent?: number;
 				};
 			};
 		};
@@ -25,18 +24,19 @@ export interface HboGoGlobalObject {
 }
 
 export interface HboGoTokenObj {
+	sdkVersion: string;
 	data: string;
 }
 
 export interface HboGoApiParams {
+	swVersion: string;
 	token: string;
 }
 
 export interface HboGoSession {
-	content: HboGoMetadataItem;
-	playing: boolean;
-	paused: boolean;
+	videoId: string;
 	progress: number;
+	progressMs: number;
 }
 
 export interface HboGoConfigResponse {
@@ -46,8 +46,15 @@ export interface HboGoConfigResponse {
 }
 
 export interface HboGoSettingsResponse {
-	CustomerGroupUrlTemplate: string;
-	HistoryGroupId: string;
+	ContentUrl: string;
+	CustomerGroupUrl: string;
+}
+
+export interface HboGoGroupsResponse {
+	Items: {
+		Name: string;
+		ObjectUrl: string;
+	}[];
 }
 
 export interface HboGoHistoryResponse {
@@ -61,44 +68,42 @@ export interface HboGoHistoryResponse {
 	)[];
 }
 
-export type HboGoHistoryItem = HboGoHistoryShowItem | HboGoHistoryMovieItem;
-
-export type HboGoHistoryShowItem = HboGoMetadataShowItem & {
+export interface HboGoHistoryItem {
+	Id: string;
 	ElapsedPercentage: number;
-};
+}
 
-export type HboGoHistoryMovieItem = HboGoMetadataMovieItem & {
-	ElapsedPercentage: number;
-};
+export type HboGoHistoryItemWithMetadata = HboGoHistoryItem & HboGoMetadataItem;
 
 export type HboGoMetadataItem = HboGoMetadataShowItem | HboGoMetadataMovieItem;
 
-export interface HboGoMetadataShowItem {
+export interface HboGoMetadataShowItem extends HboGoHistoryItem {
 	Category: 'Series';
-	Id: string;
+	SeasonIndex: number;
+	SeriesName: string;
 	Index: number;
 	Name: string;
 	ProductionYear: number;
-	SeasonIndex: number;
-	SeriesName: string;
+	Duration: number;
+	CreditRollStart: number;
 }
 
-export interface HboGoMetadataMovieItem {
+export interface HboGoMetadataMovieItem extends HboGoHistoryItem {
 	Category: 'Movies';
-	Id: string;
 	Name: string;
 	ProductionYear: number;
+	Duration: number;
+	CreditRollStart: number;
 }
 
 class _HboGoApi extends Api {
-	SW_VERSION = '120.02.152';
 	HOST_URL = 'https://hbogola.com/';
 	ACCOUNT_URL = `${this.HOST_URL}settings/account`;
-	API_URL = 'https://globalapi.hbogola.com/v5.9';
-	CONFIG_URL = `${this.API_URL}/Configuration/json/ENG/MOBI`;
+	API_URL = 'https://globalapi.hbogola.com/v7.0';
+	CONFIG_URL = `${this.API_URL}/Configuration/json/ENG/COMP`;
+	HISTORY_URL = '';
+	CONTENT_URL = '';
 	isActivated: boolean;
-	groupUrl: string;
-	historyGroupId: string;
 	apiParams: Partial<HboGoApiParams>;
 	hasInjectedApiParamsScript: boolean;
 	hasInjectedSessionScript: boolean;
@@ -109,8 +114,6 @@ class _HboGoApi extends Api {
 		super('hbo-go');
 
 		this.isActivated = false;
-		this.groupUrl = '';
-		this.historyGroupId = '';
 		this.apiParams = {};
 		this.hasInjectedApiParamsScript = false;
 		this.hasInjectedSessionScript = false;
@@ -119,27 +122,6 @@ class _HboGoApi extends Api {
 	}
 
 	activate = async () => {
-		// Retrieve the API URLs and other important information.
-		const configResponseText = await Requests.send({
-			url: this.CONFIG_URL,
-			headers: {
-				'GO-swVersion': this.SW_VERSION,
-			},
-			method: 'GET',
-		});
-		const config = JSON.parse(configResponseText) as HboGoConfigResponse;
-		const settingsUrl = config.ConfigurationAPIList.find((api) => api.Url.includes('Settings'))
-			?.Url;
-		if (!settingsUrl) {
-			throw new Error('Failed to activate API');
-		}
-		const settingsResponseText = await Requests.send({
-			url: settingsUrl,
-			method: 'GET',
-		});
-		const settings = JSON.parse(settingsResponseText) as HboGoSettingsResponse;
-		this.groupUrl = settings.CustomerGroupUrlTemplate;
-		this.historyGroupId = settings.HistoryGroupId;
 		let apiParams: Partial<HboGoApiParams> | undefined;
 		if (Shared.pageType === 'content') {
 			apiParams = await this.getApiParams();
@@ -178,23 +160,53 @@ class _HboGoApi extends Api {
 		if (!apiParams || !this.checkParams(apiParams)) {
 			throw new Error('Failed to activate API');
 		}
+		this.apiParams.swVersion = apiParams.swVersion;
 		this.apiParams.token = apiParams.token;
+
+		// Retrieve the API URLs and other important information.
+		const configResponseText = await Requests.send({
+			url: this.CONFIG_URL,
+			headers: {
+				'GO-swVersion': this.apiParams.swVersion,
+			},
+			method: 'GET',
+		});
+		const config = JSON.parse(configResponseText) as HboGoConfigResponse;
+		const settingsUrl = config.ConfigurationAPIList.find((api) => api.Url.includes('Settings'))
+			?.Url;
+		if (!settingsUrl) {
+			throw new Error('Failed to activate API');
+		}
+		const settingsResponseText = await Requests.send({
+			url: settingsUrl,
+			method: 'GET',
+		});
+		const settings = JSON.parse(settingsResponseText) as HboGoSettingsResponse;
+		this.CONTENT_URL = settings.ContentUrl;
+		const groupsUrl = settings.CustomerGroupUrl.replace(/{ageRating}/i, '-');
+		const groupsResponseText = await Requests.send({
+			url: groupsUrl,
+			headers: {
+				'GO-Token': this.apiParams.token,
+			},
+			method: 'GET',
+		});
+		const groups = JSON.parse(groupsResponseText) as HboGoGroupsResponse;
+		this.HISTORY_URL =
+			groups.Items.find((group) => group.Name === 'Recently Watched')
+				?.ObjectUrl.replace(/{pageIndex}/i, '-')
+				.replace(/{pageSize}/i, '-')
+				.replace(/{ageRating}/i, '-')
+				.replace(/{operatorId}/i, '-')
+				.replace(/{serviceCode}/i, '-') ?? '';
+		if (!this.HISTORY_URL) {
+			throw new Error('Failed to activate API');
+		}
 		this.isActivated = true;
 	};
 
 	checkParams = (apiParams: Partial<HboGoApiParams>): apiParams is HboGoApiParams => {
-		return typeof apiParams.token !== 'undefined';
-	};
-
-	getHistoryUrl = (nextPage: number) => {
-		return this.groupUrl
-			.replace(/{groupId}/i, this.historyGroupId)
-			.replace('{filter}', '0')
-			.replace('{sort}', '0')
-			.replace(/{pageIndex}/i, (nextPage + 1).toString())
-			.replace(/{pageSize}/i, '20')
-			.replace('{parameter}', '0')
-			.replace(/{ageRating}/i, '0');
+		return typeof apiParams.swVersion !== 'undefined' && typeof apiParams.token !== 'undefined';
 	};
 
 	loadHistory = async (itemsToLoad: number): Promise<void> => {
@@ -206,12 +218,12 @@ class _HboGoApi extends Api {
 				throw new Error('Invalid API params');
 			}
 			const store = getSyncStore('hbo-go');
-			let { nextPage, hasReachedEnd } = store.data;
+			let { hasReachedEnd } = store.data;
 			let items: Item[] = [];
 			const historyItems = [];
 			do {
 				const responseText = await Requests.send({
-					url: this.getHistoryUrl(nextPage),
+					url: this.HISTORY_URL,
 					headers: {
 						'GO-Token': this.apiParams.token,
 					},
@@ -223,18 +235,15 @@ class _HboGoApi extends Api {
 					if (responseItems && responseItems.length > 0) {
 						itemsToLoad -= responseItems.length;
 						historyItems.push(...responseItems);
-					} else {
-						hasReachedEnd = true;
 					}
-				} else {
-					hasReachedEnd = true;
 				}
-				nextPage += 1;
+				hasReachedEnd = true;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				items = historyItems.map(this.parseHistoryItem);
+				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
+				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			store.setData({ items, nextPage, hasReachedEnd });
+			store.setData({ items, hasReachedEnd });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load HBO Go history.', err as Error);
@@ -246,21 +255,34 @@ class _HboGoApi extends Api {
 		}
 	};
 
-	parseHistoryItem = (metadata: HboGoHistoryItem) => {
-		const item = this.parseMetadata(metadata);
-		item.percentageWatched = metadata.ElapsedPercentage;
-		return item;
+	getHistoryMetadata = async (historyItems: HboGoHistoryItem[]) => {
+		if (!this.checkParams(this.apiParams)) {
+			throw new Error('Invalid API params');
+		}
+		const historyItemsWithMetadata: HboGoHistoryItemWithMetadata[] = [];
+		for (const historyItem of historyItems) {
+			const responseText = await Requests.send({
+				url: this.CONTENT_URL.replace(/{contentId}/i, historyItem.Id),
+				method: 'GET',
+			});
+			const historyItemWithMetadata = JSON.parse(responseText) as HboGoMetadataItem;
+			historyItemsWithMetadata.push({
+				...historyItemWithMetadata,
+				...historyItem,
+			});
+		}
+		return historyItemsWithMetadata;
 	};
 
-	parseMetadata = (metadata: HboGoMetadataItem): Item => {
+	parseHistoryItem = (historyItem: HboGoHistoryItemWithMetadata) => {
 		let item: Item;
 		const serviceId = this.id;
-		const { Id: id, ProductionYear: year = 0 } = metadata;
-		const type = metadata.Category === 'Series' ? 'show' : 'movie';
-		if (metadata.Category === 'Series') {
-			const title = metadata.SeriesName.trim();
-			const { SeasonIndex: season, Index: episode } = metadata;
-			const episodeTitle = metadata.Name.trim();
+		const { Id: id, ProductionYear: year, ElapsedPercentage: percentageWatched } = historyItem;
+		if (historyItem.Category === 'Series') {
+			const type = 'show';
+			const title = historyItem.SeriesName.trim();
+			const { SeasonIndex: season, Index: episode } = historyItem;
+			const episodeTitle = historyItem.Name.trim();
 			const isCollection = false;
 			item = new Item({
 				serviceId,
@@ -272,10 +294,41 @@ class _HboGoApi extends Api {
 				episode,
 				episodeTitle,
 				isCollection,
+				percentageWatched,
 			});
 		} else {
-			const title = metadata.Name.trim();
-			item = new Item({ serviceId, id, type, title, year });
+			const type = 'movie';
+			const title = historyItem.Name.trim();
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				percentageWatched,
+			});
+		}
+		return item;
+	};
+
+	getItem = async (id: string): Promise<Item | undefined> => {
+		let item: Item | undefined;
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		if (!this.checkParams(this.apiParams)) {
+			throw new Error('Invalid API params');
+		}
+		try {
+			const responseText = await Requests.send({
+				url: this.CONTENT_URL.replace(/{contentId}/i, id),
+				method: 'GET',
+			});
+			item = this.parseHistoryItem(JSON.parse(responseText) as HboGoMetadataItem);
+		} catch (err) {
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to get item.', err);
+			}
 		}
 		return item;
 	};
@@ -283,28 +336,32 @@ class _HboGoApi extends Api {
 	getApiParams = (): Promise<Partial<HboGoApiParams>> => {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
-				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
-				let token;
+				// Firefox wraps page objects, so we can access the global hbo object by unwrapping it.
+				let swVersion, token;
 				const { localStorage } = window.wrappedJSObject;
 				const tokenStr = localStorage.getItem('go-token');
 				if (tokenStr) {
-					token = (JSON.parse(tokenStr) as HboGoTokenObj).data;
+					const tokenObj = JSON.parse(tokenStr) as HboGoTokenObj;
+					swVersion = tokenObj.sdkVersion;
+					token = tokenObj.data;
 				}
-				resolve({ token });
+				resolve({ swVersion, token });
 			} else {
-				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
+				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global hbo object.
 				if (!this.hasInjectedApiParamsScript) {
 					const script = document.createElement('script');
 					script.textContent = `
 						window.addEventListener('uts-getApiParams', () => {
-							let token;
-							const { localStorage } = window.wrappedJSObject;
+							let swVersion, token;
+							const { localStorage } = window;
 							const tokenStr = localStorage.getItem('go-token');
 							if (tokenStr) {
-								token = JSON.parse(tokenStr).data;
+								const tokenObj = JSON.parse(tokenStr);
+								swVersion = tokenObj.sdkVersion;
+								token = tokenObj.data;
 							}
 							const event = new CustomEvent('uts-onApiParamsReceived', {
-								detail: { token },
+								detail: { swVersion, token },
 							});
 							window.dispatchEvent(event);
 						});
@@ -331,12 +388,13 @@ class _HboGoApi extends Api {
 				let session: HboGoSession | undefined | null;
 				const { sdk } = window.wrappedJSObject;
 				if (sdk) {
-					const { content, paused } = sdk.analytics;
-					const progress = sdk.player.currentPlaybackProgress.source._value.progressPercent;
-					const playing = typeof progress !== 'undefined' && !paused;
+					const videoId = sdk.player.content?.Id;
+					const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
+					const progress = currentPlayback.progressPercent;
+					const progressMs = currentPlayback.progressMs;
 					session =
-						typeof progress !== 'undefined' && content
-							? { content, playing, paused, progress }
+						videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
+							? { videoId, progress, progressMs }
 							: null;
 				}
 				resolve(session);
@@ -347,11 +405,16 @@ class _HboGoApi extends Api {
 					script.textContent = `
 						window.addEventListener('uts-getSession', () => {
 							let session;
+							const { sdk } = window;
 							if (sdk) {
-								const { content, paused } = sdk.analytics;
-								const progress = sdk.player.currentPlaybackProgress.source._value.progressPercent;
-								const playing = typeof progress !== 'undefined' && !paused;
-								session = typeof progress !== 'undefined' && content ? { content, playing, paused, progress } : null;
+								const videoId = sdk.player.content?.Id;
+								const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
+								const progress = currentPlayback.progressPercent;
+								const progressMs = currentPlayback.progressMs;
+								session =
+									videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
+										? { videoId, progress, progressMs }
+										: null;
 							}
 							const event = new CustomEvent('uts-onSessionReceived', {
 								detail: { session: JSON.stringify(session) },

@@ -82,11 +82,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	const loadNextPage = () => {
-		if (content.hasReachedEnd) {
-			return;
-		}
-		const itemsToLoad = (content.page + 1) * store.data.itemsPerPage - content.items.length;
-		if (itemsToLoad > 0) {
+		const itemsToLoad = (store.data.page + 1) * store.data.itemsPerPage - store.data.items.length;
+		if (itemsToLoad > 0 && !store.data.hasReachedEnd) {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: true,
@@ -98,7 +95,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					// Do nothing
 				});
 		} else {
-			void store.goToNextPage().update();
+			const hasNextPage =
+				store.data.itemsPerPage > 0 &&
+				store.data.page < Math.ceil(store.data.items.length / store.data.itemsPerPage);
+			if (hasNextPage) {
+				void store.goToNextPage().update();
+			}
 		}
 	};
 
@@ -295,7 +297,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		const checkItemsPerPage = (itemsPerPage: number) => {
 			const itemsToLoad = (store.data.page + 1) * itemsPerPage - store.data.items.length;
-			if (itemsToLoad > 0 && !content.isLoading) {
+			if (itemsToLoad > 0 && !store.data.hasReachedEnd && !content.isLoading) {
 				store.setData({ itemsPerPage });
 				setContent((prevContent) => ({
 					...prevContent,
@@ -380,6 +382,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		filteredItems = filteredItems.filter((item) => !item.trakt?.watchedAt);
 	}
 
+	const hasNextPage =
+		((content.page + 1) * content.itemsPerPage - content.items.length > 0 &&
+			!content.hasReachedEnd) ||
+		(content.itemsPerPage > 0 &&
+			content.page < Math.ceil(content.items.length / content.itemsPerPage));
+
 	return content.isLoading ? (
 		<UtsCenter>
 			<CircularProgress />
@@ -404,7 +412,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			</Box>
 			<HistoryActions
 				hasPreviousPage={content.page > 1}
-				hasNextPage={!content.hasReachedEnd}
+				hasNextPage={hasNextPage}
 				onPreviousPageClick={onPreviousPageClick}
 				onNextPageClick={onNextPageClick}
 				onSyncClick={onSyncClick}
