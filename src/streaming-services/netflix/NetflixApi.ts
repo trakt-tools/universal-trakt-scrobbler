@@ -203,7 +203,7 @@ class _NetflixApi extends Api {
 		);
 	};
 
-	loadHistory = async (itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -222,8 +222,23 @@ class _NetflixApi extends Api {
 				});
 				const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
 				if (responseJson && responseJson.viewedItems.length > 0) {
-					itemsToLoad -= responseJson.viewedItems.length;
-					historyItems.push(...responseJson.viewedItems);
+					let filteredItems = [];
+					if (lastSync > 0) {
+						for (const viewedItem of responseJson.viewedItems) {
+							if (viewedItem.date && Math.trunc(viewedItem.date / 1e3) > lastSync) {
+								filteredItems.push(viewedItem);
+							} else {
+								break;
+							}
+						}
+						if (filteredItems.length !== responseJson.viewedItems.length) {
+							hasReachedEnd = true;
+						}
+					} else {
+						filteredItems = responseJson.viewedItems;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
 				} else {
 					hasReachedEnd = true;
 				}

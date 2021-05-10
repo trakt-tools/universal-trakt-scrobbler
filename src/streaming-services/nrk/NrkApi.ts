@@ -159,7 +159,7 @@ class _NrkApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -184,8 +184,26 @@ class _NrkApi extends Api {
 					hasReachedEnd = true;
 				}
 				if (progresses.length > 0) {
-					itemsToLoad -= progresses.length;
-					historyItems.push(...progresses);
+					let filteredItems = [];
+					if (lastSync > 0) {
+						for (const progress of progresses) {
+							if (
+								progress.registeredAt &&
+								Math.trunc(new Date(progress.registeredAt).getTime() / 1e3) > lastSync
+							) {
+								filteredItems.push(progress);
+							} else {
+								break;
+							}
+						}
+						if (filteredItems.length !== progresses.length) {
+							hasReachedEnd = true;
+						}
+					} else {
+						filteredItems = progresses;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
 				}
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {

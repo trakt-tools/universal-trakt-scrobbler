@@ -32,6 +32,9 @@
 	"autoSyncDescription": {
 		"message": "O número de dias determina com que frequência a sincronização automática será feita para o serviço de streaming. Para que a sincronização automática seja ativada, você precisa sincronizar manualmente na página de histórico do serviço de streaming primeiro, para que a data da última sincronização possa ser salva.\n\nÉ importante ressaltar que ao carregar o histórico do serviço de streaming, será carregado apenas o histórico até o último item que foi automaticamente sincronizado. Para resetar esse comportamento, você precisa limpar a data da última sincronização para o serviço de streaming."
 	},
+	"autoSyncPageMessage": {
+		"message": "Esses são os itens que foram sincronizados automaticamente ou que falharam ao sincronizar automaticamente desde a última revisão. Se correções forem necessárias, aplique-as, selecione os itens que precisam ser corrigidos, e clique no botão Sincronizar. Quando você fizer isso, o cache será deletado e esses itens não aparecerão mais nessa página. Se nenhuma correção for necessária, simplesmente clique no botão Limpar Cache de Sincronização e o mesmo acontecerá."
+	},
 	"cancel": {
 		"message": "Cancelar"
 	},
@@ -52,6 +55,9 @@
 	},
 	"clearStorageSuccess": {
 		"message": "Armazenamento limpado."
+	},
+	"clearSyncCache": {
+		"message": "Limpar Cache de Sincronização"
 	},
 	"clearTraktCache": {
 		"message": "Limpar Cache do Trakt"
@@ -82,6 +88,12 @@
 	},
 	"confirmClearStorageTitle": {
 		"message": "Limpar o armazenamento?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Todos os itens da página atual serão removidos do cache e você não poderá mais revisá-los."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Limpar o cache de sincronização?"
 	},
 	"confirmClearTraktCacheMessage": {
 		"message": "Todos os itens que você corrigiu serão resetados."
@@ -253,6 +265,12 @@
 	},
 	"readMore": {
 		"message": "Ler Mais"
+	},
+	"recentAutoSync": {
+		"message": "Alguns itens foram sincronizados automaticamente recentemente. Clique aqui para revisá-los e confirmar que os itens corretos foram sincronizados."
+	},
+	"recentAutoSyncError": {
+		"message": "Alguns itens falharam ao sincronizar automaticamente recentemente. Clique aqui para revisá-los e corrigí-los."
 	},
 	"save": {
 		"message": "Salvar"

@@ -22,6 +22,11 @@ $sidebarWidth: 300px;
 	padding-top: 16px;
 }
 
+.history-container-message {
+	padding-left: $sidebarWidth;
+	text-align: center;
+}
+
 .history-content {
 	display: flex;
 	justify-content: center;

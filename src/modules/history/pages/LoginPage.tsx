@@ -32,12 +32,20 @@ export const LoginPage: React.FC = () => {
 		};
 
 		const onLoginSuccess = () => {
-			setLoading(false);
-			history.push('/home');
+			checkAutoSync();
 		};
 
 		const onLoginError = () => {
 			setLoading(false);
+		};
+
+		const checkAutoSync = () => {
+			setLoading(false);
+			if (window.location.search === '?auto_sync=true') {
+				history.push('/auto-sync');
+			} else {
+				history.push('/home');
+			}
 		};
 
 		startListeners();

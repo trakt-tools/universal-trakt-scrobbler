@@ -13,7 +13,11 @@ class _SyncTemplateApi extends Api {
 	}
 
 	// This method should load the next page of history items and update the sync store for the service.
-	loadHistory = async (itemsToLoad: number): Promise<void> => {
+	loadHistory = async (
+		itemsToLoad: number,
+		lastSync: number,
+		lastSyncId: string
+	): Promise<void> => {
 		// The code could look like this.
 		const store = getSyncStore('sync-template');
 		let { nextPage, hasReachedEnd } = store.data;

@@ -209,7 +209,11 @@ class _HboGoApi extends Api {
 		return typeof apiParams.swVersion !== 'undefined' && typeof apiParams.token !== 'undefined';
 	};
 
-	loadHistory = async (itemsToLoad: number): Promise<void> => {
+	loadHistory = async (
+		itemsToLoad: number,
+		lastSync: number,
+		lastSyncId: string
+	): Promise<void> => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -233,8 +237,20 @@ class _HboGoApi extends Api {
 				if (responseJson) {
 					const responseItems = responseJson.Container[0]?.Contents.Items;
 					if (responseItems && responseItems.length > 0) {
-						itemsToLoad -= responseItems.length;
-						historyItems.push(...responseItems);
+						let filteredItems = [];
+						if (lastSync > 0 && lastSyncId) {
+							for (const responseItem of responseItems) {
+								if (responseItem.Id && responseItem.Id !== lastSyncId) {
+									filteredItems.push(responseItem);
+								} else {
+									break;
+								}
+							}
+						} else {
+							filteredItems = responseItems;
+						}
+						itemsToLoad -= filteredItems.length;
+						historyItems.push(...filteredItems);
 					}
 				}
 				hasReachedEnd = true;

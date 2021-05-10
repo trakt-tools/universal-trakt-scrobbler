@@ -81,5 +81,5 @@ export abstract class Api {
 		return title.toLowerCase().replace(/[^\w]/g, '-').replace(/-+/g, '-');
 	};
 
-	abstract loadHistory(itemsToLoad: number): Promise<void>;
+	abstract loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void>;
 }

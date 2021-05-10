@@ -14,6 +14,7 @@ import { Shared } from '../../common/Shared';
 import { TabProperties, Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
+import { AutoSync } from '../../streaming-services/common/AutoSync';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
@@ -165,6 +166,7 @@ export interface NavigationCommittedParams {
 }
 
 const injectedTabs = new Set();
+let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
 let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
 
 const init = async () => {
@@ -175,20 +177,50 @@ const init = async () => {
 	}
 	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
-	const scrobblerEnabled = (Object.entries(BrowserStorage.options.streamingServices) as [
+	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices) as [
 		StreamingServiceId,
 		StreamingServiceValue
-	][]).some(
+	][];
+	const scrobblerEnabled = streamingServiceEntries.some(
 		([streamingServiceId, value]) =>
 			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 	);
 	if (scrobblerEnabled) {
 		addWebNavigationListener(BrowserStorage.options);
+
+		void checkServicesToSync();
 	}
 	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+const checkServicesToSync = async () => {
+	const now = Math.trunc(Date.now() / 1e3);
+	const servicesToSync = streamingServiceEntries.filter(
+		([streamingServiceId, value]) =>
+			streamingServices[streamingServiceId].hasSync &&
+			streamingServices[streamingServiceId].hasAutoSync &&
+			value.sync &&
+			value.autoSync &&
+			value.autoSyncDays > 0 &&
+			value.lastSync > 0 &&
+			now - value.lastSync >= value.autoSyncDays * 86400
+	);
+	if (servicesToSync.length > 0) {
+		try {
+			await BrowserAction.setRotatingIcon();
+			await AutoSync.sync(servicesToSync, now);
+			await BrowserAction.setStaticIcon();
+		} catch (err) {
+			Errors.error('Failed to automatically sync history.', err);
+			await BrowserAction.setStaticIcon();
+		}
+	}
+
+	// Check again every hour
+	window.setTimeout(() => void checkServicesToSync(), 3600000);
 };
 
 const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
@@ -267,10 +299,12 @@ const onStorageChanged = (
 		return;
 	}
 	if (newValue.streamingServices) {
-		const scrobblerEnabled = (Object.entries(newValue.streamingServices) as [
+		streamingServiceEntries = Object.entries(newValue.streamingServices) as [
 			StreamingServiceId,
 			StreamingServiceValue
-		][]).some(
+		][];
+
+		const scrobblerEnabled = streamingServiceEntries.some(
 			([streamingServiceId, value]) =>
 				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 		);

@@ -107,7 +107,7 @@ class _ViaplayApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -133,8 +133,26 @@ class _ViaplayApi extends Api {
 				const viaplayProducts: ViaplayProduct[] = historyPage._embedded['viaplay:products'];
 
 				if (viaplayProducts && viaplayProducts.length > 0) {
-					itemsToLoad -= viaplayProducts.length;
-					historyItems.push(...viaplayProducts);
+					let filteredItems = [];
+					if (lastSync > 0) {
+						for (const viaplayProduct of viaplayProducts) {
+							if (
+								viaplayProduct.user.progress?.updated &&
+								Math.trunc(viaplayProduct.user.progress?.updated / 1e3) > lastSync
+							) {
+								filteredItems.push(viaplayProduct);
+							} else {
+								break;
+							}
+						}
+						if (filteredItems.length !== viaplayProducts.length) {
+							hasReachedEnd = true;
+						}
+					} else {
+						filteredItems = viaplayProducts;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
 				} else {
 					hasReachedEnd = true;
 				}

@@ -160,7 +160,11 @@ class _TeliaPlayApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (itemsToLoad: number): Promise<void> => {
+	loadHistory = async (
+		itemsToLoad: number,
+		lastSync: number,
+		lastSyncId: string
+	): Promise<void> => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();

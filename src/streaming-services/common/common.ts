@@ -1,8 +1,8 @@
+import { SyncPage } from '../../modules/history/pages/SyncPage';
 import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
 import { ScrobbleController, ScrobbleParser } from './ScrobbleController';
 import { ScrobbleEvents } from './ScrobbleEvents';
-import { SyncPage } from './SyncPage';
 import { SyncStore, SyncStoreId } from './SyncStore';
 
 const apis = {} as Record<StreamingServiceId, Api>;
