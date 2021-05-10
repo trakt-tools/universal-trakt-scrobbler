@@ -23,6 +23,8 @@ export type MessageRequest =
 	| SetCacheMessage<keyof CacheValues>
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
+	| SetRotatingIconMessage
+	| SetStaticIconMessage
 	| CheckScrobbleMessage
 	| StartScrobbleMessage
 	| StopScrobbleMessage
@@ -44,6 +46,8 @@ export interface ReturnTypes {
 	'set-cache': null;
 	'set-active-icon': null;
 	'set-inactive-icon': null;
+	'set-rotating-icon': null;
+	'set-static-icon': null;
 	'check-scrobble': null;
 	'start-scrobble': null;
 	'stop-scrobble': null;
@@ -108,6 +112,14 @@ export interface SetActiveIconMessage {
 
 export interface SetInactiveIconMessage {
 	action: 'set-inactive-icon';
+}
+
+export interface SetRotatingIconMessage {
+	action: 'set-rotating-icon';
+}
+
+export interface SetStaticIconMessage {
+	action: 'set-static-icon';
 }
 
 export interface ShowNotificationMessage {
@@ -419,6 +431,14 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'set-inactive-icon': {
 			executingAction = BrowserAction.setInactiveIcon();
+			break;
+		}
+		case 'set-rotating-icon': {
+			executingAction = BrowserAction.setRotatingIcon();
+			break;
+		}
+		case 'set-static-icon': {
+			executingAction = BrowserAction.setStaticIcon();
 			break;
 		}
 		case 'check-scrobble': {
