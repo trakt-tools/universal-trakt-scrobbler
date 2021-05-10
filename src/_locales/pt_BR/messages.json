@@ -162,6 +162,9 @@
 	"logout": {
 		"message": "Sair"
 	},
+	"minPercentageWatchedName": {
+		"message": "Mínima porcentagem assistida."
+	},
 	"missingWatchedDate": {
 		"message": "Faltando data em que foi assistido"
 	},

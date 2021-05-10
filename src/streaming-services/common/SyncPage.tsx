@@ -378,8 +378,15 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	}, [content.visibleItems]);
 
 	let filteredItems = content.visibleItems;
-	if (syncOptionsContent.hasLoaded && syncOptionsContent.options.hideSynced.value) {
-		filteredItems = filteredItems.filter((item) => !item.trakt?.watchedAt);
+	if (syncOptionsContent.hasLoaded) {
+		if (syncOptionsContent.options.hideSynced.value) {
+			filteredItems = filteredItems.filter((item) => !item.trakt?.watchedAt);
+		}
+		filteredItems = filteredItems.filter(
+			(item) =>
+				typeof item.percentageWatched === 'undefined' ||
+				item.percentageWatched >= syncOptionsContent.options.minPercentageWatched.value
+		);
 	}
 
 	const hasNextPage =

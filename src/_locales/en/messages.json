@@ -162,6 +162,9 @@
 	"logout": {
 		"message": "Logout"
 	},
+	"minPercentageWatchedName": {
+		"message": "Minimum percentage watched."
+	},
 	"missingWatchedDate": {
 		"message": "Missing watched date"
 	},

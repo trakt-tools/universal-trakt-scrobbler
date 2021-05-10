@@ -35,6 +35,7 @@ export type StorageValuesSyncOptions = {
 	addWithReleaseDate: boolean;
 	hideSynced: boolean;
 	itemsPerLoad: number;
+	minPercentageWatched: number;
 };
 
 export type CorrectItem = {
@@ -284,6 +285,13 @@ class _BrowserStorage {
 				name: '',
 				value: 10,
 				minValue: 1,
+			},
+			minPercentageWatched: {
+				id: 'minPercentageWatched',
+				name: '',
+				value: 75,
+				minValue: 0,
+				maxValue: 100,
 			},
 		};
 		const values = await BrowserStorage.get('syncOptions');
