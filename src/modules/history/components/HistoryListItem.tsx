@@ -1,4 +1,4 @@
-import { Box, Checkbox } from '@material-ui/core';
+import { Box, Checkbox, Tooltip } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import * as React from 'react';
@@ -61,13 +61,11 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				name={streamingServices[item.serviceId].name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 			/>
-			<Box
-				className="history-list-item-status"
-				title={I18N.translate(statusMessageName)}
-				style={{ backgroundColor: statusColor }}
-			>
-				<SyncIcon />
-			</Box>
+			<Tooltip title={I18N.translate(statusMessageName)}>
+				<Box className="history-list-item-status" style={{ backgroundColor: statusColor }}>
+					<SyncIcon />
+				</Box>
+			</Tooltip>
 			<HistoryListItemCard
 				dateFormat={dateFormat}
 				item={item.trakt}

@@ -1,4 +1,4 @@
-import { AppBar, IconButton, Toolbar } from '@material-ui/core';
+import { AppBar, IconButton, Toolbar, Tooltip } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HistoryIcon from '@material-ui/icons/History';
 import HomeIcon from '@material-ui/icons/Home';
@@ -37,41 +37,41 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 					centerVertically={true}
 					left={
 						<>
-							<IconButton
-								color="inherit"
-								title={I18N.translate('home')}
-								onClick={() => onRouteClick('/home')}
-							>
-								<HomeIcon />
-							</IconButton>
-							<IconButton
-								color="inherit"
-								title={I18N.translate('about')}
-								onClick={() => onRouteClick('/about')}
-							>
-								<InfoIcon />
-							</IconButton>
-							<IconButton
-								color="inherit"
-								title={I18N.translate('history')}
-								onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
-							>
-								<HistoryIcon />
-							</IconButton>
-							<IconButton
-								color="inherit"
-								title={I18N.translate('options')}
-								onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
-							>
-								<SettingsIcon />
-							</IconButton>
+							<Tooltip title={I18N.translate('home')}>
+								<IconButton color="inherit" onClick={() => onRouteClick('/home')}>
+									<HomeIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('about')}>
+								<IconButton color="inherit" onClick={() => onRouteClick('/about')}>
+									<InfoIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('history')}>
+								<IconButton
+									color="inherit"
+									onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
+								>
+									<HistoryIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('options')}>
+								<IconButton
+									color="inherit"
+									onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
+								>
+									<SettingsIcon />
+								</IconButton>
+							</Tooltip>
 						</>
 					}
 					right={
 						isLoggedIn ? (
-							<IconButton color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
-								<ExitToAppIcon />
-							</IconButton>
+							<Tooltip title={I18N.translate('logout')}>
+								<IconButton color="inherit" onClick={onLogoutClick}>
+									<ExitToAppIcon />
+								</IconButton>
+							</Tooltip>
 						) : undefined
 					}
 				/>

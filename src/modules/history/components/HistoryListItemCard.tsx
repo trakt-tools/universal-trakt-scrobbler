@@ -5,6 +5,7 @@ import {
 	CircularProgress,
 	Divider,
 	LinearProgress,
+	Tooltip,
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
@@ -105,12 +106,13 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 				</UtsCenter>
 			</CardContent>
 			{item && 'percentageWatched' in item && item.percentageWatched !== undefined && (
-				<LinearProgress
-					classes={{ root: 'history-list-item-progress' }}
-					title={I18N.translate('progress', item.percentageWatched.toString())}
-					value={item.percentageWatched}
-					variant="determinate"
-				/>
+				<Tooltip title={I18N.translate('progress', item.percentageWatched.toString())}>
+					<LinearProgress
+						classes={{ root: 'history-list-item-progress' }}
+						value={item.percentageWatched}
+						variant="determinate"
+					/>
+				</Tooltip>
 			)}
 		</Card>
 	);

@@ -115,9 +115,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 					variant="outlined"
 					onChange={onAutoSyncDaysChange}
 				/>
-				<Tooltip
-					title={<Typography variant="caption">{I18N.translate('clearLastSync')}</Typography>}
-				>
+				<Tooltip title={I18N.translate('clearLastSync')}>
 					<IconButton
 						color="secondary"
 						disabled={

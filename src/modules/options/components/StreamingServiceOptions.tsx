@@ -31,23 +31,19 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 						<Typography variant="caption">{I18N.translate('autoSync')}</Typography>
 						<Tooltip
 							className="tooltip-icon"
-							title={
-								<Typography variant="caption">
-									{I18N.translate('autoSyncDescription')
-										.split('\n\n')
-										.map((text, i, arr) => (
+							title={I18N.translate('autoSyncDescription')
+								.split('\n\n')
+								.map((text, i, arr) => (
+									<>
+										{text}
+										{i < arr.length - 1 && (
 											<>
-												{text}
-												{i < arr.length - 1 && (
-													<>
-														<br />
-														<br />
-													</>
-												)}
+												<br />
+												<br />
 											</>
-										))}
-								</Typography>
-							}
+										)}
+									</>
+								))}
 						>
 							<HelpIcon color="primary" fontSize="small" />
 						</Tooltip>
