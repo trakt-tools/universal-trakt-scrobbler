@@ -56,17 +56,16 @@ class _TraktAuth extends TraktApi {
 		return auth.created_at + auth.expires_in < now;
 	};
 
-	authorize = async (): Promise<TraktAuthDetails> => {
+	authorize = (): Promise<TraktAuthDetails> => {
 		let promise: Promise<TraktAuthDetails>;
 		let requiresCookies = false;
 		if (Shared.browser === 'firefox') {
-			const storage = await BrowserStorage.get('options');
-			requiresCookies = !!storage.options?.grantCookies;
+			requiresCookies = !!BrowserStorage.options.grantCookies;
 		}
 		if (this.isIdentityAvailable && !requiresCookies) {
 			promise = this.startIdentityAuth();
 		} else {
-			promise = new Promise((resolve) => void this.startManualAuth(resolve));
+			promise = new Promise<TraktAuthDetails>((resolve) => void this.startManualAuth(resolve));
 		}
 		return promise;
 	};
@@ -80,7 +79,7 @@ class _TraktAuth extends TraktApi {
 			return this.getToken(redirectUrl);
 		} catch (err) {
 			this.isIdentityAvailable = false;
-			return new Promise((resolve) => void this.startManualAuth(resolve));
+			return new Promise<TraktAuthDetails>((resolve) => void this.startManualAuth(resolve));
 		}
 	};
 

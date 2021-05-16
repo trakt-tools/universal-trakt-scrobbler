@@ -8,6 +8,7 @@ import {
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
+import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
 import { TmdbImage } from '../../../components/TmdbImage';
 import { UtsCenter } from '../../../components/UtsCenter';
@@ -18,7 +19,6 @@ interface HistoryListItemCardProps {
 	dateFormat: string;
 	item?: Item | TraktItem | null;
 	name: string;
-	sendReceiveSuggestions?: boolean;
 	correctionSuggestions?: CorrectionSuggestion[] | null;
 	imageUrl?: string | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
@@ -32,7 +32,6 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		dateFormat,
 		item,
 		name,
-		sendReceiveSuggestions,
 		correctionSuggestions,
 		imageUrl,
 		openMissingWatchedDateDialog,
@@ -87,7 +86,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 								<Button color="secondary" onClick={openWrongItemDialog}>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
-										{sendReceiveSuggestions ? (
+										{BrowserStorage.options.sendReceiveSuggestions ? (
 											typeof correctionSuggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
 											) : correctionSuggestions && correctionSuggestions.length > 0 ? (

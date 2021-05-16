@@ -134,4 +134,8 @@ export class Item implements IItem {
 		}
 		return `${this.title} (${this.year})`;
 	};
+
+	isSelectable = () => {
+		return this.trakt && !this.trakt.watchedAt;
+	};
 }

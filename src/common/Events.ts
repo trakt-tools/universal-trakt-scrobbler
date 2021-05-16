@@ -2,7 +2,6 @@ import { Color } from '@material-ui/lab';
 import { TraktSearchItem } from '../api/TraktSearch';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { SyncStoreData } from '../streaming-services/common/SyncStore';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import {
 	StorageValuesOptions,
@@ -125,7 +124,7 @@ export interface HistoryOptionsChangeData {
 }
 
 export interface SyncStoreUpdateData {
-	data: SyncStoreData;
+	visibleItemsChanged: boolean;
 }
 
 export interface StreamingServiceHistoryChangeData {

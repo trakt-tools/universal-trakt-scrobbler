@@ -1,12 +1,14 @@
+import { BrowserStorage } from '../../common/BrowserStorage';
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
 import { Item } from '../../models/Item';
 import { StreamingServiceId } from '../streaming-services';
 
-export type SyncStoreKey = StreamingServiceId | 'multiple';
+export type SyncStoreId = StreamingServiceId | 'multiple';
 
 export interface SyncStoreData {
 	items: Item[];
 	visibleItems: Item[];
+	selectedItems: Item[];
 	page: number;
 	itemsPerPage: number;
 	nextPage: number;
@@ -14,9 +16,11 @@ export interface SyncStoreData {
 }
 
 export class SyncStore {
+	id: SyncStoreId;
 	data: SyncStoreData;
 
-	constructor() {
+	constructor(id: SyncStoreId) {
+		this.id = id;
 		this.data = SyncStore.getInitialData();
 	}
 
@@ -24,6 +28,7 @@ export class SyncStore {
 		return {
 			items: [],
 			visibleItems: [],
+			selectedItems: [],
 			page: 0,
 			itemsPerPage: 0,
 			nextPage: 0,
@@ -48,20 +53,22 @@ export class SyncStore {
 		const item = this.data.items[data.index];
 		if (item) {
 			item.isSelected = data.checked;
+			this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		}
-		void this.dispatchEvent();
+		void this.dispatchEvent(false);
 	};
 
 	onHistorySyncSuccess = (): void => {
-		void this.dispatchEvent();
+		void this.dispatchEvent(false);
 	};
 
 	selectAll = (): SyncStore => {
 		for (const item of this.data.visibleItems) {
-			if (item.trakt && !item.trakt.watchedAt) {
+			if (item.isSelectable()) {
 				item.isSelected = true;
 			}
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
@@ -69,15 +76,17 @@ export class SyncStore {
 		for (const item of this.data.visibleItems) {
 			item.isSelected = false;
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
 	toggleAll = (): SyncStore => {
 		for (const item of this.data.visibleItems) {
-			if (item.trakt && !item.trakt.watchedAt) {
+			if (item.isSelectable()) {
 				item.isSelected = !item.isSelected;
 			}
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
@@ -103,6 +112,7 @@ export class SyncStore {
 				index,
 			})),
 			visibleItems: [],
+			selectedItems: [],
 		};
 		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
 			this.updatePage(itemsPerPage);
@@ -122,28 +132,37 @@ export class SyncStore {
 		return this;
 	};
 
-	updateVisibleItems = (): SyncStore => {
+	update = (data?: Partial<SyncStoreData>): Promise<void> => {
+		if (data) {
+			this.setData(data);
+		}
+		return this.updateVisibleItems(true);
+	};
+
+	updateVisibleItems = (visibleItemsChanged: boolean): Promise<void> => {
 		this.data.visibleItems = [];
 		if (this.data.page > 0) {
 			this.data.visibleItems = this.data.items.slice(
 				(this.data.page - 1) * this.data.itemsPerPage,
 				this.data.page * this.data.itemsPerPage
 			);
+		} else if (this.id === 'multiple') {
+			this.data.visibleItems = [...this.data.items];
 		}
-		return this;
+		if (this.data.visibleItems.length > 0) {
+			if (BrowserStorage.syncOptions.hideSynced) {
+				this.data.visibleItems = this.data.visibleItems.filter((item) => !item.trakt?.watchedAt);
+			}
+			this.data.visibleItems = this.data.visibleItems.filter(
+				(item) =>
+					typeof item.percentageWatched === 'undefined' ||
+					item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
+			);
+		}
+		return this.dispatchEvent(visibleItemsChanged);
 	};
 
-	update = (data?: Partial<SyncStoreData>): Promise<void> => {
-		if (data) {
-			this.setData(data);
-		}
-		this.updateVisibleItems();
-		return this.dispatchEvent();
-	};
-
-	dispatchEvent = (): Promise<void> => {
-		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, {
-			data: this.data,
-		});
+	dispatchEvent = (visibleItemsChanged: boolean): Promise<void> => {
+		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, { visibleItemsChanged });
 	};
 }

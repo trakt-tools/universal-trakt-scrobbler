@@ -169,26 +169,23 @@ let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null 
 
 const init = async () => {
 	Shared.pageType = 'background';
-	await BrowserStorage.sync();
-	const storage = await BrowserStorage.get('options');
-	if (storage.options?.allowRollbar) {
+	await BrowserStorage.init();
+	if (BrowserStorage.options.allowRollbar) {
 		Errors.startRollbar();
 	}
 	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
-	if (storage.options?.streamingServices) {
-		const scrobblerEnabled = (Object.entries(storage.options.streamingServices) as [
-			StreamingServiceId,
-			StreamingServiceValue
-		][]).some(
-			([streamingServiceId, value]) =>
-				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
-		);
-		if (scrobblerEnabled) {
-			addWebNavigationListener(storage.options);
-		}
+	const scrobblerEnabled = (Object.entries(BrowserStorage.options.streamingServices) as [
+		StreamingServiceId,
+		StreamingServiceValue
+	][]).some(
+		([streamingServiceId, value]) =>
+			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+	);
+	if (scrobblerEnabled) {
+		addWebNavigationListener(BrowserStorage.options);
 	}
-	if (storage.options?.grantCookies) {
+	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);

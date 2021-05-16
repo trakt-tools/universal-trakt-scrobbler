@@ -13,9 +13,8 @@ class _WrongItemApi {
 		if (missingItems.length === 0) {
 			return;
 		}
-		const { options } = await BrowserStorage.get('options');
 		if (
-			!options?.sendReceiveSuggestions ||
+			!BrowserStorage.options.sendReceiveSuggestions ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 			}))
@@ -88,9 +87,8 @@ class _WrongItemApi {
 
 	loadItemSuggestions = async (item: Item): Promise<Item> => {
 		const itemCopy = new Item(item);
-		const { options } = await BrowserStorage.get('options');
 		if (
-			!options?.sendReceiveSuggestions ||
+			!BrowserStorage.options.sendReceiveSuggestions ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 			}))
@@ -141,9 +139,8 @@ class _WrongItemApi {
 	};
 
 	saveSuggestion = async (item: Item, url: string): Promise<void> => {
-		const { options } = await BrowserStorage.get('options');
 		if (
-			!options?.sendReceiveSuggestions ||
+			!BrowserStorage.options.sendReceiveSuggestions ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 			}))

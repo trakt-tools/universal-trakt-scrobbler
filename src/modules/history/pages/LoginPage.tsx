@@ -2,9 +2,13 @@ import { Button, CircularProgress } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { BrowserStorage } from '../../../common/BrowserStorage';
+import { Errors } from '../../../common/Errors';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
+import { Messaging } from '../../../common/Messaging';
 import { Session } from '../../../common/Session';
+import { Shared } from '../../../common/Shared';
 import { UtsCenter } from '../../../components/UtsCenter';
 
 export const LoginPage: React.FC = () => {
@@ -41,7 +45,16 @@ export const LoginPage: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		void Session.checkLogin();
+		const init = async () => {
+			Shared.tabId = (await Messaging.toBackground({ action: 'get-tab-id' }))?.tabId;
+			await BrowserStorage.init();
+			if (BrowserStorage.options.allowRollbar) {
+				Errors.startRollbar();
+			}
+			await Session.checkLogin();
+		};
+
+		void init();
 	}, []);
 
 	return (

@@ -21,9 +21,8 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 	const systemPalette = prefersLightMode ? 'light' : 'dark';
 
 	React.useEffect(() => {
-		const setTheme = async () => {
-			const { options } = await BrowserStorage.get('options');
-			const themeValue = options?.theme ?? 'system';
+		const setTheme = () => {
+			const themeValue = BrowserStorage.options.theme;
 			const themePalette = themeValue === 'system' ? systemPalette : themeValue;
 			setThemeDetails({
 				value: themeValue,
@@ -31,7 +30,7 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 			});
 		};
 
-		void setTheme();
+		setTheme();
 	}, []);
 
 	React.useEffect(() => {

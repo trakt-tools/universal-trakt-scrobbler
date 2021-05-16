@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import {
+	BrowserStorage,
 	Option,
 	StorageValuesOptions,
 	StreamingServiceValue,
@@ -41,7 +42,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onSelectAllClick = async () => {
-		if (!isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isStreamingServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
@@ -55,7 +56,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onSelectNoneClick = async () => {
-		if (!isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isStreamingServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
@@ -69,7 +70,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onToggleAllClick = async () => {
-		if (!isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isStreamingServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
@@ -82,12 +83,6 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 				})
 			)
 		);
-	};
-
-	const isStreamingServiceOption = (
-		option: Option<keyof StorageValuesOptions>
-	): option is Option<'streamingServices'> => {
-		return option.id === 'streamingServices';
 	};
 
 	let secondaryAction;
@@ -127,7 +122,9 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 				<ListItemText primary={option.name} secondary={option.description} />
 				<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
 			</ListItem>
-			{isStreamingServiceOption(option) && <StreamingServiceOptions options={option.value} />}
+			{BrowserStorage.isStreamingServiceOption(option) && (
+				<StreamingServiceOptions options={option.value} />
+			)}
 		</>
 	);
 };

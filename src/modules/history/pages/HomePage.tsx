@@ -32,12 +32,8 @@ export const HomePage: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		const checkEnabledServices = async () => {
-			const storage = await BrowserStorage.get('options');
-			const serviceOptions = storage.options?.streamingServices;
-			if (!serviceOptions) {
-				return;
-			}
+		const checkEnabledServices = () => {
+			const serviceOptions = BrowserStorage.options.streamingServices;
 			const enabledServices = [];
 			for (const service of streamingServicePages) {
 				if (service.hasSync && serviceOptions[service.id].sync) {
@@ -47,7 +43,7 @@ export const HomePage: React.FC = () => {
 			setServices(enabledServices);
 		};
 
-		void checkEnabledServices();
+		checkEnabledServices();
 	}, []);
 
 	return isLoading ? (

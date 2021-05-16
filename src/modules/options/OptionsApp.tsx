@@ -3,8 +3,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import {
 	BrowserStorage,
-	Option,
-	Options,
 	StorageValuesOptions,
 	StreamingServiceValue,
 } from '../../common/BrowserStorage';
@@ -23,23 +21,11 @@ import { OptionsActions } from './components/OptionsActions';
 import { OptionsHeader } from './components/OptionsHeader';
 import { OptionsList } from './components/OptionsList';
 
-interface ContentProps {
-	isLoading: boolean;
-	options: Options;
-}
-
 export const OptionsApp: React.FC = () => {
-	const [content, setContent] = useState<ContentProps>({
+	const [content, setContent] = useState({
 		isLoading: true,
-		options: {} as Options,
+		optionsChanged: {},
 	});
-
-	const resetOptions = async () => {
-		setContent({
-			isLoading: false,
-			options: await BrowserStorage.getOptions(),
-		});
-	};
 
 	useEffect(() => {
 		const startListeners = () => {
@@ -62,22 +48,18 @@ export const OptionsApp: React.FC = () => {
 			);
 		};
 
+		const resetOptions = () => {
+			setContent({
+				isLoading: false,
+				optionsChanged: {},
+			});
+		};
+
 		const onOptionChange = (data: OptionsChangeData<keyof StorageValuesOptions>) => {
-			const optionsToSave = {} as StorageValuesOptions;
-			const options = {
-				...content.options,
-				[data.id]: {
-					...content.options[data.id],
-					value: data.value,
-				},
-			};
-			for (const option of Object.values(options)) {
-				addOptionToSave(optionsToSave, option);
-			}
 			let permissionPromise: Promise<boolean> | undefined;
-			const option = options[data.id];
+			const option = BrowserStorage.optionsDetails[data.id];
 			if (option.permissions || option.origins) {
-				if (option.value) {
+				if (data.value) {
 					permissionPromise = browser.permissions.request({
 						permissions: option.permissions || [],
 						origins: option.origins || [],
@@ -93,7 +75,7 @@ export const OptionsApp: React.FC = () => {
 				permissionPromise
 					.then((isSuccess) => {
 						if (isSuccess) {
-							void saveOptions(optionsToSave, options);
+							void saveOption(data);
 						}
 					})
 					.catch(async (err) => {
@@ -104,54 +86,44 @@ export const OptionsApp: React.FC = () => {
 						});
 					});
 			} else {
-				void saveOptions(optionsToSave, options);
+				void saveOption(data);
 			}
 		};
 
 		const onStreamingServiceOptionChange = (
 			data: StreamingServiceOptionsChangeData<StreamingServiceId>
 		) => {
-			const optionsToSave = {} as StorageValuesOptions;
-			const options = {
-				...content.options,
-				streamingServices: {
-					...content.options.streamingServices,
-					value: {
-						...content.options.streamingServices.value,
-					},
-				},
-			};
+			const streamingServiceValues = {} as Record<StreamingServiceId, StreamingServiceValue>;
+			for (const [id, value] of Object.entries(BrowserStorage.options.streamingServices) as [
+				StreamingServiceId,
+				StreamingServiceValue
+			][]) {
+				streamingServiceValues[id] = { ...value };
+			}
 			const originsToAdd = [];
 			const originsToRemove = [];
-			for (const dataOption of data) {
-				const service = streamingServices[dataOption.id];
-				const streamingServiceValue = {
-					...options.streamingServices.value[dataOption.id],
-					...dataOption.value,
-				};
-				if (streamingServiceValue.scrobble && !service.hasScrobbler) {
-					streamingServiceValue.scrobble = false;
+			for (const { id, value } of data) {
+				const service = streamingServices[id];
+				if (value.scrobble && !service.hasScrobbler) {
+					value.scrobble = false;
 				}
-				if (streamingServiceValue.sync && !service.hasSync) {
-					streamingServiceValue.sync = false;
+				if (value.sync && !service.hasSync) {
+					value.sync = false;
 				}
-				if (
-					streamingServiceValue.autoSync &&
-					(!service.hasSync || !service.hasAutoSync || !streamingServiceValue.sync)
-				) {
-					streamingServiceValue.autoSync = false;
+				if (value.autoSync && (!service.hasSync || !service.hasAutoSync || !value.sync)) {
+					value.autoSync = false;
 				}
-				if (streamingServiceValue.scrobble || streamingServiceValue.sync) {
+				if (value.scrobble || value.sync) {
 					originsToAdd.push(...service.hostPatterns);
 				} else {
 					originsToRemove.push(...service.hostPatterns);
 				}
-				options.streamingServices.value[dataOption.id] = streamingServiceValue;
+				streamingServiceValues[id] = {
+					...streamingServiceValues[id],
+					...value,
+				};
 			}
-			for (const option of Object.values(options) as Option<keyof StorageValuesOptions>[]) {
-				addOptionToSave(optionsToSave, option);
-			}
-			const scrobblerEnabled = (Object.entries(optionsToSave.streamingServices) as [
+			const scrobblerEnabled = (Object.entries(streamingServiceValues) as [
 				StreamingServiceId,
 				StreamingServiceValue
 			][]).some(
@@ -179,7 +151,10 @@ export const OptionsApp: React.FC = () => {
 				Promise.all(permissionPromises)
 					.then((isSuccessArr) => {
 						if (isSuccessArr.every((isSuccess) => isSuccess)) {
-							void saveOptions(optionsToSave, options);
+							void saveOption({
+								id: 'streamingServices',
+								value: streamingServiceValues,
+							});
 						}
 					})
 					.catch(async (err) => {
@@ -190,23 +165,19 @@ export const OptionsApp: React.FC = () => {
 						});
 					});
 			} else {
-				void saveOptions(optionsToSave, options);
+				void saveOption({
+					id: 'streamingServices',
+					value: streamingServiceValues,
+				});
 			}
 		};
 
-		const addOptionToSave = <K extends keyof StorageValuesOptions>(
-			optionsToSave: StorageValuesOptions,
-			option: Option<K>
-		) => {
-			optionsToSave[option.id] = option.value;
-		};
-
-		const saveOptions = async (optionsToSave: StorageValuesOptions, options: Options) => {
+		const saveOption = async (data: OptionsChangeData<keyof StorageValuesOptions>) => {
 			try {
-				await BrowserStorage.set({ options: optionsToSave }, true);
+				await BrowserStorage.saveOptions({ [data.id]: data.value });
 				setContent({
 					isLoading: false,
-					options,
+					optionsChanged: {},
 				});
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'saveOptionSuccess',
@@ -223,10 +194,21 @@ export const OptionsApp: React.FC = () => {
 
 		startListeners();
 		return stopListeners;
-	}, [content]);
+	}, []);
 
 	useEffect(() => {
-		void resetOptions();
+		const init = async () => {
+			await BrowserStorage.init();
+			if (BrowserStorage.options.allowRollbar) {
+				Errors.startRollbar();
+			}
+			setContent({
+				isLoading: false,
+				optionsChanged: {},
+			});
+		};
+
+		void init();
 	}, []);
 
 	return (
@@ -239,12 +221,13 @@ export const OptionsApp: React.FC = () => {
 					</UtsCenter>
 				) : (
 					<>
-						<OptionsList options={Object.values(content.options)} />
+						<OptionsList />
 						<OptionsActions />
+
+						<UtsDialog />
+						<UtsSnackbar />
 					</>
 				)}
-				<UtsDialog />
-				<UtsSnackbar />
 			</Container>
 		</ErrorBoundary>
 	);

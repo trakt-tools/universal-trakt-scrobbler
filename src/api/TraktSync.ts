@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { BrowserStorage } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher } from '../common/Events';
 import { RequestException, Requests } from '../common/Requests';
@@ -93,20 +94,20 @@ class _TraktSync extends TraktApi {
 		return url;
 	};
 
-	sync = async (items: Item[], addWithReleaseDate: boolean) => {
+	sync = async (items: Item[]) => {
 		try {
 			const data = {
 				episodes: items
-					.filter((item) => item.isSelected && item.type === 'show')
+					.filter((item) => item.type === 'show')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: BrowserStorage.syncOptions.addWithReleaseDate ? 'released' : item.watchedAt,
 					})),
 				movies: items
-					.filter((item) => item.isSelected && item.type === 'movie')
+					.filter((item) => item.type === 'movie')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: BrowserStorage.syncOptions.addWithReleaseDate ? 'released' : item.watchedAt,
 					})),
 			};
 			const responseText = await Requests.send({
@@ -121,7 +122,6 @@ class _TraktSync extends TraktApi {
 			};
 			for (const item of items) {
 				if (
-					item.isSelected &&
 					item.trakt &&
 					((item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) ||
 						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))

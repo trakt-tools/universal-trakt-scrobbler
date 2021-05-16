@@ -96,23 +96,69 @@ export interface ListOption<K extends keyof StorageValuesOptions> extends BaseOp
 }
 
 export type SyncOptions = {
-	[K in keyof StorageValuesSyncOptions]: {
-		id: K;
-		name: string;
-		value: StorageValuesSyncOptions[K];
-		minValue?: number;
-		maxValue?: number;
-	};
+	[K in keyof StorageValuesSyncOptions]: SyncOption<K>;
 };
 
-export type SyncOption = SyncOptions[keyof SyncOptions];
+export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
+	id: K;
+	name: string;
+	value: StorageValuesSyncOptions[K];
+	minValue?: number;
+	maxValue?: number;
+};
 
 class _BrowserStorage {
 	isSyncAvailable: boolean;
+	options = {} as StorageValuesOptions;
+	optionsDetails = {} as Options;
+	syncOptions = {} as StorageValuesSyncOptions;
+	syncOptionsDetails = {} as SyncOptions;
 
 	constructor() {
 		this.isSyncAvailable = !!browser.storage.sync;
 	}
+
+	init = async () => {
+		await this.sync();
+		await this.loadOptions();
+		await this.loadSyncOptions();
+		this.startListeners();
+	};
+
+	startListeners = () => {
+		browser.storage.onChanged.addListener(this.onStorageChanged);
+	};
+
+	stopListeners = () => {
+		browser.storage.onChanged.removeListener(this.onStorageChanged);
+	};
+
+	onStorageChanged = (
+		changes: browser.storage.ChangeDict,
+		areaName: browser.storage.StorageName
+	) => {
+		if (areaName !== 'local') {
+			return;
+		}
+		const newOptions = changes.options?.newValue as StorageValuesOptions | undefined;
+		if (newOptions) {
+			for (const [id, value] of Object.entries(newOptions) as [
+				keyof StorageValuesOptions,
+				StorageValuesOptions[keyof StorageValuesOptions]
+			][]) {
+				this.addOption({ id, value });
+			}
+		}
+		const newSyncOptions = changes.syncOptions?.newValue as StorageValuesSyncOptions | undefined;
+		if (newSyncOptions) {
+			for (const [id, value] of Object.entries(newSyncOptions) as [
+				keyof StorageValuesSyncOptions,
+				StorageValuesSyncOptions[keyof StorageValuesSyncOptions]
+			][]) {
+				this.addSyncOption({ id, value });
+			}
+		}
+	};
 
 	sync = async (): Promise<void> => {
 		if (this.isSyncAvailable) {
@@ -149,6 +195,8 @@ class _BrowserStorage {
 			await browser.storage.sync.clear();
 		}
 		await browser.storage.local.clear();
+		await this.loadOptions();
+		await this.loadSyncOptions();
 	};
 
 	getSize = async (
@@ -171,8 +219,8 @@ class _BrowserStorage {
 		return size;
 	};
 
-	getOptions = async (): Promise<Options> => {
-		const options: Options = {
+	loadOptions = async (): Promise<void> => {
+		this.optionsDetails = {
 			streamingServices: {
 				type: 'list',
 				id: 'streamingServices',
@@ -264,12 +312,16 @@ class _BrowserStorage {
 			},
 		};
 		const values = await BrowserStorage.get('options');
-		for (const option of Object.values(options)) {
+		if (values.options) {
+			this.options = values.options;
+		}
+		for (const option of Object.values(this.optionsDetails)) {
 			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			if (!option.description) {
 				option.description = I18N.translate(`${option.id}Description` as MessageName);
 			}
-			option.value = (values.options && values.options[option.id]) || option.value;
+			option.value =
+				typeof this.options[option.id] !== 'undefined' ? this.options[option.id] : option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
 					(Object.keys(streamingServices) as StreamingServiceId[])
@@ -291,12 +343,51 @@ class _BrowserStorage {
 				) as Record<StreamingServiceId, StreamingServiceValue>;
 				option.value = { ...option.value, ...missingServices };
 			}
+			this.addOption(option);
 		}
-		return options;
 	};
 
-	getSyncOptions = async (): Promise<SyncOptions> => {
-		const options: SyncOptions = {
+	saveOptions = async (options: Partial<StorageValuesOptions>) => {
+		for (const [id, value] of Object.entries(options) as [
+			keyof StorageValuesOptions,
+			StorageValuesOptions[keyof StorageValuesOptions]
+		][]) {
+			this.addOption({ id, value });
+		}
+		await BrowserStorage.set({ options: this.options }, true);
+	};
+
+	addOption = <K extends keyof StorageValuesOptions>(option: Partial<Option<K>>) => {
+		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
+			if (BrowserStorage.isStreamingServiceOption(option)) {
+				for (const [id, value] of Object.entries(option.value) as [
+					StreamingServiceId,
+					StreamingServiceValue
+				][]) {
+					this.options[option.id][id] = {
+						...this.options[option.id][id],
+						...value,
+					};
+					this.optionsDetails[option.id].value[id] = {
+						...this.optionsDetails[option.id].value[id],
+						...value,
+					};
+				}
+			} else {
+				this.options[option.id] = option.value;
+				this.optionsDetails[option.id].value = option.value;
+			}
+		}
+	};
+
+	isStreamingServiceOption = (
+		option: Partial<Option<keyof StorageValuesOptions>>
+	): option is Option<'streamingServices'> => {
+		return option.id === 'streamingServices';
+	};
+
+	loadSyncOptions = async (): Promise<void> => {
+		this.syncOptionsDetails = {
 			hideSynced: {
 				id: 'hideSynced',
 				name: '',
@@ -322,9 +413,15 @@ class _BrowserStorage {
 			},
 		};
 		const values = await BrowserStorage.get('syncOptions');
-		for (const option of Object.values(options)) {
+		if (values.syncOptions) {
+			this.syncOptions = values.syncOptions;
+		}
+		for (const option of Object.values(this.syncOptionsDetails)) {
 			option.name = I18N.translate(`${option.id}Name` as MessageName);
-			option.value = (values.syncOptions && values.syncOptions[option.id]) || option.value;
+			option.value =
+				typeof this.syncOptions[option.id] !== 'undefined'
+					? this.syncOptions[option.id]
+					: option.value;
 			if (typeof option.value === 'number') {
 				if (typeof option.minValue !== 'undefined') {
 					option.value = Math.max(option.value, option.minValue);
@@ -333,8 +430,25 @@ class _BrowserStorage {
 					option.value = Math.min(option.value, option.maxValue);
 				}
 			}
+			this.addSyncOption(option);
 		}
-		return options;
+	};
+
+	saveSyncOptions = async (options: Partial<StorageValuesSyncOptions>) => {
+		for (const [id, value] of Object.entries(options) as [
+			keyof StorageValuesSyncOptions,
+			StorageValuesSyncOptions[keyof StorageValuesSyncOptions]
+		][]) {
+			this.addSyncOption({ id, value });
+		}
+		await BrowserStorage.set({ syncOptions: this.syncOptions }, true);
+	};
+
+	addSyncOption = <K extends keyof StorageValuesSyncOptions>(option: Partial<SyncOption<K>>) => {
+		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
+			this.syncOptions[option.id] = option.value;
+			this.syncOptionsDetails[option.id].value = option.value;
+		}
 	};
 }
 

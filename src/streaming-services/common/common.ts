@@ -3,7 +3,7 @@ import { Api } from './Api';
 import { ScrobbleController, ScrobbleParser } from './ScrobbleController';
 import { ScrobbleEvents } from './ScrobbleEvents';
 import { SyncPage } from './SyncPage';
-import { SyncStore, SyncStoreKey } from './SyncStore';
+import { SyncStore, SyncStoreId } from './SyncStore';
 
 const apis = {} as Record<StreamingServiceId, Api>;
 
@@ -40,14 +40,14 @@ export const getScrobbleEvents = (serviceId: StreamingServiceId) => {
 	return scrobbleEvents[serviceId];
 };
 
-const syncStores = {} as Record<SyncStoreKey, SyncStore>;
+const syncStores = {} as Record<SyncStoreId, SyncStore>;
 
 export const getSyncStore = (serviceId: StreamingServiceId | null) => {
-	const key: SyncStoreKey = serviceId || 'multiple';
-	if (!syncStores[key]) {
-		syncStores[key] = new SyncStore();
+	const storeId: SyncStoreId = serviceId || 'multiple';
+	if (!syncStores[storeId]) {
+		syncStores[storeId] = new SyncStore(storeId);
 	}
-	return syncStores[key];
+	return syncStores[storeId];
 };
 
 const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactElement | null>;
