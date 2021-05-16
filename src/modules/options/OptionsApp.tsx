@@ -102,8 +102,12 @@ export const OptionsApp: React.FC = () => {
 			}
 			const originsToAdd = [];
 			const originsToRemove = [];
-			for (const { id, value } of data) {
+			for (const { id, value: partialValue } of data) {
 				const service = streamingServices[id];
+				const value = {
+					...streamingServiceValues[id],
+					...partialValue,
+				};
 				if (value.scrobble && !service.hasScrobbler) {
 					value.scrobble = false;
 				}
@@ -118,10 +122,7 @@ export const OptionsApp: React.FC = () => {
 				} else {
 					originsToRemove.push(...service.hostPatterns);
 				}
-				streamingServiceValues[id] = {
-					...streamingServiceValues[id],
-					...value,
-				};
+				streamingServiceValues[id] = value;
 			}
 			const scrobblerEnabled = (Object.entries(streamingServiceValues) as [
 				StreamingServiceId,
