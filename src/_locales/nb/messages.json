@@ -9,7 +9,7 @@
 		"message": "Legg til"
 	},
 	"addDate": {
-		"message": "Add date"
+		"message": "Legg til dato"
 	},
 	"addMissingWatchedDateFailed": {
 		"message": "Kunne ikke legge til manglende «sett dato»."
@@ -27,13 +27,13 @@
 		"message": "En universell sync-tjeneste for Trakt.tv."
 	},
 	"autoSync": {
-		"message": "Automatic Sync"
+		"message": "Synkroniser automatisk"
 	},
 	"autoSyncDescription": {
-		"message": "The number of days determines how often the automatic sync will happen for the streaming service. For the automatic sync to be activated, you must sync manually in the history page of the streaming service first, so that the last sync date can be saved.\n\nIt's also important to note that when loading the history of the streaming service, it will only load the history until the last item that was automatically synced. To reset this behavior, you have to clear the last sync date for the streaming service."
+		"message": "Antall dager avgjør hvor regelmessig automatisk synkronisering vil forekomme for den angitte strømmetjenesten. For å aktivere automatisk synkronisering må du først synkronisere manuelt i historikken en gang, slik at en synkroniseringsdato kan lagres.\n\nNB! Når du laster inn historikken til strømmetjenesten så vil den kun laste inn historikken opp til datoen på siste automatiske synkronisering. For å tilbakestille dette, må du tømme siste historikkdato for den gitte strømmetjenesten."
 	},
 	"autoSyncPageMessage": {
-		"message": "These are the items that were automatically synced or failed to automatically sync since the last review. If any corrections are needed, apply them, select the items that need to be corrected, and click the Sync button. When you do that, the cache will be deleted and these items will no longer appear on this page. If no corrections are needed, simply click the Clear Sync Cache button and the same thing will happen."
+		"message": "Dette er elementer som ble automatisk synkronisert eller mislykkes å synkronisere siden forrige gang. Dersom korreksjoner trengs, legg dem til, og velg elementene som trengs korreksjoner, og trykk på Synkroniser-knappen. Når du gjør det, slettes cachen og disse elementene vil ikke så på denne siden lengre. Dersom ingen korreksjoner er nødvendige, kan du trykke på Fjern synkroniseringscache-knappen og det samme vil skje."
 	},
 	"cancel": {
 		"message": "Avbryt"
@@ -45,7 +45,7 @@
 		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"clearLastSync": {
-		"message": "Clear Last Sync Date"
+		"message": "Fjern siste synkroniseringsdato"
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -57,10 +57,10 @@
 		"message": "Lagret data ble fjernet."
 	},
 	"clearSyncCache": {
-		"message": "Clear Sync Cache"
+		"message": "Fjern synkroniseringscache"
 	},
 	"clearTraktCache": {
-		"message": "Fjern Trakt cache"
+		"message": "Fjern Trakt-cache"
 	},
 	"clearTraktCacheFailed": {
 		"message": "Klarte ikke å fjerne Trakt cache."
@@ -73,10 +73,10 @@
 		"message": "Lukk"
 	},
 	"confirmClearLastSyncMessage": {
-		"message": "You'll need to sync manually in the history page of the streaming service again to reactivate the automatic sync."
+		"message": "Du er nødt til å synkronisere på nytt manuelt på historikksiden til strømmetjenesten om du ønsker å reaktivere automatisk synkronisering."
 	},
 	"confirmClearLastSyncTitle": {
-		"message": "Clear last sync date for $SERVICE$?",
+		"message": "Fjern siste synkroniseringsdato for $SERVICE$?",
 		"placeholders": {
 			"service": {
 				"content": "$1"
@@ -90,10 +90,10 @@
 		"message": "Fjern lagrede data?"
 	},
 	"confirmClearSyncCacheMessage": {
-		"message": "All of the items in the current page will be removed from the cache and you'll no longer be able to review them."
+		"message": "Alle elementene på siden blir fjernet fra cache, og du vil ikke lengre kunne se over dem."
 	},
 	"confirmClearSyncCacheTitle": {
-		"message": "Clear sync cache?"
+		"message": "Fjerne synkroniseringscachen?"
 	},
 	"confirmClearTraktCacheMessage": {
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
@@ -118,7 +118,7 @@
 		"message": "Mørkt"
 	},
 	"days": {
-		"message": "Days"
+		"message": "Dager"
 	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
@@ -195,7 +195,7 @@
 		"message": "Logg ut"
 	},
 	"minPercentageWatchedName": {
-		"message": "Minimum percentage watched."
+		"message": "Minimum prosent sett."
 	},
 	"missingWatchedDate": {
 		"message": "Mangler «sett dato»"
@@ -209,7 +209,7 @@
 		}
 	},
 	"missingWatchedDateDialogContentMultiple": {
-		"message": "Choose how you want to add the missing watched date for the $ITEMS$ items.",
+		"message": "Velg hvordan du ønsker å legge til de manglende sett-datoene for $ITEMS$ elementer.",
 		"placeholders": {
 			"items": {
 				"content": "$1"
@@ -267,10 +267,10 @@
 		"message": "Les mer"
 	},
 	"recentAutoSync": {
-		"message": "Some items were recently automatically synced. Click here to review them and make sure that the correct items were synced."
+		"message": "Enkelte elementer ble nylig automatisk synkronisert. Trykk her for å se på dem og pass på at de riktige elementene ble synkronisert."
 	},
 	"recentAutoSyncError": {
-		"message": "Some items recently failed to automatically sync. Click here to review and correct them."
+		"message": "Enkelte elementer ble ikke synkronisert automatisk. Trykk her for å rette dem."
 	},
 	"save": {
 		"message": "Lagre"
@@ -312,7 +312,7 @@
 		"message": "Send / motta forslag til rettelser."
 	},
 	"service": {
-		"message": "Service"
+		"message": "Strømmetjeneste"
 	},
 	"serviceScrobble": {
 		"message": "Scrobble"
@@ -396,7 +396,7 @@
 		"message": "Lim inn en gyldig URL til Trakt!"
 	},
 	"wrongItemDialogSyncedWarning": {
-		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
+		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"yes": {
 		"message": "Ja"
