@@ -212,7 +212,7 @@ class _NetflixApi extends Api {
 				throw new Error('Invalid API params');
 			}
 			const store = getSyncStore('netflix');
-			let { nextPage, hasReachedEnd } = store.data;
+			let { nextPage, hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems: NetflixHistoryItem[] = [];
 			do {
@@ -228,6 +228,7 @@ class _NetflixApi extends Api {
 							if (viewedItem.date && Math.trunc(viewedItem.date / 1e3) > lastSync) {
 								filteredItems.push(viewedItem);
 							} else {
+								hasReachedLastSyncDate = true;
 								break;
 							}
 						}
@@ -248,7 +249,7 @@ class _NetflixApi extends Api {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			store.setData({ items, nextPage, hasReachedEnd });
+			store.setData({ items, nextPage, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Netflix history.', err);

@@ -23,7 +23,11 @@ module.exports = {
 				],
 			},
 			settings: {
-				'@rafaelgomesxyz/i18n-json/ignore-keys': ['*.description', '*.placeholders'],
+				'@rafaelgomesxyz/i18n-json/ignore-keys': [
+					'*.description',
+					'*.placeholders',
+					'serviceScrobble',
+				],
 			},
 		},
 		{

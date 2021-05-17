@@ -86,25 +86,19 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		if (!service || !serviceId) {
 			return;
 		}
-		const itemsToLoad = (store.data.page + 1) * store.data.itemsPerPage - store.data.items.length;
-		if (itemsToLoad > 0 && !store.data.hasReachedEnd) {
+		if (store.data.itemsToLoad > 0 && !store.data.hasReachedEnd) {
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: true,
 			}));
 			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-				.then(() => api?.loadHistory(itemsToLoad, content.lastSync, content.lastSyncId))
+				.then(() => api?.loadHistory(store.data.itemsToLoad, content.lastSync, content.lastSyncId))
 				.then(() => store.goToNextPage().update())
 				.catch(() => {
 					// Do nothing
 				});
-		} else {
-			const hasNextPage =
-				store.data.itemsPerPage > 0 &&
-				store.data.page < Math.ceil(store.data.items.length / store.data.itemsPerPage);
-			if (hasNextPage) {
-				void store.goToNextPage().update();
-			}
+		} else if (store.data.hasNextPage) {
+			void store.goToNextPage().update();
 		}
 	};
 
@@ -154,8 +148,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}));
 		} else {
 			await BrowserStorage.remove('syncCache');
-			store.resetData();
-			await store.dispatchEvent(true);
+			await store.resetData().dispatchEvent(true);
 		}
 	};
 
@@ -165,8 +158,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			message: I18N.translate('confirmClearSyncCacheMessage'),
 			onConfirm: async () => {
 				await BrowserStorage.remove('syncCache');
-				store.resetData();
-				await store.dispatchEvent(true);
+				await store.resetData().dispatchEvent(true);
 			},
 		});
 	};
@@ -322,21 +314,22 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!service || !serviceId) {
 				return;
 			}
-			const itemsToLoad = (store.data.page + 1) * itemsPerPage - store.data.items.length;
-			if (itemsToLoad > 0 && !store.data.hasReachedEnd && !content.isLoading) {
-				store.setData({ itemsPerPage });
+			store.setData({ itemsPerPage });
+			if (store.data.itemsToLoad > 0 && !store.data.hasReachedEnd && !content.isLoading) {
 				setContent((prevContent) => ({
 					...prevContent,
 					isLoading: true,
 				}));
 				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-					.then(() => api?.loadHistory(itemsToLoad, content.lastSync, content.lastSyncId))
+					.then(() =>
+						api?.loadHistory(store.data.itemsToLoad, content.lastSync, content.lastSyncId)
+					)
 					.then(() => store.update())
 					.catch(() => {
 						// Do nothing
 					});
 			} else {
-				void store.update({ itemsPerPage });
+				void store.update();
 			}
 		};
 
@@ -387,10 +380,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const hasPreviousPage = showNavigationButtons && store.data.page > 1;
 	const hasNextPage =
 		showNavigationButtons &&
-		(((store.data.page + 1) * store.data.itemsPerPage - store.data.items.length > 0 &&
-			!store.data.hasReachedEnd) ||
-			(store.data.itemsPerPage > 0 &&
-				store.data.page < Math.ceil(store.data.items.length / store.data.itemsPerPage)));
+		((store.data.itemsToLoad > 0 && !store.data.hasReachedEnd) || store.data.hasNextPage);
 	const hasSelectedItems = store.data.selectedItems.length > 0;
 	const showClearSyncCacheButton = !serviceId;
 	const showAddDateButton = store.data.selectedItems.filter((item) => !item.watchedAt).length > 1;
@@ -402,22 +392,29 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	) : (
 		<>
 			{!serviceId && (
-				<Box className="history-container-message">{I18N.translate('autoSyncPageMessage')}</Box>
+				<Box className="history-container-message">
+					<Typography variant="body1">{I18N.translate('autoSyncPageMessage')}</Typography>
+				</Box>
 			)}
 			<Box className="history-content">
 				<HistoryOptionsList store={store} />
-				{store.data.visibleItems.length > 0 ? (
+				{store.data.visibleItems.length > 0 && (
 					<HistoryList
 						dateFormat={dateFormat}
 						items={store.data.visibleItems}
 						serviceId={serviceId}
 					/>
-				) : (
-					<Box className="history-content--empty">
-						<Typography variant="body1">{I18N.translate('noMoreHistory')}</Typography>
-					</Box>
 				)}
 			</Box>
+			{!hasNextPage && (
+				<Box className="history-container-message">
+					<Typography variant="body1">
+						{I18N.translate(
+							store.data.hasReachedLastSyncDate ? 'reachedLastSyncDate' : 'reachedHistoryEnd'
+						)}
+					</Typography>
+				</Box>
+			)}
 			<HistoryActions
 				showNavigationButtons={showNavigationButtons}
 				hasPreviousPage={hasPreviousPage}

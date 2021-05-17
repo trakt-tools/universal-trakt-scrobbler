@@ -113,7 +113,7 @@ class _ViaplayApi extends Api {
 				await this.activate();
 			}
 			const store = getSyncStore('viaplay');
-			let { hasReachedEnd } = store.data;
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems: ViaplayProduct[] = [];
 
@@ -142,6 +142,7 @@ class _ViaplayApi extends Api {
 							) {
 								filteredItems.push(viaplayProduct);
 							} else {
+								hasReachedLastSyncDate = true;
 								break;
 							}
 						}
@@ -165,7 +166,7 @@ class _ViaplayApi extends Api {
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			store.setData({ items, hasReachedEnd });
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Viaplay history.', err);

@@ -222,7 +222,7 @@ class _HboGoApi extends Api {
 				throw new Error('Invalid API params');
 			}
 			const store = getSyncStore('hbo-go');
-			let { hasReachedEnd } = store.data;
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems = [];
 			do {
@@ -243,6 +243,7 @@ class _HboGoApi extends Api {
 								if (responseItem.Id && responseItem.Id !== lastSyncId) {
 									filteredItems.push(responseItem);
 								} else {
+									hasReachedLastSyncDate = true;
 									break;
 								}
 							}
@@ -259,7 +260,7 @@ class _HboGoApi extends Api {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			store.setData({ items, hasReachedEnd });
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load HBO Go history.', err as Error);

@@ -228,9 +228,6 @@
 	"no": {
 		"message": "Nei"
 	},
-	"noMoreHistory": {
-		"message": "Slutten av historikken er nådd."
-	},
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
 	},
@@ -262,6 +259,12 @@
 				"content": "$1"
 			}
 		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Slutten av historikken er nådd."
+	},
+	"reachedLastSyncDate": {
+		"message": "Reached the last sync date. If you wish to load items past this point, clear the last sync date for this service in the options."
 	},
 	"readMore": {
 		"message": "Les mer"

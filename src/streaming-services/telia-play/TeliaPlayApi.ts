@@ -245,7 +245,7 @@ class _TeliaPlayApi extends Api {
 			items.push(...validEps.map((ep) => this.parseHistoryItem(ep, wMap.get(ep.loopId))));
 			items.push(...watchedMovies.map((m) => this.parseHistoryItem(m, wMap.get(m.loopId))));
 
-			getSyncStore('telia-play').setData({ items });
+			getSyncStore('telia-play').setData({ items, hasReachedEnd: true });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load telia history.', err);

@@ -165,7 +165,7 @@ class _NrkApi extends Api {
 				await this.activate();
 			}
 			const store = getSyncStore('nrk');
-			let { hasReachedEnd } = store.data;
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems: NrkProgressItem[] = [];
 			do {
@@ -193,6 +193,7 @@ class _NrkApi extends Api {
 							) {
 								filteredItems.push(progress);
 							} else {
+								hasReachedLastSyncDate = true;
 								break;
 							}
 						}
@@ -210,7 +211,7 @@ class _NrkApi extends Api {
 				const promises = historyItems.map(this.parseHistoryItem);
 				items = await Promise.all(promises);
 			}
-			store.setData({ items, hasReachedEnd });
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load NRK history.', err);

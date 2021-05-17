@@ -23,8 +23,10 @@ $sidebarWidth: 300px;
 }
 
 .history-container-message {
+	padding-bottom: 100px;
 	padding-left: $sidebarWidth;
 	text-align: center;
+	width: 100%;
 }
 
 .history-content {
@@ -32,11 +34,6 @@ $sidebarWidth: 300px;
 	justify-content: center;
 	padding-bottom: 100px;
 	padding-left: $sidebarWidth;
-}
-
-.history-content--empty {
-	text-align: center;
-	width: 100%;
 }
 
 .history-header {

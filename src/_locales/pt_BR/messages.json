@@ -228,9 +228,6 @@
 	"no": {
 		"message": "Não"
 	},
-	"noMoreHistory": {
-		"message": "Chegou ao fim do histórico."
-	},
 	"noStreamingServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
 	},
@@ -262,6 +259,12 @@
 				"content": "$1"
 			}
 		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Chegou ao fim do histórico."
+	},
+	"reachedLastSyncDate": {
+		"message": "Chegou à data da última sincronização. Se você quiser carregar itens além desse ponto, limpe a data da última sincronização para esse serviço nas opções."
 	},
 	"readMore": {
 		"message": "Ler Mais"

@@ -228,9 +228,6 @@
 	"no": {
 		"message": "No"
 	},
-	"noMoreHistory": {
-		"message": "Reached the end of the history."
-	},
 	"noStreamingServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
 	},
@@ -262,6 +259,12 @@
 				"content": "$1"
 			}
 		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Reached the end of the history."
+	},
+	"reachedLastSyncDate": {
+		"message": "Reached the last sync date. If you wish to load items past this point, clear the last sync date for this service in the options."
 	},
 	"readMore": {
 		"message": "Read More"
