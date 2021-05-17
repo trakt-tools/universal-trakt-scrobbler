@@ -33,6 +33,16 @@ interface PageProps {
 	serviceId: StreamingServiceId | null;
 }
 
+type LastSyncData = Record<
+	StreamingServiceId,
+	{
+		lastSync: number;
+		lastSyncId: string;
+	}
+>;
+
+const lastSyncData = {} as LastSyncData;
+
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const { serviceId } = props;
 
@@ -40,11 +50,31 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const store = getSyncStore(serviceId);
 	const api = serviceId ? getApi(serviceId) : null;
 
+	if (service && !lastSyncData[service.id]) {
+		const serviceOptions = BrowserStorage.options.streamingServices[service.id];
+		lastSyncData[service.id] =
+			service.hasAutoSync && serviceOptions?.autoSync && serviceOptions.autoSyncDays > 0
+				? {
+						lastSync: serviceOptions.lastSync,
+						lastSyncId: serviceOptions.lastSyncId,
+				  }
+				: {
+						lastSync: 0,
+						lastSyncId: '',
+				  };
+	}
+
 	const [_, setSyncOptionsChanged] = useState({});
 	const [content, setContent] = useState({
 		isLoading: serviceId ? store.data.page === 0 : false,
 		itemsChanged: {},
 		visibleItemsChanged: {},
+		...(serviceId
+			? lastSyncData[serviceId]
+			: {
+					lastSync: 0,
+					lastSyncId: '',
+			  }),
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
@@ -62,13 +92,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				...prevContent,
 				isLoading: true,
 			}));
-			const serviceOptions = BrowserStorage.options.streamingServices[serviceId];
-			const [lastSync, lastSyncId] =
-				service.hasAutoSync && serviceOptions.autoSync && serviceOptions.autoSyncDays > 0
-					? [serviceOptions.lastSync, serviceOptions.lastSyncId]
-					: [0, ''];
 			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-				.then(() => api?.loadHistory(itemsToLoad, lastSync, lastSyncId))
+				.then(() => api?.loadHistory(itemsToLoad, content.lastSync, content.lastSyncId))
 				.then(() => store.goToNextPage().update())
 				.catch(() => {
 					// Do nothing
@@ -184,6 +209,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		const onStoreUpdate = (data: SyncStoreUpdateData) => {
 			setContent((prevContent) => ({
+				...prevContent,
 				isLoading: false,
 				itemsChanged: {},
 				visibleItemsChanged: data.visibleItemsChanged ? {} : prevContent.visibleItemsChanged,
@@ -303,13 +329,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					...prevContent,
 					isLoading: true,
 				}));
-				const serviceOptions = BrowserStorage.options.streamingServices[serviceId];
-				const [lastSync, lastSyncId] =
-					service.hasAutoSync && serviceOptions.autoSync && serviceOptions.autoSyncDays > 0
-						? [serviceOptions.lastSync, serviceOptions.lastSyncId]
-						: [0, ''];
 				EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
-					.then(() => api?.loadHistory(itemsToLoad, lastSync, lastSyncId))
+					.then(() => api?.loadHistory(itemsToLoad, content.lastSync, content.lastSyncId))
 					.then(() => store.update())
 					.catch(() => {
 						// Do nothing
