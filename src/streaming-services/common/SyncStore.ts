@@ -107,13 +107,14 @@ export class SyncStore {
 		this.data = {
 			...this.data,
 			...data,
-			items: [...this.data.items, ...(data.items ?? [])].map((item, index) => ({
-				...item,
-				index,
-			})),
+			items: [...this.data.items, ...(data.items ?? [])],
 			visibleItems: [],
 			selectedItems: [],
 		};
+		for (const [index, item] of this.data.items.entries()) {
+			item.index = index;
+			item.isSelected = false;
+		}
 		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
 			this.updatePage(itemsPerPage);
 		}
