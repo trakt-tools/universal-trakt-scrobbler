@@ -1,4 +1,5 @@
 import { Grid, IconButton, Switch, TextField, Tooltip, Typography } from '@material-ui/core';
+import BlockIcon from '@material-ui/icons/Block';
 import ClearIcon from '@material-ui/icons/Clear';
 import * as React from 'react';
 import { StreamingServiceValue } from '../../../common/BrowserStorage';
@@ -82,55 +83,61 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 				<Typography>{service.name}</Typography>
 			</Grid>
 			<Grid item className="options-grid-item options-grid-item--centered" xs={1}>
-				<Switch
-					checked={value.scrobble}
-					color="primary"
-					disabled={!service.hasScrobbler}
-					onChange={onScrobbleChange}
-				/>
+				{service.hasScrobbler ? (
+					<Switch checked={value.scrobble} color="primary" onChange={onScrobbleChange} />
+				) : (
+					<Tooltip title={I18N.translate('notAvailable')}>
+						<BlockIcon />
+					</Tooltip>
+				)}
 			</Grid>
 			<Grid item className="options-grid-item options-grid-item--centered" xs={1}>
-				<Switch
-					checked={value.sync}
-					color="primary"
-					disabled={!service.hasSync}
-					onChange={onSyncChange}
-				/>
+				{service.hasSync ? (
+					<Switch checked={value.sync} color="primary" onChange={onSyncChange} />
+				) : (
+					<Tooltip title={I18N.translate('notAvailable')}>
+						<BlockIcon />
+					</Tooltip>
+				)}
 			</Grid>
 			<Grid item className="options-grid-item options-grid-item--centered" xs={2}>
-				<Switch
-					checked={value.autoSync}
-					color="primary"
-					disabled={!service.hasSync || !service.hasAutoSync || !value.sync}
-					edge="start"
-					onChange={onAutoSyncChange}
-				/>
-				<TextField
-					className="options-grid-item--text-field"
-					disabled={!service.hasSync || !service.hasAutoSync || !value.sync || !value.autoSync}
-					label={I18N.translate('days')}
-					size="small"
-					type="number"
-					value={autoSyncDays}
-					variant="outlined"
-					onChange={onAutoSyncDaysChange}
-				/>
-				<Tooltip title={I18N.translate('clearLastSync')}>
-					<IconButton
-						color="secondary"
-						disabled={
-							!service.hasSync ||
-							!service.hasAutoSync ||
-							!value.sync ||
-							!value.autoSync ||
-							value.lastSync === 0
-						}
-						size="small"
-						onClick={onClearLastSyncClick}
-					>
-						<ClearIcon fontSize="small" />
-					</IconButton>
-				</Tooltip>
+				{service.hasSync && service.hasAutoSync ? (
+					<>
+						<Switch
+							checked={value.autoSync}
+							color="primary"
+							disabled={!value.sync}
+							edge="start"
+							onChange={onAutoSyncChange}
+						/>
+						<TextField
+							className="options-grid-item--text-field"
+							disabled={!value.sync || !value.autoSync}
+							label={I18N.translate('days')}
+							size="small"
+							type="number"
+							value={autoSyncDays}
+							variant="outlined"
+							onChange={onAutoSyncDaysChange}
+						/>
+						<Tooltip title={I18N.translate('clearLastSync')}>
+							<span>
+								<IconButton
+									color="secondary"
+									disabled={!value.sync || !value.autoSync || value.lastSync === 0}
+									size="small"
+									onClick={onClearLastSyncClick}
+								>
+									<ClearIcon fontSize="small" />
+								</IconButton>
+							</span>
+						</Tooltip>
+					</>
+				) : (
+					<Tooltip title={I18N.translate('notAvailable')}>
+						<BlockIcon />
+					</Tooltip>
+				)}
 			</Grid>
 		</Grid>
 	);

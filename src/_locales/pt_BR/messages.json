@@ -231,6 +231,9 @@
 	"noStreamingServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
 	},
+	"notAvailable": {
+		"message": "Não Disponível"
+	},
 	"notFound": {
 		"message": "Não Encontrado"
 	},

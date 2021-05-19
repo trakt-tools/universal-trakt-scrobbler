@@ -231,6 +231,9 @@
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
 	},
+	"notAvailable": {
+		"message": "Not Available"
+	},
 	"notFound": {
 		"message": "Ikke funnet"
 	},

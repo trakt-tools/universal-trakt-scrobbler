@@ -231,6 +231,9 @@
 	"noStreamingServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
 	},
+	"notAvailable": {
+		"message": "Not Available"
+	},
 	"notFound": {
 		"message": "Not Found"
 	},

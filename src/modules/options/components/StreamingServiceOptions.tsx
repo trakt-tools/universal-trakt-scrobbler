@@ -18,7 +18,7 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 		<ListItem>
 			<Grid container>
 				<Grid container className="options-grid-container">
-					<Grid item className="options-grid-item options-grid-item--centered" xs={4}>
+					<Grid item className="options-grid-item" xs={4}>
 						<Typography variant="caption">{I18N.translate('service')}</Typography>
 					</Grid>
 					<Grid item className="options-grid-item options-grid-item--centered" xs={1}>
