@@ -195,6 +195,12 @@ class _BrowserStorage {
 			await browser.storage.sync.clear();
 		}
 		await browser.storage.local.clear();
+		await this.reset();
+	};
+
+	reset = async () => {
+		this.options = {} as StorageValuesOptions;
+		this.syncOptions = {} as StorageValuesSyncOptions;
 		await this.loadOptions();
 		await this.loadSyncOptions();
 	};
@@ -364,8 +370,11 @@ class _BrowserStorage {
 					StreamingServiceId,
 					StreamingServiceValue
 				][]) {
+					if (!this.options[option.id]) {
+						this.options[option.id] = {} as Record<StreamingServiceId, StreamingServiceValue>;
+					}
 					this.options[option.id][id] = {
-						...this.options[option.id][id],
+						...(this.options[option.id]?.[id] ?? {}),
 						...value,
 					};
 					this.optionsDetails[option.id].value[id] = {

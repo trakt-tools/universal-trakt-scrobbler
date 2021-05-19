@@ -63,7 +63,7 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 				return;
 			}
 			const { options } = changes;
-			if (options) {
+			if (options?.newValue) {
 				const { theme: themeValue } = options.newValue as { theme: ThemeValue };
 				setThemeDetails((prevThemeDetails) => {
 					if (prevThemeDetails.value === themeValue) {
