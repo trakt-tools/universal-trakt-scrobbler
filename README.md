@@ -42,7 +42,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 ### Which streaming services are supported?
 
 - Amazon Prime (Scrobble only)
-- HBO Go (Only tested for Latin America, can only sync the 30 last watched items)
+- HBO Go (Only available for Latin America, can only sync the 30 last watched items)
 - Netflix
 - NRK
 - Viaplay (Sync only)
