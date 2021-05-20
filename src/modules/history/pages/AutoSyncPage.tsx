@@ -26,5 +26,5 @@ export const AutoSyncPage: React.FC = () => {
 		store.data.visibleItems = store.data.items;
 	}
 
-	return syncCache ? <SyncPage serviceId={null} /> : null;
+	return <SyncPage serviceId={null} />;
 };
