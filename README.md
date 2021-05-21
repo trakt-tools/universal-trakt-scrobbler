@@ -47,6 +47,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 - NRK
 - Viaplay (Sync only)
 - Telia Play (Sync only)
+- Disney Plus (Scrobble only)
 
 ### How does the extension work?
 
