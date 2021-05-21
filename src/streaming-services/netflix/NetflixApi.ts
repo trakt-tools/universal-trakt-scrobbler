@@ -149,6 +149,9 @@ class _NetflixApi extends Api {
 	BUILD_IDENTIFIER_REGEX: RegExp;
 	isActivated: boolean;
 	apiParams: Partial<NetflixApiParams>;
+	leftoverHistoryItems: NetflixHistoryItem[] = [];
+	nextHistoryPage = 0;
+	hasReachedHistoryEnd = false;
 	hasInjectedApiParamsScript: boolean;
 	hasInjectedSessionScript: boolean;
 	apiParamsListener: ((event: Event) => void) | undefined;
@@ -212,44 +215,51 @@ class _NetflixApi extends Api {
 				throw new Error('Invalid API params');
 			}
 			const store = getSyncStore('netflix');
-			let { nextPage, hasReachedEnd, hasReachedLastSyncDate } = store.data;
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems: NetflixHistoryItem[] = [];
 			do {
-				const responseText = await Requests.send({
-					url: `${this.API_URL}/${this.apiParams.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.apiParams.authUrl}&pg=${nextPage}`,
-					method: 'GET',
-				});
-				const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
-				if (responseJson && responseJson.viewedItems.length > 0) {
-					let filteredItems = [];
+				let responseItems: NetflixHistoryItem[] = [];
+				if (this.leftoverHistoryItems.length > 0) {
+					responseItems = this.leftoverHistoryItems;
+					this.leftoverHistoryItems = [];
+				} else if (!this.hasReachedHistoryEnd) {
+					const responseText = await Requests.send({
+						url: `${this.API_URL}/${this.apiParams.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.apiParams.authUrl}&pg=${this.nextHistoryPage}`,
+						method: 'GET',
+					});
+					const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
+					if (responseJson) {
+						responseItems = responseJson.viewedItems;
+					}
+					this.nextHistoryPage += 1;
+					this.hasReachedHistoryEnd = responseItems.length === 0;
+				}
+				if (responseItems.length > 0) {
+					let filteredItems: NetflixHistoryItem[] = [];
 					if (lastSync > 0) {
-						for (const viewedItem of responseJson.viewedItems) {
-							if (viewedItem.date && Math.trunc(viewedItem.date / 1e3) > lastSync) {
-								filteredItems.push(viewedItem);
+						for (const [index, responseItem] of responseItems.entries()) {
+							if (responseItem.date && Math.trunc(responseItem.date / 1e3) > lastSync) {
+								filteredItems.push(responseItem);
 							} else {
+								this.leftoverHistoryItems = responseItems.slice(index);
 								hasReachedLastSyncDate = true;
 								break;
 							}
 						}
-						if (filteredItems.length !== responseJson.viewedItems.length) {
-							hasReachedEnd = true;
-						}
 					} else {
-						filteredItems = responseJson.viewedItems;
+						filteredItems = responseItems;
 					}
 					itemsToLoad -= filteredItems.length;
 					historyItems.push(...filteredItems);
-				} else {
-					hasReachedEnd = true;
 				}
-				nextPage += 1;
+				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 				items = historyItemsWithMetadata.map(this.parseHistoryItem);
 			}
-			store.setData({ items, nextPage, hasReachedEnd, hasReachedLastSyncDate });
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Netflix history.', err);

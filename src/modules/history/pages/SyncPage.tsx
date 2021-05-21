@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Typography } from '@material-ui/core';
+import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -75,6 +75,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					lastSync: 0,
 					lastSyncId: '',
 			  }),
+		continueLoading: false,
 	});
 	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
@@ -91,9 +92,19 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				...prevContent,
 				isLoading: true,
 			}));
+			const { hasReachedLastSyncDate } = store.data;
+			if (hasReachedLastSyncDate) {
+				store.setData({ hasReachedLastSyncDate: false });
+			}
 			EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' })
 				.then(() => api?.loadHistory(store.data.itemsToLoad, content.lastSync, content.lastSyncId))
-				.then(() => store.goToNextPage().update())
+				.then(() => {
+					if (hasReachedLastSyncDate) {
+						void store.update();
+					} else {
+						void store.goToNextPage().update();
+					}
+				})
 				.catch(() => {
 					// Do nothing
 				});
@@ -168,6 +179,25 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			serviceId,
 			items: store.data.selectedItems.filter((item) => !item.watchedAt),
 		});
+	};
+
+	const onContinueLoadingClick = () => {
+		if (!service) {
+			return;
+		}
+		store.setData({ hasReachedEnd: false });
+		if (lastSyncData[service.id]) {
+			lastSyncData[service.id] = {
+				lastSync: 0,
+				lastSyncId: '',
+			};
+		}
+		setContent((prevContent) => ({
+			...prevContent,
+			lastSync: 0,
+			lastSyncId: '',
+			continueLoading: true,
+		}));
 	};
 
 	useEffect(() => {
@@ -376,6 +406,16 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		void loadData();
 	}, [content.isLoading, content.visibleItemsChanged]);
 
+	useEffect(() => {
+		const checkIfContinueLoading = () => {
+			if (content.continueLoading) {
+				loadNextPage();
+			}
+		};
+
+		checkIfContinueLoading();
+	}, [content.continueLoading]);
+
 	const showNavigationButtons = !!serviceId;
 	const hasPreviousPage = showNavigationButtons && store.data.page > 1;
 	const hasNextPage =
@@ -408,11 +448,18 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			</Box>
 			{!hasNextPage && (
 				<Box className="history-container-message">
-					<Typography variant="body1">
-						{I18N.translate(
-							store.data.hasReachedLastSyncDate ? 'reachedLastSyncDate' : 'reachedHistoryEnd'
-						)}
-					</Typography>
+					{store.data.hasReachedLastSyncDate ? (
+						<>
+							<Box mb={2}>
+								<Typography variant="body1">{I18N.translate('reachedLastSyncDate')}</Typography>
+							</Box>
+							<Button color="primary" onClick={onContinueLoadingClick} variant="contained">
+								{I18N.translate('continueLoading')}
+							</Button>
+						</>
+					) : (
+						<Typography variant="body1">{I18N.translate('reachedHistoryEnd')}</Typography>
+					)}
 				</Box>
 			)}
 			<HistoryActions

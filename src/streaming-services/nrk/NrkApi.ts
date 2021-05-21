@@ -128,6 +128,8 @@ class _NrkApi extends Api {
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
+	leftoverHistoryItems: NrkProgressItem[] = [];
+	hasReachedHistoryEnd = false;
 	hasInjectedSessionScript: any;
 	sessionListener: any;
 
@@ -169,43 +171,48 @@ class _NrkApi extends Api {
 			let items: Item[] = [];
 			const historyItems: NrkProgressItem[] = [];
 			do {
-				const responseText = await Requests.send({
-					url: this.HISTORY_API_URL,
-					method: 'GET',
-					headers: {
-						Authorization: 'Bearer ' + this.token,
-					},
-				});
-				const responseJson = JSON.parse(responseText) as NrkProgressResponse;
-				const { progresses } = responseJson;
-				if (responseJson._links.next) {
-					this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
-				} else {
-					hasReachedEnd = true;
+				let responseItems: NrkProgressItem[] = [];
+				if (this.leftoverHistoryItems.length > 0) {
+					responseItems = this.leftoverHistoryItems;
+					this.leftoverHistoryItems = [];
+				} else if (!this.hasReachedHistoryEnd) {
+					const responseText = await Requests.send({
+						url: this.HISTORY_API_URL,
+						method: 'GET',
+						headers: {
+							Authorization: 'Bearer ' + this.token,
+						},
+					});
+					const responseJson = JSON.parse(responseText) as NrkProgressResponse;
+					responseItems = responseJson.progresses;
+					if (responseJson._links.next) {
+						this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
+					} else {
+						this.hasReachedHistoryEnd = true;
+					}
 				}
-				if (progresses.length > 0) {
-					let filteredItems = [];
+				if (responseItems.length > 0) {
+					let filteredItems: NrkProgressItem[] = [];
 					if (lastSync > 0) {
-						for (const progress of progresses) {
+						for (const [index, responseItem] of responseItems.entries()) {
 							if (
-								progress.registeredAt &&
-								Math.trunc(new Date(progress.registeredAt).getTime() / 1e3) > lastSync
+								responseItem.registeredAt &&
+								Math.trunc(new Date(responseItem.registeredAt).getTime() / 1e3) > lastSync
 							) {
-								filteredItems.push(progress);
+								filteredItems.push(responseItem);
 							} else {
+								this.leftoverHistoryItems = responseItems.slice(index);
 								hasReachedLastSyncDate = true;
 								break;
 							}
 						}
-						if (filteredItems.length !== progresses.length) {
-							hasReachedEnd = true;
-						}
 					} else {
-						filteredItems = progresses;
+						filteredItems = responseItems;
 					}
 					itemsToLoad -= filteredItems.length;
 					historyItems.push(...filteredItems);
 				}
+				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const promises = historyItems.map(this.parseHistoryItem);

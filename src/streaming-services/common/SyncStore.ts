@@ -12,7 +12,6 @@ export interface SyncStoreData {
 	page: number;
 	itemsPerPage: number;
 	itemsToLoad: number;
-	nextPage: number;
 	hasNextPage: boolean;
 	hasReachedEnd: boolean;
 	hasReachedLastSyncDate: boolean;
@@ -35,7 +34,6 @@ export class SyncStore {
 			page: 0,
 			itemsPerPage: 0,
 			itemsToLoad: 0,
-			nextPage: 0,
 			hasNextPage: false,
 			hasReachedEnd: false,
 			hasReachedLastSyncDate: false,

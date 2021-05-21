@@ -20,17 +20,16 @@ class _SyncTemplateApi extends Api {
 	): Promise<void> => {
 		// The code could look like this.
 		const store = getSyncStore('sync-template');
-		let { nextPage, hasReachedEnd } = store.data;
+		let { hasReachedEnd } = store.data;
 		let items: Item[] = [];
 		let itemsLoaded = 0;
 		while (itemsLoaded < itemsToLoad && !hasReachedEnd) {
-			const nextItems = await this.loadPage(nextPage);
+			const nextItems = await this.loadNextPage();
 			items.push(...nextItems);
 			itemsLoaded += nextItems.length;
-			nextPage += 1;
 			hasReachedEnd = this.checkLastPage();
 		}
-		store.setData({ items, nextPage, hasReachedEnd });
+		store.setData({ items, hasReachedEnd });
 	};
 
 	// Define any methods you need here.

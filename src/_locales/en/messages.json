@@ -101,6 +101,9 @@
 	"confirmClearTraktCacheTitle": {
 		"message": "Clear Trakt cache?"
 	},
+	"continueLoading": {
+		"message": "Continue Loading"
+	},
 	"correct": {
 		"description": "This is the verb, as in 'to correct'.",
 		"message": "Correct"
@@ -267,7 +270,7 @@
 		"message": "Reached the end of the history."
 	},
 	"reachedLastSyncDate": {
-		"message": "Reached the last sync date. If you wish to load items past this point, clear the last sync date for this service in the options."
+		"message": "Reached the last sync date. If you wish to load items past this point, click the button below."
 	},
 	"readMore": {
 		"message": "Read More"

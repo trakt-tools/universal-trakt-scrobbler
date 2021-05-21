@@ -105,6 +105,8 @@ class _HboGoApi extends Api {
 	CONTENT_URL = '';
 	isActivated: boolean;
 	apiParams: Partial<HboGoApiParams>;
+	leftoverHistoryItems: HboGoHistoryItem[] = [];
+	hasReachedHistoryEnd = false;
 	hasInjectedApiParamsScript: boolean;
 	hasInjectedSessionScript: boolean;
 	apiParamsListener: ((event: Event) => void) | null;
@@ -226,35 +228,43 @@ class _HboGoApi extends Api {
 			let items: Item[] = [];
 			const historyItems = [];
 			do {
-				const responseText = await Requests.send({
-					url: this.HISTORY_URL,
-					headers: {
-						'GO-Token': this.apiParams.token,
-					},
-					method: 'GET',
-				});
-				const responseJson = JSON.parse(responseText) as HboGoHistoryResponse;
-				if (responseJson) {
-					const responseItems = responseJson.Container[0]?.Contents.Items;
-					if (responseItems && responseItems.length > 0) {
-						let filteredItems = [];
-						if (lastSync > 0 && lastSyncId) {
-							for (const responseItem of responseItems) {
-								if (responseItem.Id && responseItem.Id !== lastSyncId) {
-									filteredItems.push(responseItem);
-								} else {
-									hasReachedLastSyncDate = true;
-									break;
-								}
-							}
-						} else {
-							filteredItems = responseItems;
-						}
-						itemsToLoad -= filteredItems.length;
-						historyItems.push(...filteredItems);
+				let responseItems: HboGoHistoryItem[] = [];
+				if (this.leftoverHistoryItems.length > 0) {
+					responseItems = this.leftoverHistoryItems;
+					this.leftoverHistoryItems = [];
+				} else if (!this.hasReachedHistoryEnd) {
+					const responseText = await Requests.send({
+						url: this.HISTORY_URL,
+						headers: {
+							'GO-Token': this.apiParams.token,
+						},
+						method: 'GET',
+					});
+					const responseJson = JSON.parse(responseText) as HboGoHistoryResponse;
+					if (responseJson) {
+						responseItems = responseJson.Container[0]?.Contents.Items ?? [];
 					}
+					this.hasReachedHistoryEnd = true;
 				}
-				hasReachedEnd = true;
+				if (responseItems.length > 0) {
+					let filteredItems = [];
+					if (lastSync > 0 && lastSyncId) {
+						for (const [index, responseItem] of responseItems.entries()) {
+							if (responseItem.Id && responseItem.Id !== lastSyncId) {
+								filteredItems.push(responseItem);
+							} else {
+								this.leftoverHistoryItems = responseItems.slice(index);
+								hasReachedLastSyncDate = true;
+								break;
+							}
+						}
+					} else {
+						filteredItems = responseItems;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
+				}
+				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
