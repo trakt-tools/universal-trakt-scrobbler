@@ -28,11 +28,11 @@ class _DisneyplusParser implements ScrobbleParser {
 		const pauseIcon = document.querySelector('.pause-icon') !== null;
 		const playIcon = document.querySelector('.play-icon') !== null;
 
-		if(loadingSpinner) {
+		if (loadingSpinner) {
 			this.isPaused = true;
-		} else if(playIcon && !pauseIcon) {
+		} else if (playIcon && !pauseIcon) {
 			this.isPaused = true;
-		} else if(pauseIcon && !playIcon) {
+		} else if (pauseIcon && !playIcon) {
 			this.isPaused = false;
 		}
 
@@ -43,18 +43,19 @@ class _DisneyplusParser implements ScrobbleParser {
 
 	parseProgress = (): number => {
 		let progress = 0.0;
-		const scrubbers: NodeListOf<HTMLElement> = document.querySelectorAll('.slider-handle-container');
-		let scrubber = scrubbers[scrubbers.length- 1];
+		const scrubbers: NodeListOf<HTMLElement> = document.querySelectorAll(
+			'.slider-handle-container'
+		);
+		const scrubber = scrubbers[scrubbers.length - 1];
 
 		if (scrubber) {
 			progress = parseFloat(scrubber?.style.width);
 			this.progress = progress;
 		}
 		// Failsafe
-		if(progress == 0){
+		if (progress == 0){
 			progress = this.progress;
 		}
-
 		return progress;
 	};
 
@@ -70,22 +71,29 @@ class _DisneyplusParser implements ScrobbleParser {
 		const subTitle = subTitleElement?.textContent ?? '';
 		const year = 0;
 		const season = parseInt(subTitle?.substring(1, subTitle.indexOf(':'))) ?? '';
-		let parseEpisodeTitle = subTitle?.substring(subTitle.indexOf('.') + 2);
+		const parseEpisodeTitle = subTitle?.substring(subTitle.indexOf('.') + 2);
 		const episode = parseInt(parseEpisodeTitle?.substring(0, parseEpisodeTitle.indexOf(' '))) ?? '';
 		const episodeTitle = parseEpisodeTitle?.substring(parseEpisodeTitle.indexOf(' ') + 1) ?? '';
-		const isCollection = episode > 0 ? false : true;
+		const isCollection = episode<=0;
 
-		if(!!titleElement) {
+		if (titleElement) {
 			this.videoId = id;
 		} else {
 			return undefined;
 		}
 
-		item = new Item({ serviceId, id, type, title, year, episodeTitle, season, episode, isCollection });
-
-		return item;
+		return new Item({
+			serviceId,
+			id,
+			type,
+			title,
+			year,
+			episodeTitle,
+			season,
+			episode,
+			isCollection
+		});
 	};
-
 }
 
 export const DisneyplusParser = new _DisneyplusParser();

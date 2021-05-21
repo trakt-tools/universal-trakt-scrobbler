@@ -39,7 +39,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 			await this.onUrlChange(this.url, newUrl);
 			this.url = newUrl;
 		}
-		if(!this.videoId) {
+		if (!this.videoId) {
 			const item = await DisneyplusParser.parseItem();
 			this.videoId = item?.id ?? '';
 		}
@@ -64,9 +64,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 				await this.updateProgress(newProgress);
 				this.progress = newProgress;
 			}
-
 		}
-
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
 	};
 
