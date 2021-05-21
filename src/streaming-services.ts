@@ -5,7 +5,6 @@ export type StreamingServiceId =
 	| 'nrk'
 	| 'viaplay'
 	| 'telia-play'
-	| 'streamz-be'
 	| 'disneyplus';
 
 export interface StreamingService {
