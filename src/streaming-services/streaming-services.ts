@@ -71,7 +71,7 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		hasScrobbler: false,
 		hasSync: true,
 	},
-	'disneyplus': {
+	disneyplus: {
 		id: 'disneyplus',
 		name: 'DisneyPlus',
 		homePage: 'https://www.disneyplus.com/',
