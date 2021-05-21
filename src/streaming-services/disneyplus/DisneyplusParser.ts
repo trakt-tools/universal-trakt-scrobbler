@@ -12,24 +12,12 @@ export interface DisneyplusSession {
 
 class _DisneyplusParser implements ScrobbleParser {
 	id: string;
-	title: string;
-	episodeTitle: string;
-	type: string;
-	season: number;
-	episode: number;
-	isCollection: boolean;
 	videoId: string;
 	progress: number;
 	isPaused: boolean;
 
 	constructor() {
 		this.id = '';
-		this.title = '';
-		this.episodeTitle = '';
-		this.type = '';
-		this.season = 0;
-		this.episode = 0;
-		this.isCollection = false;
 		this.videoId = '';
 		this.progress = 0.0;
 		this.isPaused = false;
@@ -55,7 +43,7 @@ class _DisneyplusParser implements ScrobbleParser {
 
 	parseProgress = (): number => {
 		let progress = 0.0;
-		const scrubbers = document.querySelectorAll('.slider-handle-container');
+		const scrubbers: NodeListOf<HTMLElement> = document.querySelectorAll('.slider-handle-container');
 		let scrubber = scrubbers[scrubbers.length- 1];
 
 		if (scrubber) {
@@ -88,12 +76,6 @@ class _DisneyplusParser implements ScrobbleParser {
 		const isCollection = episode > 0 ? false : true;
 
 		if(!!titleElement) {
-			this.title = title;
-			this.episodeTitle = episodeTitle;
-			this.type = type;
-			this.season = season;
-			this.episode = episode;
-			this.isCollection = isCollection;
 			this.videoId = id;
 		} else {
 			return undefined;
