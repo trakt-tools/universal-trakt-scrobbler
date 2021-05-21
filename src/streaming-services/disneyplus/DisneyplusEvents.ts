@@ -40,7 +40,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 			this.url = newUrl;
 		}
 		if (!this.videoId) {
-			const item = await DisneyplusParser.parseItem();
+			const item = DisneyplusParser.parseItem();
 			this.videoId = item?.id ?? '';
 		}
 
