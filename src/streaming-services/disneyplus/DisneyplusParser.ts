@@ -24,7 +24,8 @@ class _DisneyplusParser implements ScrobbleParser {
 	}
 
 	parseSession = (): DisneyplusSession => {
-		const loadingSpinner = document.querySelector('.overlay__loading:not([style="display: none;"])') !== null;
+		const loadingSpinner =
+			document.querySelector('.overlay__loading:not([style="display: none;"])') !== null;
 		const pauseIcon = document.querySelector('.pause-icon') !== null;
 		const playIcon = document.querySelector('.play-icon') !== null;
 
@@ -53,15 +54,13 @@ class _DisneyplusParser implements ScrobbleParser {
 			this.progress = progress;
 		}
 		// Failsafe
-		if (progress == 0){
+		if (progress == 0) {
 			progress = this.progress;
 		}
 		return progress;
 	};
 
-	parseItem = async (): Promise<Item | undefined> => {
-		let item: Item | undefined;
-
+	parseItem = (): Item | undefined => {
 		const serviceId = 'disneyplus';
 		const titleElement = document.querySelector('.title-field');
 		const subTitleElement = document.querySelector('.subtitle-field');
@@ -74,7 +73,7 @@ class _DisneyplusParser implements ScrobbleParser {
 		const parseEpisodeTitle = subTitle?.substring(subTitle.indexOf('.') + 2);
 		const episode = parseInt(parseEpisodeTitle?.substring(0, parseEpisodeTitle.indexOf(' '))) ?? '';
 		const episodeTitle = parseEpisodeTitle?.substring(parseEpisodeTitle.indexOf(' ') + 1) ?? '';
-		const isCollection = episode<=0;
+		const isCollection = episode <= 0;
 
 		if (titleElement) {
 			this.videoId = id;
@@ -91,7 +90,7 @@ class _DisneyplusParser implements ScrobbleParser {
 			episodeTitle,
 			season,
 			episode,
-			isCollection
+			isCollection,
 		});
 	};
 }

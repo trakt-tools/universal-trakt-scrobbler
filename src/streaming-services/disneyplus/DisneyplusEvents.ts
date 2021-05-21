@@ -67,7 +67,6 @@ class _DisneyplusEvents extends ScrobbleEvents {
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
 	};
-
 }
 
 export const DisneyplusEvents = new _DisneyplusEvents();
