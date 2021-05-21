@@ -9,7 +9,7 @@ import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 
 export interface ScrobbleParser {
-	parseItem(): Promise<Item | undefined>;
+	parseItem(): Promise<Item | undefined> | Item | undefined;
 }
 
 export class ScrobbleController {
