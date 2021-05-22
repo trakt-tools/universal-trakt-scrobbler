@@ -5,6 +5,7 @@ export type StreamingServiceId =
 	| 'nrk'
 	| 'viaplay'
 	| 'telia-play'
+	| 'streamz-be'
 	| 'disneyplus';
 
 export interface StreamingService {
@@ -70,6 +71,14 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		hostPatterns: ['*://*.teliaplay.se/*', '*://*.telia.net/*', '*://*.telia.se/*'],
 		hasScrobbler: false,
 		hasSync: true,
+	},
+	'streamz-be': {
+		id: 'streamz-be',
+		name: 'Streamz BE',
+		homePage: 'https://www.streamz.be/',
+		hostPatterns: ['*://*.streamz.be/*'],
+		hasScrobbler: true,
+		hasSync: false,
 	},
 	disneyplus: {
 		id: 'disneyplus',

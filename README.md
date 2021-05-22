@@ -48,6 +48,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 - Viaplay (Sync only)
 - Telia Play (Sync only)
 - Disney Plus (Scrobble only)
+- Streamz Belgium (Scrobble only)
 
 ### How does the extension work?
 
