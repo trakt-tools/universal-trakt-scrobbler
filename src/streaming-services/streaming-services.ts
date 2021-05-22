@@ -6,6 +6,7 @@ export type StreamingServiceId =
 	| 'viaplay'
 	| 'telia-play'
 	| 'streamz-be'
+	| 'vrtnu-be'
 	| 'disneyplus';
 
 export interface StreamingService {
@@ -77,6 +78,14 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		name: 'Streamz BE',
 		homePage: 'https://www.streamz.be/',
 		hostPatterns: ['*://*.streamz.be/*'],
+		hasScrobbler: true,
+		hasSync: false,
+	},
+	'vrtnu-be': {
+		id: 'vrtnu-be',
+		name: 'VRTNu BE',
+		homePage: 'https://www.vrt.be/vrtnu',
+		hostPatterns: ['*://*.vrtnu.be/*', '*://*.vrt.be/vrtnu/*'],
 		hasScrobbler: true,
 		hasSync: false,
 	},
