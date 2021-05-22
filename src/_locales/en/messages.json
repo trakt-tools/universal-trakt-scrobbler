@@ -29,8 +29,8 @@
 	"autoSync": {
 		"message": "Automatic Sync"
 	},
-	"autoSyncDescription": {
-		"message": "The number of days determines how often the automatic sync will happen for the streaming service. For the automatic sync to be activated, you must sync manually in the history page of the streaming service first, so that the last sync date can be saved.\n\nIt's also important to note that when loading the history of the streaming service, it will only load the history until the last item that was automatically synced. To reset this behavior, you have to clear the last sync date for the streaming service."
+	"autoSyncNotActivated": {
+		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
 	},
 	"autoSyncPageMessage": {
 		"message": "These are the items that were automatically synced or failed to automatically sync since the last review. If any corrections are needed, apply them, select the items that need to be corrected, and click the Sync button. When you do that, the cache will be deleted and these items will no longer appear on this page. If no corrections are needed, simply click the Clear Sync Cache button and the same thing will happen."
@@ -123,6 +123,9 @@
 	"days": {
 		"message": "Days"
 	},
+	"daysDescription": {
+		"message": "How often the automatic sync will happen."
+	},
 	"errorNotification": {
 		"message": "An error has occurred. :("
 	},
@@ -137,6 +140,9 @@
 	},
 	"from": {
 		"message": "from"
+	},
+	"goToHistoryPage": {
+		"message": "Go to History Page"
 	},
 	"grantCookiesDescription": {
 		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."

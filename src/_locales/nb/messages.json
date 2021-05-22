@@ -29,8 +29,8 @@
 	"autoSync": {
 		"message": "Synkroniser automatisk"
 	},
-	"autoSyncDescription": {
-		"message": "Antall dager avgjør hvor regelmessig automatisk synkronisering vil forekomme for den angitte strømmetjenesten. For å aktivere automatisk synkronisering må du først synkronisere manuelt i historikken en gang, slik at en synkroniseringsdato kan lagres.\n\nNB! Når du laster inn historikken til strømmetjenesten så vil den kun laste inn historikken opp til datoen på siste automatiske synkronisering. For å tilbakestille dette, må du tømme siste historikkdato for den gitte strømmetjenesten."
+	"autoSyncNotActivated": {
+		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
 	},
 	"autoSyncPageMessage": {
 		"message": "Dette er elementer som ble automatisk synkronisert eller mislykkes å synkronisere siden forrige gang. Dersom korreksjoner trengs, legg dem til, og velg elementene som trengs korreksjoner, og trykk på Synkroniser-knappen. Når du gjør det, slettes cachen og disse elementene vil ikke så på denne siden lengre. Dersom ingen korreksjoner er nødvendige, kan du trykke på Fjern synkroniseringscache-knappen og det samme vil skje."
@@ -123,6 +123,9 @@
 	"days": {
 		"message": "Dager"
 	},
+	"daysDescription": {
+		"message": "How often the automatic sync will happen."
+	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
 	},
@@ -137,6 +140,9 @@
 	},
 	"from": {
 		"message": "fra"
+	},
+	"goToHistoryPage": {
+		"message": "Go to History Page"
 	},
 	"grantCookiesDescription": {
 		"message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
