@@ -93,7 +93,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 									<IconButton
 										color="inherit"
 										onClick={() =>
-											onLinkClick(browser.runtime.getURL('html/history.html?auto_sync=true'))
+											onLinkClick(browser.runtime.getURL('html/history.html#/auto-sync'))
 										}
 									>
 										<SyncIcon color={syncButton.hasError ? 'secondary' : 'inherit'} />

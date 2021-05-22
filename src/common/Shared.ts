@@ -1,7 +1,11 @@
+import { History } from 'history';
+
 interface SharedValues {
 	browser: BrowserName;
 	pageType: PageType;
 	tabId?: number;
+	history?: History;
+	redirectPath?: string;
 }
 
 type BrowserPrefix = 'moz' | 'chrome' | 'unknown';

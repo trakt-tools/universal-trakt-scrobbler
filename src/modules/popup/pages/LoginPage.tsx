@@ -7,6 +7,7 @@ import { Errors } from '../../../common/Errors';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { Session } from '../../../common/Session';
+import { Shared } from '../../../common/Shared';
 import { UtsCenter } from '../../../components/UtsCenter';
 
 export const LoginPage: React.FC = () => {
@@ -31,7 +32,11 @@ export const LoginPage: React.FC = () => {
 
 		const onLoginSuccess = () => {
 			setLoading(false);
-			history.push('/home');
+			if (Shared.redirectPath) {
+				history.push(Shared.redirectPath);
+			} else {
+				history.push('/home');
+			}
 		};
 
 		const onLoginError = () => {

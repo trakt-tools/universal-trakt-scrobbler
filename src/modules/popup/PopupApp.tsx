@@ -1,18 +1,21 @@
 import { Box } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import { createBrowserHistory } from 'history';
+import { createHashHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { EventDispatcher } from '../../common/Events';
 import { Session } from '../../common/Session';
+import { Shared } from '../../common/Shared';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { LoginWrapper } from '../../components/LoginWrapper';
 import { PopupHeader } from './components/PopupHeader';
 import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 
-const history = createBrowserHistory();
+const history = createHashHistory();
+Shared.history = history;
 
 export const PopupApp: React.FC = () => {
 	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
@@ -51,9 +54,14 @@ export const PopupApp: React.FC = () => {
 				<Box className="popup-container--content">
 					<Router history={history}>
 						<Switch>
-							<Route component={LoginPage} path="/login" />
-							<Route component={HomePage} path="/home" />
-							<Route component={AboutPage} path="/about" />
+							<Route path="/login" render={() => <LoginPage />} />
+							<Route
+								path="/home"
+								render={LoginWrapper.wrap(() => (
+									<HomePage />
+								))}
+							/>
+							<Route path="/about" render={() => <AboutPage />} />
 							<Redirect to="/login" />
 						</Switch>
 					</Router>

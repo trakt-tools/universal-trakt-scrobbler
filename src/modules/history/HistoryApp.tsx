@@ -1,11 +1,13 @@
 import { Container } from '@material-ui/core';
-import { createBrowserHistory } from 'history';
+import { createHashHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import { EventDispatcher } from '../../common/Events';
 import { Session } from '../../common/Session';
+import { Shared } from '../../common/Shared';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { LoginWrapper } from '../../components/LoginWrapper';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
 import { streamingServicePages } from '../../streaming-services/pages';
@@ -15,7 +17,8 @@ import { AutoSyncPage } from './pages/AutoSyncPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 
-const history = createBrowserHistory();
+const history = createHashHistory();
+Shared.history = history;
 
 export const HistoryApp: React.FC = () => {
 	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
@@ -50,19 +53,24 @@ export const HistoryApp: React.FC = () => {
 			<Container className="history-container">
 				<Router history={history}>
 					<Switch>
-						<Route component={LoginPage} path="/login" />
-						<Route component={HomePage} path="/home" />
-						<Route component={AboutPage} path="/about" />
-						{streamingServicePages.map((service) => (
-							<Route key={service.id} component={service.pageBuilder} path={service.path} />
-						))}
-						<Route component={AutoSyncPage} path="/auto-sync" />
-						<Redirect
-							to={{
-								pathname: '/login',
-								search: window.location.search,
-							}}
+						<Route path="/login" render={() => <LoginPage />} />
+						<Route
+							path="/home"
+							render={LoginWrapper.wrap(() => (
+								<HomePage />
+							))}
 						/>
+						<Route path="/about" render={() => <AboutPage />} />
+						{streamingServicePages.map((service) => (
+							<Route key={service.id} path={service.path} render={service.pageBuilder} />
+						))}
+						<Route
+							path="/auto-sync"
+							render={LoginWrapper.wrap(() => (
+								<AutoSyncPage />
+							))}
+						/>
+						<Redirect to="/login" />
 					</Switch>
 				</Router>
 				<UtsDialog />

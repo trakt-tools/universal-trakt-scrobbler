@@ -1,3 +1,5 @@
+import * as React from 'react';
+import { LoginWrapper } from '../../components/LoginWrapper';
 import { SyncPage } from '../../modules/history/pages/SyncPage';
 import { StreamingServiceId } from '../streaming-services';
 import { Api } from './Api';
@@ -50,13 +52,13 @@ export const getSyncStore = (serviceId: StreamingServiceId | null) => {
 	return syncStores[storeId];
 };
 
-const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactElement | null>;
+const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactNode | null>;
 
 export const getSyncPageBuilder = (
 	serviceId: StreamingServiceId
-): (() => React.ReactElement | null) => {
+): (() => React.ReactNode | null) => {
 	if (!syncPageBuilders[serviceId]) {
-		syncPageBuilders[serviceId] = () => SyncPage({ serviceId });
+		syncPageBuilders[serviceId] = LoginWrapper.wrap(() => <SyncPage serviceId={serviceId} />);
 	}
 	return syncPageBuilders[serviceId];
 };
