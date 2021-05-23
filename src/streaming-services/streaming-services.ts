@@ -6,6 +6,7 @@ export type StreamingServiceId =
 	| 'viaplay'
 	| 'telia-play'
 	| 'streamz-be'
+	| 'vtmgo-be'
 	| 'goplay-be'
 	| 'disneyplus';
 
@@ -78,6 +79,14 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		name: 'Streamz BE',
 		homePage: 'https://www.streamz.be/',
 		hostPatterns: ['*://*.streamz.be/*'],
+		hasScrobbler: true,
+		hasSync: false,
+	},
+	'vtmgo-be': {
+		id: 'vtmgo-be',
+		name: 'VTMGo BE',
+		homePage: 'https://www.vtm.be/vtmgo',
+		hostPatterns: ['*://*.vtmgo.be/*', '*://*.vtm.be/vtmgo/*'],
 		hasScrobbler: true,
 		hasSync: false,
 	},
