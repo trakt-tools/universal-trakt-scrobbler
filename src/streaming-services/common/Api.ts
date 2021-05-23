@@ -5,7 +5,7 @@ import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { TraktItem, TraktItemBase } from '../../models/TraktItem';
+import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services';
 
 export abstract class Api {
@@ -47,7 +47,7 @@ export abstract class Api {
 
 	static loadTraktItemHistory = async (
 		item: Item,
-		traktCache: Record<string, TraktItemBase>,
+		traktCache: Record<string, SavedTraktItem>,
 		correctItem?: CorrectItem
 	) => {
 		if (item.trakt && !correctItem) {
@@ -59,10 +59,10 @@ export abstract class Api {
 			item.trakt =
 				correctItem || !cacheItem
 					? await TraktSearch.find(item, correctItem)
-					: new TraktItem(cacheItem);
+					: TraktItem.load(cacheItem);
 			await TraktSync.loadHistory(item);
 			if (item.trakt) {
-				traktCache[cacheId] = TraktItem.getBase(item.trakt);
+				traktCache[cacheId] = TraktItem.save(item.trakt);
 			}
 		} catch (err) {
 			item.trakt = null;

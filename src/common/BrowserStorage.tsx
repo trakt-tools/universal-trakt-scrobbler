@@ -1,8 +1,8 @@
 import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
-import { CorrectionSuggestion, ItemBase, SavedItem } from '../models/Item';
-import { TraktItemBase } from '../models/TraktItem';
+import { CorrectionSuggestion, SavedItem } from '../models/Item';
+import { SavedTraktItem } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { I18N } from './I18N';
@@ -12,7 +12,7 @@ export type StorageValues = {
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptions;
 	syncOptions?: StorageValuesSyncOptions;
-	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
+	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
 	scrobblingItem?: ScrobblingItem;
@@ -58,8 +58,7 @@ export type CorrectItem = {
 	url: string;
 };
 
-export type ScrobblingItem = Omit<ItemBase, ''> & {
-	trakt: Omit<TraktItemBase, ''>;
+export type ScrobblingItem = Omit<SavedItem, ''> & {
 	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
 };
 

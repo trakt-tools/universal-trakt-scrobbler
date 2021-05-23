@@ -1,6 +1,8 @@
 import * as moment from 'moment';
 
-export type ITraktItem = TraktItemBase & TraktItemExtra;
+export interface ITraktItem extends TraktItemBase {
+	watchedAt?: moment.Moment;
+}
 
 export interface TraktItemBase {
 	id: number;
@@ -12,18 +14,12 @@ export interface TraktItemBase {
 	episode?: number;
 	episodeTitle?: string;
 	releaseDate: string | null;
-}
-
-export interface TraktItemExtra {
 	syncId?: number;
-	watchedAt?: moment.Moment;
 	progress?: number;
 }
 
 export interface SavedTraktItem extends TraktItemBase {
-	syncId?: number;
 	watchedAt?: number;
-	progress: number;
 }
 
 export class TraktItem implements ITraktItem {
@@ -57,7 +53,7 @@ export class TraktItem implements ITraktItem {
 		this.progress = options.progress ?? 0;
 	}
 
-	static getBase = (item: TraktItem): TraktItemBase => {
+	static save = (item: TraktItem): SavedTraktItem => {
 		return {
 			id: item.id,
 			tmdbId: item.tmdbId,
@@ -68,12 +64,6 @@ export class TraktItem implements ITraktItem {
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
 			releaseDate: item.releaseDate,
-		};
-	};
-
-	static save = (item: TraktItem): SavedTraktItem => {
-		return {
-			...TraktItem.getBase(item),
 			syncId: item.syncId,
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,

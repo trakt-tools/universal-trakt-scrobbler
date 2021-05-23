@@ -16,7 +16,19 @@ const correctTitles: Record<string, string> = {
 	['Young and Hungry']: '"Young and Hungry"',
 };
 
-export type IItem = ItemBase & ItemExtra;
+export interface IItem extends ItemBase {
+	watchedAt?: moment.Moment;
+	trakt?: TraktItem | null;
+	isSelected?: boolean;
+	index?: number;
+	correctionSuggestions?: CorrectionSuggestion[] | null;
+	imageUrl?: string | null;
+}
+
+export interface SavedItem extends ItemBase {
+	watchedAt?: number;
+	trakt?: Omit<SavedTraktItem, ''> | null;
+}
 
 export interface ItemBase {
 	serviceId: StreamingServiceId;
@@ -28,16 +40,7 @@ export interface ItemBase {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-}
-
-export interface ItemExtra {
-	watchedAt?: moment.Moment;
 	percentageWatched?: number;
-	trakt?: TraktItem | null;
-	isSelected?: boolean;
-	index?: number;
-	correctionSuggestions?: CorrectionSuggestion[] | null;
-	imageUrl?: string | null;
 }
 
 export interface CorrectionSuggestion {
@@ -45,12 +48,6 @@ export interface CorrectionSuggestion {
 	traktId?: number;
 	url: string;
 	count: number;
-}
-
-export interface SavedItem extends ItemBase {
-	watchedAt?: number;
-	percentageWatched?: number;
-	trakt?: Omit<SavedTraktItem, ''> | null;
 }
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
@@ -93,7 +90,7 @@ export class Item implements IItem {
 		this.imageUrl = options.imageUrl;
 	}
 
-	static getBase = (item: Item): ItemBase => {
+	static save = (item: Item): SavedItem => {
 		return {
 			serviceId: item.serviceId,
 			id: item.id,
@@ -104,12 +101,6 @@ export class Item implements IItem {
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
 			isCollection: item.isCollection,
-		};
-	};
-
-	static save = (item: Item): SavedItem => {
-		return {
-			...Item.getBase(item),
 			watchedAt: item.watchedAt?.unix(),
 			percentageWatched: item.percentageWatched,
 			trakt: item.trakt && TraktItem.save(item.trakt),
