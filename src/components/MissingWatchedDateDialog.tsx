@@ -100,7 +100,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 						if (!releaseDate) {
 							throw new Error('Missing release date');
 						}
-						item.watchedAt = moment(releaseDate);
+						item.watchedAt = releaseDate.clone();
 					}
 					break;
 				}

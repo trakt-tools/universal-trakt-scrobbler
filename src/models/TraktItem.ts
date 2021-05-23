@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 export interface ITraktItem extends TraktItemBase {
+	releaseDate: moment.Moment | null;
 	watchedAt?: moment.Moment;
 }
 
@@ -13,12 +14,12 @@ export interface TraktItemBase {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	releaseDate: string | null;
 	syncId?: number;
 	progress?: number;
 }
 
 export interface SavedTraktItem extends TraktItemBase {
+	releaseDate: number | null;
 	watchedAt?: number;
 }
 
@@ -31,7 +32,7 @@ export class TraktItem implements ITraktItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	releaseDate: string | null;
+	releaseDate: moment.Moment | null;
 	syncId?: number;
 	watchedAt?: moment.Moment;
 	progress: number;
@@ -47,7 +48,7 @@ export class TraktItem implements ITraktItem {
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
 		}
-		this.releaseDate = options.releaseDate;
+		this.releaseDate = options.releaseDate?.clone() ?? null;
 		this.syncId = options.syncId;
 		this.watchedAt = options.watchedAt?.clone();
 		this.progress = options.progress ?? 0;
@@ -63,7 +64,7 @@ export class TraktItem implements ITraktItem {
 			season: item.season,
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
-			releaseDate: item.releaseDate,
+			releaseDate: item.releaseDate?.unix() ?? null,
 			syncId: item.syncId,
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,
@@ -73,6 +74,7 @@ export class TraktItem implements ITraktItem {
 	static load = (savedItem: SavedTraktItem): TraktItem => {
 		const options: ITraktItem = {
 			...savedItem,
+			releaseDate: savedItem.releaseDate ? moment(savedItem.releaseDate * 1e3) : null,
 			watchedAt:
 				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
 		};
