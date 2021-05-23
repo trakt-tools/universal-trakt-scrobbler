@@ -1,6 +1,7 @@
 import { CircularProgress, Container } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { TraktSettings } from '../../api/TraktSettings';
 import {
 	BrowserStorage,
 	StorageValuesOptions,
@@ -12,6 +13,8 @@ import {
 	OptionsChangeData,
 	StreamingServiceOptionsChangeData,
 } from '../../common/Events';
+import { Session } from '../../common/Session';
+import { Shared } from '../../common/Shared';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsCenter } from '../../components/UtsCenter';
 import { UtsDialog } from '../../components/UtsDialog';
@@ -202,6 +205,10 @@ export const OptionsApp: React.FC = () => {
 			await BrowserStorage.init();
 			if (BrowserStorage.options.allowRollbar) {
 				Errors.startRollbar();
+			}
+			await Session.checkLogin();
+			if (Session.isLoggedIn) {
+				Shared.dateFormat = await TraktSettings.getTimeAndDateFormat();
 			}
 			setContent({
 				isLoading: false,

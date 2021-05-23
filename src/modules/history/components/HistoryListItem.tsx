@@ -12,13 +12,12 @@ import {
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
-	dateFormat: string;
 	item: Item;
 	serviceId: StreamingServiceId | null;
 }
 
 export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {
-	const { dateFormat, item, serviceId } = props;
+	const { item, serviceId } = props;
 
 	const onCheckboxChange = async () => {
 		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
@@ -56,7 +55,6 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				/>
 			)}
 			<HistoryListItemCard
-				dateFormat={dateFormat}
 				item={item}
 				name={streamingServices[item.serviceId].name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
@@ -67,7 +65,6 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 				</Box>
 			</Tooltip>
 			<HistoryListItemCard
-				dateFormat={dateFormat}
 				item={item.trakt}
 				name="Trakt"
 				correctionSuggestions={item.correctionSuggestions}

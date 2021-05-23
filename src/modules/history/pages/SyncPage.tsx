@@ -3,7 +3,6 @@ import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { TmdbApi } from '../../../api/TmdbApi';
-import { TraktSettings } from '../../../api/TraktSettings';
 import { TraktSync } from '../../../api/TraktSync';
 import { WrongItemApi } from '../../../api/WrongItemApi';
 import { BrowserStorage } from '../../../common/BrowserStorage';
@@ -77,7 +76,6 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			  }),
 		continueLoading: false,
 	});
-	const [dateFormat, setDateFormat] = useState('MMMM Do YYYY, H:mm:ss');
 
 	const loadPreviousPage = () => {
 		void store.goToPreviousPage().update();
@@ -368,14 +366,6 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	}, [content.isLoading]);
 
 	useEffect(() => {
-		const getDateFormat = async () => {
-			setDateFormat(await TraktSettings.getTimeAndDateFormat());
-		};
-
-		void getDateFormat();
-	}, []);
-
-	useEffect(() => {
 		const loadFirstPage = () => {
 			if (serviceId && store.data.page === 0) {
 				store.setData({ itemsPerPage: BrowserStorage.syncOptions.itemsPerLoad });
@@ -439,11 +429,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			<Box className="history-content">
 				<HistoryOptionsList store={store} />
 				{store.data.visibleItems.length > 0 && (
-					<HistoryList
-						dateFormat={dateFormat}
-						items={store.data.visibleItems}
-						serviceId={serviceId}
-					/>
+					<HistoryList items={store.data.visibleItems} serviceId={serviceId} />
 				)}
 			</Box>
 			{!hasNextPage && (

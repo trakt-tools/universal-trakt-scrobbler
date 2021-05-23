@@ -11,13 +11,13 @@ import {
 import * as React from 'react';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
+import { Shared } from '../../../common/Shared';
 import { TmdbImage } from '../../../components/TmdbImage';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { CorrectionSuggestion, Item } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
-	dateFormat: string;
 	item?: Item | TraktItem | null;
 	name: string;
 	correctionSuggestions?: CorrectionSuggestion[] | null;
@@ -30,7 +30,6 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
 	const {
-		dateFormat,
 		item,
 		name,
 		correctionSuggestions,
@@ -42,7 +41,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	const watchedAtComponent = item ? (
 		item.watchedAt ? (
 			<Typography variant="overline">
-				{`${I18N.translate('watched')} ${item.watchedAt.format(dateFormat)}`}
+				{`${I18N.translate('watched')} ${item.watchedAt.format(Shared.dateFormat)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
 			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
