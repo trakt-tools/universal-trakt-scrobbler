@@ -50,6 +50,8 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 - Disney Plus (Scrobble only)
 - Streamz Belgium (Scrobble only)
 - VRTNu Belgium (Scrobble only)
+- VTM Go Belgium (Scrobble only)
+- GoPlay Belgium (Scrobble only)
 
 ### How does the extension work?
 

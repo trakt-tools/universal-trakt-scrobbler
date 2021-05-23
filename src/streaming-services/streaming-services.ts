@@ -7,6 +7,8 @@ export type StreamingServiceId =
 	| 'telia-play'
 	| 'streamz-be'
 	| 'vrtnu-be'
+	| 'vtmgo-be'
+	| 'goplay-be'
 	| 'disneyplus';
 
 export interface StreamingService {
@@ -88,6 +90,22 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		hostPatterns: ['*://*.vrtnu.be/*', '*://*.vrt.be/vrtnu/*'],
 		hasScrobbler: true,
 		hasSync: false,
+	},
+	'vtmgo-be': {
+		id: 'vtmgo-be',
+		name: 'VTMGo BE',
+		homePage: 'https://www.vtm.be/vtmgo',
+		hostPatterns: ['*://*.vtmgo.be/*', '*://*.vtm.be/vtmgo/*'],
+		hasScrobbler: true,
+		hasSync: false,
+	},
+	'goplay-be': {
+		id: 'goplay-be',
+		name: 'GoPlay BE',
+		homePage: 'https://www.goplay.be/',
+		hostPatterns: ['*://*.goplay.be/*'],
+		hasScrobbler: false,
+		hasSync: true,
 	},
 	disneyplus: {
 		id: 'disneyplus',
