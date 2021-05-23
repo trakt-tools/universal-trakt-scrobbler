@@ -185,6 +185,9 @@
 	"itemsPerLoadName": {
 		"message": "Itens por página."
 	},
+	"lastSync": {
+		"message": "Data da Última Sincronização"
+	},
 	"lightTheme": {
 		"message": "Claro"
 	},

@@ -185,6 +185,9 @@
 	"itemsPerLoadName": {
 		"message": "Items per load."
 	},
+	"lastSync": {
+		"message": "Last Sync Date"
+	},
 	"lightTheme": {
 		"message": "Light"
 	},

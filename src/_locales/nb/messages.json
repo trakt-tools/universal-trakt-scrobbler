@@ -185,6 +185,9 @@
 	"itemsPerLoadName": {
 		"message": "Antall elementer i hver innlasting."
 	},
+	"lastSync": {
+		"message": "Last Sync Date"
+	},
 	"lightTheme": {
 		"message": "Lyst"
 	},
