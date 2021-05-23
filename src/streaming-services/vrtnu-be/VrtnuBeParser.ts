@@ -33,26 +33,28 @@ class _VrtnuBeParser implements ScrobbleParser {
 		let showTitle: string | null = null;
 		let seasonOrYear: string | null = null;
 		let subTitle: string | undefined = undefined;
-		const matches = /\/a-z\/(.+)\/(.+)\/(.+)\//.exec(location.href);
+		let seasonAndEpisode: string | undefined = undefined;
+		let id: string | undefined = undefined;
+		let seasonStr: string | undefined = undefined;
+		let episodeStr: string | undefined = undefined;
+
+		// https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
+		// https://www.vrt.be/vrtnu/a-z/une-soeur/2018/une-soeur/
+		const matches = /\/a-z\/(.+)\/(.+)\/((.+?)(-s(\d+)a(\d+))?)\//.exec(location.href);
 
 		if (matches) {
-			[, showTitle, seasonOrYear, subTitle] = matches;
+			[, showTitle, seasonOrYear, id, subTitle, seasonAndEpisode, seasonStr, episodeStr] = matches;
 		}
 
-		const id = subTitle ?? '';
 		const title = showTitle?.split('-').join(' ') ?? '';
 		const episodeTitle = '';
-		const isSeason = subTitle?.lastIndexOf('s' + String(seasonOrYear) + 'a') ?? 0;
-		const episode =
-			isSeason > 0
-				? parseInt(subTitle?.substring(isSeason + ((seasonOrYear?.length ?? 0) + 2)) ?? '')
-				: undefined;
-		const type = isSeason > 0 ? 'show' : 'movie';
-		const season = isSeason > 0 ? parseInt(seasonOrYear ?? '') || 0 : undefined;
-		const year = isSeason <= 0 ? parseInt(seasonOrYear ?? '') : 0;
+		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
+		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
+		const type = seasonAndEpisode ? 'show' : 'movie';
+		const year = !seasonAndEpisode ? parseInt(seasonOrYear ?? '') : 0;
 		const isCollection = false;
 
-		if (showTitle) {
+		if (id) {
 			this.videoId = id;
 		} else {
 			return undefined;
