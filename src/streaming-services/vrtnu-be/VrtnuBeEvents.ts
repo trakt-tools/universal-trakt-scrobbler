@@ -19,7 +19,7 @@ class _VrtnuBeEvents extends ScrobbleEvents {
 		// Todo cleanup this code - no api available atm
 		const regx = /\/a-z\/(.+)\/(.+)\/(.+)\//;
 		const oldUrlMatch = regx.test(oldUrl);
-		const newUrlMatch = regx.test(oldUrl);
+		const newUrlMatch = regx.test(newUrl);
 
 		if (oldUrlMatch && newUrlMatch) {
 			await this.stop();

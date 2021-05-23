@@ -40,13 +40,16 @@ class _VrtnuBeParser implements ScrobbleParser {
 		}
 
 		const id = subTitle ?? '';
-		const title = showTitle ?? '';
+		const title = showTitle?.split('-').join(' ') ?? '';
 		const episodeTitle = '';
-		const episodeId = subTitle?.substring(subTitle?.lastIndexOf('s' + seasonOrYear + 'a')) ?? '';
-		const type = episodeId ? 'show' : 'movie';
-		const season = type == 'show' ? parseInt(seasonOrYear ?? '') || 0 : 0;
-		const episode = type == 'show' ? parseInt(episodeId ?? '') || 0 : 0;
-		const year = type == 'movie' ? parseInt(seasonOrYear ?? '') : 0;
+		const isSeason = subTitle?.lastIndexOf('s' + seasonOrYear + 'a') ?? 0;
+		const episode =
+			isSeason > 0
+				? parseInt(subTitle?.substring(isSeason + ((seasonOrYear?.length ?? 0) + 2)) ?? '')
+				: undefined;
+		const type = isSeason > 0 ? 'show' : 'movie';
+		const season = isSeason > 0 ? parseInt(seasonOrYear ?? '') || 0 : undefined;
+		const year = isSeason <= 0 ? parseInt(seasonOrYear ?? '') : 0;
 		const isCollection = false;
 
 		if (showTitle) {
