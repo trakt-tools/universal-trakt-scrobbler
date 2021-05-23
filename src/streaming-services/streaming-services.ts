@@ -6,6 +6,7 @@ export type StreamingServiceId =
 	| 'viaplay'
 	| 'telia-play'
 	| 'streamz-be'
+	| 'goplay-be'
 	| 'disneyplus';
 
 export interface StreamingService {
@@ -79,6 +80,14 @@ export const streamingServices: Record<StreamingServiceId, StreamingService> = {
 		hostPatterns: ['*://*.streamz.be/*'],
 		hasScrobbler: true,
 		hasSync: false,
+	},
+	'goplay-be': {
+		id: 'goplay-be',
+		name: 'GoPlay BE',
+		homePage: 'https://www.goplay.be/',
+		hostPatterns: ['*://*.goplay.be/*'],
+		hasScrobbler: false,
+		hasSync: true,
 	},
 	disneyplus: {
 		id: 'disneyplus',
