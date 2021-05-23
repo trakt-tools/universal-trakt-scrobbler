@@ -42,7 +42,7 @@ class _VrtnuBeParser implements ScrobbleParser {
 		const id = subTitle ?? '';
 		const title = showTitle?.split('-').join(' ') ?? '';
 		const episodeTitle = '';
-		const isSeason = subTitle?.lastIndexOf('s' + seasonOrYear + 'a') ?? 0;
+		const isSeason = subTitle?.lastIndexOf('s' + String(seasonOrYear) + 'a') ?? 0;
 		const episode =
 			isSeason > 0
 				? parseInt(subTitle?.substring(isSeason + ((seasonOrYear?.length ?? 0) + 2)) ?? '')
