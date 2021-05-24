@@ -1,0 +1,343 @@
+{
+	"about": {
+		"message": "Over"
+	},
+	"aboutMessage": {
+		"message": "Jouw streaming service historiek, rechtstreeks op Trakt.tv!"
+	},
+	"add": {
+		"message": "Toevoegen"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Het is niet gelukt om de bekeken data toe te voegen."
+	},
+	"addWithReleaseDateName": {
+		"message": "Voeg toe met datum van publicatie."
+	},
+	"allowRollbarDescription": {
+		"message": "Deze optie, indien ingeschakeld, stuurt bij het optreden van een fout, informatie door naar ons zodat we deze snel kunnen oplossen en de extentie kunnen verbeteren. Deze informatie bevat: wanneer de fout voor kwam, een traceback van de fout, de naam en versie van uw browser en de naam van uw besturingssysteem. Deze data wordt niet gedeeld met anderen."
+	},
+	"allowRollbarName": {
+		"message": "Rollbar toelaten om informatie over fouten te verzamelen."
+	},
+	"appDescription": {
+		"message": "Een universele synchronisatie extentie voor Trakt.tv"
+	},
+	"cancel": {
+		"message": "Annuleren"
+	},
+	"cannotSync": {
+		"message": "Kan deze items niet synchroniseren"
+	},
+	"cannotSyncMissingWatchedDate": {
+		"message": "Sommige items missen de kijk datum. Los dit per item op of schakel de optie in om toe te voegen met datum van publicatie."
+	},
+	"clearStorage": {
+		"message": "Gegevens verwijderen"
+	},
+	"clearStorageFailed": {
+		"message": "Gegevens kon niet worden verwijderd."
+	},
+	"clearStorageSuccess": {
+		"message": "Gegevens verwijderd."
+	},
+	"clearTraktCache": {
+		"message": "Trakt Cache verwijderen"
+	},
+	"clearTraktCacheFailed": {
+		"message": "Trakt cache kon niet worden verwijderd."
+	},
+	"clearTraktCacheSuccess": {
+		"message": "Trakt cache verwijderd."
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Sluiten"
+	},
+	"confirmClearStorageMessage": {
+		"message": "Alle opties worden reset naar hun oorspronkelijke waarde, waardoor je opnieuw moet inloggen."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Gegevens verwijderen?"
+	},
+	"confirmClearTraktCacheMessage": {
+		"message": "Alle items die je gecorrigeerd hebt worden gereset."
+	},
+	"confirmClearTraktCacheTitle": {
+		"message": "Trakt cache verwijderen?"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Corrigeren"
+	},
+	"correctWrongItem": {
+		"message": "Corrigeer verkeerd item"
+	},
+	"correctWrongItemFailed": {
+		"message": "Kon het item niet corrigeren."
+	},
+	"couldNotScrobble": {
+		"message": "Kon de data niet verwerken."
+	},
+	"darkTheme": {
+		"message": "Donker"
+	},
+	"disableScrobblingDescription": {
+		"message": "Indien deze optie is ingeschakeld, zal de extentie niet automatisch uw data verwerken bij het afspelen. Dit is handig indien je enkel via je historiek wil synchroniseren."
+	},
+	"disableScrobblingName": {
+		"message": "Automatisch verwerken uitschakelen"
+	},
+	"errorNotification": {
+		"message": "Er is een fout opgetreden. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Het lijkt erop dat je niet bent ingelogd. Open de extentie en login met je Trakt account."
+	},
+	"errorNotificationNotFound": {
+		"message": "Oeps! We konden niet vinden wat je aan het bekijken bent op Trakt! Laat een bericht achter met de titel van het item."
+	},
+	"errorNotificationServers": {
+		"message": "We konden geen verbinding maken met de Trakt servers. Probeer het later nog eens."
+	},
+	"from": {
+		"message": "van"
+	},
+	"grantCookiesDescription": {
+		"message": "Indien deze optie is ingeschakeld, zal de extentie werken met Firefox Containers door het ophalen van cookies van de huidige container waarin je je bevindt. Schakel deze optie enkel in indien je gebruik maakt van Firefox Containers."
+	},
+	"grantCookiesName": {
+		"message": "Laat \"cookies\" toe zodat de extentie kan werken met Firefox Containers."
+	},
+	"hideSyncedName": {
+		"message": "Verberg gesynchroniseerden."
+	},
+	"history": {
+		"message": "Historiek"
+	},
+	"historySyncError": {
+		"message": "Kon de historiek niet synchroniseren."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ afleveringen en $MOVIES$ films gesynchroniseerd.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Home"
+	},
+	"isThisWrong": {
+		"message": "Is dit fout?"
+	},
+	"itemNotSynced": {
+		"message": "Item niet gesynchroniseerd"
+	},
+	"itemSynced": {
+		"message": "Item gesynchroniseerd"
+	},
+	"itemsPerLoadName": {
+		"message": "Items per keer."
+	},
+	"lightTheme": {
+		"message": "Licht"
+	},
+	"loadHistoryError": {
+		"message": "Kon de historiek niet laden."
+	},
+	"loadTraktHistoryError": {
+		"message": "Kon de Trakt historiek niet laden."
+	},
+	"loadingSuggestions": {
+		"message": "Suggesties inladen"
+	},
+	"login": {
+		"message": "Log in met Trakt.tv"
+	},
+	"logout": {
+		"message": "Uitloggen"
+	},
+	"missingWatchedDate": {
+		"message": "Kijk datum vermist"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Kies hoe je de vermiste kijk datum wil ingeven voor $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Selecteer de datum"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Geef een geldige datum in!"
+	},
+	"nextPage": {
+		"message": "Volgende Pagina"
+	},
+	"no": {
+		"message": "Nee"
+	},
+	"noMoreHistory": {
+		"message": "Einde van de historiek bereikt."
+	},
+	"noStreamingServices": {
+		"message": "Geen streaming services ingeschakeld. Je kan deze inschakelen op de opties pagina."
+	},
+	"notFound": {
+		"message": "Niet Gevonden"
+	},
+	"notWatched": {
+		"message": "Niet Bekeken"
+	},
+	"notWatching": {
+		"message": "Bekijk iets!"
+	},
+	"nowScrobbling": {
+		"message": "Aan het verwerken"
+	},
+	"on": {
+		"message": "Aan"
+	},
+	"options": {
+		"message": "Opties"
+	},
+	"previousPage": {
+		"message": "Vorige Pagina"
+	},
+	"progress": {
+		"message": "Vooruitgang: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"readMore": {
+		"message": "Lees meer"
+	},
+	"save": {
+		"message": "Opslaan"
+	},
+	"saveOptionFailed": {
+		"message": "Kon de optie niet opslaan."
+	},
+	"saveOptionSuccess": {
+		"message": "Optie opgeslagen."
+	},
+	"saveSuggestionFailed": {
+		"message": "Kon de suggestie niet opslaan."
+	},
+	"scrobblePaused": {
+		"message": "Verwerken gepauzeerd."
+	},
+	"scrobbleStarted": {
+		"message": "Verwerken gestart."
+	},
+	"scrobbleStopped": {
+		"message": "Verwerken gestopt."
+	},
+	"select": {
+		"message": "Selecteer:"
+	},
+	"selectAll": {
+		"message": "Alle"
+	},
+	"selectNone": {
+		"message": "Geen"
+	},
+	"selectStreamingService": {
+		"message": "Selecteer een streaming service om te synchroniseren:"
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "Indien deze optie is ingeschakeld, zal telkens bij het updaten van een verkeerd item, de correctie worden doorgestuurd naar een Google Sheets databank. Op deze manier krijgen andere gebruikers een suggestie voor correcties. Deze optie is verplicht indien je zelf suggesties wil ontvangen."
+	},
+	"sendReceiveSuggestionsName": {
+		"message": "Verstuur / ontvang correctie suggesties."
+	},
+	"showNotificationsDescription": {
+		"message": "Indien deze optie is ingeschakeld, ontvang je browser notificaties wanneer het verwerken van de film/serie gegevens worden gestart of gestopt."
+	},
+	"showNotificationsName": {
+		"message": "Toon  browser notificaties."
+	},
+	"streamingServicesDescription": {
+		"message": "Kies welke streaming services in te schakelen."
+	},
+	"streamingServicesName": {
+		"message": "Streaming services"
+	},
+	"suggestedBy": {
+		"message": "Gesuggereerd door $COUNT$ gebruikers",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "$SUGGESTIONS$ suggesties",
+		"placeholders": {
+			"suggestions": {
+				"content": "$1"
+			}
+		}
+	},
+	"sync": {
+		"message": "Synchroniseer"
+	},
+	"systemTheme": {
+		"message": "Gebruik de systeem voorkeuren"
+	},
+	"themeDescription": {
+		"message": "Kies welk thema te gebruiken."
+	},
+	"themeName": {
+		"message": "Thema"
+	},
+	"toggleAll": {
+		"message": "Wissel"
+	},
+	"use": {
+		"message": "Gebruik"
+	},
+	"use24ClockName": {
+		"message": "Gebruik 24-uur notatie."
+	},
+	"useCurrentDate": {
+		"message": "Gebruik de huidige datum."
+	},
+	"useCustomDate": {
+		"message": "Gebruik een aangepaste datum."
+	},
+	"useReleaseDate": {
+		"message": "Gebruik datum van publicatie."
+	},
+	"watched": {
+		"message": "Bekeken op"
+	},
+	"wrongItemDialogContent": {
+		"message": "Voeg de correcte Trakt URL toe voor $TITLE$ in het onderstaande veld.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"wrongItemDialogContentSuggestions": {
+		"message": "Correctie suggesties (klik om te gebruiken):"
+	},
+	"wrongItemDialogInvalidUrlLabel": {
+		"message": "Geef een geldige Trakt URL in!"
+	},
+	"yes": {
+		"message": "Ja"
+	}
+}
