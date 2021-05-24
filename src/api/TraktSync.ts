@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import { BrowserStorage } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher } from '../common/Events';
 import { RequestException, Requests } from '../common/Requests';
@@ -39,7 +38,8 @@ class _TraktSync extends TraktApi {
 	}
 
 	loadHistory = async (item: Item): Promise<void> => {
-		if (!item.watchedAt || !item.trakt) {
+		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
+		if (!item.trakt || !watchedAt) {
 			return;
 		}
 		const responseText = await Requests.send({
@@ -53,10 +53,10 @@ class _TraktSync extends TraktApi {
 				id: historyItem.id,
 				watched_at: moment(historyItem.watched_at),
 			};
-			if (item.trakt.watchedAt?.isSame(parsedHistoryItem.watched_at)) {
+			if (watchedAt.isSame(parsedHistoryItem.watched_at)) {
 				historyItemMatch = parsedHistoryItem;
 				break;
-			} else if (item.watchedAt.diff(parsedHistoryItem.watched_at, 'days') === 0) {
+			} else if (watchedAt.diff(parsedHistoryItem.watched_at, 'days') === 0) {
 				historyItemMatch = parsedHistoryItem;
 			}
 		}
@@ -101,13 +101,13 @@ class _TraktSync extends TraktApi {
 					.filter((item) => item.type === 'show')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: BrowserStorage.syncOptions.addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: item.getWatchedDate(),
 					})),
 				movies: items
 					.filter((item) => item.type === 'movie')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: BrowserStorage.syncOptions.addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: item.getWatchedDate(),
 					})),
 			};
 			const responseText = await Requests.send({

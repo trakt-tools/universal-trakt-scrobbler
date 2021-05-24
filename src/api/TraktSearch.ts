@@ -79,7 +79,7 @@ class _TraktSearch extends TraktApi {
 				const episode = searchItem.episode.number;
 				const episodeTitle = searchItem.episode.title;
 				const firstAired = searchItem.episode.first_aired;
-				const releaseDate = firstAired ? moment(firstAired) : null;
+				const releaseDate = firstAired ? moment(firstAired) : undefined;
 				traktItem = new TraktItem({
 					id,
 					tmdbId,
@@ -97,7 +97,7 @@ class _TraktSearch extends TraktApi {
 				const title = searchItem.movie.title;
 				const year = searchItem.movie.year;
 				const released = searchItem.movie.released;
-				let releaseDate = null;
+				let releaseDate;
 				if (released) {
 					const utcOffset = moment().format('Z'); // This is the user's local UTC offset, used to change the time based on daylight saving time. Example: -03:00
 					releaseDate = moment(`${released}T22:00:00.000${utcOffset}`); // Trakt apparently sets the time for 22:00 for all movies added with release date, so we do that here as well.

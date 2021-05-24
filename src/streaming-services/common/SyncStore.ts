@@ -117,7 +117,6 @@ export class SyncStore {
 		};
 		for (const [index, item] of this.data.items.entries()) {
 			item.index = index;
-			item.isSelected = false;
 		}
 		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
 			this.updatePage(itemsPerPage);
@@ -179,6 +178,12 @@ export class SyncStore {
 					item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
 			);
 		}
+		for (const item of this.data.items) {
+			if (item.isSelected && (!this.data.visibleItems.includes(item) || !item.isSelectable())) {
+				item.isSelected = false;
+			}
+		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this.dispatchEvent(visibleItemsChanged);
 	};
 

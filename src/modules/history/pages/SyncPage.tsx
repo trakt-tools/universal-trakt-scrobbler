@@ -120,14 +120,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	const onSyncClick = async () => {
-		if (!BrowserStorage.syncOptions.addWithReleaseDate) {
-			const missingWatchedDate = store.data.selectedItems.find((item) => !item.watchedAt);
-			if (missingWatchedDate) {
-				return EventDispatcher.dispatch('DIALOG_SHOW', null, {
-					title: I18N.translate('cannotSync'),
-					message: I18N.translate('cannotSyncMissingWatchedDate'),
-				});
-			}
+		const missingWatchedDate = store.data.selectedItems.some((item) => item.isMissingWatchedDate());
+		if (missingWatchedDate) {
+			return EventDispatcher.dispatch('DIALOG_SHOW', null, {
+				title: I18N.translate('cannotSync'),
+				message: I18N.translate('cannotSyncMissingWatchedDate'),
+			});
 		}
 		setContent((prevContent) => ({
 			...prevContent,
@@ -175,7 +173,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const onAddDateClick = async () => {
 		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
 			serviceId,
-			items: store.data.selectedItems.filter((item) => !item.watchedAt),
+			items: store.data.selectedItems.filter((item) => item.isMissingWatchedDate()),
 		});
 	};
 
@@ -319,7 +317,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			BrowserStorage.saveSyncOptions({ [data.id]: data.value })
 				.then(async () => {
 					setSyncOptionsChanged({});
-					if (serviceId && data.id === 'itemsPerLoad' && typeof data.value === 'number') {
+					if (serviceId && data.id === 'addWithReleaseDate') {
+						Api.updateTraktHistory(store.data.visibleItems)
+							.then(() => void store.updateVisibleItems(false))
+							.catch((err) => {
+								// Do nothing
+							});
+					} else if (serviceId && data.id === 'itemsPerLoad' && typeof data.value === 'number') {
 						checkItemsPerPage(data.value);
 					} else {
 						void store.updateVisibleItems(false);
@@ -387,7 +391,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 					WrongItemApi.loadSuggestions(store.data.visibleItems),
 					TmdbApi.loadImages(store.data.visibleItems),
 				]);
-				await store.dispatchEvent(false);
+				await store.updateVisibleItems(false);
 			} catch (err) {
 				// Do nothing
 			}
@@ -413,7 +417,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		((store.data.itemsToLoad > 0 && !store.data.hasReachedEnd) || store.data.hasNextPage);
 	const hasSelectedItems = store.data.selectedItems.length > 0;
 	const showClearSyncCacheButton = !serviceId;
-	const showAddDateButton = store.data.selectedItems.filter((item) => !item.watchedAt).length > 1;
+	const showAddDateButton =
+		store.data.selectedItems.filter((item) => item.isMissingWatchedDate()).length > 1;
 
 	return content.isLoading ? (
 		<UtsCenter>

@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { BrowserStorage } from '../common/BrowserStorage';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { SavedTraktItem, TraktItem } from './TraktItem';
 
@@ -128,5 +129,19 @@ export class Item implements IItem {
 
 	isSelectable = () => {
 		return this.trakt && !this.trakt.watchedAt;
+	};
+
+	isMissingWatchedDate = () => {
+		const { addWithReleaseDate } = BrowserStorage.syncOptions;
+		return (
+			(addWithReleaseDate && !this.trakt?.releaseDate) || (!addWithReleaseDate && !this.watchedAt)
+		);
+	};
+
+	getWatchedDate = () => {
+		const { addWithReleaseDate } = BrowserStorage.syncOptions;
+		return (
+			(addWithReleaseDate && this.trakt?.releaseDate) || (!addWithReleaseDate && this.watchedAt)
+		);
 	};
 }

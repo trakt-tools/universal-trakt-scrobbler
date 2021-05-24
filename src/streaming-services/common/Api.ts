@@ -60,12 +60,53 @@ export abstract class Api {
 				correctItem || !cacheItem
 					? await TraktSearch.find(item, correctItem)
 					: TraktItem.load(cacheItem);
-			await TraktSync.loadHistory(item);
 			if (item.trakt) {
+				item.trakt.watchedAt = undefined;
+				await TraktSync.loadHistory(item);
 				traktCache[cacheId] = TraktItem.save(item.trakt);
 			}
 		} catch (err) {
 			item.trakt = null;
+		}
+	};
+
+	static updateTraktHistory = async (items: Item[]) => {
+		try {
+			const storage = await BrowserStorage.get('traktCache');
+			let { traktCache } = storage;
+			if (!traktCache) {
+				traktCache = {};
+			}
+			const promises = [];
+			for (const item of items) {
+				promises.push(Api.updateTraktItemHistory(item, traktCache));
+			}
+			await Promise.all(promises);
+			await BrowserStorage.set({ traktCache }, false);
+		} catch (err) {
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load Trakt history.', err);
+				await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+		}
+	};
+
+	static updateTraktItemHistory = async (
+		item: Item,
+		traktCache: Record<string, SavedTraktItem>
+	) => {
+		if (!item.trakt) {
+			return;
+		}
+		try {
+			item.trakt.watchedAt = undefined;
+			await TraktSync.loadHistory(item);
+			const cacheId = Api.getTraktCacheId(item);
+			traktCache[cacheId] = TraktItem.save(item.trakt);
+		} catch (err) {
+			item.trakt.watchedAt = undefined;
 		}
 	};
 

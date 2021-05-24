@@ -251,7 +251,9 @@ const onTabRemoved = async (tabId: number) => {
 	}
 	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
 	if (scrobblingItem) {
-		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
+		if (scrobblingItem.trakt) {
+			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
+		}
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.remove('scrobblingTabId');
@@ -541,7 +543,9 @@ const setScrobblingTabId = async (tabId?: number): Promise<void> => {
 	]);
 	if (scrobblingItem && tabId !== scrobblingTabId) {
 		// Stop the previous scrobble if it exists.
-		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
+		if (scrobblingItem.trakt) {
+			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
+		}
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.set({ scrobblingTabId: tabId }, false);

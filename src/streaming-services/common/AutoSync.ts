@@ -35,9 +35,7 @@ class _AutoSync {
 
 					const foundItems = items.filter((item) => item.trakt);
 					const itemsToSync = foundItems.filter(
-						(item) =>
-							!item.trakt?.watchedAt &&
-							(item.watchedAt || BrowserStorage.syncOptions.addWithReleaseDate)
+						(item) => !item.trakt?.watchedAt && !item.isMissingWatchedDate()
 					);
 					if (itemsToSync.length > 0) {
 						for (const itemToSync of itemsToSync) {
@@ -46,8 +44,7 @@ class _AutoSync {
 						await TraktSync.sync(itemsToSync);
 					}
 
-					const missingWatchedDate =
-						!BrowserStorage.syncOptions.addWithReleaseDate && items.some((item) => !item.watchedAt);
+					const missingWatchedDate = items.some((item) => item.isMissingWatchedDate());
 					if (missingWatchedDate || foundItems.length !== items.length) {
 						throw new Error();
 					}

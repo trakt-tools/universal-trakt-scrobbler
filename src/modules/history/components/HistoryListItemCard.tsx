@@ -38,10 +38,11 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 		openWrongItemDialog,
 	} = props;
 
+	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
-		item.watchedAt ? (
+		watchedAt ? (
 			<Typography variant="overline">
-				{`${I18N.translate('watched')} ${item.watchedAt.format(Shared.dateFormat)}`}
+				{`${I18N.translate('watched')} ${watchedAt.format(Shared.dateFormat)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
 			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
