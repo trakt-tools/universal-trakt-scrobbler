@@ -62,18 +62,29 @@ class _DisneyplusParser implements ScrobbleParser {
 
 	parseItem = (): Item | undefined => {
 		const serviceId = 'disneyplus';
-		const titleElement = document.querySelector('.title-field');
-		const subTitleElement = document.querySelector('.subtitle-field');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const type = subTitleElement?.textContent ? 'show' : 'movie';
+		const titleElement = document.querySelector('.title-field');
 		const title = titleElement?.textContent ?? '';
-		const subTitle = subTitleElement?.textContent ?? '';
+		const subTitleElement = document.querySelector('.subtitle-field');
+		const type = subTitleElement?.textContent ? 'show' : 'movie';
+
+		let seasonAndEpisode: string | null = null;
+		let seasonStr: string | null = null;
+		let episodeStr: string | null = null;
+		let subTitle: string | undefined = undefined;
+
+		// Shows get a subtitle like this (dutch example): "S1: afl. 6 One World, One People"
+		const matches = /(.+?(\d+).+?(\d+) )?(.+)/.exec(subTitleElement?.textContent ?? '');
+
+		if (matches) {
+			[, seasonAndEpisode, seasonStr, episodeStr, subTitle] = matches;
+		}
+
 		const year = 0;
-		const season = parseInt(subTitle?.substring(1, subTitle.indexOf(':'))) ?? '';
-		const parseEpisodeTitle = subTitle?.substring(subTitle.indexOf('.') + 2);
-		const episode = parseInt(parseEpisodeTitle?.substring(0, parseEpisodeTitle.indexOf(' '))) ?? '';
-		const episodeTitle = parseEpisodeTitle?.substring(parseEpisodeTitle.indexOf(' ') + 1) ?? '';
-		const isCollection = episode <= 0;
+		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
+		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
+		const episodeTitle = subTitle ?? '';
+		const isCollection = false;
 
 		if (titleElement) {
 			this.videoId = id;
