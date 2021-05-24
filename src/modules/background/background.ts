@@ -187,9 +187,8 @@ const init = async () => {
 	);
 	if (scrobblerEnabled) {
 		addWebNavigationListener(BrowserStorage.options);
-
-		void checkServicesToSync();
 	}
+	void checkServicesToSync();
 	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
