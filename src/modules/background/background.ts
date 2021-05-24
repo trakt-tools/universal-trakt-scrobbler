@@ -9,6 +9,7 @@ import {
 } from '../../common/BrowserStorage';
 import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
+import { I18N } from '../../common/I18N';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { TabProperties, Tabs } from '../../common/Tabs';
@@ -26,6 +27,7 @@ export type MessageRequest =
 	| LogoutMessage
 	| GetCacheMessage
 	| SetCacheMessage<keyof CacheValues>
+	| SetTitleMessage
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
 	| SetRotatingIconMessage
@@ -49,6 +51,7 @@ export interface ReturnTypes {
 	logout: null;
 	'get-cache': CacheValues[keyof CacheValues];
 	'set-cache': null;
+	'set-title': null;
 	'set-active-icon': null;
 	'set-inactive-icon': null;
 	'set-rotating-icon': null;
@@ -109,6 +112,11 @@ export interface SetCacheMessage<K extends keyof CacheValues> {
 export interface SendRequestMessage {
 	action: 'send-request';
 	request: RequestDetails;
+}
+
+export interface SetTitleMessage {
+	action: 'set-title';
+	title: string;
 }
 
 export interface SetActiveIconMessage {
@@ -210,12 +218,13 @@ const checkServicesToSync = async () => {
 	if (servicesToSync.length > 0) {
 		try {
 			await BrowserAction.setRotatingIcon();
+			await BrowserAction.setTitle(I18N.translate('autoSyncing'));
 			await AutoSync.sync(servicesToSync, now);
-			await BrowserAction.setStaticIcon();
 		} catch (err) {
 			Errors.error('Failed to automatically sync history.', err);
-			await BrowserAction.setStaticIcon();
 		}
+		await BrowserAction.setTitle();
+		await BrowserAction.setStaticIcon();
 	}
 
 	// Check again every hour
@@ -460,6 +469,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'send-request': {
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
+			break;
+		}
+		case 'set-title': {
+			executingAction = BrowserAction.setTitle(parsedRequest.title);
 			break;
 		}
 		case 'set-active-icon': {

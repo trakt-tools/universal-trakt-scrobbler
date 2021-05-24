@@ -32,6 +32,9 @@
 	"autoSync": {
 		"message": "Automatic Sync"
 	},
+	"autoSyncing": {
+		"message": "Automatically syncing..."
+	},
 	"autoSyncNotActivated": {
 		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
 	},

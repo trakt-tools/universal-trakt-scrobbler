@@ -19,6 +19,14 @@ class _BrowserAction {
 		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.setInactiveIcon);
 	};
 
+	setTitle = async (title = 'Universal Trakt Scrobbler'): Promise<void> => {
+		if (Shared.pageType === 'background') {
+			browser.browserAction.setTitle({ title });
+		} else {
+			await Messaging.toBackground({ action: 'set-title', title });
+		}
+	};
+
 	setActiveIcon = async (): Promise<void> => {
 		if (Shared.pageType === 'background') {
 			this.currentIcon = browser.runtime.getURL('images/uts-icon-selected-38.png');

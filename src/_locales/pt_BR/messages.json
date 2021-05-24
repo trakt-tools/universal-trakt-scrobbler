@@ -32,6 +32,9 @@
 	"autoSync": {
 		"message": "Sincronização Automática"
 	},
+	"autoSyncing": {
+		"message": "Sincronizando automaticamente..."
+	},
 	"autoSyncNotActivated": {
 		"message": "Sincronização automática não ativada. Você precisa sincronizar manualmente na página de histórico primeiro, para que a data da última sincronização possa ser salva."
 	},
