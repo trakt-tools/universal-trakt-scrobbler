@@ -1,8 +1,8 @@
 import { registerScrobbleEvents } from '../common/common';
 import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { StreamzBeParser } from './StreamzBeParser';
+import { VrtnuBeParser } from './VrtnuBeParser';
 
-class _StreamzBeEvents extends ScrobbleEvents {
+class _VrtnuBeEvents extends ScrobbleEvents {
 	progress: number;
 	url: string;
 	videoId: string;
@@ -16,17 +16,22 @@ class _StreamzBeEvents extends ScrobbleEvents {
 	}
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
-		// https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096
-		if (oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
+		// Todo cleanup this code - no api available atm
+		// https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
+		const regx = /\/a-z\/(.+)\/(.+)\/(.+)\//;
+		const oldUrlMatch = regx.test(oldUrl);
+		const newUrlMatch = regx.test(newUrl);
+
+		if (oldUrlMatch && newUrlMatch) {
 			await this.stop();
 			await this.start();
 			this.videoId = '';
 			this.isPlaying = true;
-		} else if (oldUrl.includes('afspelen') && !newUrl.includes('afspelen')) {
+		} else if (oldUrlMatch && !newUrlMatch) {
 			await this.stop();
 			this.videoId = '';
 			this.isPlaying = false;
-		} else if (!oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
+		} else if (!oldUrlMatch && newUrlMatch) {
 			await this.start();
 			this.videoId = '';
 			this.isPlaying = true;
@@ -41,12 +46,12 @@ class _StreamzBeEvents extends ScrobbleEvents {
 			this.url = newUrl;
 		}
 		if (!this.videoId) {
-			const item = StreamzBeParser.parseItem();
+			const item = VrtnuBeParser.parseItem();
 			this.videoId = item?.id ?? '';
 		}
 
 		if (this.isPlaying) {
-			const newProgress = StreamzBeParser.parseProgress();
+			const newProgress = VrtnuBeParser.parseProgress();
 			if (this.progress === newProgress) {
 				if (!this.isPaused) {
 					await this.pause();
@@ -65,6 +70,6 @@ class _StreamzBeEvents extends ScrobbleEvents {
 	};
 }
 
-export const StreamzBeEvents = new _StreamzBeEvents();
+export const VrtnuBeEvents = new _VrtnuBeEvents();
 
-registerScrobbleEvents('streamz-be', StreamzBeEvents);
+registerScrobbleEvents('vrtnu-be', VrtnuBeEvents);

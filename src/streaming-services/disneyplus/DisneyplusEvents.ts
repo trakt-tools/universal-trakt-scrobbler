@@ -16,6 +16,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 	}
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+		// https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d
 		if (oldUrl.includes('video') && newUrl.includes('video')) {
 			await this.stop();
 			await this.start();

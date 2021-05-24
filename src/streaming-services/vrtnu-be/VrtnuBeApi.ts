@@ -1,9 +1,9 @@
 import { Api } from '../common/Api';
 import { registerApi } from '../common/common';
 
-class _GoplayBeApi extends Api {
+class _VrtnuBeApi extends Api {
 	constructor() {
-		super('goplay-be');
+		super('vrtnu-be');
 	}
 
 	// This method is only required for syncing, but since it is an abstract method, we have to implement at least a basic block for it.
@@ -12,6 +12,6 @@ class _GoplayBeApi extends Api {
 	};
 }
 
-export const GoplayBeApi = new _GoplayBeApi();
+export const VrtnuBeApi = new _VrtnuBeApi();
 
-registerApi('goplay-be', GoplayBeApi);
+registerApi('vrtnu-be', VrtnuBeApi);
