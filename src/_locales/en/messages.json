@@ -17,6 +17,9 @@
 	"addWithReleaseDateName": {
 		"message": "Add with release date."
 	},
+	"addWithReleaseDateMissingName": {
+		"message": "Add with release date only for items that are missing the watched date."
+	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
 	},

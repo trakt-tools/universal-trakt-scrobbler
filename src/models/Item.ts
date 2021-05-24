@@ -132,16 +132,24 @@ export class Item implements IItem {
 	};
 
 	isMissingWatchedDate = () => {
-		const { addWithReleaseDate } = BrowserStorage.syncOptions;
-		return (
-			(addWithReleaseDate && !this.trakt?.releaseDate) || (!addWithReleaseDate && !this.watchedAt)
-		);
+		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		if (addWithReleaseDate) {
+			if (addWithReleaseDateMissing) {
+				return !this.watchedAt && !this.trakt?.releaseDate;
+			}
+			return !this.trakt?.releaseDate;
+		}
+		return !this.watchedAt;
 	};
 
 	getWatchedDate = () => {
-		const { addWithReleaseDate } = BrowserStorage.syncOptions;
-		return (
-			(addWithReleaseDate && this.trakt?.releaseDate) || (!addWithReleaseDate && this.watchedAt)
-		);
+		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		if (addWithReleaseDate) {
+			if (addWithReleaseDateMissing) {
+				return this.watchedAt ?? this.trakt?.releaseDate;
+			}
+			return this.trakt?.releaseDate;
+		}
+		return this.watchedAt;
 	};
 }

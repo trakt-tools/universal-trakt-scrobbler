@@ -42,6 +42,7 @@ export type ThemeValue = 'light' | 'dark' | 'system';
 
 export type StorageValuesSyncOptions = {
 	addWithReleaseDate: boolean;
+	addWithReleaseDateMissing: boolean;
 	hideSynced: boolean;
 	itemsPerLoad: number;
 	minPercentageWatched: number;
@@ -104,6 +105,7 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 	value: StorageValuesSyncOptions[K];
 	minValue?: number;
 	maxValue?: number;
+	dependencies?: (keyof StorageValuesSyncOptions)[];
 };
 
 class _BrowserStorage {
@@ -405,6 +407,12 @@ class _BrowserStorage {
 				id: 'addWithReleaseDate',
 				name: '',
 				value: false,
+			},
+			addWithReleaseDateMissing: {
+				id: 'addWithReleaseDateMissing',
+				name: '',
+				value: false,
+				dependencies: ['addWithReleaseDate'],
 			},
 			itemsPerLoad: {
 				id: 'itemsPerLoad',

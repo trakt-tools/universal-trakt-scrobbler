@@ -1,6 +1,10 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import * as React from 'react';
-import { StorageValuesSyncOptions, SyncOption } from '../../../common/BrowserStorage';
+import {
+	BrowserStorage,
+	StorageValuesSyncOptions,
+	SyncOption,
+} from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 
 interface HistoryOptionsListItemProps {
@@ -30,12 +34,23 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 		});
 	};
 
+	const isDisabled = option.dependencies?.some(
+		(dependency) => !BrowserStorage.syncOptions[dependency]
+	);
+
 	let component: React.ReactElement;
 	switch (typeof option.value) {
 		case 'boolean': {
 			component = (
 				<FormControlLabel
-					control={<Switch checked={option.value} color="primary" onChange={onSwitchChange} />}
+					control={
+						<Switch
+							disabled={isDisabled}
+							checked={option.value}
+							color="primary"
+							onChange={onSwitchChange}
+						/>
+					}
 					label={option.name}
 				/>
 			);
@@ -44,6 +59,7 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 		case 'number': {
 			component = (
 				<TextField
+					disabled={isDisabled}
 					label={option.name}
 					onChange={onNumberInputChange}
 					type="number"

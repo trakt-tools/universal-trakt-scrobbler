@@ -17,6 +17,9 @@
 	"addWithReleaseDateName": {
 		"message": "Legg til med utgivelsesdato."
 	},
+	"addWithReleaseDateMissingName": {
+		"message": "Add with release date only for items that are missing the watched date."
+	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
 	},

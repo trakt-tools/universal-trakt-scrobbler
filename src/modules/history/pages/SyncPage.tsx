@@ -317,7 +317,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			BrowserStorage.saveSyncOptions({ [data.id]: data.value })
 				.then(async () => {
 					setSyncOptionsChanged({});
-					if (serviceId && data.id === 'addWithReleaseDate') {
+					if (serviceId && data.id.startsWith('addWithReleaseDate')) {
 						Api.updateTraktHistory(store.data.visibleItems)
 							.then(() => void store.updateVisibleItems(false))
 							.catch((err) => {

@@ -17,6 +17,9 @@
 	"addWithReleaseDateName": {
 		"message": "Adicionar com data de lançamento."
 	},
+	"addWithReleaseDateMissingName": {
+		"message": "Adicionar com data de lançamento apenas para itens que estão faltando com a data em que foram assistidos."
+	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
 	},
