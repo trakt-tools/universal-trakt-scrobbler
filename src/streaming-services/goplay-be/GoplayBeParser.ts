@@ -41,6 +41,8 @@ class _GoplayBeParser implements ScrobbleParser {
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
+
+		// Shows get a title like this (dutch example): "#hetisingewikkeld - S2 - Aflevering 1"
 		const matches = /(.+) - S(\d+) - Aflevering (\d+)/.exec(titleElement?.textContent ?? '');
 
 		if (matches) {

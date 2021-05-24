@@ -16,6 +16,7 @@ class _VtmgoBeEvents extends ScrobbleEvents {
 	}
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+		// https://vtm.be/vtmgo/afspelen/eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d
 		if (oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
 			await this.stop();
 			await this.start();

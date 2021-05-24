@@ -16,6 +16,7 @@ class _GoplayBeEvents extends ScrobbleEvents {
 	}
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+		// https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-1#autoplay
 		if (oldUrl.includes('video') && newUrl.includes('video')) {
 			await this.stop();
 			await this.start();

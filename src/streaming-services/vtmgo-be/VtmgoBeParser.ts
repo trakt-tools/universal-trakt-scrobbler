@@ -37,6 +37,8 @@ class _VtmgoBeParser implements ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 		let subTitle: string | undefined = undefined;
+
+		// Shows get a title like this (dutch example): "Huis Gesmaakt met Gert Voorjans S1 A1 Aflevering 1"
 		const matches = /(.+) S(\d+) A(\d+) (.+)/.exec(titleElement?.textContent ?? '');
 
 		if (matches) {

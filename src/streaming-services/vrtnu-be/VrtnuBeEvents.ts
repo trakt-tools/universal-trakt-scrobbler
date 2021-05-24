@@ -17,6 +17,7 @@ class _VrtnuBeEvents extends ScrobbleEvents {
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
 		// Todo cleanup this code - no api available atm
+		// https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
 		const regx = /\/a-z\/(.+)\/(.+)\/(.+)\//;
 		const oldUrlMatch = regx.test(oldUrl);
 		const newUrlMatch = regx.test(newUrl);

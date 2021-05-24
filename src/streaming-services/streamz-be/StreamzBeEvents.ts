@@ -16,6 +16,7 @@ class _StreamzBeEvents extends ScrobbleEvents {
 	}
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+		// https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096
 		if (oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
 			await this.stop();
 			await this.start();
