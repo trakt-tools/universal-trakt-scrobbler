@@ -23,7 +23,7 @@ devDependencies:
   '@babel/preset-typescript': 7.10.4_@babel+core@7.11.4
   '@babel/runtime': 7.11.2
   '@octokit/rest': 18.0.4
-  '@rafaelgomesxyz/eslint-plugin-i18n-json': 3.1.2_eslint@7.7.0
+  '@rafaelgomesxyz/eslint-plugin-i18n-json': 3.2.0_eslint@7.7.0
   '@svgr/webpack': 5.4.0
   '@types/fs-extra': 9.0.1
   '@types/gulp': 4.0.6
@@ -1729,7 +1729,7 @@ packages:
     dev: true
     resolution:
       integrity: sha512-OlMlSySBJoJ6uozkr/i03nO5dlYQyE05vmQNZhAh9MyO4DPBP88QlwsDVLmVjIMFssvIZB6WO0ctIGMRG+xsJQ==
-  /@rafaelgomesxyz/eslint-plugin-i18n-json/3.1.2_eslint@7.7.0:
+  /@rafaelgomesxyz/eslint-plugin-i18n-json/3.2.0_eslint@7.7.0:
     dependencies:
       chalk: 2.4.2
       eslint: 7.7.0
@@ -1751,7 +1751,7 @@ packages:
     peerDependencies:
       eslint: '>=4.0.0'
     resolution:
-      integrity: sha512-EoqmiMvZgPB+PxeNJUYlgJbajrx+4Bd5sKqamxyEdXHRQWfw591YQuRZ3kJrt9n6N/0mOT0/oBLgMpv5SOtvCQ==
+      integrity: sha512-Tx9arztJuwypgeScQZvy2Yq5hnIclR3BAjvPvpR8OLhZDLTiBmryvpgAU5BNjQzU7aFj5EBMaerIWsX4xCFYJg==
   /@svgr/babel-plugin-add-jsx-attribute/5.4.0:
     dev: true
     engines:
@@ -9194,7 +9194,7 @@ specifiers:
   '@material-ui/lab': ^4.0.0-alpha.56
   '@material-ui/pickers': ^3.2.10
   '@octokit/rest': ^18.0.4
-  '@rafaelgomesxyz/eslint-plugin-i18n-json': ^3.1.2
+  '@rafaelgomesxyz/eslint-plugin-i18n-json': ^3.2.0
   '@svgr/webpack': ^5.4.0
   '@types/fs-extra': ^9.0.1
   '@types/gulp': ^4.0.6
