@@ -14,11 +14,11 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Failed to add missing watched date."
 	},
-	"addWithReleaseDateName": {
-		"message": "Add with release date."
-	},
 	"addWithReleaseDateMissingName": {
 		"message": "Add with release date only for items that are missing the watched date."
+	},
+	"addWithReleaseDateName": {
+		"message": "Add with release date."
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
@@ -32,14 +32,14 @@
 	"autoSync": {
 		"message": "Automatic Sync"
 	},
-	"autoSyncing": {
-		"message": "Automatically syncing..."
-	},
 	"autoSyncNotActivated": {
 		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
 	},
 	"autoSyncPageMessage": {
 		"message": "These are the items that were automatically synced or failed to automatically sync since the last review. If any corrections are needed, apply them, select the items that need to be corrected, and click the Sync button. When you do that, the cache will be deleted and these items will no longer appear on this page. If no corrections are needed, simply click the Clear Sync Cache button and the same thing will happen."
+	},
+	"autoSyncing": {
+		"message": "Automatically syncing..."
 	},
 	"cancel": {
 		"message": "Cancel"
