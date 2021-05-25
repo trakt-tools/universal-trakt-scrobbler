@@ -2,16 +2,21 @@ import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
 import { CorrectionSuggestion, SavedItem } from '../models/Item';
-import { SavedTraktItem } from '../models/TraktItem';
+import { SavedTraktItem, TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { I18N } from './I18N';
 import { Shared } from './Shared';
 
-export type StorageValues = {
+export type StorageValues = StorageValuesV2;
+export type StorageValuesOptions = StorageValuesOptionsV2;
+export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
+
+export type StorageValuesV2 = {
+	version?: number;
 	auth?: TraktAuthDetails;
-	options?: StorageValuesOptions;
-	syncOptions?: StorageValuesSyncOptions;
+	options?: StorageValuesOptionsV2;
+	syncOptions?: StorageValuesSyncOptionsV2;
 	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
@@ -20,11 +25,32 @@ export type StorageValues = {
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
-export type StorageValuesOptions = {
+export type StorageValuesV1 = {
+	version?: number;
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptionsV1;
+	syncOptions?: StorageValuesSyncOptionsV1;
+	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
+	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
+	scrobblingItem?: Omit<TraktItemBase, ''>;
+	scrobblingTabId?: number;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+};
+
+export type StorageValuesOptionsV2 = {
 	streamingServices: Record<StreamingServiceId, StreamingServiceValue>;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
 	theme: ThemeValue;
+	allowRollbar: boolean;
+	grantCookies: boolean;
+};
+
+export type StorageValuesOptionsV1 = {
+	streamingServices: Record<StreamingServiceId, boolean>;
+	disableScrobbling: boolean;
+	showNotifications: boolean;
+	sendReceiveSuggestions: boolean;
 	allowRollbar: boolean;
 	grantCookies: boolean;
 };
@@ -40,12 +66,18 @@ export type StreamingServiceValue = {
 
 export type ThemeValue = 'light' | 'dark' | 'system';
 
-export type StorageValuesSyncOptions = {
+export type StorageValuesSyncOptionsV2 = {
 	addWithReleaseDate: boolean;
 	addWithReleaseDateMissing: boolean;
 	hideSynced: boolean;
 	itemsPerLoad: number;
 	minPercentageWatched: number;
+};
+
+export type StorageValuesSyncOptionsV1 = {
+	addWithReleaseDate: boolean;
+	hideSynced: boolean;
+	itemsPerLoad: number;
 };
 
 export type SyncCacheValue = {
@@ -109,6 +141,7 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 };
 
 class _BrowserStorage {
+	currentVersion = 2;
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as Options;
@@ -121,9 +154,125 @@ class _BrowserStorage {
 
 	init = async () => {
 		await this.sync();
+		await this.upgradeOrDowngrade();
 		await this.loadOptions();
 		await this.loadSyncOptions();
 		this.startListeners();
+	};
+
+	upgradeOrDowngrade = async () => {
+		const { version = 1 } = await BrowserStorage.get('version');
+
+		console.log(`Current storage version: v${version.toString()}`);
+
+		if (version < this.currentVersion) {
+			await this.upgrade(version);
+		} else if (version > this.currentVersion) {
+			await this.downgrade(version);
+		}
+	};
+
+	/**
+	 * `objectVX` and `objectVY` are always the same object.
+	 * They are only separated by type, to make it easier to understand the upgrade process.
+	 */
+	upgrade = async (version: number) => {
+		if (version < 2) {
+			console.log('Upgrading to v2...');
+
+			await BrowserStorage.remove(
+				['traktCache', 'correctUrls', 'scrobblingItem'] as (keyof StorageValues)[],
+				true
+			);
+
+			const values = await BrowserStorage.get('options');
+
+			const optionsV1 = values.options as Partial<StorageValuesOptionsV1> | undefined;
+			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
+			if (optionsV1 && optionsV2) {
+				if (optionsV1.streamingServices && optionsV2.streamingServices) {
+					for (const [id, value] of Object.entries(optionsV1.streamingServices) as [
+						StreamingServiceId,
+						boolean
+					][]) {
+						if (typeof value !== 'boolean') {
+							continue;
+						}
+
+						optionsV2.streamingServices[id] = {
+							scrobble: value,
+							sync: value,
+							autoSync: false,
+							autoSyncDays: 0,
+							lastSync: 0,
+							lastSyncId: '',
+						};
+					}
+				}
+
+				delete optionsV1.disableScrobbling;
+
+				await BrowserStorage.set({ options: (optionsV2 as unknown) as StorageValuesOptions }, true);
+			}
+		}
+
+		await BrowserStorage.set({ version: this.currentVersion }, true);
+
+		console.log('Upgraded!');
+	};
+
+	/**
+	 * `objectVX` and `objectVY` are always the same object.
+	 * They are only separated by type, to make it easier to understand the downgrade process.
+	 */
+	downgrade = async (version: number) => {
+		if (version > 1) {
+			console.log('Downgrading to v1...');
+
+			await BrowserStorage.remove(
+				['traktCache', 'syncCache', 'correctItems', 'scrobblingItem'] as (keyof StorageValues)[],
+				true
+			);
+
+			const values = await BrowserStorage.get(['options', 'syncOptions']);
+
+			const optionsV1 = values.options as Partial<StorageValuesOptionsV1> | undefined;
+			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
+			if (optionsV1 && optionsV2) {
+				if (optionsV1.streamingServices && optionsV2.streamingServices) {
+					for (const [id, value] of Object.entries(optionsV2.streamingServices) as [
+						StreamingServiceId,
+						StreamingServiceValue
+					][]) {
+						if (typeof value === 'boolean') {
+							continue;
+						}
+
+						optionsV1.streamingServices[id] = value.scrobble || value.sync;
+					}
+				}
+
+				delete optionsV2.theme;
+
+				await BrowserStorage.set({ options: (optionsV1 as unknown) as StorageValuesOptions }, true);
+			}
+
+			const syncOptionsV1 = values.syncOptions as Partial<StorageValuesSyncOptionsV1> | undefined;
+			const syncOptionsV2 = values.syncOptions as Partial<StorageValuesSyncOptionsV2> | undefined;
+			if (syncOptionsV1 && syncOptionsV2) {
+				delete syncOptionsV2.addWithReleaseDateMissing;
+				delete syncOptionsV2.minPercentageWatched;
+
+				await BrowserStorage.set(
+					{ syncOptions: (syncOptionsV1 as unknown) as StorageValuesSyncOptions },
+					true
+				);
+			}
+		}
+
+		await BrowserStorage.set({ version: this.currentVersion }, true);
+
+		console.log('Downgraded!');
 	};
 
 	startListeners = () => {
@@ -332,10 +481,7 @@ class _BrowserStorage {
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
 					(Object.keys(streamingServices) as StreamingServiceId[])
-						.filter(
-							(serviceId) =>
-								!(serviceId in option.value) || typeof option.value[serviceId] === 'boolean'
-						)
+						.filter((serviceId) => !(serviceId in option.value))
 						.map((serviceId) => [
 							serviceId,
 							{
