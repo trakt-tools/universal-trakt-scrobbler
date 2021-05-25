@@ -15,7 +15,7 @@
 		"message": "Voeg toe met datum van publicatie."
 	},
 	"allowRollbarDescription": {
-		"message": "Deze optie, indien ingeschakeld, stuurt bij het optreden van een fout, informatie door naar ons zodat we deze snel kunnen oplossen en de extentie kunnen verbeteren. Deze informatie bevat: wanneer de fout voor kwam, een traceback van de fout, de naam en versie van uw browser en de naam van uw besturingssysteem. Deze data wordt niet gedeeld met anderen."
+		"message": "Indien ingeschakeld wordt er bij het optreden van een fout, informatie doorgestuurd zodat we deze fout snel kunnen oplossen en de extentie kunnen verbeteren. Deze informatie bevat: wanneer deze fout voor kwam, een traceback hiernaar, de naam en versie van uw browser en de naam van uw besturingssysteem. Deze data wordt niet gedeeld met anderen."
 	},
 	"allowRollbarName": {
 		"message": "Rollbar toelaten om informatie over fouten te verzamelen."
@@ -83,7 +83,7 @@
 		"message": "Donker"
 	},
 	"disableScrobblingDescription": {
-		"message": "Indien deze optie is ingeschakeld, zal de extentie niet automatisch uw data verwerken bij het afspelen. Dit is handig indien je enkel via je historiek wil synchroniseren."
+		"message": "Indien ingeschakeld zal de extentie niet automatisch uw data verwerken bij het afspelen. Dit is handig indien je enkel via je historiek wil synchroniseren."
 	},
 	"disableScrobblingName": {
 		"message": "Automatisch verwerken uitschakelen"
@@ -104,7 +104,7 @@
 		"message": "van"
 	},
 	"grantCookiesDescription": {
-		"message": "Indien deze optie is ingeschakeld, zal de extentie werken met Firefox Containers door het ophalen van cookies van de huidige container waarin je je bevindt. Schakel deze optie enkel in indien je gebruik maakt van Firefox Containers."
+		"message": "Bij inschakelen zal de extentie werken met Firefox Containers door het ophalen van cookies van de huidige container waarin je je bevindt. Schakel deze optie enkel in indien je gebruik maakt van Firefox Containers."
 	},
 	"grantCookiesName": {
 		"message": "Laat \"cookies\" toe zodat de extentie kan werken met Firefox Containers."
@@ -198,7 +198,7 @@
 		"message": "Niet Bekeken"
 	},
 	"notWatching": {
-		"message": "Bekijk iets!"
+		"message": "Kijk iets!"
 	},
 	"nowScrobbling": {
 		"message": "Aan het verwerken"
@@ -257,19 +257,19 @@
 		"message": "Selecteer een streaming service om te synchroniseren:"
 	},
 	"sendReceiveSuggestionsDescription": {
-		"message": "Indien deze optie is ingeschakeld, zal telkens bij het updaten van een verkeerd item, de correctie worden doorgestuurd naar een Google Sheets databank. Op deze manier krijgen andere gebruikers een suggestie voor correcties. Deze optie is verplicht indien je zelf suggesties wil ontvangen."
+		"message": "Indien ingeschakeld zal telkens bij het updaten van een verkeerd item, de correctie worden doorgestuurd naar een Google Sheets databank. Op deze manier krijgen andere gebruikers een suggestie voor correcties. Deze optie is verplicht indien je zelf suggesties wil ontvangen."
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Verstuur / ontvang correctie suggesties."
 	},
 	"showNotificationsDescription": {
-		"message": "Indien deze optie is ingeschakeld, ontvang je browser notificaties wanneer het verwerken van de film/serie gegevens worden gestart of gestopt."
+		"message": "Indien ingeschakeld ontvang je browser notificaties wanneer het verwerken van gegevens (over een film of serie) wordt gestart of gestopt."
 	},
 	"showNotificationsName": {
 		"message": "Toon  browser notificaties."
 	},
 	"streamingServicesDescription": {
-		"message": "Kies welke streaming services in te schakelen."
+		"message": "Kies welke streaming services je wil inschakelen."
 	},
 	"streamingServicesName": {
 		"message": "Streaming services"
@@ -303,7 +303,7 @@
 		"message": "Thema"
 	},
 	"toggleAll": {
-		"message": "Wissel"
+		"message": "Omwisselen"
 	},
 	"use": {
 		"message": "Gebruik"
