@@ -120,7 +120,8 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	};
 
 	const onSyncClick = async () => {
-		const missingWatchedDate = store.data.selectedItems.some((item) => item.isMissingWatchedDate());
+		const selectedItems = store.data.selectedItems;
+		const missingWatchedDate = selectedItems.some((item) => item.isMissingWatchedDate());
 		if (missingWatchedDate) {
 			return EventDispatcher.dispatch('DIALOG_SHOW', null, {
 				title: I18N.translate('cannotSync'),
@@ -131,10 +132,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			...prevContent,
 			isLoading: true,
 		}));
-		await TraktSync.sync(store.data.selectedItems);
+		await TraktSync.sync(selectedItems);
 		if (serviceId) {
-			const lastSync =
-				store.data.selectedItems[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
+			const lastSync = selectedItems[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
 			if (lastSync > BrowserStorage.options.streamingServices[serviceId].lastSync) {
 				BrowserStorage.addOption({
 					id: 'streamingServices',
@@ -143,7 +143,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 						[serviceId]: {
 							...BrowserStorage.options.streamingServices[serviceId],
 							lastSync,
-							lastSyncId: store.data.selectedItems[0].id,
+							lastSyncId: selectedItems[0].id,
 						},
 					},
 				});
