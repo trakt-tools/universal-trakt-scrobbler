@@ -59,7 +59,7 @@ class _AutoSync {
 					...BrowserStorage.options.streamingServices,
 					[serviceId]: {
 						...BrowserStorage.options.streamingServices[serviceId],
-						lastSync: items[0]?.watchedAt?.unix() ?? now,
+						lastSync: now,
 						lastSyncId:
 							items[0]?.id ?? BrowserStorage.options.streamingServices[serviceId].lastSyncId,
 					},
