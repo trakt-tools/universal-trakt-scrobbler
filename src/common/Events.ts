@@ -43,6 +43,7 @@ export interface EventData {
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
+	STORAGE_OPTIONS_CHANGE: SuccessData;
 }
 
 export type Event = keyof EventData;

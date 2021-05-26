@@ -5,6 +5,7 @@ import { CorrectionSuggestion, SavedItem } from '../models/Item';
 import { SavedTraktItem, TraktItemBase } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
+import { EventDispatcher } from './Events';
 import { I18N } from './I18N';
 import { Shared } from './Shared';
 
@@ -283,7 +284,7 @@ class _BrowserStorage {
 		browser.storage.onChanged.removeListener(this.onStorageChanged);
 	};
 
-	onStorageChanged = (
+	onStorageChanged = async (
 		changes: browser.storage.ChangeDict,
 		areaName: browser.storage.StorageName
 	) => {
@@ -298,6 +299,7 @@ class _BrowserStorage {
 			][]) {
 				this.addOption({ id, value });
 			}
+			await EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {});
 		}
 		const newSyncOptions = changes.syncOptions?.newValue as StorageValuesSyncOptions | undefined;
 		if (newSyncOptions) {

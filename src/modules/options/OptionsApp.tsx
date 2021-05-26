@@ -40,6 +40,7 @@ export const OptionsApp: React.FC = () => {
 				null,
 				onStreamingServiceOptionChange
 			);
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
@@ -50,6 +51,7 @@ export const OptionsApp: React.FC = () => {
 				null,
 				onStreamingServiceOptionChange
 			);
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const resetOptions = () => {
@@ -198,6 +200,13 @@ export const OptionsApp: React.FC = () => {
 					severity: 'error',
 				});
 			}
+		};
+
+		const onStorageOptionsChange = () => {
+			setContent({
+				isLoading: false,
+				optionsChanged: {},
+			});
 		};
 
 		startListeners();
