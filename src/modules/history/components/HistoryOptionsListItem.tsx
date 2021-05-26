@@ -1,10 +1,14 @@
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import * as React from 'react';
-import { SyncOption } from '../../../common/BrowserStorage';
+import {
+	BrowserStorage,
+	StorageValuesSyncOptions,
+	SyncOption,
+} from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 
 interface HistoryOptionsListItemProps {
-	option: SyncOption;
+	option: SyncOption<keyof StorageValuesSyncOptions>;
 }
 
 export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
@@ -16,19 +20,37 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 	};
 
 	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-		const value = parseInt(event.currentTarget.value || '0');
+		let value = parseInt(event.currentTarget.value || '0');
+		if (typeof option.minValue !== 'undefined') {
+			value = Math.max(value, option.minValue);
+		}
+		if (typeof option.maxValue !== 'undefined') {
+			value = Math.min(value, option.maxValue);
+		}
+
 		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
 			id: option.id,
-			value: option.minValue ? Math.max(value, option.minValue) : value,
+			value,
 		});
 	};
+
+	const isDisabled = option.dependencies?.some(
+		(dependency) => !BrowserStorage.syncOptions[dependency]
+	);
 
 	let component: React.ReactElement;
 	switch (typeof option.value) {
 		case 'boolean': {
 			component = (
 				<FormControlLabel
-					control={<Switch checked={option.value} color="primary" onChange={onSwitchChange} />}
+					control={
+						<Switch
+							disabled={isDisabled}
+							checked={option.value}
+							color="primary"
+							onChange={onSwitchChange}
+						/>
+					}
 					label={option.name}
 				/>
 			);
@@ -37,10 +59,14 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 		case 'number': {
 			component = (
 				<TextField
+					disabled={isDisabled}
 					label={option.name}
 					onChange={onNumberInputChange}
 					type="number"
-					inputProps={option.minValue ? { min: 1 } : undefined}
+					inputProps={{
+						min: typeof option.minValue !== 'undefined' ? option.minValue : undefined,
+						max: typeof option.maxValue !== 'undefined' ? option.maxValue : undefined,
+					}}
 					value={option.value}
 				/>
 			);

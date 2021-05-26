@@ -34,7 +34,7 @@ export abstract class ScrobbleEvents {
 		this.changeListenerId = null;
 	};
 
-	abstract async checkForChanges(): Promise<void>;
+	abstract checkForChanges(): Promise<void>;
 
 	start = async (): Promise<void> => {
 		await EventDispatcher.dispatch('SCROBBLE_START', null, {});

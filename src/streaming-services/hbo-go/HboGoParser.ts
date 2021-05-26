@@ -1,50 +1,39 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleController';
-import { HboGoApi, HboGoMetadataItem, HboGoSession } from './HboGoApi';
+import { HboGoApi, HboGoSession } from './HboGoApi';
 
 class _HboGoParser implements ScrobbleParser {
+	id: string;
+
+	constructor() {
+		this.id = '';
+	}
+
 	parseItem = async (): Promise<Item | undefined> => {
-		// If we can access the global sdk object from the page, there is no need to parse the page in order to retrieve the item being watched.
-		let item: Item | undefined;
-		const session = (await HboGoApi.getSession()) || this.parseSession();
-		if (session && session.content.Id) {
-			item = HboGoApi.parseMetadata(session.content);
-		}
+		const session = await HboGoApi.getSession();
+		const id = session?.videoId || this.id;
+		const item = id ? await HboGoApi.getItem(id) : undefined;
 		return item;
 	};
 
 	parseSession = (): HboGoSession => {
-		const content = {} as HboGoMetadataItem;
-		const contentTitleElement = document.querySelector('.contentTitle');
-		if (contentTitleElement) {
-			const contentTitle = contentTitleElement.textContent?.trim() ?? '';
-			const showMatches = /(.+?)\s\|\sS(\d+?)\sE(\d+?)\s(.+)/.exec(contentTitle);
-			content.Id = contentTitle.replace(' ', '');
-			content.ProductionYear = 0;
-			content.Category = showMatches ? 'Series' : 'Movies';
-			if (content.Category === 'Series') {
-				content.SeriesName = showMatches?.[0] ?? '';
-				content.SeasonIndex = parseInt(showMatches?.[1] ?? '0');
-				content.Index = parseInt(showMatches?.[2] ?? '0');
-				content.Name = showMatches?.[3] ?? '';
-			} else {
-				content.Name = contentTitle;
-			}
-		}
-		const playing = !!document.querySelector('.playbackPauseButton');
-		const paused = !!document.querySelector('.playbackPlayButton');
-		const progress = this.parseProgress();
-		return { content, playing, paused, progress };
+		const [progress, progressMs] = this.parseProgress();
+		return { videoId: '', progress, progressMs };
 	};
 
-	parseProgress = (): number => {
+	parseProgress = (): [number, number] => {
 		let progress = 0.0;
+		let progressMs = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.timelineProgress');
 		if (scrubber) {
 			progress = parseFloat(scrubber.style.width);
 		}
-		return progress;
+		const scrubberMs: HTMLElement | null = document.querySelector('.currentTime');
+		if (scrubberMs) {
+			progressMs = parseInt(scrubberMs.textContent?.replace(/:/g, '') ?? '0');
+		}
+		return [progress, progressMs];
 	};
 }
 

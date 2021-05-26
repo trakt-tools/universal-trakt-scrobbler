@@ -5,20 +5,21 @@ import {
 	CircularProgress,
 	Divider,
 	LinearProgress,
+	Tooltip,
 	Typography,
 } from '@material-ui/core';
 import * as React from 'react';
+import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
+import { Shared } from '../../../common/Shared';
 import { TmdbImage } from '../../../components/TmdbImage';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { CorrectionSuggestion, Item } from '../../../models/Item';
 import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
-	dateFormat: string;
 	item?: Item | TraktItem | null;
 	name: string;
-	sendReceiveSuggestions?: boolean;
 	correctionSuggestions?: CorrectionSuggestion[] | null;
 	imageUrl?: string | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
@@ -29,20 +30,19 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
 	const {
-		dateFormat,
 		item,
 		name,
-		sendReceiveSuggestions,
 		correctionSuggestions,
 		imageUrl,
 		openMissingWatchedDateDialog,
 		openWrongItemDialog,
 	} = props;
 
+	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
-		item.watchedAt ? (
+		watchedAt ? (
 			<Typography variant="overline">
-				{`${I18N.translate('watched')} ${item.watchedAt.format(dateFormat)}`}
+				{`${I18N.translate('watched')} ${watchedAt.format(Shared.dateFormat)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
 			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
@@ -87,7 +87,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 								<Button color="secondary" onClick={openWrongItemDialog}>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
-										{sendReceiveSuggestions ? (
+										{BrowserStorage.options.sendReceiveSuggestions ? (
 											typeof correctionSuggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
 											) : correctionSuggestions && correctionSuggestions.length > 0 ? (
@@ -106,12 +106,13 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 				</UtsCenter>
 			</CardContent>
 			{item && 'percentageWatched' in item && item.percentageWatched !== undefined && (
-				<LinearProgress
-					classes={{ root: 'history-list-item-progress' }}
-					title={I18N.translate('progress', item.percentageWatched.toString())}
-					value={item.percentageWatched}
-					variant="determinate"
-				/>
+				<Tooltip title={I18N.translate('progress', item.percentageWatched.toString())}>
+					<LinearProgress
+						classes={{ root: 'history-list-item-progress' }}
+						value={item.percentageWatched}
+						variant="determinate"
+					/>
+				</Tooltip>
 			)}
 		</Card>
 	);

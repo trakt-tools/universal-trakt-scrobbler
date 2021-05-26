@@ -17,33 +17,38 @@ class _TraktSettings extends TraktApi {
 	}
 
 	getTimeAndDateFormat = async () => {
-		const responseText = await Requests.send({
-			url: this.SETTINGS_URL,
-			method: 'GET',
-		});
-		const settings = JSON.parse(responseText) as TraktSettingsResponse;
 		let dateFormat = 'ddd ';
-		switch (settings.account.date_format) {
-			case 'dmy':
-				dateFormat += 'D MMM YYYY';
-				break;
-			case 'mdy':
-				dateFormat += 'MMM D YYYY';
-				break;
-			case 'ydm':
-				dateFormat += 'YYYY D MMM';
-				break;
-			case 'ymd':
-				dateFormat += 'YYYY MMM D';
-				break;
-			default:
-				console.error('Unknown date format', settings.account.date_format);
-				return '';
-		}
-		if (settings.account.time_24hr) {
-			dateFormat += ', H:mm:ss';
-		} else {
-			dateFormat += ', h:mm:ss a';
+		try {
+			const responseText = await Requests.send({
+				url: this.SETTINGS_URL,
+				method: 'GET',
+			});
+			const settings = JSON.parse(responseText) as TraktSettingsResponse;
+			switch (settings.account.date_format) {
+				case 'dmy':
+					dateFormat += 'D MMM YYYY';
+					break;
+				case 'mdy':
+					dateFormat += 'MMM D YYYY';
+					break;
+				case 'ydm':
+					dateFormat += 'YYYY D MMM';
+					break;
+				case 'ymd':
+					dateFormat += 'YYYY MMM D';
+					break;
+				default:
+					console.error('Unknown date format', settings.account.date_format);
+					dateFormat += 'D MMM YYYY, H:mm:ss';
+					return dateFormat;
+			}
+			if (settings.account.time_24hr) {
+				dateFormat += ', H:mm:ss';
+			} else {
+				dateFormat += ', h:mm:ss a';
+			}
+		} catch (err) {
+			dateFormat += 'D MMM YYYY, H:mm:ss';
 		}
 		return dateFormat;
 	};

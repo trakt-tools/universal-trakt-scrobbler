@@ -36,8 +36,7 @@ class _Tabs {
 			url,
 			...extraProperties,
 		};
-		const storage = await BrowserStorage.get('options');
-		if (storage.options?.grantCookies && browser.cookies) {
+		if (BrowserStorage.options.grantCookies && browser.cookies) {
 			tabProperties.cookieStoreId = tabs[0].cookieStoreId;
 		}
 		return browser.tabs.create(tabProperties);

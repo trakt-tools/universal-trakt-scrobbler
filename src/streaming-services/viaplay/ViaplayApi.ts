@@ -85,6 +85,8 @@ class _ViaplayApi extends Api {
 	HISTORY_API_NEXT_PAGE_URL = '';
 	AUTH_URL = '';
 	isActivated = false;
+	leftoverHistoryItems: ViaplayProduct[] = [];
+	hasReachedHistoryEnd = false;
 
 	constructor() {
 		super('viaplay');
@@ -107,47 +109,66 @@ class _ViaplayApi extends Api {
 		this.isActivated = true;
 	};
 
-	loadHistory = async (itemsToLoad: number) => {
+	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
 			}
 			const store = getSyncStore('viaplay');
-			let { hasReachedEnd } = store.data;
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
 			const historyItems: ViaplayProduct[] = [];
 
 			do {
-				const responseText = await Requests.send({
-					url: this.HISTORY_API_NEXT_PAGE_URL,
-					method: 'GET',
-				});
-				let historyPage: ViaplayHistoryPage;
-				if (this.HISTORY_API_NEXT_PAGE_URL === this.HISTORY_API_URL) {
-					//First initial load/page
-					const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
-					historyPage = responseJson._embedded['viaplay:blocks'][0];
-				} else {
-					historyPage = JSON.parse(responseText) as ViaplayHistoryPage;
+				let responseItems: ViaplayProduct[] = [];
+				if (this.leftoverHistoryItems.length > 0) {
+					responseItems = this.leftoverHistoryItems;
+					this.leftoverHistoryItems = [];
+				} else if (!this.hasReachedHistoryEnd) {
+					const responseText = await Requests.send({
+						url: this.HISTORY_API_NEXT_PAGE_URL,
+						method: 'GET',
+					});
+					let historyPage: ViaplayHistoryPage;
+					if (this.HISTORY_API_NEXT_PAGE_URL === this.HISTORY_API_URL) {
+						//First initial load/page
+						const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
+						historyPage = responseJson._embedded['viaplay:blocks'][0];
+					} else {
+						historyPage = JSON.parse(responseText) as ViaplayHistoryPage;
+					}
+					responseItems = historyPage._embedded['viaplay:products'];
+					const url = historyPage._links?.next?.href;
+					this.HISTORY_API_NEXT_PAGE_URL = url;
+					this.hasReachedHistoryEnd = !url || responseItems.length === 0;
 				}
-				const viaplayProducts: ViaplayProduct[] = historyPage._embedded['viaplay:products'];
-
-				if (viaplayProducts && viaplayProducts.length > 0) {
-					itemsToLoad -= viaplayProducts.length;
-					historyItems.push(...viaplayProducts);
-				} else {
-					hasReachedEnd = true;
+				if (responseItems.length > 0) {
+					let filteredItems: ViaplayProduct[] = [];
+					if (lastSync > 0) {
+						for (const [index, responseItem] of responseItems.entries()) {
+							if (
+								responseItem.user.progress?.updated &&
+								Math.trunc(responseItem.user.progress?.updated / 1e3) > lastSync
+							) {
+								filteredItems.push(responseItem);
+							} else {
+								this.leftoverHistoryItems = responseItems.slice(index);
+								hasReachedLastSyncDate = true;
+								break;
+							}
+						}
+					} else {
+						filteredItems = responseItems;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
 				}
-				const url = historyPage._links?.next?.href;
-				this.HISTORY_API_NEXT_PAGE_URL = url;
-				if (!url) {
-					hasReachedEnd = true;
-				}
+				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = historyItems.map(this.parseHistoryItem);
 			}
-			store.setData({ items, hasReachedEnd });
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Viaplay history.', err);

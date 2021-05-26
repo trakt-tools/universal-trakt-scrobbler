@@ -2,14 +2,20 @@ import { TraktAuth, TraktAuthDetails } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
-import { BrowserStorage, StorageValuesOptions } from '../../common/BrowserStorage';
+import {
+	BrowserStorage,
+	StorageValuesOptions,
+	StreamingServiceValue,
+} from '../../common/BrowserStorage';
 import { Cache, CacheValues } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
+import { I18N } from '../../common/I18N';
 import { RequestDetails, Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { TabProperties, Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
+import { AutoSync } from '../../streaming-services/common/AutoSync';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
 
 export type MessageRequest =
@@ -21,15 +27,19 @@ export type MessageRequest =
 	| LogoutMessage
 	| GetCacheMessage
 	| SetCacheMessage<keyof CacheValues>
+	| SetTitleMessage
 	| SetActiveIconMessage
 	| SetInactiveIconMessage
+	| SetRotatingIconMessage
+	| SetStaticIconMessage
 	| CheckScrobbleMessage
 	| StartScrobbleMessage
 	| StopScrobbleMessage
 	| SendRequestMessage
 	| ShowNotificationMessage
 	| WrongItemCorrectedMessage
-	| SaveCorrectionSuggestionMessage;
+	| SaveCorrectionSuggestionMessage
+	| CheckAutoSyncMessage;
 
 export interface ReturnTypes {
 	'open-tab': browser.tabs.Tab;
@@ -42,8 +52,11 @@ export interface ReturnTypes {
 	logout: null;
 	'get-cache': CacheValues[keyof CacheValues];
 	'set-cache': null;
+	'set-title': null;
 	'set-active-icon': null;
 	'set-inactive-icon': null;
+	'set-rotating-icon': null;
+	'set-static-icon': null;
 	'check-scrobble': null;
 	'start-scrobble': null;
 	'stop-scrobble': null;
@@ -51,6 +64,7 @@ export interface ReturnTypes {
 	'show-notification': string;
 	'wrong-item-corrected': null;
 	'save-correction-suggestion': null;
+	'check-auto-sync': null;
 }
 
 export interface ErrorReturnType {
@@ -102,12 +116,25 @@ export interface SendRequestMessage {
 	request: RequestDetails;
 }
 
+export interface SetTitleMessage {
+	action: 'set-title';
+	title: string;
+}
+
 export interface SetActiveIconMessage {
 	action: 'set-active-icon';
 }
 
 export interface SetInactiveIconMessage {
 	action: 'set-inactive-icon';
+}
+
+export interface SetRotatingIconMessage {
+	action: 'set-rotating-icon';
+}
+
+export interface SetStaticIconMessage {
+	action: 'set-static-icon';
 }
 
 export interface ShowNotificationMessage {
@@ -138,9 +165,12 @@ export interface WrongItemCorrectedMessage {
 
 export interface SaveCorrectionSuggestionMessage {
 	action: 'save-correction-suggestion';
-	serviceId: StreamingServiceId;
 	item: Item;
 	url: string;
+}
+
+export interface CheckAutoSyncMessage {
+	action: 'check-auto-sync';
 }
 
 export interface NavigationCommittedParams {
@@ -150,32 +180,74 @@ export interface NavigationCommittedParams {
 }
 
 const injectedTabs = new Set();
+let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
 let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+let isCheckingAutoSync = false;
+let autoSyncCheckTimeout: number | null = null;
 
 const init = async () => {
 	Shared.pageType = 'background';
-	await BrowserStorage.sync();
-	const storage = await BrowserStorage.get('options');
-	if (storage.options?.allowRollbar) {
+	await BrowserStorage.init();
+	if (BrowserStorage.options.allowRollbar) {
 		Errors.startRollbar();
 	}
 	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
-	if (storage.options?.streamingServices) {
-		const scrobblerEnabled = (Object.entries(storage.options.streamingServices) as [
-			StreamingServiceId,
-			boolean
-		][]).some(
-			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
-		);
-		if (scrobblerEnabled) {
-			addWebNavigationListener(storage.options);
-		}
+	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices) as [
+		StreamingServiceId,
+		StreamingServiceValue
+	][];
+	const scrobblerEnabled = streamingServiceEntries.some(
+		([streamingServiceId, value]) =>
+			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+	);
+	if (scrobblerEnabled) {
+		addWebNavigationListener(BrowserStorage.options);
 	}
-	if (storage.options?.grantCookies) {
+	void checkAutoSync();
+	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+};
+
+const checkAutoSync = async () => {
+	if (isCheckingAutoSync) {
+		return;
+	}
+	isCheckingAutoSync = true;
+
+	if (autoSyncCheckTimeout !== null) {
+		window.clearTimeout(autoSyncCheckTimeout);
+	}
+
+	const now = Math.trunc(Date.now() / 1e3);
+	const servicesToSync = streamingServiceEntries.filter(
+		([streamingServiceId, value]) =>
+			streamingServices[streamingServiceId].hasSync &&
+			streamingServices[streamingServiceId].hasAutoSync &&
+			value.sync &&
+			value.autoSync &&
+			value.autoSyncDays > 0 &&
+			value.lastSync > 0 &&
+			now - value.lastSync >= value.autoSyncDays * 86400
+	);
+	if (servicesToSync.length > 0) {
+		try {
+			await BrowserAction.setRotatingIcon();
+			await BrowserAction.setTitle(I18N.translate('autoSyncing'));
+			await AutoSync.sync(servicesToSync, now);
+		} catch (err) {
+			Errors.error('Failed to automatically sync history.', err);
+		}
+		await BrowserAction.setTitle();
+		await BrowserAction.setStaticIcon();
+	}
+
+	// Check again every hour
+	autoSyncCheckTimeout = window.setTimeout(() => void checkAutoSync(), 3600000);
+
+	isCheckingAutoSync = false;
 };
 
 const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
@@ -206,7 +278,9 @@ const onTabRemoved = async (tabId: number) => {
 	}
 	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
 	if (scrobblingItem) {
-		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
+		if (scrobblingItem.trakt) {
+			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
+		}
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.remove('scrobblingTabId');
@@ -254,11 +328,14 @@ const onStorageChanged = (
 		return;
 	}
 	if (newValue.streamingServices) {
-		const scrobblerEnabled = (Object.entries(newValue.streamingServices) as [
+		streamingServiceEntries = Object.entries(newValue.streamingServices) as [
 			StreamingServiceId,
-			boolean
-		][]).some(
-			([streamingServiceId, value]) => value && streamingServices[streamingServiceId].hasScrobbler
+			StreamingServiceValue
+		][];
+
+		const scrobblerEnabled = streamingServiceEntries.some(
+			([streamingServiceId, value]) =>
+				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addWebNavigationListener(newValue);
@@ -275,7 +352,7 @@ const onStorageChanged = (
 
 const addWebNavigationListener = (options: StorageValuesOptions) => {
 	streamingServiceScripts = Object.values(streamingServices)
-		.filter((service) => options.streamingServices[service.id] && service.hasScrobbler)
+		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?://(www.)?').replace(/\/\*$/, '')
@@ -413,12 +490,24 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
 			break;
 		}
+		case 'set-title': {
+			executingAction = BrowserAction.setTitle(parsedRequest.title);
+			break;
+		}
 		case 'set-active-icon': {
 			executingAction = BrowserAction.setActiveIcon();
 			break;
 		}
 		case 'set-inactive-icon': {
 			executingAction = BrowserAction.setInactiveIcon();
+			break;
+		}
+		case 'set-rotating-icon': {
+			executingAction = BrowserAction.setRotatingIcon();
+			break;
+		}
+		case 'set-static-icon': {
+			executingAction = BrowserAction.setStaticIcon();
 			break;
 		}
 		case 'check-scrobble': {
@@ -454,11 +543,11 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		}
 		case 'save-correction-suggestion': {
 			const item = new Item(parsedRequest.item);
-			executingAction = WrongItemApi.saveSuggestion(
-				parsedRequest.serviceId,
-				item,
-				parsedRequest.url
-			);
+			executingAction = WrongItemApi.saveSuggestion(item, parsedRequest.url);
+			break;
+		}
+		case 'check-auto-sync': {
+			executingAction = checkAutoSync();
 			break;
 		}
 	}
@@ -489,7 +578,9 @@ const setScrobblingTabId = async (tabId?: number): Promise<void> => {
 	]);
 	if (scrobblingItem && tabId !== scrobblingTabId) {
 		// Stop the previous scrobble if it exists.
-		await TraktScrobble.stop(new TraktItem(scrobblingItem.trakt));
+		if (scrobblingItem.trakt) {
+			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
+		}
 		await BrowserStorage.remove('scrobblingItem');
 	}
 	await BrowserStorage.set({ scrobblingTabId: tabId }, false);

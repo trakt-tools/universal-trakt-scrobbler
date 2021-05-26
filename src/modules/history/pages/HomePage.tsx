@@ -1,17 +1,14 @@
-import { CircularProgress, List, ListItem, ListItemText, Typography } from '@material-ui/core';
+import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
-import { Session } from '../../../common/Session';
-import { UtsCenter } from '../../../components/UtsCenter';
 import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
 import { HistoryInfo } from '../components/HistoryInfo';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
-	const [isLoading, setLoading] = useState(true);
 	const [services, setServices] = useState([] as StreamingServicePage[]);
 
 	const onRouteClick = (path: string) => {
@@ -19,42 +16,21 @@ export const HomePage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		const checkLogin = () => {
-			if (Session.isLoggedIn) {
-				setLoading(false);
-			} else {
-				setLoading(true);
-				history.push('/login');
-			}
-		};
-
-		checkLogin();
-	}, []);
-
-	useEffect(() => {
-		const checkEnabledServices = async () => {
-			const storage = await BrowserStorage.get('options');
-			const serviceOptions = storage.options?.streamingServices;
-			if (!serviceOptions) {
-				return;
-			}
+		const checkEnabledServices = () => {
+			const serviceOptions = BrowserStorage.options.streamingServices;
 			const enabledServices = [];
 			for (const service of streamingServicePages) {
-				if (serviceOptions[service.id]) {
+				if (service.hasSync && serviceOptions[service.id].sync) {
 					enabledServices.push(service);
 				}
 			}
 			setServices(enabledServices);
 		};
 
-		void checkEnabledServices();
+		checkEnabledServices();
 	}, []);
 
-	return isLoading ? (
-		<UtsCenter>
-			<CircularProgress />
-		</UtsCenter>
-	) : (
+	return (
 		<HistoryInfo>
 			{services.length > 0 ? (
 				<>

@@ -8,7 +8,7 @@ import './telia-play/TeliaPlayApi';
 
 export interface StreamingServicePage extends StreamingService {
 	path: string;
-	pageBuilder: () => React.ReactElement | null;
+	pageBuilder: () => React.ReactNode | null;
 }
 
 export const streamingServicePages: StreamingServicePage[] = Object.values(streamingServices)
@@ -16,5 +16,5 @@ export const streamingServicePages: StreamingServicePage[] = Object.values(strea
 	.map((service) => ({
 		...service,
 		path: `/${service.id}`,
-		pageBuilder: getSyncPageBuilder(service.id, service.name),
+		pageBuilder: getSyncPageBuilder(service.id),
 	}));

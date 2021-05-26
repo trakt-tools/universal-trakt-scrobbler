@@ -8,8 +8,14 @@
 	"add": {
 		"message": "Legg til"
 	},
+	"addDate": {
+		"message": "Legg til dato"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Kunne ikke legge til manglende «sett dato»."
+	},
+	"addWithReleaseDateMissingName": {
+		"message": "Legg til utgivelsesdato kun for elementer som mangler «sett dato»."
 	},
 	"addWithReleaseDateName": {
 		"message": "Legg til med utgivelsesdato."
@@ -23,6 +29,18 @@
 	"appDescription": {
 		"message": "En universell sync-tjeneste for Trakt.tv."
 	},
+	"autoSync": {
+		"message": "Automatisk synkronisering"
+	},
+	"autoSyncNotActivated": {
+		"message": "Automatisk synkronisering er ikke aktivert. Du er nødt til å synkronisere manuelt på historikksiden først, på denne måten kan «siste synkroniseringsdato» lagres."
+	},
+	"autoSyncPageMessage": {
+		"message": "Disse elementene ble automatisk synkronisert eller kunne ikke synkroniseres siden forrige gang. Dersom korreksjoner trengs, legg dem til, og velg elementene som krever endringer, og trykk på Synkroniser-knappen. Når du gjør det, slettes cachen og disse elementene vil ikke stå på denne siden lengre. Dersom ingen korreksjoner er nødvendige, kan du trykke på Fjern synkroniseringscache-knappen og det samme vil skje."
+	},
+	"autoSyncing": {
+		"message": "Synkroniserer automatisk..."
+	},
 	"cancel": {
 		"message": "Avbryt"
 	},
@@ -31,6 +49,9 @@
 	},
 	"cannotSyncMissingWatchedDate": {
 		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
+	},
+	"clearLastSync": {
+		"message": "Fjern siste synkroniseringsdato"
 	},
 	"clearStorage": {
 		"message": "Fjern lagrede data"
@@ -41,8 +62,11 @@
 	"clearStorageSuccess": {
 		"message": "Lagret data ble fjernet."
 	},
+	"clearSyncCache": {
+		"message": "Fjern synkroniseringscache"
+	},
 	"clearTraktCache": {
-		"message": "Fjern Trakt cache"
+		"message": "Fjern Trakt-cache"
 	},
 	"clearTraktCacheFailed": {
 		"message": "Klarte ikke å fjerne Trakt cache."
@@ -54,17 +78,37 @@
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Lukk"
 	},
+	"confirmClearLastSyncMessage": {
+		"message": "Du er nødt til å synkronisere på nytt manuelt på historikksiden til strømmetjenesten om du ønsker å reaktivere automatisk synkronisering."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Fjern siste synkroniseringsdato for $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
 	"confirmClearStorageMessage": {
 		"message": "Alle valgene vil bli tilbakestilt til standardvalgene og du blir nødt til å logge inn på nytt."
 	},
 	"confirmClearStorageTitle": {
 		"message": "Fjern lagrede data?"
 	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Alle elementene på siden blir fjernet fra cache, og du vil ikke lengre kunne se over dem."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Fjerne synkroniseringscachen?"
+	},
 	"confirmClearTraktCacheMessage": {
 		"message": "Alt rettelser du har gjort blir tilbakestilt."
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Fjerne Trakt cache?"
+	},
+	"continueLoading": {
+		"message": "Fortsett innlasting"
 	},
 	"correct": {
 		"description": "This is the verb, as in 'to correct'.",
@@ -82,11 +126,11 @@
 	"darkTheme": {
 		"message": "Mørkt"
 	},
-	"disableScrobblingDescription": {
-		"message": "Dersom dette valget er aktivert vil utvidelsen ikke automatisk scrobble det du ser på. Dette er nyttig om du bare ønsker å bruke sync av historikk."
+	"days": {
+		"message": "Dager"
 	},
-	"disableScrobblingName": {
-		"message": "Deaktiver scrobbling."
+	"daysDescription": {
+		"message": "Hvor hyppig automatisk synkronisering skal inntreffe."
 	},
 	"errorNotification": {
 		"message": "Noe har gått galt. :("
@@ -103,11 +147,14 @@
 	"from": {
 		"message": "fra"
 	},
+	"goToHistoryPage": {
+		"message": "Gå til historikksiden"
+	},
 	"grantCookiesDescription": {
 		"message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
 	},
 	"grantCookiesName": {
-		"message": "Tillat \"cookies\" slik at utvidelsen kan virke sammen med Firefox Containers."
+		"message": "Tillat «informasjonskapsler» slik at utvidelsen kan virke sammen med Firefox Containers."
 	},
 	"hideSyncedName": {
 		"message": "Skjul allerede synkroniserte elementer."
@@ -144,6 +191,9 @@
 	"itemsPerLoadName": {
 		"message": "Antall elementer i hver innlasting."
 	},
+	"lastSync": {
+		"message": "Siste synkroniseringsdato"
+	},
 	"lightTheme": {
 		"message": "Lyst"
 	},
@@ -162,6 +212,9 @@
 	"logout": {
 		"message": "Logg ut"
 	},
+	"minPercentageWatchedName": {
+		"message": "Minimum prosent sett."
+	},
 	"missingWatchedDate": {
 		"message": "Mangler «sett dato»"
 	},
@@ -173,11 +226,19 @@
 			}
 		}
 	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Velg hvordan du ønsker å legge til de manglende sett-datoene for $ITEMS$ elementer.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
 	"missingWatchedDateDialogDateLabel": {
 		"message": "Velg datoen"
 	},
 	"missingWatchedDateDialogInvalidDateLabel": {
-		"message": "Legg inn en gydlig dato!"
+		"message": "Legg inn en gyldig dato!"
 	},
 	"nextPage": {
 		"message": "Neste side"
@@ -185,11 +246,11 @@
 	"no": {
 		"message": "Nei"
 	},
-	"noMoreHistory": {
-		"message": "Slutten av historikken er nådd."
-	},
 	"noStreamingServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
+	},
+	"notAvailable": {
+		"message": "Ikke tilgjengelig"
 	},
 	"notFound": {
 		"message": "Ikke funnet"
@@ -220,8 +281,20 @@
 			}
 		}
 	},
+	"reachedHistoryEnd": {
+		"message": "Slutten av historikken er nådd."
+	},
+	"reachedLastSyncDate": {
+		"message": "Ingen flere elementer siden forrige synkroniseringsdato. Dersom du ønsker å laste inn eldre elementer, trykk på knappen nedenfor."
+	},
 	"readMore": {
 		"message": "Les mer"
+	},
+	"recentAutoSync": {
+		"message": "Enkelte elementer ble nylig automatisk synkronisert. Trykk her for å se på dem og pass på at de riktige elementene ble synkronisert."
+	},
+	"recentAutoSyncError": {
+		"message": "Enkelte elementer ble ikke synkronisert automatisk. Trykk her for å rette dem."
 	},
 	"save": {
 		"message": "Lagre"
@@ -261,6 +334,15 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
+	},
+	"service": {
+		"message": "Strømmetjeneste"
+	},
+	"serviceScrobble": {
+		"message": "Scrobbling"
+	},
+	"serviceSync": {
+		"message": "Historikk-synkronisering"
 	},
 	"showNotificationsDescription": {
 		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
@@ -336,6 +418,9 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"
+	},
+	"wrongItemDialogSyncedWarning": {
+		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"yes": {
 		"message": "Ja"

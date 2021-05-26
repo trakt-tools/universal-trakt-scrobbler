@@ -1,10 +1,12 @@
-import { List } from '@material-ui/core';
+import { Grid, ListItem, Typography } from '@material-ui/core';
 import * as React from 'react';
-import { StreamingServiceOption } from './StreamingServiceOption';
+import { StreamingServiceValue } from '../../../common/BrowserStorage';
+import { I18N } from '../../../common/I18N';
 import { StreamingServiceId } from '../../../streaming-services/streaming-services';
+import { StreamingServiceOption } from './StreamingServiceOption';
 
 interface StreamingServiceOptionsProps {
-	options: Record<StreamingServiceId, boolean>;
+	options: Record<StreamingServiceId, StreamingServiceValue>;
 }
 
 export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
@@ -12,12 +14,30 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 ) => {
 	const { options } = props;
 	return (
-		<List classes={{ root: 'options--streaming-service' }}>
-			{(Object.entries(options) as [StreamingServiceId, boolean][])
-				.sort(([idA], [idB]) => idA.localeCompare(idB))
-				.map(([id, value]) => (
-					<StreamingServiceOption key={id} id={id} value={value} />
-				))}
-		</List>
+		<ListItem>
+			<Grid container spacing={2}>
+				<Grid item className="options-grid-item" xs={12}>
+					<Grid container className="options-grid-container" spacing={10}>
+						<Grid item xs={3}>
+							<Typography variant="caption">{I18N.translate('service')}</Typography>
+						</Grid>
+						<Grid item className="options-grid-item--centered" xs={1}>
+							<Typography variant="caption">{I18N.translate('serviceScrobble')}</Typography>
+						</Grid>
+						<Grid item className="options-grid-item--centered" xs={1}>
+							<Typography variant="caption">{I18N.translate('serviceSync')}</Typography>
+						</Grid>
+						<Grid item className="options-grid-item--centered" xs={2}>
+							<Typography variant="caption">{I18N.translate('autoSync')}</Typography>
+						</Grid>
+					</Grid>
+				</Grid>
+				{(Object.entries(options) as [StreamingServiceId, StreamingServiceValue][])
+					.sort(([idA], [idB]) => idA.localeCompare(idB))
+					.map(([id, value]) => (
+						<StreamingServiceOption key={id} id={id} value={value} />
+					))}
+			</Grid>
+		</ListItem>
 	);
 };

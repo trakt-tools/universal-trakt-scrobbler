@@ -8,8 +8,14 @@
 	"add": {
 		"message": "Add"
 	},
+	"addDate": {
+		"message": "Add date"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Failed to add missing watched date."
+	},
+	"addWithReleaseDateMissingName": {
+		"message": "Add with release date only for items that are missing the watched date."
 	},
 	"addWithReleaseDateName": {
 		"message": "Add with release date."
@@ -23,6 +29,18 @@
 	"appDescription": {
 		"message": "A universal sync for Trakt.tv."
 	},
+	"autoSync": {
+		"message": "Automatic Sync"
+	},
+	"autoSyncNotActivated": {
+		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
+	},
+	"autoSyncPageMessage": {
+		"message": "These are the items that were automatically synced or failed to automatically sync since the last review. If any corrections are needed, apply them, select the items that need to be corrected, and click the Sync button. When you do that, the cache will be deleted and these items will no longer appear on this page. If no corrections are needed, simply click the Clear Sync Cache button and the same thing will happen."
+	},
+	"autoSyncing": {
+		"message": "Automatically syncing..."
+	},
 	"cancel": {
 		"message": "Cancel"
 	},
@@ -32,6 +50,9 @@
 	"cannotSyncMissingWatchedDate": {
 		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
+	"clearLastSync": {
+		"message": "Clear Last Sync Date"
+	},
 	"clearStorage": {
 		"message": "Clear Storage"
 	},
@@ -40,6 +61,9 @@
 	},
 	"clearStorageSuccess": {
 		"message": "Storage cleared."
+	},
+	"clearSyncCache": {
+		"message": "Clear Sync Cache"
 	},
 	"clearTraktCache": {
 		"message": "Clear Trakt Cache"
@@ -54,17 +78,37 @@
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Close"
 	},
+	"confirmClearLastSyncMessage": {
+		"message": "You'll need to sync manually in the history page of the streaming service again to reactivate the automatic sync."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Clear last sync date for $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
 	"confirmClearStorageMessage": {
 		"message": "All of the options will be reset to their default values and you will have to login again."
 	},
 	"confirmClearStorageTitle": {
 		"message": "Clear storage?"
 	},
+	"confirmClearSyncCacheMessage": {
+		"message": "All of the items in the current page will be removed from the cache and you'll no longer be able to review them."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Clear sync cache?"
+	},
 	"confirmClearTraktCacheMessage": {
 		"message": "All of the items you have corrected will be reset."
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Clear Trakt cache?"
+	},
+	"continueLoading": {
+		"message": "Continue Loading"
 	},
 	"correct": {
 		"description": "This is the verb, as in 'to correct'.",
@@ -82,11 +126,11 @@
 	"darkTheme": {
 		"message": "Dark"
 	},
-	"disableScrobblingDescription": {
-		"message": "With this option enabled, the extension will not automatically scrobble what you are watching. This is useful if you only want to use the history sync."
+	"days": {
+		"message": "Days"
 	},
-	"disableScrobblingName": {
-		"message": "Disable scrobbling."
+	"daysDescription": {
+		"message": "How often the automatic sync will happen."
 	},
 	"errorNotification": {
 		"message": "An error has occurred. :("
@@ -102,6 +146,9 @@
 	},
 	"from": {
 		"message": "from"
+	},
+	"goToHistoryPage": {
+		"message": "Go to History Page"
 	},
 	"grantCookiesDescription": {
 		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
@@ -144,6 +191,9 @@
 	"itemsPerLoadName": {
 		"message": "Items per load."
 	},
+	"lastSync": {
+		"message": "Last Sync Date"
+	},
 	"lightTheme": {
 		"message": "Light"
 	},
@@ -162,6 +212,9 @@
 	"logout": {
 		"message": "Logout"
 	},
+	"minPercentageWatchedName": {
+		"message": "Minimum percentage watched."
+	},
 	"missingWatchedDate": {
 		"message": "Missing watched date"
 	},
@@ -169,6 +222,14 @@
 		"message": "Choose how you want to add the missing watched date for $TITLE$.",
 		"placeholders": {
 			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Choose how you want to add the missing watched date for the $ITEMS$ items.",
+		"placeholders": {
+			"items": {
 				"content": "$1"
 			}
 		}
@@ -185,11 +246,11 @@
 	"no": {
 		"message": "No"
 	},
-	"noMoreHistory": {
-		"message": "Reached the end of the history."
-	},
 	"noStreamingServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
+	},
+	"notAvailable": {
+		"message": "Not Available"
 	},
 	"notFound": {
 		"message": "Not Found"
@@ -220,8 +281,20 @@
 			}
 		}
 	},
+	"reachedHistoryEnd": {
+		"message": "Reached the end of the history."
+	},
+	"reachedLastSyncDate": {
+		"message": "Reached the last sync date. If you wish to load items past this point, click the button below."
+	},
 	"readMore": {
 		"message": "Read More"
+	},
+	"recentAutoSync": {
+		"message": "Some items were recently automatically synced. Click here to review them and make sure that the correct items were synced."
+	},
+	"recentAutoSyncError": {
+		"message": "Some items recently failed to automatically sync. Click here to review and correct them."
 	},
 	"save": {
 		"message": "Save"
@@ -261,6 +334,15 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / receive correction suggestions."
+	},
+	"service": {
+		"message": "Service"
+	},
+	"serviceScrobble": {
+		"message": "Scrobble"
+	},
+	"serviceSync": {
+		"message": "Sync"
 	},
 	"showNotificationsDescription": {
 		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
@@ -336,6 +418,9 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Please enter a valid Trakt URL!"
+	},
+	"wrongItemDialogSyncedWarning": {
+		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
 	},
 	"yes": {
 		"message": "Yes"

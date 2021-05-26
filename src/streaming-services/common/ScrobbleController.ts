@@ -6,7 +6,6 @@ import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '.
 import { Messaging } from '../../common/Messaging';
 import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { TraktItem } from '../../models/TraktItem';
 
 export interface ScrobbleParser {
 	parseItem(): Promise<Item | undefined> | Item | undefined;
@@ -92,8 +91,7 @@ export class ScrobbleController {
 	getScrobblingItem = (): ScrobblingItem | undefined => {
 		return this.item?.trakt
 			? {
-					...Item.getBase(this.item),
-					trakt: TraktItem.getBase(this.item.trakt),
+					...Item.save(this.item),
 					correctionSuggestions: this.item.correctionSuggestions,
 			  }
 			: undefined;
@@ -114,7 +112,6 @@ export class ScrobbleController {
 		try {
 			await Messaging.toBackground({
 				action: 'save-correction-suggestion',
-				serviceId: this.item.serviceId,
 				item: this.item,
 				url: data.url,
 			});

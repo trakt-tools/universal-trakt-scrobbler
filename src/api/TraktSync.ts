@@ -6,7 +6,13 @@ import { Item } from '../models/Item';
 import { TraktApi } from './TraktApi';
 
 export interface TraktHistoryItem {
+	id: number;
 	watched_at: string;
+}
+
+export interface ParsedTraktHistoryItem {
+	id: number;
+	watched_at: moment.Moment;
 }
 
 export interface TraktSyncResponse {
@@ -32,7 +38,8 @@ class _TraktSync extends TraktApi {
 	}
 
 	loadHistory = async (item: Item): Promise<void> => {
-		if (!item.trakt) {
+		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
+		if (!item.trakt || !watchedAt) {
 			return;
 		}
 		const responseText = await Requests.send({
@@ -40,10 +47,38 @@ class _TraktSync extends TraktApi {
 			method: 'GET',
 		});
 		const historyItems = JSON.parse(responseText) as TraktHistoryItem[];
-		const historyItem = historyItems.find(
-			(x) => moment(x.watched_at).diff(item.watchedAt, 'days') === 0
-		);
-		item.trakt.watchedAt = historyItem && moment(historyItem.watched_at);
+		let historyItemMatch: ParsedTraktHistoryItem | null = null;
+		for (const historyItem of historyItems) {
+			const parsedHistoryItem: ParsedTraktHistoryItem = {
+				id: historyItem.id,
+				watched_at: moment(historyItem.watched_at),
+			};
+			if (watchedAt.isSame(parsedHistoryItem.watched_at)) {
+				historyItemMatch = parsedHistoryItem;
+				break;
+			} else if (watchedAt.diff(parsedHistoryItem.watched_at, 'days') === 0) {
+				historyItemMatch = parsedHistoryItem;
+			}
+		}
+		if (historyItemMatch) {
+			item.trakt.syncId = historyItemMatch.id;
+			item.trakt.watchedAt = historyItemMatch.watched_at;
+		}
+	};
+
+	removeHistory = async (item: Item): Promise<void> => {
+		if (!item.trakt?.syncId) {
+			return;
+		}
+		await Requests.send({
+			url: `${this.SYNC_URL}/remove`,
+			method: 'POST',
+			body: {
+				ids: [item.trakt.syncId],
+			},
+		});
+		item.trakt.syncId = undefined;
+		item.trakt.watchedAt = undefined;
 	};
 
 	getUrl = (item: Item): string => {
@@ -59,20 +94,20 @@ class _TraktSync extends TraktApi {
 		return url;
 	};
 
-	sync = async (items: Item[], addWithReleaseDate: boolean) => {
+	sync = async (items: Item[]) => {
 		try {
 			const data = {
 				episodes: items
-					.filter((item) => item.isSelected && item.type === 'show')
+					.filter((item) => item.type === 'show')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: item.getWatchedDate(),
 					})),
 				movies: items
-					.filter((item) => item.isSelected && item.type === 'movie')
+					.filter((item) => item.type === 'movie')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: addWithReleaseDate ? 'released' : item.watchedAt,
+						watched_at: item.getWatchedDate(),
 					})),
 			};
 			const responseText = await Requests.send({
@@ -86,12 +121,12 @@ class _TraktSync extends TraktApi {
 				movies: responseJson.not_found.movies.map((item) => item.ids.trakt),
 			};
 			for (const item of items) {
-				if (item.isSelected && item.trakt) {
-					if (item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) {
-						item.trakt.watchedAt = item.watchedAt;
-					} else if (item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)) {
-						item.trakt.watchedAt = item.watchedAt;
-					}
+				if (
+					item.trakt &&
+					((item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) ||
+						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))
+				) {
+					await TraktSync.loadHistory(item);
 				}
 			}
 			await EventDispatcher.dispatch('HISTORY_SYNC_SUCCESS', null, {

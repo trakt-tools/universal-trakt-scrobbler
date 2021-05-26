@@ -1,5 +1,7 @@
+import * as moment from 'moment';
+import { BrowserStorage } from '../common/BrowserStorage';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
-import { TraktItem } from './TraktItem';
+import { SavedTraktItem, TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {
@@ -15,7 +17,19 @@ const correctTitles: Record<string, string> = {
 	['Young and Hungry']: '"Young and Hungry"',
 };
 
-export type IItem = ItemBase & ItemExtra;
+export interface IItem extends ItemBase {
+	watchedAt?: moment.Moment;
+	trakt?: TraktItem | null;
+	isSelected?: boolean;
+	index?: number;
+	correctionSuggestions?: CorrectionSuggestion[] | null;
+	imageUrl?: string | null;
+}
+
+export interface SavedItem extends ItemBase {
+	watchedAt?: number;
+	trakt?: Omit<SavedTraktItem, ''> | null;
+}
 
 export interface ItemBase {
 	serviceId: StreamingServiceId;
@@ -27,16 +41,7 @@ export interface ItemBase {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-}
-
-export interface ItemExtra {
-	watchedAt?: import('moment').Moment;
 	percentageWatched?: number;
-	trakt?: TraktItem | null;
-	isSelected?: boolean;
-	index?: number;
-	correctionSuggestions?: CorrectionSuggestion[] | null;
-	imageUrl?: string | null;
 }
 
 export interface CorrectionSuggestion {
@@ -57,8 +62,8 @@ export class Item implements IItem {
 	episode?: number;
 	episodeTitle?: string;
 	isCollection?: boolean;
-	watchedAt?: import('moment').Moment;
-	percentageWatched: number;
+	watchedAt?: moment.Moment;
+	percentageWatched?: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
@@ -86,7 +91,7 @@ export class Item implements IItem {
 		this.imageUrl = options.imageUrl;
 	}
 
-	static getBase = (item: Item): ItemBase => {
+	static save = (item: Item): SavedItem => {
 		return {
 			serviceId: item.serviceId,
 			id: item.id,
@@ -97,7 +102,20 @@ export class Item implements IItem {
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
 			isCollection: item.isCollection,
+			watchedAt: item.watchedAt?.unix(),
+			percentageWatched: item.percentageWatched,
+			trakt: item.trakt && TraktItem.save(item.trakt),
 		};
+	};
+
+	static load = (savedItem: SavedItem): Item => {
+		const options: IItem = {
+			...savedItem,
+			watchedAt:
+				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
+			trakt: savedItem.trakt && TraktItem.load(savedItem.trakt),
+		};
+		return new Item(options);
 	};
 
 	getFullTitle = () => {
@@ -107,5 +125,31 @@ export class Item implements IItem {
 			} - ${this.episodeTitle ?? 'Untitled'}`;
 		}
 		return `${this.title} (${this.year})`;
+	};
+
+	isSelectable = () => {
+		return this.trakt && !this.trakt.watchedAt;
+	};
+
+	isMissingWatchedDate = () => {
+		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		if (addWithReleaseDate) {
+			if (addWithReleaseDateMissing) {
+				return !this.watchedAt && !this.trakt?.releaseDate;
+			}
+			return !this.trakt?.releaseDate;
+		}
+		return !this.watchedAt;
+	};
+
+	getWatchedDate = () => {
+		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		if (addWithReleaseDate) {
+			if (addWithReleaseDateMissing) {
+				return this.watchedAt ?? this.trakt?.releaseDate;
+			}
+			return this.trakt?.releaseDate;
+		}
+		return this.watchedAt;
 	};
 }

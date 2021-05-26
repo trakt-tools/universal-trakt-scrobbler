@@ -1,7 +1,12 @@
+import { History } from 'history';
+
 interface SharedValues {
 	browser: BrowserName;
 	pageType: PageType;
 	tabId?: number;
+	history?: History;
+	redirectPath?: string;
+	dateFormat: string;
 }
 
 type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
@@ -22,4 +27,5 @@ const browserPrefix = browser
 export const Shared: SharedValues = {
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',
+	dateFormat: 'ddd D MMM YYYY, H:mm:ss',
 };

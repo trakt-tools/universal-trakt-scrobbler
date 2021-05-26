@@ -1,12 +1,13 @@
 import { Color } from '@material-ui/lab';
-import * as moment from 'moment';
 import { TraktSearchItem } from '../api/TraktSearch';
-import { MissingWatchedDateType } from '../components/MissingWatchedDateDialog';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { SyncStoreData } from '../streaming-services/common/SyncStore';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
-import { StorageValuesOptions, StorageValuesSyncOptions } from './BrowserStorage';
+import {
+	StorageValuesOptions,
+	StorageValuesSyncOptions,
+	StreamingServiceValue,
+} from './BrowserStorage';
 import { Errors } from './Errors';
 import { RequestException } from './Requests';
 
@@ -42,6 +43,7 @@ export interface EventData {
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
+	STORAGE_OPTIONS_CHANGE: SuccessData;
 }
 
 export type Event = keyof EventData;
@@ -80,7 +82,7 @@ export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
 
 export type StreamingServiceOptionsChangeData<K extends StreamingServiceId> = {
 	id: K;
-	value: boolean;
+	value: Partial<StreamingServiceValue>;
 }[];
 
 export interface DialogShowData {
@@ -97,18 +99,16 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	serviceId?: StreamingServiceId;
-	item?: Item;
+	serviceId: StreamingServiceId | null;
+	items: Item[];
 }
 
 export interface MissingWatchedDateAddedData {
-	item: Item;
-	dateType: MissingWatchedDateType;
-	date: moment.Moment | null;
+	items: Item[];
 }
 
 export interface WrongItemDialogShowData {
-	serviceId?: StreamingServiceId;
+	serviceId: StreamingServiceId | null;
 	item?: Item;
 }
 
@@ -125,7 +125,7 @@ export interface HistoryOptionsChangeData {
 }
 
 export interface SyncStoreUpdateData {
-	data: SyncStoreData;
+	visibleItemsChanged: boolean;
 }
 
 export interface StreamingServiceHistoryChangeData {

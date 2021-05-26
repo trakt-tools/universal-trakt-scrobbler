@@ -16,7 +16,7 @@ class _AmazonPrimeEvents extends ScrobbleEvents {
 	}
 
 	startListeners = () => {
-		super.startListeners();
+		this.addChangeListener();
 		document.body.addEventListener('click', (event) => void this.onClick(event), true);
 	};
 
@@ -34,9 +34,6 @@ class _AmazonPrimeEvents extends ScrobbleEvents {
 				}
 				this.videoId = videoId ?? '';
 				AmazonPrimeParser.id = this.videoId;
-				await this.start();
-				this.isPaused = false;
-				this.isPlaying = true;
 			}
 		}
 	};

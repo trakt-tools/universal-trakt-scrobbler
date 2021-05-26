@@ -130,8 +130,7 @@ class _Requests {
 		if (typeof tabId === 'undefined') {
 			return;
 		}
-		const storage = await BrowserStorage.get('options');
-		if (!storage.options?.grantCookies || !browser.cookies || !browser.webRequest) {
+		if (!BrowserStorage.options.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;
 		}
 		const domainMatches = /https?:\/\/(www\.)?(.+?)(\/.*)?$/.exec(request.url);

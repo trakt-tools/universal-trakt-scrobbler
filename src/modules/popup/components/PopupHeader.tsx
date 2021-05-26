@@ -1,12 +1,14 @@
-import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { AppBar, IconButton, Toolbar, Tooltip } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HistoryIcon from '@material-ui/icons/History';
 import HomeIcon from '@material-ui/icons/Home';
 import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
+import SyncIcon from '@material-ui/icons/Sync';
 import { History } from 'history';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
 import { Session } from '../../../common/Session';
 import { Tabs } from '../../../common/Tabs';
@@ -18,6 +20,11 @@ interface IPopupHeader {
 }
 
 export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => {
+	const [syncButton, setSyncButton] = React.useState({
+		isEnabled: false,
+		hasError: false,
+	});
+
 	const onRouteClick = (path: string) => {
 		history.push(path);
 	};
@@ -30,6 +37,20 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 		await Session.logout();
 	};
 
+	React.useEffect(() => {
+		const checkAutoSync = async () => {
+			const { syncCache } = await BrowserStorage.get('syncCache');
+			if (syncCache && syncCache.items.length > 0) {
+				setSyncButton({
+					isEnabled: true,
+					hasError: syncCache.failed,
+				});
+			}
+		};
+
+		void checkAutoSync();
+	}, []);
+
 	return (
 		<AppBar className="popup-header" position="sticky">
 			<Toolbar>
@@ -37,41 +58,57 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 					centerVertically={true}
 					left={
 						<>
-							<Button
-								color="inherit"
-								title={I18N.translate('home')}
-								onClick={() => onRouteClick('/home')}
-							>
-								<HomeIcon />
-							</Button>
-							<Button
-								color="inherit"
-								title={I18N.translate('about')}
-								onClick={() => onRouteClick('/about')}
-							>
-								<InfoIcon />
-							</Button>
-							<Button
-								color="inherit"
-								title={I18N.translate('history')}
-								onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
-							>
-								<HistoryIcon />
-							</Button>
-							<Button
-								color="inherit"
-								title={I18N.translate('options')}
-								onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
-							>
-								<SettingsIcon />
-							</Button>
+							<Tooltip title={I18N.translate('home')}>
+								<IconButton color="inherit" onClick={() => onRouteClick('/home')}>
+									<HomeIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('about')}>
+								<IconButton color="inherit" onClick={() => onRouteClick('/about')}>
+									<InfoIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('history')}>
+								<IconButton
+									color="inherit"
+									onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
+								>
+									<HistoryIcon />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title={I18N.translate('options')}>
+								<IconButton
+									color="inherit"
+									onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
+								>
+									<SettingsIcon />
+								</IconButton>
+							</Tooltip>
+							{syncButton.isEnabled && (
+								<Tooltip
+									title={I18N.translate(
+										syncButton.hasError ? 'recentAutoSyncError' : 'recentAutoSync'
+									)}
+								>
+									<IconButton
+										color="inherit"
+										onClick={() =>
+											onLinkClick(browser.runtime.getURL('html/history.html#/auto-sync'))
+										}
+									>
+										<SyncIcon color={syncButton.hasError ? 'secondary' : 'inherit'} />
+									</IconButton>
+								</Tooltip>
+							)}
 						</>
 					}
 					right={
 						isLoggedIn ? (
-							<Button color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
-								<ExitToAppIcon />
-							</Button>
+							<Tooltip title={I18N.translate('logout')}>
+								<IconButton color="inherit" onClick={onLogoutClick}>
+									<ExitToAppIcon />
+								</IconButton>
+							</Tooltip>
 						) : undefined
 					}
 				/>

@@ -5,8 +5,6 @@ import { RequestException, Requests } from '../common/Requests';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { secrets } from '../secrets';
-import { getSyncStore } from '../streaming-services/common/common';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 
 export interface TmdbConfigResponse {
 	images?: {
@@ -134,7 +132,7 @@ class _TmdbApi {
 		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
 	};
 
-	loadImages = async (serviceId: StreamingServiceId, items: Item[]): Promise<void> => {
+	loadImages = async (items: Item[]): Promise<void> => {
 		const missingItems = items.filter((item) => typeof item.imageUrl === 'undefined');
 		if (missingItems.length === 0) {
 			return;
@@ -205,7 +203,6 @@ class _TmdbApi {
 		for (const item of missingItems) {
 			item.imageUrl = item.imageUrl ?? this.PLACEHOLDER_IMAGE;
 		}
-		await getSyncStore(serviceId).update();
 	};
 
 	loadItemImage = async (item: Item): Promise<Item> => {

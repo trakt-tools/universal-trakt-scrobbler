@@ -38,7 +38,7 @@ class _AmazonPrimeApi extends Api {
 		this.API_URL = 'https://atv-ps.primevideo.com';
 	}
 
-	loadHistory = (itemsToLoad: number): Promise<void> => {
+	loadHistory = (itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> => {
 		return Promise.resolve();
 	};
 

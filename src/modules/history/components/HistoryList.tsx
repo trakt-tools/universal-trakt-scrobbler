@@ -7,28 +7,18 @@ import { StreamingServiceId } from '../../../streaming-services/streaming-servic
 import { HistoryListItem } from './HistoryListItem';
 
 interface HistoryListProps {
-	dateFormat: string;
 	items: Item[];
-	serviceId: StreamingServiceId;
-	serviceName: string;
-	sendReceiveSuggestions: boolean;
+	serviceId: StreamingServiceId | null;
 }
 
 export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {
-	const { dateFormat, items, serviceId, serviceName, sendReceiveSuggestions } = props;
+	const { items, serviceId } = props;
 
 	return (
 		<>
 			<List className="history-list">
 				{items.map((item) => (
-					<HistoryListItem
-						key={item.index}
-						dateFormat={dateFormat}
-						item={item}
-						serviceId={serviceId}
-						serviceName={serviceName}
-						sendReceiveSuggestions={sendReceiveSuggestions}
-					/>
+					<HistoryListItem key={item.index} item={item} serviceId={serviceId} />
 				))}
 			</List>
 			<MissingWatchedDateDialog />

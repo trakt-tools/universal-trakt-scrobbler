@@ -8,8 +8,14 @@
 	"add": {
 		"message": "Adicionar"
 	},
+	"addDate": {
+		"message": "Adicionar data"
+	},
 	"addMissingWatchedDateFailed": {
 		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
+	},
+	"addWithReleaseDateMissingName": {
+		"message": "Adicionar com data de lançamento apenas para itens que estão faltando com a data em que foram assistidos."
 	},
 	"addWithReleaseDateName": {
 		"message": "Adicionar com data de lançamento."
@@ -23,6 +29,18 @@
 	"appDescription": {
 		"message": "Um sincronizador universal para o Trakt.tv."
 	},
+	"autoSync": {
+		"message": "Sincronização Automática"
+	},
+	"autoSyncNotActivated": {
+		"message": "Sincronização automática não ativada. Você precisa sincronizar manualmente na página de histórico primeiro, para que a data da última sincronização possa ser salva."
+	},
+	"autoSyncPageMessage": {
+		"message": "Esses são os itens que foram sincronizados automaticamente ou que falharam ao sincronizar automaticamente desde a última revisão. Se correções forem necessárias, aplique-as, selecione os itens que precisam ser corrigidos, e clique no botão Sincronizar. Quando você fizer isso, o cache será deletado e esses itens não aparecerão mais nessa página. Se nenhuma correção for necessária, simplesmente clique no botão Limpar Cache de Sincronização e o mesmo acontecerá."
+	},
+	"autoSyncing": {
+		"message": "Sincronizando automaticamente..."
+	},
 	"cancel": {
 		"message": "Cancelar"
 	},
@@ -32,6 +50,9 @@
 	"cannotSyncMissingWatchedDate": {
 		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
+	"clearLastSync": {
+		"message": "Limpar Data da Última Sincronização"
+	},
 	"clearStorage": {
 		"message": "Limpar Armazenamento"
 	},
@@ -40,6 +61,9 @@
 	},
 	"clearStorageSuccess": {
 		"message": "Armazenamento limpado."
+	},
+	"clearSyncCache": {
+		"message": "Limpar Cache de Sincronização"
 	},
 	"clearTraktCache": {
 		"message": "Limpar Cache do Trakt"
@@ -54,17 +78,37 @@
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Fechar"
 	},
+	"confirmClearLastSyncMessage": {
+		"message": "Você terá que sincronizar manualmente na página de histórico do serviço de streaming novamente para reativar a sincronização automática."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Limpar data da última sincronização para $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
 	"confirmClearStorageMessage": {
 		"message": "Todas as opções serão resetadas para seus valores padrões e você precisará entrar com o Trakt novamente."
 	},
 	"confirmClearStorageTitle": {
 		"message": "Limpar o armazenamento?"
 	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Todos os itens da página atual serão removidos do cache e você não poderá mais revisá-los."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Limpar o cache de sincronização?"
+	},
 	"confirmClearTraktCacheMessage": {
 		"message": "Todos os itens que você corrigiu serão resetados."
 	},
 	"confirmClearTraktCacheTitle": {
 		"message": "Limar o cache do Trakt?"
+	},
+	"continueLoading": {
+		"message": "Continuar Carregando"
 	},
 	"correct": {
 		"description": "This is the verb, as in 'to correct'.",
@@ -82,11 +126,11 @@
 	"darkTheme": {
 		"message": "Escuro"
 	},
-	"disableScrobblingDescription": {
-		"message": "Com essa opção ativada, a extensão não fará scrobble automático do que você está assistindo. Isso é útil caso você queira usar apenas a sincronização de histórico."
+	"days": {
+		"message": "Dias"
 	},
-	"disableScrobblingName": {
-		"message": "Desativar scrobbling."
+	"daysDescription": {
+		"message": "Com que frequência a sincronização automática será feita."
 	},
 	"errorNotification": {
 		"message": "Ocorreu um erro. :("
@@ -102,6 +146,9 @@
 	},
 	"from": {
 		"message": "de"
+	},
+	"goToHistoryPage": {
+		"message": "Ir para a Página de Histórico"
 	},
 	"grantCookiesDescription": {
 		"message": "Com essa opção ativada, a extensão funcionará com Firefox Containers, obtendo os cookies do atual container em que você está. Somente a ative se você usa Firefox Containers."
@@ -144,6 +191,9 @@
 	"itemsPerLoadName": {
 		"message": "Itens por página."
 	},
+	"lastSync": {
+		"message": "Data da Última Sincronização"
+	},
 	"lightTheme": {
 		"message": "Claro"
 	},
@@ -162,6 +212,9 @@
 	"logout": {
 		"message": "Sair"
 	},
+	"minPercentageWatchedName": {
+		"message": "Mínima porcentagem assistida."
+	},
 	"missingWatchedDate": {
 		"message": "Faltando data em que foi assistido"
 	},
@@ -169,6 +222,14 @@
 		"message": "Escolha como deseja adicionar a data em que $TITLE$ foi assistido.",
 		"placeholders": {
 			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Escolha como deseja adicionar a data em que os $ITEMS$ items foram assistidos.",
+		"placeholders": {
+			"items": {
 				"content": "$1"
 			}
 		}
@@ -185,11 +246,11 @@
 	"no": {
 		"message": "Não"
 	},
-	"noMoreHistory": {
-		"message": "Chegou ao fim do histórico."
-	},
 	"noStreamingServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
+	},
+	"notAvailable": {
+		"message": "Não Disponível"
 	},
 	"notFound": {
 		"message": "Não Encontrado"
@@ -220,8 +281,20 @@
 			}
 		}
 	},
+	"reachedHistoryEnd": {
+		"message": "Chegou ao fim do histórico."
+	},
+	"reachedLastSyncDate": {
+		"message": "Chegou à data da última sincronização. Se você quiser carregar itens além desse ponto, clique o botão abaixo."
+	},
 	"readMore": {
 		"message": "Ler Mais"
+	},
+	"recentAutoSync": {
+		"message": "Alguns itens foram sincronizados automaticamente recentemente. Clique aqui para revisá-los e confirmar que os itens corretos foram sincronizados."
+	},
+	"recentAutoSyncError": {
+		"message": "Alguns itens falharam ao sincronizar automaticamente recentemente. Clique aqui para revisá-los e corrigí-los."
 	},
 	"save": {
 		"message": "Salvar"
@@ -261,6 +334,15 @@
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Enviar / receber sugestões de correção."
+	},
+	"service": {
+		"message": "Serviço"
+	},
+	"serviceScrobble": {
+		"message": "Scrobble"
+	},
+	"serviceSync": {
+		"message": "Sincronização"
 	},
 	"showNotificationsDescription": {
 		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
@@ -336,6 +418,9 @@
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"
+	},
+	"wrongItemDialogSyncedWarning": {
+		"message": "ATENÇÃO: Você está corrigindo um item que já foi sincronizado. Se você prosseguir, o item previamente sincronizado será removido do seu histórico no Trakt."
 	},
 	"yes": {
 		"message": "Sim"

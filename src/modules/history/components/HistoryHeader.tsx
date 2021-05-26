@@ -39,31 +39,31 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 						<>
 							<Button
 								color="inherit"
-								title={I18N.translate('home')}
 								onClick={() => onRouteClick('/home')}
+								startIcon={<HomeIcon />}
 							>
-								<HomeIcon />
+								{I18N.translate('home')}
 							</Button>
 							<Button
 								color="inherit"
-								title={I18N.translate('about')}
 								onClick={() => onRouteClick('/about')}
+								startIcon={<InfoIcon />}
 							>
-								<InfoIcon />
+								{I18N.translate('about')}
 							</Button>
 							<Button
 								color="inherit"
-								title={I18N.translate('options')}
 								onClick={() => onLinkClick(browser.runtime.getURL('/html/options.html'))}
+								startIcon={<SettingsIcon />}
 							>
-								<SettingsIcon />
+								{I18N.translate('options')}
 							</Button>
 						</>
 					}
 					right={
 						isLoggedIn ? (
-							<Button color="inherit" title={I18N.translate('logout')} onClick={onLogoutClick}>
-								<ExitToAppIcon />
+							<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
+								{I18N.translate('logout')}
 							</Button>
 						) : undefined
 					}

@@ -1,19 +1,28 @@
+import { BrowserStorage } from '../../common/BrowserStorage';
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
 import { Item } from '../../models/Item';
+import { StreamingServiceId } from '../streaming-services';
+
+export type SyncStoreId = StreamingServiceId | 'multiple';
 
 export interface SyncStoreData {
 	items: Item[];
 	visibleItems: Item[];
+	selectedItems: Item[];
 	page: number;
 	itemsPerPage: number;
-	nextPage: number;
+	itemsToLoad: number;
+	hasNextPage: boolean;
 	hasReachedEnd: boolean;
+	hasReachedLastSyncDate: boolean;
 }
 
 export class SyncStore {
+	id: SyncStoreId;
 	data: SyncStoreData;
 
-	constructor() {
+	constructor(id: SyncStoreId) {
+		this.id = id;
 		this.data = SyncStore.getInitialData();
 	}
 
@@ -21,10 +30,13 @@ export class SyncStore {
 		return {
 			items: [],
 			visibleItems: [],
+			selectedItems: [],
 			page: 0,
 			itemsPerPage: 0,
-			nextPage: 0,
+			itemsToLoad: 0,
+			hasNextPage: false,
 			hasReachedEnd: false,
+			hasReachedLastSyncDate: false,
 		};
 	};
 
@@ -45,20 +57,22 @@ export class SyncStore {
 		const item = this.data.items[data.index];
 		if (item) {
 			item.isSelected = data.checked;
+			this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		}
-		void this.update();
+		void this.dispatchEvent(false);
 	};
 
 	onHistorySyncSuccess = (): void => {
-		void this.update();
+		void this.dispatchEvent(false);
 	};
 
 	selectAll = (): SyncStore => {
 		for (const item of this.data.visibleItems) {
-			if (item.trakt && !item.trakt.watchedAt) {
+			if (item.isSelectable()) {
 				item.isSelected = true;
 			}
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
@@ -66,15 +80,17 @@ export class SyncStore {
 		for (const item of this.data.visibleItems) {
 			item.isSelected = false;
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
 	toggleAll = (): SyncStore => {
 		for (const item of this.data.visibleItems) {
-			if (item.trakt && !item.trakt.watchedAt) {
+			if (item.isSelectable()) {
 				item.isSelected = !item.isSelected;
 			}
 		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
 	};
 
@@ -95,15 +111,18 @@ export class SyncStore {
 		this.data = {
 			...this.data,
 			...data,
-			items: [...this.data.items, ...(data.items ?? [])].map((item, index) => ({
-				...item,
-				index,
-			})),
+			items: [...this.data.items, ...(data.items ?? [])],
 			visibleItems: [],
+			selectedItems: [],
 		};
+		for (const [index, item] of this.data.items.entries()) {
+			item.index = index;
+		}
 		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
 			this.updatePage(itemsPerPage);
 		}
+		this.updateItemsToLoad();
+		this.updateHasNextPage();
 		return this;
 	};
 
@@ -119,24 +138,56 @@ export class SyncStore {
 		return this;
 	};
 
-	updateVisibleItems = (): SyncStore => {
+	update = (data?: Partial<SyncStoreData>): Promise<void> => {
+		if (data) {
+			this.setData(data);
+		} else {
+			this.updateItemsToLoad();
+			this.updateHasNextPage();
+		}
+		return this.updateVisibleItems(true);
+	};
+
+	updateItemsToLoad = () => {
+		this.data.itemsToLoad = (this.data.page + 1) * this.data.itemsPerPage - this.data.items.length;
+	};
+
+	updateHasNextPage = () => {
+		this.data.hasNextPage =
+			this.data.itemsPerPage > 0 &&
+			this.data.page < Math.ceil(this.data.items.length / this.data.itemsPerPage);
+	};
+
+	updateVisibleItems = (visibleItemsChanged: boolean): Promise<void> => {
 		this.data.visibleItems = [];
 		if (this.data.page > 0) {
 			this.data.visibleItems = this.data.items.slice(
 				(this.data.page - 1) * this.data.itemsPerPage,
 				this.data.page * this.data.itemsPerPage
 			);
+		} else if (this.id === 'multiple') {
+			this.data.visibleItems = [...this.data.items];
 		}
-		return this;
+		if (this.data.visibleItems.length > 0) {
+			if (BrowserStorage.syncOptions.hideSynced) {
+				this.data.visibleItems = this.data.visibleItems.filter((item) => !item.trakt?.watchedAt);
+			}
+			this.data.visibleItems = this.data.visibleItems.filter(
+				(item) =>
+					typeof item.percentageWatched === 'undefined' ||
+					item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
+			);
+		}
+		for (const item of this.data.items) {
+			if (item.isSelected && (!this.data.visibleItems.includes(item) || !item.isSelectable())) {
+				item.isSelected = false;
+			}
+		}
+		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
+		return this.dispatchEvent(visibleItemsChanged);
 	};
 
-	update = (data?: Partial<SyncStoreData>): Promise<void> => {
-		if (data) {
-			this.setData(data);
-		}
-		this.updateVisibleItems();
-		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, {
-			data: this.data,
-		});
+	dispatchEvent = (visibleItemsChanged: boolean): Promise<void> => {
+		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, { visibleItemsChanged });
 	};
 }
