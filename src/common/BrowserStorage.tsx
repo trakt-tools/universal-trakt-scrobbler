@@ -284,7 +284,7 @@ class _BrowserStorage {
 		browser.storage.onChanged.removeListener(this.onStorageChanged);
 	};
 
-	onStorageChanged = async (
+	onStorageChanged = (
 		changes: browser.storage.ChangeDict,
 		areaName: browser.storage.StorageName
 	) => {
@@ -299,7 +299,7 @@ class _BrowserStorage {
 			][]) {
 				this.addOption({ id, value });
 			}
-			await EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {});
+			void EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {});
 		}
 		const newSyncOptions = changes.syncOptions?.newValue as StorageValuesSyncOptions | undefined;
 		if (newSyncOptions) {
