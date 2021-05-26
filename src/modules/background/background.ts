@@ -38,7 +38,8 @@ export type MessageRequest =
 	| SendRequestMessage
 	| ShowNotificationMessage
 	| WrongItemCorrectedMessage
-	| SaveCorrectionSuggestionMessage;
+	| SaveCorrectionSuggestionMessage
+	| CheckAutoSyncMessage;
 
 export interface ReturnTypes {
 	'open-tab': browser.tabs.Tab;
@@ -63,6 +64,7 @@ export interface ReturnTypes {
 	'show-notification': string;
 	'wrong-item-corrected': null;
 	'save-correction-suggestion': null;
+	'check-auto-sync': null;
 }
 
 export interface ErrorReturnType {
@@ -167,6 +169,10 @@ export interface SaveCorrectionSuggestionMessage {
 	url: string;
 }
 
+export interface CheckAutoSyncMessage {
+	action: 'check-auto-sync';
+}
+
 export interface NavigationCommittedParams {
 	transitionType: browser.webNavigation.TransitionType;
 	tabId: number;
@@ -176,6 +182,8 @@ export interface NavigationCommittedParams {
 const injectedTabs = new Set();
 let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
 let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+let isCheckingAutoSync = false;
+let autoSyncCheckTimeout: number | null = null;
 
 const init = async () => {
 	Shared.pageType = 'background';
@@ -196,14 +204,23 @@ const init = async () => {
 	if (scrobblerEnabled) {
 		addWebNavigationListener(BrowserStorage.options);
 	}
-	void checkServicesToSync();
+	void checkAutoSync();
 	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
 	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
 };
 
-const checkServicesToSync = async () => {
+const checkAutoSync = async () => {
+	if (isCheckingAutoSync) {
+		return;
+	}
+	isCheckingAutoSync = true;
+
+	if (autoSyncCheckTimeout !== null) {
+		window.clearTimeout(autoSyncCheckTimeout);
+	}
+
 	const now = Math.trunc(Date.now() / 1e3);
 	const servicesToSync = streamingServiceEntries.filter(
 		([streamingServiceId, value]) =>
@@ -228,7 +245,9 @@ const checkServicesToSync = async () => {
 	}
 
 	// Check again every hour
-	window.setTimeout(() => void checkServicesToSync(), 3600000);
+	autoSyncCheckTimeout = window.setTimeout(() => void checkAutoSync(), 3600000);
+
+	isCheckingAutoSync = false;
 };
 
 const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
@@ -525,6 +544,10 @@ const onMessage = (request: string, sender: browser.runtime.MessageSender): Prom
 		case 'save-correction-suggestion': {
 			const item = new Item(parsedRequest.item);
 			executingAction = WrongItemApi.saveSuggestion(item, parsedRequest.url);
+			break;
+		}
+		case 'check-auto-sync': {
+			executingAction = checkAutoSync();
 			break;
 		}
 	}

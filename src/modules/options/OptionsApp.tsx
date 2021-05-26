@@ -13,6 +13,7 @@ import {
 	OptionsChangeData,
 	StreamingServiceOptionsChangeData,
 } from '../../common/Events';
+import { Messaging } from '../../common/Messaging';
 import { Session } from '../../common/Session';
 import { Shared } from '../../common/Shared';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
@@ -151,29 +152,32 @@ export const OptionsApp: React.FC = () => {
 					})
 				);
 			}
-			if (permissionPromises.length > 0) {
-				Promise.all(permissionPromises)
-					.then((isSuccessArr) => {
-						if (isSuccessArr.every((isSuccess) => isSuccess)) {
-							void saveOption({
-								id: 'streamingServices',
-								value: streamingServiceValues,
-							});
-						}
-					})
-					.catch(async (err) => {
-						Errors.error('Failed to save option.', err);
-						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-							messageName: 'saveOptionFailed',
-							severity: 'error',
-						});
-					});
-			} else {
-				void saveOption({
-					id: 'streamingServices',
-					value: streamingServiceValues,
-				});
+			if (permissionPromises.length === 0) {
+				permissionPromises.push(Promise.resolve(true));
 			}
+			Promise.all(permissionPromises)
+				.then(async (isSuccessArr) => {
+					if (isSuccessArr.every((isSuccess) => isSuccess)) {
+						await saveOption({
+							id: 'streamingServices',
+							value: streamingServiceValues,
+						});
+						if (
+							data.some(
+								(dataItem) => 'autoSync' in dataItem.value || 'autoSyncDays' in dataItem.value
+							)
+						) {
+							await Messaging.toBackground({ action: 'check-auto-sync' });
+						}
+					}
+				})
+				.catch(async (err) => {
+					Errors.error('Failed to save option.', err);
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveOptionFailed',
+						severity: 'error',
+					});
+				});
 		};
 
 		const saveOption = async (data: OptionsChangeData<keyof StorageValuesOptions>) => {
