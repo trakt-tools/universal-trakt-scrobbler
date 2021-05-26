@@ -22,6 +22,7 @@ class _AutoSync {
 			try {
 				const api = getApi(serviceId);
 				const store = getSyncStore(serviceId);
+				store.resetData();
 
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
