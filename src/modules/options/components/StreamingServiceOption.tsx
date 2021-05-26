@@ -5,7 +5,7 @@ import ErrorIcon from '@material-ui/icons/Error';
 import LaunchIcon from '@material-ui/icons/Launch';
 import * as moment from 'moment';
 import * as React from 'react';
-import { StreamingServiceValue } from '../../../common/BrowserStorage';
+import { BrowserStorage, StreamingServiceValue } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { Shared } from '../../../common/Shared';
@@ -76,6 +76,11 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 			title: I18N.translate('confirmClearLastSyncTitle', service.name),
 			message: I18N.translate('confirmClearLastSyncMessage'),
 			onConfirm: async () => {
+				const { syncCache } = await BrowserStorage.get('syncCache');
+				if (syncCache) {
+					syncCache.items = syncCache.items.filter((item) => item.serviceId !== id);
+					await BrowserStorage.set({ syncCache }, false);
+				}
 				await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
 					{
 						id,
