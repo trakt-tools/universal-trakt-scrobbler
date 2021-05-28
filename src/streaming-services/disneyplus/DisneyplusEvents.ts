@@ -17,19 +17,15 @@ class _DisneyplusEvents extends ScrobbleEvents {
 
 	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
 		// https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d
-		if (oldUrl.includes('video') && newUrl.includes('video')) {
+		if (oldUrl.includes('video')) {
 			await this.stop();
-			await this.start();
-			this.videoId = '';
-			this.isPlaying = true;
-		} else if (oldUrl.includes('video') && !newUrl.includes('video')) {
-			await this.stop();
-			this.videoId = '';
 			this.isPlaying = false;
-		} else if (!oldUrl.includes('video') && newUrl.includes('video')) {
-			await this.start();
+		}
+
+		if (newUrl.includes('video')) {
 			this.videoId = '';
 			this.isPlaying = true;
+			this.isPaused = true;
 		}
 	};
 
@@ -44,10 +40,8 @@ class _DisneyplusEvents extends ScrobbleEvents {
 			const item = DisneyplusParser.parseItem();
 			this.videoId = item?.id ?? '';
 		}
-
-		if (this.isPlaying) {
-			const session = DisneyplusParser.parseSession();
-
+		const session = DisneyplusParser.parseSession();
+		if (this.isPlaying && this.videoId) {
 			if (this.isPaused !== session.paused) {
 				if (session.paused) {
 					if (!this.isPaused) {
@@ -59,7 +53,6 @@ class _DisneyplusEvents extends ScrobbleEvents {
 				this.isPaused = session.paused;
 			}
 
-			// TODO check progress (dom element doesnt update after disappear)
 			const newProgress = session.progress;
 			if (this.progress !== newProgress) {
 				await this.updateProgress(newProgress);

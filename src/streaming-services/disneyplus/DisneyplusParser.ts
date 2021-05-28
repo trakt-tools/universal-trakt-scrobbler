@@ -1,9 +1,6 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleController';
-import { DisneyplusApi } from './DisneyplusApi';
-
-// TODO Cleanup
 
 export interface DisneyplusSession {
 	paused: boolean;
@@ -20,44 +17,21 @@ class _DisneyplusParser implements ScrobbleParser {
 		this.id = '';
 		this.videoId = '';
 		this.progress = 0.0;
-		this.isPaused = false;
+		this.isPaused = true;
 	}
 
-	parseSession = (): DisneyplusSession => {
-		const loadingSpinner =
-			document.querySelector('.overlay__loading:not([style="display: none;"])') !== null;
-		const pauseIcon = document.querySelector('.pause-icon') !== null;
-		const playIcon = document.querySelector('.play-icon') !== null;
-
-		if (loadingSpinner) {
-			this.isPaused = true;
-		} else if (playIcon && !pauseIcon) {
-			this.isPaused = true;
-		} else if (pauseIcon && !playIcon) {
-			this.isPaused = false;
-		}
-
-		const paused = this.isPaused;
-		const progress = this.parseProgress();
-		return { paused, progress };
+	getVideoElement = (): HTMLVideoElement => {
+		return document.getElementsByTagName('video')[0];
 	};
 
-	parseProgress = (): number => {
-		let progress = 0.0;
-		const scrubbers: NodeListOf<HTMLElement> = document.querySelectorAll(
-			'.slider-handle-container'
-		);
-		const scrubber = scrubbers[scrubbers.length - 1];
+	parseSession = (): DisneyplusSession => {
+		const videoPlayer = this.getVideoElement();
 
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.width);
-			this.progress = progress;
+		if (videoPlayer?.duration) {
+			this.isPaused = videoPlayer.paused;
+			this.progress = Math.round((videoPlayer.currentTime / videoPlayer.duration) * 10000) / 100;
 		}
-		// Failsafe
-		if (progress == 0) {
-			progress = this.progress;
-		}
-		return progress;
+		return { paused: this.isPaused, progress: this.progress };
 	};
 
 	parseItem = (): Item | undefined => {
