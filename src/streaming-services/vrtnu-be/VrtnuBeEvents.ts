@@ -15,7 +15,7 @@ class _VrtnuBeEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		// Todo cleanup this code - no api available atm
 		// https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
 		const regx = /\/a-z\/(.+)\/(.+)\/(.+)\//;
@@ -36,9 +36,9 @@ class _VrtnuBeEvents extends ScrobbleEvents {
 			this.videoId = '';
 			this.isPlaying = true;
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const newUrl = this.getLocation();
 
 		if (this.url !== newUrl) {
@@ -67,7 +67,7 @@ class _VrtnuBeEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const VrtnuBeEvents = new _VrtnuBeEvents();

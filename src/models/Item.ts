@@ -91,7 +91,7 @@ export class Item implements IItem {
 		this.imageUrl = options.imageUrl;
 	}
 
-	static save = (item: Item): SavedItem => {
+	static save(item: Item): SavedItem {
 		return {
 			serviceId: item.serviceId,
 			id: item.id,
@@ -106,32 +106,33 @@ export class Item implements IItem {
 			percentageWatched: item.percentageWatched,
 			trakt: item.trakt && TraktItem.save(item.trakt),
 		};
-	};
+	}
 
-	static load = (savedItem: SavedItem): Item => {
+	static load(savedItem: SavedItem): Item {
 		const options: IItem = {
 			...savedItem,
 			watchedAt:
 				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
 			trakt: savedItem.trakt && TraktItem.load(savedItem.trakt),
 		};
-		return new Item(options);
-	};
 
-	getFullTitle = () => {
+		return new Item(options);
+	}
+
+	getFullTitle() {
 		if (this.type === 'show') {
 			return `${this.title} S${this.season?.toString() ?? '0'} E${
 				this.episode?.toString() ?? '0'
 			} - ${this.episodeTitle ?? 'Untitled'}`;
 		}
 		return `${this.title} (${this.year})`;
-	};
+	}
 
-	isSelectable = () => {
+	isSelectable() {
 		return this.trakt && !this.trakt.watchedAt;
-	};
+	}
 
-	isMissingWatchedDate = () => {
+	isMissingWatchedDate() {
 		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
@@ -140,9 +141,9 @@ export class Item implements IItem {
 			return !this.trakt?.releaseDate;
 		}
 		return !this.watchedAt;
-	};
+	}
 
-	getWatchedDate = () => {
+	getWatchedDate() {
 		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
@@ -151,5 +152,5 @@ export class Item implements IItem {
 			return this.trakt?.releaseDate;
 		}
 		return this.watchedAt;
-	};
+	}
 }

@@ -4,11 +4,11 @@ import { Errors } from './Errors';
 import { EventDispatcher } from './Events';
 
 class _Messaging {
-	startListeners = () => {
+	startListeners() {
 		browser.runtime.onMessage.addListener(
 			(this.onMessage as unknown) as browser.runtime.onMessageEvent
 		);
-	};
+	}
 
 	onMessage = (request: string, sender: browser.runtime.MessageSender): Promise<string> => {
 		let executingAction: Promise<unknown>;
@@ -40,9 +40,9 @@ class _Messaging {
 		});
 	};
 
-	toBackground = async <T extends MessageRequest>(
+	async toBackground<T extends MessageRequest>(
 		message: T
-	): Promise<ReturnTypes[T['action']] | null> => {
+	): Promise<ReturnTypes[T['action']] | null> {
 		const responseText: string = await browser.runtime.sendMessage(JSON.stringify(message));
 		const response = JSON.parse(responseText) as ReturnTypes[T['action']] | ErrorReturnType | null;
 		if (
@@ -53,11 +53,11 @@ class _Messaging {
 			throw (response as ErrorReturnType).error;
 		}
 		return response as ReturnTypes[T['action']] | null;
-	};
+	}
 
-	toContent = async (message: MessageRequest, tabId: number): Promise<void> => {
+	async toContent(message: MessageRequest, tabId: number): Promise<void> {
 		return browser.tabs.sendMessage(tabId, JSON.stringify(message));
-	};
+	}
 }
 
 export const Messaging = new _Messaging();

@@ -15,12 +15,12 @@ class _AmazonPrimeEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	startListeners = () => {
-		this.addChangeListener();
+	startListeners() {
+		super.startListeners();
 		document.body.addEventListener('click', (event) => void this.onClick(event), true);
-	};
+	}
 
-	onClick = async (event: Event) => {
+	async onClick(event: Event) {
 		const target: HTMLElement = event.target as HTMLElement;
 		const playButton: HTMLElement | null =
 			target.dataset.asin || target.dataset.titleId
@@ -36,9 +36,9 @@ class _AmazonPrimeEvents extends ScrobbleEvents {
 				AmazonPrimeParser.id = this.videoId;
 			}
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		if (this.videoId) {
 			const session = AmazonPrimeParser.parseSession();
 			if (this.isPaused !== session.paused || this.isPlaying !== session.playing) {
@@ -67,7 +67,7 @@ class _AmazonPrimeEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const AmazonPrimeEvents = new _AmazonPrimeEvents();

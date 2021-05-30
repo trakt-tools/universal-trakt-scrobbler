@@ -16,10 +16,7 @@ class _Tabs {
 	/**
 	 * @param url The URL to open.
 	 */
-	open = async (
-		url: string,
-		extraProperties: TabProperties = {}
-	): Promise<browser.tabs.Tab | null> => {
+	async open(url: string, extraProperties: TabProperties = {}): Promise<browser.tabs.Tab | null> {
 		if (Shared.pageType === 'content') {
 			return Messaging.toBackground({
 				action: 'open-tab',
@@ -40,7 +37,7 @@ class _Tabs {
 			tabProperties.cookieStoreId = tabs[0].cookieStoreId;
 		}
 		return browser.tabs.create(tabProperties);
-	};
+	}
 }
 
 export const Tabs = new _Tabs();

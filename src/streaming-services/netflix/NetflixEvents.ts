@@ -16,7 +16,7 @@ class _NetflixEvents extends ScrobbleEvents {
 		this.videoId = 0;
 	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		// If we can access the global netflix object from the page, there is no need to parse the page in order to retrieve information about the item being watched.
 		const session = await NetflixApi.getSession();
 		if (typeof session !== 'undefined') {
@@ -78,9 +78,9 @@ class _NetflixEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		if (oldUrl.includes('watch') && newUrl.includes('watch')) {
 			await this.stop();
 			await this.start();
@@ -92,7 +92,7 @@ class _NetflixEvents extends ScrobbleEvents {
 			await this.start();
 			this.isPlaying = true;
 		}
-	};
+	}
 }
 
 export const NetflixEvents = new _NetflixEvents();

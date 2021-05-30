@@ -15,7 +15,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		// https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d
 		if (oldUrl.includes('video')) {
 			await this.stop();
@@ -27,9 +27,9 @@ class _DisneyplusEvents extends ScrobbleEvents {
 			this.isPlaying = true;
 			this.isPaused = true;
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const newUrl = this.getLocation();
 
 		if (this.url !== newUrl) {
@@ -60,7 +60,7 @@ class _DisneyplusEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const DisneyplusEvents = new _DisneyplusEvents();

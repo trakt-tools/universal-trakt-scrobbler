@@ -23,23 +23,27 @@ export type RequestDetails = {
 class _Requests {
 	cancelTokens = new Map<string, CancelTokenSource>();
 
-	startListeners = () => {
-		EventDispatcher.subscribe('REQUESTS_CANCEL', null, this.cancelRequests);
+	startListeners() {
+		EventDispatcher.subscribe('REQUESTS_CANCEL', null, this.onRequestsCancel);
+	}
+
+	stopListeners() {
+		EventDispatcher.unsubscribe('REQUESTS_CANCEL', null, this.onRequestsCancel);
+	}
+
+	onRequestsCancel = (data: RequestsCancelData) => {
+		this.cancelRequests(data.key);
 	};
 
-	stopListeners = () => {
-		EventDispatcher.unsubscribe('REQUESTS_CANCEL', null, this.cancelRequests);
-	};
-
-	cancelRequests = (data: RequestsCancelData) => {
-		const cancelToken = this.cancelTokens.get(data.key);
+	cancelRequests(key: string) {
+		const cancelToken = this.cancelTokens.get(key);
 		if (cancelToken) {
 			cancelToken.cancel();
-			this.cancelTokens.delete(data.key);
+			this.cancelTokens.delete(key);
 		}
-	};
+	}
 
-	send = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
+	async send(request: RequestDetails, tabId = Shared.tabId): Promise<string> {
 		let responseText = '';
 		if (
 			Shared.pageType === 'background' ||
@@ -54,9 +58,9 @@ class _Requests {
 			}
 		}
 		return responseText;
-	};
+	}
 
-	sendDirectly = async (request: RequestDetails, tabId = Shared.tabId): Promise<string> => {
+	async sendDirectly(request: RequestDetails, tabId = Shared.tabId): Promise<string> {
 		let responseStatus = 0;
 		let responseText = '';
 		try {
@@ -75,9 +79,9 @@ class _Requests {
 			};
 		}
 		return responseText;
-	};
+	}
 
-	fetch = async (request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> => {
+	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> {
 		const options = await this.getOptions(request, tabId);
 		const cancelKey = request.cancelKey || 'default';
 		if (!this.cancelTokens.has(cancelKey)) {
@@ -93,17 +97,17 @@ class _Requests {
 			cancelToken,
 			transformResponse: (res: string) => res,
 		});
-	};
+	}
 
-	getOptions = async (request: RequestDetails, tabId = Shared.tabId): Promise<RequestInit> => {
+	async getOptions(request: RequestDetails, tabId = Shared.tabId): Promise<RequestInit> {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request, tabId),
 			body: typeof request.body === 'string' ? request.body : JSON.stringify(request.body),
 		};
-	};
+	}
 
-	getHeaders = async (request: RequestDetails, tabId = Shared.tabId): Promise<HeadersInit> => {
+	async getHeaders(request: RequestDetails, tabId = Shared.tabId): Promise<HeadersInit> {
 		const headers: HeadersInit = {
 			'Content-Type':
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
@@ -121,12 +125,9 @@ class _Requests {
 			headers['UTS-Cookie'] = cookies;
 		}
 		return headers;
-	};
+	}
 
-	getCookies = async (
-		request: RequestDetails,
-		tabId = Shared.tabId
-	): Promise<string | undefined> => {
+	async getCookies(request: RequestDetails, tabId = Shared.tabId): Promise<string | undefined> {
 		if (typeof tabId === 'undefined') {
 			return;
 		}
@@ -144,7 +145,7 @@ class _Requests {
 			storeId: tab.cookieStoreId,
 		});
 		return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
-	};
+	}
 }
 
 export const Requests = new _Requests();

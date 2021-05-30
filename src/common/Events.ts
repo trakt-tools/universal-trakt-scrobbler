@@ -159,11 +159,11 @@ class _EventDispatcher {
 		this.listeners = {};
 	}
 
-	subscribe = <K extends Event>(
+	subscribe<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		listener: EventDispatcherListener<K>
-	): void => {
+	): void {
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}
@@ -174,13 +174,13 @@ class _EventDispatcher {
 			this.listeners[eventType][eventSpecifier] = [];
 		}
 		this.listeners[eventType][eventSpecifier].push(listener);
-	};
+	}
 
-	unsubscribe = <K extends Event>(
+	unsubscribe<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		listener: EventDispatcherListener<K>
-	): void => {
+	): void {
 		if (!this.listeners[eventType]) {
 			return;
 		}
@@ -192,13 +192,13 @@ class _EventDispatcher {
 				(fn) => fn !== listener
 			);
 		}
-	};
+	}
 
-	dispatch = async <K extends Event>(
+	async dispatch<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		data: EventData[K]
-	): Promise<void> => {
+	): Promise<void> {
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}
@@ -217,7 +217,7 @@ class _EventDispatcher {
 				Errors.log('Failed to dispatch.', err);
 			}
 		}
-	};
+	}
 }
 
 export const EventDispatcher = new _EventDispatcher();

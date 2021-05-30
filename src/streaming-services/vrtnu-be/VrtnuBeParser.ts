@@ -16,7 +16,7 @@ class _VrtnuBeParser implements ScrobbleParser {
 		this.isPaused = false;
 	}
 
-	parseProgress = (): number => {
+	parseProgress(): number {
 		let progress = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.vjs-play-progress');
 
@@ -26,9 +26,9 @@ class _VrtnuBeParser implements ScrobbleParser {
 		}
 
 		return progress;
-	};
+	}
 
-	parseItem = (): Item | undefined => {
+	parseItem(): Item | undefined {
 		const serviceId = 'vrtnu-be';
 		let showTitle: string | null = null;
 		let seasonOrYear: string | null = null;
@@ -71,7 +71,7 @@ class _VrtnuBeParser implements ScrobbleParser {
 			episode,
 			isCollection,
 		});
-	};
+	}
 }
 
 export const VrtnuBeParser = new _VrtnuBeParser();

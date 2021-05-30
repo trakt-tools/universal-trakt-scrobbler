@@ -26,7 +26,7 @@ export class SyncStore {
 		this.data = SyncStore.getInitialData();
 	}
 
-	static getInitialData = (): SyncStoreData => {
+	static getInitialData(): SyncStoreData {
 		return {
 			items: [],
 			visibleItems: [],
@@ -38,19 +38,19 @@ export class SyncStore {
 			hasReachedEnd: false,
 			hasReachedLastSyncDate: false,
 		};
-	};
+	}
 
-	startListeners = (): void => {
+	startListeners(): void {
 		EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
 		EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
-	};
+	}
 
-	stopListeners = (): void => {
+	stopListeners(): void {
 		EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
 		EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
-	};
+	}
 
-	onHistoryChange = (data: StreamingServiceHistoryChangeData): void => {
+	onHistoryChange = (data: StreamingServiceHistoryChangeData) => {
 		if (typeof data.index === 'undefined') {
 			return;
 		}
@@ -66,7 +66,7 @@ export class SyncStore {
 		void this.dispatchEvent(false);
 	};
 
-	selectAll = (): SyncStore => {
+	selectAll(): SyncStore {
 		for (const item of this.data.visibleItems) {
 			if (item.isSelectable()) {
 				item.isSelected = true;
@@ -74,17 +74,17 @@ export class SyncStore {
 		}
 		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
-	};
+	}
 
-	selectNone = (): SyncStore => {
+	selectNone(): SyncStore {
 		for (const item of this.data.visibleItems) {
 			item.isSelected = false;
 		}
 		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
-	};
+	}
 
-	toggleAll = (): SyncStore => {
+	toggleAll(): SyncStore {
 		for (const item of this.data.visibleItems) {
 			if (item.isSelectable()) {
 				item.isSelected = !item.isSelected;
@@ -92,21 +92,21 @@ export class SyncStore {
 		}
 		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this;
-	};
+	}
 
-	goToPreviousPage = (): SyncStore => {
+	goToPreviousPage(): SyncStore {
 		if (this.data.page > 1) {
 			this.data.page -= 1;
 		}
 		return this;
-	};
+	}
 
-	goToNextPage = (): SyncStore => {
+	goToNextPage(): SyncStore {
 		this.data.page += 1;
 		return this;
-	};
+	}
 
-	setData = (data: Partial<SyncStoreData>): SyncStore => {
+	setData(data: Partial<SyncStoreData>): SyncStore {
 		const itemsPerPage = this.data.itemsPerPage;
 		this.data = {
 			...this.data,
@@ -124,21 +124,21 @@ export class SyncStore {
 		this.updateItemsToLoad();
 		this.updateHasNextPage();
 		return this;
-	};
+	}
 
-	resetData = (): SyncStore => {
+	resetData(): SyncStore {
 		this.data = SyncStore.getInitialData();
 		return this;
-	};
+	}
 
-	updatePage = (oldItemsPerPage: number): SyncStore => {
+	updatePage(oldItemsPerPage: number): SyncStore {
 		const oldIndex = (this.data.page - 1) * oldItemsPerPage;
 		const newPage = Math.floor(oldIndex / this.data.itemsPerPage) + 1;
 		this.data.page = newPage;
 		return this;
-	};
+	}
 
-	update = (data?: Partial<SyncStoreData>): Promise<void> => {
+	update(data?: Partial<SyncStoreData>): Promise<void> {
 		if (data) {
 			this.setData(data);
 		} else {
@@ -146,19 +146,19 @@ export class SyncStore {
 			this.updateHasNextPage();
 		}
 		return this.updateVisibleItems(true);
-	};
+	}
 
-	updateItemsToLoad = () => {
+	updateItemsToLoad() {
 		this.data.itemsToLoad = (this.data.page + 1) * this.data.itemsPerPage - this.data.items.length;
-	};
+	}
 
-	updateHasNextPage = () => {
+	updateHasNextPage() {
 		this.data.hasNextPage =
 			this.data.itemsPerPage > 0 &&
 			this.data.page < Math.ceil(this.data.items.length / this.data.itemsPerPage);
-	};
+	}
 
-	updateVisibleItems = (visibleItemsChanged: boolean): Promise<void> => {
+	updateVisibleItems(visibleItemsChanged: boolean): Promise<void> {
 		this.data.visibleItems = [];
 		if (this.data.page > 0) {
 			this.data.visibleItems = this.data.items.slice(
@@ -185,9 +185,9 @@ export class SyncStore {
 		}
 		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
 		return this.dispatchEvent(visibleItemsChanged);
-	};
+	}
 
-	dispatchEvent = (visibleItemsChanged: boolean): Promise<void> => {
+	dispatchEvent(visibleItemsChanged: boolean): Promise<void> {
 		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, { visibleItemsChanged });
-	};
+	}
 }

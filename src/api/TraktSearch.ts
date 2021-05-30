@@ -59,7 +59,7 @@ class _TraktSearch extends TraktApi {
 		super();
 	}
 
-	find = async (item: Item, correctItem?: CorrectItem): Promise<TraktItem | undefined> => {
+	async find(item: Item, correctItem?: CorrectItem): Promise<TraktItem | undefined> {
 		let traktItem: TraktItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
@@ -117,11 +117,11 @@ class _TraktSearch extends TraktApi {
 			throw err;
 		}
 		return traktItem;
-	};
+	}
 
-	findItemFromIdOrUrl = async (
+	async findItemFromIdOrUrl(
 		correctItem: CorrectItem
-	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> => {
+	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> {
 		const url = correctItem.traktId
 			? `/search/trakt/${correctItem.traktId}?type=${correctItem.type}&extended=full`
 			: `${correctItem.url}?extended=full`;
@@ -145,9 +145,9 @@ class _TraktSearch extends TraktApi {
 		} else {
 			return { movie: searchItem };
 		}
-	};
+	}
 
-	findItem = async (item: Item): Promise<TraktSearchItem> => {
+	async findItem(item: Item): Promise<TraktSearchItem> {
 		let searchItem: TraktSearchItem | undefined;
 		const responseText = await Requests.send({
 			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}&extended=full`,
@@ -174,9 +174,9 @@ class _TraktSearch extends TraktApi {
 			};
 		}
 		return searchItem;
-	};
+	}
 
-	findEpisode = async (item: Item): Promise<TraktSearchEpisodeItem> => {
+	async findEpisode(item: Item): Promise<TraktSearchEpisodeItem> {
 		let episodeItem: TraktEpisodeItem;
 		const showItem = (await this.findItem(item)) as TraktSearchShowItem;
 		const responseText = await Requests.send({
@@ -192,13 +192,13 @@ class _TraktSearch extends TraktApi {
 			const episodeItems = JSON.parse(responseText) as TraktSearchEpisodeItem[];
 			return this.findEpisodeByTitle(item, showItem, episodeItems);
 		}
-	};
+	}
 
-	findEpisodeByTitle = (
+	findEpisodeByTitle(
 		item: Item,
 		showItem: TraktSearchShowItem,
 		episodeItems: TraktSearchEpisodeItem[]
-	): TraktSearchEpisodeItem => {
+	): TraktSearchEpisodeItem {
 		const searchItem = episodeItems.find(
 			(x) =>
 				x.episode.title &&
@@ -215,9 +215,9 @@ class _TraktSearch extends TraktApi {
 			};
 		}
 		return searchItem;
-	};
+	}
 
-	getEpisodeUrl = (item: Item, traktId: number): string => {
+	getEpisodeUrl(item: Item, traktId: number): string {
 		let url = '';
 		if (typeof item.season !== 'undefined' && typeof item.episode !== 'undefined') {
 			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}?extended=full`;
@@ -229,14 +229,14 @@ class _TraktSearch extends TraktApi {
 			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}?extended=full`;
 		}
 		return url;
-	};
+	}
 
-	formatEpisodeTitle = (title: string): string => {
+	formatEpisodeTitle(title: string): string {
 		return title
 			.toLowerCase()
 			.replace(/(^|\s)(a|an|the)(\s)/g, '$1$3')
 			.replace(/\s/g, '');
-	};
+	}
 }
 
 export const TraktSearch = new _TraktSearch();

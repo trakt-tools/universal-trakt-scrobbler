@@ -17,14 +17,14 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 		};
 	}
 
-	componentDidCatch = (error: Error, info: React.ErrorInfo): void => {
+	componentDidCatch(error: Error, info: React.ErrorInfo): void {
 		Errors.log(error, info);
 		this.setState({
 			hasError: true,
 		});
-	};
+	}
 
-	render = (): React.ReactNode => {
+	render(): React.ReactNode {
 		return this.state.hasError ? <div>Something went wrong.</div> : this.props.children;
-	};
+	}
 }

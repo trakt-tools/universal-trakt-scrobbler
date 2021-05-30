@@ -21,7 +21,7 @@ class _StreamzBeParser implements ScrobbleParser {
 		this.isPaused = false;
 	}
 
-	parseProgress = (): number => {
+	parseProgress(): number {
 		let progress = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.pui__seekbar__scrubber');
 
@@ -31,9 +31,9 @@ class _StreamzBeParser implements ScrobbleParser {
 		}
 
 		return progress;
-	};
+	}
 
-	parseItem = (): Item | undefined => {
+	parseItem(): Item | undefined {
 		const serviceId = 'streamz-be';
 		const titleElement = document.querySelector('.player__title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
@@ -74,7 +74,7 @@ class _StreamzBeParser implements ScrobbleParser {
 			episode,
 			isCollection,
 		});
-	};
+	}
 }
 
 export const StreamzBeParser = new _StreamzBeParser();

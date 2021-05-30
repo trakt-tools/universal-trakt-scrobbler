@@ -15,7 +15,7 @@ class _StreamzBeEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		// https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096
 		if (oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
 			await this.stop();
@@ -31,9 +31,9 @@ class _StreamzBeEvents extends ScrobbleEvents {
 			this.videoId = '';
 			this.isPlaying = true;
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const newUrl = this.getLocation();
 
 		if (this.url !== newUrl) {
@@ -62,7 +62,7 @@ class _StreamzBeEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const StreamzBeEvents = new _StreamzBeEvents();

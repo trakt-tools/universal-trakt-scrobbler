@@ -37,7 +37,7 @@ class _TraktSync extends TraktApi {
 		super();
 	}
 
-	loadHistory = async (item: Item): Promise<void> => {
+	async loadHistory(item: Item): Promise<void> {
 		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
 		if (!item.trakt || !watchedAt) {
 			return;
@@ -64,9 +64,9 @@ class _TraktSync extends TraktApi {
 			item.trakt.syncId = historyItemMatch.id;
 			item.trakt.watchedAt = historyItemMatch.watched_at;
 		}
-	};
+	}
 
-	removeHistory = async (item: Item): Promise<void> => {
+	async removeHistory(item: Item): Promise<void> {
 		if (!item.trakt?.syncId) {
 			return;
 		}
@@ -79,9 +79,9 @@ class _TraktSync extends TraktApi {
 		});
 		item.trakt.syncId = undefined;
 		item.trakt.watchedAt = undefined;
-	};
+	}
 
-	getUrl = (item: Item): string => {
+	getUrl(item: Item): string {
 		if (!item.trakt) {
 			return '';
 		}
@@ -92,9 +92,9 @@ class _TraktSync extends TraktApi {
 			url = `${this.SYNC_URL}/movies/${item.trakt.id}`;
 		}
 		return url;
-	};
+	}
 
-	sync = async (items: Item[]) => {
+	async sync(items: Item[]) {
 		try {
 			const data = {
 				episodes: items
@@ -138,7 +138,7 @@ class _TraktSync extends TraktApi {
 				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
 			}
 		}
-	};
+	}
 }
 
 export const TraktSync = new _TraktSync();

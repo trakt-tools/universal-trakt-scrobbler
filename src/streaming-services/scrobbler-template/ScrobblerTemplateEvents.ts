@@ -8,7 +8,7 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 	// Define any properties you need here.
 
 	// This method checks for changes every half second (by default) and triggers the appropriate methods.
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		// To start the scrobble.
 		await this.start();
 
@@ -23,7 +23,7 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 
 		// Do not change this line of code, unless you want to change the check frequency from a half second to something else. Assigning the timeout ID to the 'changeListenerId' property here is very important.
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 
 	// Define any methods you need here.
 }

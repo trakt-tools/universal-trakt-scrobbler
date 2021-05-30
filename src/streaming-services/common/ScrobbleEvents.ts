@@ -11,49 +11,41 @@ export abstract class ScrobbleEvents {
 		this.isPlaying = false;
 	}
 
-	startListeners = () => {
-		this.addChangeListener();
-	};
-
-	stopListeners = () => {
-		this.stopChangeListener();
-	};
-
-	getLocation = (): string => {
-		return window.location.href;
-	};
-
-	addChangeListener = () => {
+	startListeners() {
 		void this.checkForChanges();
-	};
+	}
 
-	stopChangeListener = () => {
+	stopListeners() {
 		if (this.changeListenerId !== null) {
 			window.clearTimeout(this.changeListenerId);
+			this.changeListenerId = null;
 		}
-		this.changeListenerId = null;
-	};
+	}
+
+	getLocation(): string {
+		return window.location.href;
+	}
 
 	abstract checkForChanges(): Promise<void>;
 
-	start = async (): Promise<void> => {
+	async start(): Promise<void> {
 		await EventDispatcher.dispatch('SCROBBLE_START', null, {});
 		await EventDispatcher.dispatch('SCROBBLE_ACTIVE', null, {});
-	};
+	}
 
-	pause = async (): Promise<void> => {
+	async pause(): Promise<void> {
 		await EventDispatcher.dispatch('SCROBBLE_PAUSE', null, {});
 		await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
-	};
+	}
 
-	stop = async (): Promise<void> => {
+	async stop(): Promise<void> {
 		await EventDispatcher.dispatch('SCROBBLE_STOP', null, {});
 		if (!this.isPaused) {
 			await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
 		}
-	};
+	}
 
-	updateProgress = async (newProgress: number): Promise<void> => {
+	async updateProgress(newProgress: number): Promise<void> {
 		await EventDispatcher.dispatch('SCROBBLE_PROGRESS', null, { progress: newProgress });
-	};
+	}
 }

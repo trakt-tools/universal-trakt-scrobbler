@@ -52,7 +52,7 @@ class _TmdbApi {
 
 	config: TmdbApiConfig | undefined;
 
-	activate = async (): Promise<void> => {
+	async activate(): Promise<void> {
 		const responseText = await Requests.send({
 			url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
 			method: 'GET',
@@ -65,9 +65,9 @@ class _TmdbApi {
 				show: responseJson.images?.still_sizes?.[2] ?? '',
 			},
 		};
-	};
+	}
 
-	findImage = async (item?: TraktItem | null): Promise<string | null> => {
+	async findImage(item?: TraktItem | null): Promise<string | null> {
 		if (!this.config) {
 			try {
 				await this.activate();
@@ -114,9 +114,9 @@ class _TmdbApi {
 			}
 		}
 		return null;
-	};
+	}
 
-	getItemUrl = (item: TraktItem): string => {
+	getItemUrl(item: TraktItem): string {
 		let type = '';
 		let path = '';
 		if (item.type === 'show') {
@@ -130,9 +130,9 @@ class _TmdbApi {
 			path = item.tmdbId.toString();
 		}
 		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
-	};
+	}
 
-	loadImages = async (items: Item[]): Promise<void> => {
+	async loadImages(items: Item[]): Promise<void> {
 		const missingItems = items.filter((item) => typeof item.imageUrl === 'undefined');
 		if (missingItems.length === 0) {
 			return;
@@ -203,9 +203,9 @@ class _TmdbApi {
 		for (const item of missingItems) {
 			item.imageUrl = item.imageUrl ?? this.PLACEHOLDER_IMAGE;
 		}
-	};
+	}
 
-	loadItemImage = async (item: Item): Promise<Item> => {
+	async loadItemImage(item: Item): Promise<Item> {
 		const itemCopy = new Item(item);
 		if (
 			!itemCopy.trakt ||
@@ -259,7 +259,7 @@ class _TmdbApi {
 		}
 		itemCopy.imageUrl = imageUrl ?? this.PLACEHOLDER_IMAGE;
 		return itemCopy;
-	};
+	}
 }
 
 export const TmdbApi = new _TmdbApi();

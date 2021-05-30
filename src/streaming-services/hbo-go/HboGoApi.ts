@@ -123,7 +123,7 @@ class _HboGoApi extends Api {
 		this.sessionListener = null;
 	}
 
-	activate = async () => {
+	async activate() {
 		let apiParams: Partial<HboGoApiParams> | undefined;
 		if (Shared.pageType === 'content') {
 			apiParams = await this.getApiParams();
@@ -205,17 +205,13 @@ class _HboGoApi extends Api {
 			throw new Error('Failed to activate API');
 		}
 		this.isActivated = true;
-	};
+	}
 
-	checkParams = (apiParams: Partial<HboGoApiParams>): apiParams is HboGoApiParams => {
+	checkParams(apiParams: Partial<HboGoApiParams>): apiParams is HboGoApiParams {
 		return typeof apiParams.swVersion !== 'undefined' && typeof apiParams.token !== 'undefined';
-	};
+	}
 
-	loadHistory = async (
-		itemsToLoad: number,
-		lastSync: number,
-		lastSyncId: string
-	): Promise<void> => {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -268,7 +264,7 @@ class _HboGoApi extends Api {
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
-				items = historyItemsWithMetadata.map(this.parseHistoryItem);
+				items = historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
 			}
 			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
@@ -280,9 +276,9 @@ class _HboGoApi extends Api {
 			}
 			throw err;
 		}
-	};
+	}
 
-	getHistoryMetadata = async (historyItems: HboGoHistoryItem[]) => {
+	async getHistoryMetadata(historyItems: HboGoHistoryItem[]) {
 		if (!this.checkParams(this.apiParams)) {
 			throw new Error('Invalid API params');
 		}
@@ -299,9 +295,9 @@ class _HboGoApi extends Api {
 			});
 		}
 		return historyItemsWithMetadata;
-	};
+	}
 
-	parseHistoryItem = (historyItem: HboGoHistoryItemWithMetadata) => {
+	parseHistoryItem(historyItem: HboGoHistoryItemWithMetadata) {
 		let item: Item;
 		const serviceId = this.id;
 		const { Id: id, ProductionYear: year, ElapsedPercentage: percentageWatched } = historyItem;
@@ -336,9 +332,9 @@ class _HboGoApi extends Api {
 			});
 		}
 		return item;
-	};
+	}
 
-	getItem = async (id: string): Promise<Item | undefined> => {
+	async getItem(id: string): Promise<Item | undefined> {
 		let item: Item | undefined;
 		if (!this.isActivated) {
 			await this.activate();
@@ -358,9 +354,9 @@ class _HboGoApi extends Api {
 			}
 		}
 		return item;
-	};
+	}
 
-	getApiParams = (): Promise<Partial<HboGoApiParams>> => {
+	getApiParams(): Promise<Partial<HboGoApiParams>> {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global hbo object by unwrapping it.
@@ -406,9 +402,9 @@ class _HboGoApi extends Api {
 				window.dispatchEvent(event);
 			}
 		});
-	};
+	}
 
-	getSession = (): Promise<HboGoSession | undefined | null> => {
+	getSession(): Promise<HboGoSession | undefined | null> {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
@@ -469,7 +465,7 @@ class _HboGoApi extends Api {
 				window.dispatchEvent(event);
 			}
 		});
-	};
+	}
 }
 
 export const HboGoApi = new _HboGoApi();

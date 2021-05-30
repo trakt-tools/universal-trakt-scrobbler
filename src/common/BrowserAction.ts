@@ -14,20 +14,28 @@ class _BrowserAction {
 	currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 	rotating: BrowserActionRotating | null = null;
 
-	startListeners = () => {
-		EventDispatcher.subscribe('SCROBBLE_ACTIVE', null, this.setActiveIcon);
-		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.setInactiveIcon);
+	startListeners() {
+		EventDispatcher.subscribe('SCROBBLE_ACTIVE', null, this.onScrobbleActive);
+		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.onScrobbleInactive);
+	}
+
+	onScrobbleActive = () => {
+		void this.setActiveIcon();
 	};
 
-	setTitle = async (title = 'Universal Trakt Scrobbler'): Promise<void> => {
+	onScrobbleInactive = () => {
+		void this.setInactiveIcon();
+	};
+
+	async setTitle(title = 'Universal Trakt Scrobbler'): Promise<void> {
 		if (Shared.pageType === 'background') {
 			browser.browserAction.setTitle({ title });
 		} else {
 			await Messaging.toBackground({ action: 'set-title', title });
 		}
-	};
+	}
 
-	setActiveIcon = async (): Promise<void> => {
+	async setActiveIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
 			this.currentIcon = browser.runtime.getURL('images/uts-icon-selected-38.png');
 			if (this.rotating) {
@@ -41,9 +49,9 @@ class _BrowserAction {
 		} else {
 			await Messaging.toBackground({ action: 'set-active-icon' });
 		}
-	};
+	}
 
-	setInactiveIcon = async (): Promise<void> => {
+	async setInactiveIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
 			this.currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 			if (this.rotating) {
@@ -57,9 +65,9 @@ class _BrowserAction {
 		} else {
 			await Messaging.toBackground({ action: 'set-inactive-icon' });
 		}
-	};
+	}
 
-	setRotatingIcon = async (): Promise<void> => {
+	async setRotatingIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
 			const image = document.createElement('img');
 			const canvas = document.createElement('canvas');
@@ -76,9 +84,9 @@ class _BrowserAction {
 		} else {
 			await Messaging.toBackground({ action: 'set-rotating-icon' });
 		}
-	};
+	}
 
-	setStaticIcon = async (): Promise<void> => {
+	async setStaticIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
 			if (this.rotating) {
 				this.rotating.canceled = true;
@@ -86,9 +94,9 @@ class _BrowserAction {
 		} else {
 			await Messaging.toBackground({ action: 'set-static-icon' });
 		}
-	};
+	}
 
-	rotateIcon = async (): Promise<void> => {
+	async rotateIcon(): Promise<void> {
 		if (!this.rotating) {
 			return;
 		}
@@ -120,7 +128,7 @@ class _BrowserAction {
 		}
 
 		window.setTimeout(() => void this.rotateIcon(), 30);
-	};
+	}
 }
 
 export const BrowserAction = new _BrowserAction();

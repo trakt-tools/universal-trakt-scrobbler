@@ -16,7 +16,7 @@ class _VtmgoBeParser implements ScrobbleParser {
 		this.isPaused = false;
 	}
 
-	parseProgress = (): number => {
+	parseProgress(): number {
 		let progress = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.pui__seekbar__scrubber');
 
@@ -26,9 +26,9 @@ class _VtmgoBeParser implements ScrobbleParser {
 		}
 
 		return progress;
-	};
+	}
 
-	parseItem = (): Item | undefined => {
+	parseItem(): Item | undefined {
 		const serviceId = 'vtmgo-be';
 		const titleElement = document.querySelector('.player__title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
@@ -69,7 +69,7 @@ class _VtmgoBeParser implements ScrobbleParser {
 			episode,
 			isCollection,
 		});
-	};
+	}
 }
 
 export const VtmgoBeParser = new _VtmgoBeParser();

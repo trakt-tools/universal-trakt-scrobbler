@@ -15,7 +15,7 @@ export abstract class Api {
 		this.id = id;
 	}
 
-	static loadTraktHistory = async (items: Item[]) => {
+	static async loadTraktHistory(items: Item[]) {
 		const missingItems = items.filter((item) => typeof item.trakt === 'undefined');
 		if (missingItems.length === 0) {
 			return;
@@ -43,13 +43,13 @@ export abstract class Api {
 				});
 			}
 		}
-	};
+	}
 
-	static loadTraktItemHistory = async (
+	static async loadTraktItemHistory(
 		item: Item,
 		traktCache: Record<string, SavedTraktItem>,
 		correctItem?: CorrectItem
-	) => {
+	) {
 		if (item.trakt && !correctItem) {
 			return;
 		}
@@ -68,9 +68,9 @@ export abstract class Api {
 		} catch (err) {
 			item.trakt = null;
 		}
-	};
+	}
 
-	static updateTraktHistory = async (items: Item[]) => {
+	static async updateTraktHistory(items: Item[]) {
 		try {
 			const storage = await BrowserStorage.get('traktCache');
 			let { traktCache } = storage;
@@ -91,12 +91,9 @@ export abstract class Api {
 				});
 			}
 		}
-	};
+	}
 
-	static updateTraktItemHistory = async (
-		item: Item,
-		traktCache: Record<string, SavedTraktItem>
-	) => {
+	static async updateTraktItemHistory(item: Item, traktCache: Record<string, SavedTraktItem>) {
 		if (!item.trakt) {
 			return;
 		}
@@ -108,19 +105,19 @@ export abstract class Api {
 		} catch (err) {
 			item.trakt.watchedAt = undefined;
 		}
-	};
+	}
 
-	static getTraktCacheId = (item: Item): string => {
+	static getTraktCacheId(item: Item): string {
 		return item.type === 'show'
 			? `/shows/${Api.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
 					item.episode ?? Api.getTraktCacheStr(item.episodeTitle ?? '0')
 			  }`
 			: `/movies/${Api.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
-	};
+	}
 
-	static getTraktCacheStr = (title: string): string => {
+	static getTraktCacheStr(title: string): string {
 		return title.toLowerCase().replace(/[^\w]/g, '-').replace(/-+/g, '-');
-	};
+	}
 
 	abstract loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void>;
 }

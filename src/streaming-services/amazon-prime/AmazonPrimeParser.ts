@@ -16,27 +16,27 @@ class _AmazonPrimeParser implements ScrobbleParser {
 		this.id = '';
 	}
 
-	parseItem = async (): Promise<Item | undefined> => {
+	async parseItem(): Promise<Item | undefined> {
 		const item = this.id ? await AmazonPrimeApi.getItem(this.id) : undefined;
 		return item;
-	};
+	}
 
-	parseSession = (): AmazonPrimeSession => {
+	parseSession(): AmazonPrimeSession {
 		const loadingSpinner = document.querySelector('.loadingSpinner:not([style="display: none;"])');
 		const playing = !!loadingSpinner || !!document.querySelector('.pausedIcon');
 		const paused = !!document.querySelector('.playIcon');
 		const progress = this.parseProgress();
 		return { playing, paused, progress };
-	};
+	}
 
-	parseProgress = (): number => {
+	parseProgress(): number {
 		let progress = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.positionBar:not(.vertical)');
 		if (scrubber) {
 			progress = parseFloat(scrubber.style.width);
 		}
 		return progress;
-	};
+	}
 }
 
 export const AmazonPrimeParser = new _AmazonPrimeParser();

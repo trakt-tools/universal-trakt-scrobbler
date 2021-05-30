@@ -4,7 +4,7 @@ import { Session } from '../common/Session';
 import { Shared } from '../common/Shared';
 
 class _LoginWrapper {
-	wrap = (componentBuilder: () => React.ReactNode): (() => React.ReactNode) => {
+	wrap(componentBuilder: () => React.ReactNode): () => React.ReactNode {
 		const LoginWrapperBuilder = () => {
 			if (Session.isLoggedIn) {
 				return componentBuilder();
@@ -13,7 +13,7 @@ class _LoginWrapper {
 			return <Redirect to="/login" />;
 		};
 		return LoginWrapperBuilder;
-	};
+	}
 }
 
 export const LoginWrapper = new _LoginWrapper();

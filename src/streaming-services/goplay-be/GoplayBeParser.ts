@@ -21,7 +21,7 @@ class _GoplayBeParser implements ScrobbleParser {
 		this.isPaused = false;
 	}
 
-	parseProgress = (): number => {
+	parseProgress(): number {
 		let progress = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.vjs-play-progress');
 
@@ -31,9 +31,9 @@ class _GoplayBeParser implements ScrobbleParser {
 		}
 
 		return progress;
-	};
+	}
 
-	parseItem = (): Item | undefined => {
+	parseItem(): Item | undefined {
 		const serviceId = 'goplay-be';
 		const titleElement = document.querySelector('title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
@@ -73,7 +73,7 @@ class _GoplayBeParser implements ScrobbleParser {
 			episode,
 			isCollection,
 		});
-	};
+	}
 }
 
 export const GoplayBeParser = new _GoplayBeParser();

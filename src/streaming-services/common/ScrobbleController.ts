@@ -23,15 +23,39 @@ export class ScrobbleController {
 		this.scrobbleThreshold = 80.0;
 	}
 
-	startListeners = () => {
+	startListeners() {
 		EventDispatcher.subscribe('SCROBBLE_START', null, this.onStart);
 		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, this.onProgress);
 		EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+	}
+
+	stopListeners() {
+		EventDispatcher.unsubscribe('SCROBBLE_START', null, this.onStart);
+		EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, this.onPause);
+		EventDispatcher.unsubscribe('SCROBBLE_STOP', null, this.onStop);
+		EventDispatcher.unsubscribe('SCROBBLE_PROGRESS', null, this.onProgress);
+		EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+	}
+
+	onStart = (): Promise<void> => {
+		return this.startScrobble();
 	};
 
-	onStart = async (): Promise<void> => {
+	onPause = (): Promise<void> => {
+		return this.pauseScrobble();
+	};
+
+	onStop = (): Promise<void> => {
+		return this.stopScrobble();
+	};
+
+	onProgress = (data: ScrobbleProgressData): Promise<void> => {
+		return this.updateProgress(data.progress);
+	};
+
+	async startScrobble(): Promise<void> {
 		try {
 			this.reachedScrobbleThreshold = false;
 			if (!this.item) {
@@ -54,61 +78,57 @@ export class ScrobbleController {
 				Errors.log('Failed to parse item.', err);
 			}
 		}
-	};
+	}
 
-	onPause = async (): Promise<void> => {
+	async pauseScrobble(): Promise<void> {
 		if (this.item?.trakt) {
 			await TraktScrobble.pause(this.item.trakt);
 		}
-	};
+	}
 
-	onStop = async (): Promise<void> => {
-		await this.stopScrobble();
-		this.item = undefined;
-		this.reachedScrobbleThreshold = false;
-	};
-
-	stopScrobble = async (): Promise<void> => {
+	async stopScrobble(): Promise<void> {
 		if (!this.item?.trakt) {
 			return;
 		}
 		await TraktScrobble.stop(this.item.trakt);
 		await BrowserStorage.remove('scrobblingItem');
-	};
+		this.item = undefined;
+		this.reachedScrobbleThreshold = false;
+	}
 
-	onProgress = async (data: ScrobbleProgressData): Promise<void> => {
+	async updateProgress(progress: number): Promise<void> {
 		if (!this.item?.trakt) {
 			return;
 		}
-		this.item.trakt.progress = data.progress;
+		this.item.trakt.progress = progress;
 		if (!this.reachedScrobbleThreshold && this.item.trakt.progress > this.scrobbleThreshold) {
 			// Update the stored progress after reaching the scrobble threshold to make sure that the item is scrobbled on tab close.
 			await BrowserStorage.set({ scrobblingItem: this.getScrobblingItem() }, false);
 			this.reachedScrobbleThreshold = true;
 		}
-	};
+	}
 
-	getScrobblingItem = (): ScrobblingItem | undefined => {
+	getScrobblingItem(): ScrobblingItem | undefined {
 		return this.item?.trakt
 			? {
 					...Item.save(this.item),
 					correctionSuggestions: this.item.correctionSuggestions,
 			  }
 			: undefined;
-	};
+	}
 
 	onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
 		if (!this.item) {
 			return;
 		}
-		await this.onProgress({ progress: 0 });
+		await this.updateProgress(0.0);
 		await this.stopScrobble();
 		this.item.trakt = await TraktSearch.find(this.item, {
 			type: data.type,
 			traktId: data.traktId,
 			url: data.url,
 		});
-		await this.onStart();
+		await this.startScrobble();
 		try {
 			await Messaging.toBackground({
 				action: 'save-correction-suggestion',

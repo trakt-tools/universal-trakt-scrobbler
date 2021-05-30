@@ -8,7 +8,7 @@ import { StreamingServiceId } from '../streaming-services/streaming-services';
 class _WrongItemApi {
 	URL = 'https://script.google.com/macros/s/AKfycbyz0AYx9-R2cKHxyyRNrMYbqUnqvJbiYxSZTFV0/exec';
 
-	loadSuggestions = async (items: Item[]): Promise<void> => {
+	async loadSuggestions(items: Item[]): Promise<void> {
 		const missingItems = items.filter((item) => typeof item.correctionSuggestions === 'undefined');
 		if (missingItems.length === 0) {
 			return;
@@ -83,9 +83,9 @@ class _WrongItemApi {
 		for (const item of missingItems) {
 			item.correctionSuggestions = item.correctionSuggestions ?? null;
 		}
-	};
+	}
 
-	loadItemSuggestions = async (item: Item): Promise<Item> => {
+	async loadItemSuggestions(item: Item): Promise<Item> {
 		const itemCopy = new Item(item);
 		if (
 			!BrowserStorage.options.sendReceiveSuggestions ||
@@ -136,9 +136,9 @@ class _WrongItemApi {
 		}
 		itemCopy.correctionSuggestions = suggestions ?? null;
 		return itemCopy;
-	};
+	}
 
-	saveSuggestion = async (item: Item, url: string): Promise<void> => {
+	async saveSuggestion(item: Item, url: string): Promise<void> {
 		if (
 			!BrowserStorage.options.sendReceiveSuggestions ||
 			!(await browser.permissions.contains({
@@ -160,7 +160,7 @@ class _WrongItemApi {
 				url,
 			},
 		});
-	};
+	}
 }
 
 export const WrongItemApi = new _WrongItemApi();

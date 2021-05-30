@@ -15,7 +15,7 @@ class _VtmgoBeEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		// https://vtm.be/vtmgo/afspelen/eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d
 		if (oldUrl.includes('afspelen') && newUrl.includes('afspelen')) {
 			await this.stop();
@@ -31,9 +31,9 @@ class _VtmgoBeEvents extends ScrobbleEvents {
 			this.videoId = '';
 			this.isPlaying = true;
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const newUrl = this.getLocation();
 
 		if (this.url !== newUrl) {
@@ -62,7 +62,7 @@ class _VtmgoBeEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const VtmgoBeEvents = new _VtmgoBeEvents();

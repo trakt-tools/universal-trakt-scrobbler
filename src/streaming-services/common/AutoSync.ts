@@ -7,7 +7,7 @@ import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
 
 class _AutoSync {
-	sync = async (serviceEntries: [StreamingServiceId, StreamingServiceValue][], now: number) => {
+	async sync(serviceEntries: [StreamingServiceId, StreamingServiceValue][], now: number) {
 		let { syncCache } = await BrowserStorage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
@@ -71,7 +71,7 @@ class _AutoSync {
 
 		await BrowserStorage.saveOptions({});
 		await BrowserStorage.set({ syncCache }, false);
-	};
+	}
 }
 
 export const AutoSync = new _AutoSync();

@@ -146,7 +146,7 @@ class _NrkApi extends Api {
 		this.isActivated = false;
 	}
 
-	activate = async () => {
+	async activate() {
 		const stringToken = await Requests.send({
 			url: `${this.TOKEN_URL}?_=${Date.now()}`,
 			method: 'GET',
@@ -159,9 +159,9 @@ class _NrkApi extends Api {
 		const userData = JSON.parse(response) as NrkUserData;
 		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
 		this.isActivated = true;
-	};
+	}
 
-	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string) {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -215,7 +215,7 @@ class _NrkApi extends Api {
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				const promises = historyItems.map(this.parseHistoryItem);
+				const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
 				items = await Promise.all(promises);
 			}
 			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
@@ -228,9 +228,9 @@ class _NrkApi extends Api {
 			}
 			throw err;
 		}
-	};
+	}
 
-	parseHistoryItem = async (historyItem: NrkProgressItem): Promise<Item> => {
+	async parseHistoryItem(historyItem: NrkProgressItem): Promise<Item> {
 		const serviceId = this.id;
 		const id = historyItem.id;
 		const programInfo = historyItem._embedded.programs;
@@ -280,9 +280,9 @@ class _NrkApi extends Api {
 		} else {
 			return new Item(baseItem);
 		}
-	};
+	}
 
-	getTitle = (programPage: NrkProgramPage) => {
+	getTitle(programPage: NrkProgramPage) {
 		const title =
 			programPage._links?.seriesPage?.title || programPage.programInformation.titles.title;
 		const { originalTitle } = programPage.moreInformation;
@@ -296,17 +296,17 @@ class _NrkApi extends Api {
 			return originalTitle;
 		}
 		return title;
-	};
+	}
 
-	lookupNrkItem = async (url: string) => {
+	async lookupNrkItem(url: string) {
 		const response = await Requests.send({
 			url: this.API_HOST_URL + url,
 			method: 'GET',
 		});
 		return JSON.parse(response) as NrkProgramPage;
-	};
+	}
 
-	getSession = (): Promise<NrkSession | undefined | null> => {
+	getSession(): Promise<NrkSession | undefined | null> {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
@@ -376,9 +376,9 @@ class _NrkApi extends Api {
 				window.dispatchEvent(event);
 			}
 		});
-	};
+	}
 
-	getItem = async (id: string): Promise<Item | undefined> => {
+	async getItem(id: string): Promise<Item | undefined> {
 		const programPage = await this.lookupNrkItem(this.PROGRAM_URL + id);
 		const title = this.getTitle(programPage);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
@@ -412,7 +412,7 @@ class _NrkApi extends Api {
 		} else {
 			return new Item(baseItem);
 		}
-	};
+	}
 }
 
 export const NrkApi = new _NrkApi();

@@ -20,11 +20,11 @@ class _DisneyplusParser implements ScrobbleParser {
 		this.isPaused = true;
 	}
 
-	getVideoElement = (): HTMLVideoElement => {
+	getVideoElement(): HTMLVideoElement {
 		return document.getElementsByTagName('video')[0];
-	};
+	}
 
-	parseSession = (): DisneyplusSession => {
+	parseSession(): DisneyplusSession {
 		const videoPlayer = this.getVideoElement();
 
 		if (videoPlayer?.duration) {
@@ -32,9 +32,9 @@ class _DisneyplusParser implements ScrobbleParser {
 			this.progress = Math.round((videoPlayer.currentTime / videoPlayer.duration) * 10000) / 100;
 		}
 		return { paused: this.isPaused, progress: this.progress };
-	};
+	}
 
-	parseItem = (): Item | undefined => {
+	parseItem(): Item | undefined {
 		const serviceId = 'disneyplus';
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
 		const titleElement = document.querySelector('.title-field');
@@ -77,7 +77,7 @@ class _DisneyplusParser implements ScrobbleParser {
 			episode,
 			isCollection,
 		});
-	};
+	}
 }
 
 export const DisneyplusParser = new _DisneyplusParser();

@@ -10,7 +10,7 @@ class _ScrobblerTemplateParser implements ScrobbleParser {
 	// Define any properties you need here.
 
 	// This method should return the item that the user is watching, if the information was successfully retrieved.
-	parseItem = async (): Promise<Item | undefined> => {
+	async parseItem(): Promise<Item | undefined> {
 		let item: Item | undefined;
 
 		// If the service has an API, this method will most likely look like this.
@@ -27,7 +27,7 @@ class _ScrobblerTemplateParser implements ScrobbleParser {
 		item = new Item({ serviceId, id, type, title, year });
 
 		return item;
-	};
+	}
 
 	// Define any methods you need here.
 }

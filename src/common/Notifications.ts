@@ -16,10 +16,10 @@ class _Notifications {
 		};
 	}
 
-	startListeners = () => {
+	startListeners() {
 		EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
 		EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
-	};
+	}
 
 	onScrobble = async (data: ScrobbleSuccessData | ScrobbleErrorData): Promise<void> => {
 		if (!data.item?.title) {
@@ -37,7 +37,7 @@ class _Notifications {
 		await this.show(title, message);
 	};
 
-	getTitleFromException = async (err: RequestException): Promise<string> => {
+	async getTitleFromException(err: RequestException): Promise<string> {
 		let title = '';
 		if (err) {
 			if (err.status === 404) {
@@ -56,11 +56,11 @@ class _Notifications {
 			title = I18N.translate('errorNotification');
 		}
 		return title;
-	};
+	}
 
-	show = async (title: string, message: string): Promise<void> => {
+	async show(title: string, message: string): Promise<void> {
 		await Messaging.toBackground({ action: 'show-notification', title, message });
-	};
+	}
 }
 
 const Notifications = new _Notifications();

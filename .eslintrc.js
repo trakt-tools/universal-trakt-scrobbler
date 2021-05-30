@@ -70,13 +70,7 @@ module.exports = {
 						allowTemplateLiterals: false,
 					},
 				],
-				'prefer-arrow/prefer-arrow-functions': [
-					'error',
-					{
-						disallowPrototype: true,
-						classPropertiesAllowed: true,
-					},
-				],
+				'prefer-arrow/prefer-arrow-functions': 'error',
 			},
 		},
 	],

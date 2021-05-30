@@ -8,7 +8,7 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 	playbackStarted = false;
 	url = '';
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const player = await NrkApi.getSession();
 		if (player) {
 			if (this.videoId !== player.mediaItem.id) {
@@ -60,7 +60,7 @@ class _ScrobblerTemplateEvents extends ScrobbleEvents {
 		}
 
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const NrkEvents = new _ScrobblerTemplateEvents();

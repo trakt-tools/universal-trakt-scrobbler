@@ -172,15 +172,15 @@ class _NetflixApi extends Api {
 		this.hasInjectedSessionScript = false;
 	}
 
-	extractAuthUrl = (text: string): string | undefined => {
+	extractAuthUrl(text: string): string | undefined {
 		return this.AUTH_REGEX.exec(text)?.[1];
-	};
+	}
 
-	extractBuildIdentifier = (text: string): string | undefined => {
+	extractBuildIdentifier(text: string): string | undefined {
 		return this.BUILD_IDENTIFIER_REGEX.exec(text)?.[1];
-	};
+	}
 
-	activate = async () => {
+	async activate() {
 		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the API params.
 		let apiParams;
 		if (Shared.pageType === 'content') {
@@ -198,15 +198,15 @@ class _NetflixApi extends Api {
 			this.apiParams.buildIdentifier = this.extractBuildIdentifier(responseText);
 		}
 		this.isActivated = true;
-	};
+	}
 
-	checkParams = (apiParams: Partial<NetflixApiParams>): apiParams is NetflixApiParams => {
+	checkParams(apiParams: Partial<NetflixApiParams>): apiParams is NetflixApiParams {
 		return (
 			typeof apiParams.authUrl !== 'undefined' && typeof apiParams.buildIdentifier !== 'undefined'
 		);
-	};
+	}
 
-	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string) {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -257,7 +257,7 @@ class _NetflixApi extends Api {
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
-				items = historyItemsWithMetadata.map(this.parseHistoryItem);
+				items = historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
 			}
 			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
@@ -269,9 +269,9 @@ class _NetflixApi extends Api {
 			}
 			throw err;
 		}
-	};
+	}
 
-	getHistoryMetadata = async (historyItems: NetflixHistoryItem[]) => {
+	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
 		if (!this.checkParams(this.apiParams)) {
 			throw new Error('Invalid API params');
 		}
@@ -299,15 +299,15 @@ class _NetflixApi extends Api {
 			throw responseText;
 		}
 		return historyItemsWithMetadata;
-	};
+	}
 
-	isShow = (
+	isShow(
 		historyItem: NetflixHistoryItemWithMetadata
-	): historyItem is NetflixHistoryShowItemWithMetadata => {
+	): historyItem is NetflixHistoryShowItemWithMetadata {
 		return 'series' in historyItem;
-	};
+	}
 
-	parseHistoryItem = (historyItem: NetflixHistoryItemWithMetadata) => {
+	parseHistoryItem(historyItem: NetflixHistoryItemWithMetadata) {
 		let item: Item;
 		const serviceId = this.id;
 		const id = historyItem.movieID.toString();
@@ -352,9 +352,9 @@ class _NetflixApi extends Api {
 			});
 		}
 		return item;
-	};
+	}
 
-	getItem = async (id: string): Promise<Item | undefined> => {
+	async getItem(id: string): Promise<Item | undefined> {
 		let item: Item | undefined;
 		if (!this.isActivated) {
 			await this.activate();
@@ -374,9 +374,9 @@ class _NetflixApi extends Api {
 			}
 		}
 		return item;
-	};
+	}
 
-	parseMetadata = (metadata: NetflixSingleMetadataItem): Item => {
+	parseMetadata(metadata: NetflixSingleMetadataItem): Item {
 		let item: Item;
 		const serviceId = this.id;
 		const { video } = metadata;
@@ -415,9 +415,9 @@ class _NetflixApi extends Api {
 			item = new Item({ serviceId, id, type, title, year });
 		}
 		return item;
-	};
+	}
 
-	getApiParams = (): Promise<Partial<NetflixApiParams>> => {
+	getApiParams(): Promise<Partial<NetflixApiParams>> {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
@@ -474,9 +474,9 @@ class _NetflixApi extends Api {
 				window.dispatchEvent(event);
 			}
 		});
-	};
+	}
 
-	getSession = (): Promise<NetflixScrobbleSession | undefined | null> => {
+	getSession(): Promise<NetflixScrobbleSession | undefined | null> {
 		return new Promise((resolve) => {
 			if ('wrappedJSObject' in window && window.wrappedJSObject) {
 				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
@@ -528,7 +528,7 @@ class _NetflixApi extends Api {
 				window.dispatchEvent(event);
 			}
 		});
-	};
+	}
 }
 
 export const NetflixApi = new _NetflixApi();

@@ -153,15 +153,15 @@ class _BrowserStorage {
 		this.isSyncAvailable = !!browser.storage.sync;
 	}
 
-	init = async () => {
+	async init() {
 		await this.sync();
 		await this.upgradeOrDowngrade();
 		await this.loadOptions();
 		await this.loadSyncOptions();
 		this.startListeners();
-	};
+	}
 
-	upgradeOrDowngrade = async () => {
+	async upgradeOrDowngrade() {
 		const { version = 1 } = await BrowserStorage.get('version');
 
 		console.log(`Current storage version: v${version.toString()}`);
@@ -171,13 +171,13 @@ class _BrowserStorage {
 		} else if (version > this.currentVersion) {
 			await this.downgrade(version);
 		}
-	};
+	}
 
 	/**
 	 * `objectVX` and `objectVY` are always the same object.
 	 * They are only separated by type, to make it easier to understand the upgrade process.
 	 */
-	upgrade = async (version: number) => {
+	async upgrade(version: number) {
 		if (version < 2) {
 			console.log('Upgrading to v2...');
 
@@ -220,13 +220,13 @@ class _BrowserStorage {
 		await BrowserStorage.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
-	};
+	}
 
 	/**
 	 * `objectVX` and `objectVY` are always the same object.
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
-	downgrade = async (version: number) => {
+	async downgrade(version: number) {
 		if (version > 1) {
 			console.log('Downgrading to v1...');
 
@@ -274,15 +274,15 @@ class _BrowserStorage {
 		await BrowserStorage.set({ version: this.currentVersion }, true);
 
 		console.log('Downgraded!');
-	};
+	}
 
-	startListeners = () => {
+	startListeners() {
 		browser.storage.onChanged.addListener(this.onStorageChanged);
-	};
+	}
 
-	stopListeners = () => {
+	stopListeners() {
 		browser.storage.onChanged.removeListener(this.onStorageChanged);
-	};
+	}
 
 	onStorageChanged = (
 		changes: browser.storage.ChangeDict,
@@ -312,54 +312,49 @@ class _BrowserStorage {
 		}
 	};
 
-	sync = async (): Promise<void> => {
+	async sync(): Promise<void> {
 		if (this.isSyncAvailable) {
 			const values = await browser.storage.sync.get();
 			for (const key of Object.keys(values)) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
 		}
-	};
+	}
 
-	set = async (values: StorageValues, doSync: boolean): Promise<void> => {
+	async set(values: StorageValues, doSync: boolean): Promise<void> {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.set(values);
 		}
 		await browser.storage.local.set(values);
-	};
+	}
 
-	get = (keys?: keyof StorageValues | (keyof StorageValues)[] | null): Promise<StorageValues> => {
+	get(keys?: keyof StorageValues | (keyof StorageValues)[] | null): Promise<StorageValues> {
 		return browser.storage.local.get(keys);
-	};
+	}
 
-	remove = async (
-		keys: keyof StorageValues | (keyof StorageValues)[],
-		doSync = false
-	): Promise<void> => {
+	async remove(keys: keyof StorageValues | (keyof StorageValues)[], doSync = false): Promise<void> {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.remove(keys);
 		}
 		await browser.storage.local.remove(keys);
-	};
+	}
 
-	clear = async (doSync: boolean): Promise<void> => {
+	async clear(doSync: boolean): Promise<void> {
 		if (doSync && this.isSyncAvailable) {
 			await browser.storage.sync.clear();
 		}
 		await browser.storage.local.clear();
 		await this.reset();
-	};
+	}
 
-	reset = async () => {
+	async reset() {
 		this.options = {} as StorageValuesOptions;
 		this.syncOptions = {} as StorageValuesSyncOptions;
 		await this.loadOptions();
 		await this.loadSyncOptions();
-	};
+	}
 
-	getSize = async (
-		keys?: keyof StorageValues | (keyof StorageValues)[] | null
-	): Promise<string> => {
+	async getSize(keys?: keyof StorageValues | (keyof StorageValues)[] | null): Promise<string> {
 		let size = '';
 		const values = await this.get(keys);
 		let bytes = (JSON.stringify(values) || '').length;
@@ -375,9 +370,9 @@ class _BrowserStorage {
 			}
 		}
 		return size;
-	};
+	}
 
-	loadOptions = async (): Promise<void> => {
+	async loadOptions(): Promise<void> {
 		this.optionsDetails = {
 			streamingServices: {
 				type: 'list',
@@ -500,9 +495,9 @@ class _BrowserStorage {
 			}
 			this.addOption(option);
 		}
-	};
+	}
 
-	saveOptions = async (options: Partial<StorageValuesOptions>) => {
+	async saveOptions(options: Partial<StorageValuesOptions>) {
 		for (const [id, value] of Object.entries(options) as [
 			keyof StorageValuesOptions,
 			StorageValuesOptions[keyof StorageValuesOptions]
@@ -510,9 +505,9 @@ class _BrowserStorage {
 			this.addOption({ id, value });
 		}
 		await BrowserStorage.set({ options: this.options }, true);
-	};
+	}
 
-	addOption = <K extends keyof StorageValuesOptions>(option: Partial<Option<K>>) => {
+	addOption<K extends keyof StorageValuesOptions>(option: Partial<Option<K>>) {
 		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
 			if (BrowserStorage.isStreamingServiceOption(option)) {
 				for (const [id, value] of Object.entries(option.value) as [
@@ -536,15 +531,15 @@ class _BrowserStorage {
 				this.optionsDetails[option.id].value = option.value;
 			}
 		}
-	};
+	}
 
-	isStreamingServiceOption = (
+	isStreamingServiceOption(
 		option: Partial<Option<keyof StorageValuesOptions>>
-	): option is Option<'streamingServices'> => {
+	): option is Option<'streamingServices'> {
 		return option.id === 'streamingServices';
-	};
+	}
 
-	loadSyncOptions = async (): Promise<void> => {
+	async loadSyncOptions(): Promise<void> {
 		this.syncOptionsDetails = {
 			hideSynced: {
 				id: 'hideSynced',
@@ -596,9 +591,9 @@ class _BrowserStorage {
 			}
 			this.addSyncOption(option);
 		}
-	};
+	}
 
-	saveSyncOptions = async (options: Partial<StorageValuesSyncOptions>) => {
+	async saveSyncOptions(options: Partial<StorageValuesSyncOptions>) {
 		for (const [id, value] of Object.entries(options) as [
 			keyof StorageValuesSyncOptions,
 			StorageValuesSyncOptions[keyof StorageValuesSyncOptions]
@@ -606,14 +601,14 @@ class _BrowserStorage {
 			this.addSyncOption({ id, value });
 		}
 		await BrowserStorage.set({ syncOptions: this.syncOptions }, true);
-	};
+	}
 
-	addSyncOption = <K extends keyof StorageValuesSyncOptions>(option: Partial<SyncOption<K>>) => {
+	addSyncOption<K extends keyof StorageValuesSyncOptions>(option: Partial<SyncOption<K>>) {
 		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
 			this.syncOptions[option.id] = option.value;
 			this.syncOptionsDetails[option.id].value = option.value;
 		}
-	};
+	}
 }
 
 export const BrowserStorage = new _BrowserStorage();

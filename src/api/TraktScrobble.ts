@@ -40,25 +40,25 @@ class _TraktScrobble extends TraktApi {
 		};
 	}
 
-	start = async (item: TraktItem): Promise<void> => {
+	async start(item: TraktItem): Promise<void> {
 		if (Shared.pageType !== 'background') {
 			await Messaging.toBackground({ action: 'start-scrobble' });
 		}
 		await this.send(item, this.START);
-	};
+	}
 
-	pause = async (item: TraktItem): Promise<void> => {
+	async pause(item: TraktItem): Promise<void> {
 		await this.send(item, this.PAUSE);
-	};
+	}
 
-	stop = async (item: TraktItem): Promise<void> => {
+	async stop(item: TraktItem): Promise<void> {
 		await this.send(item, this.STOP);
 		if (Shared.pageType !== 'background') {
 			await Messaging.toBackground({ action: 'stop-scrobble' });
 		}
-	};
+	}
 
-	send = async (item: TraktItem, scrobbleType: number): Promise<void> => {
+	async send(item: TraktItem, scrobbleType: number): Promise<void> {
 		const path = this.paths[scrobbleType];
 		try {
 			const data = {} as TraktScrobbleData;
@@ -89,7 +89,7 @@ class _TraktScrobble extends TraktApi {
 				error: err as RequestException,
 			});
 		}
-	};
+	}
 }
 
 export const TraktScrobble = new _TraktScrobble();

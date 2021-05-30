@@ -38,11 +38,11 @@ class _AmazonPrimeApi extends Api {
 		this.API_URL = 'https://atv-ps.primevideo.com';
 	}
 
-	loadHistory = (itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> => {
+	loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
 		return Promise.resolve();
-	};
+	}
 
-	getItem = async (id: string): Promise<Item | undefined> => {
+	async getItem(id: string): Promise<Item | undefined> {
 		let item: Item | undefined;
 		try {
 			const responseText = await Requests.send({
@@ -56,9 +56,9 @@ class _AmazonPrimeApi extends Api {
 			}
 		}
 		return item;
-	};
+	}
 
-	parseMetadata = (metadata: AmazonPrimeMetadataItem): Item => {
+	parseMetadata(metadata: AmazonPrimeMetadataItem): Item {
 		let item: Item;
 		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
@@ -91,7 +91,7 @@ class _AmazonPrimeApi extends Api {
 			item = new Item({ serviceId, id, type, title, year });
 		}
 		return item;
-	};
+	}
 }
 
 export const AmazonPrimeApi = new _AmazonPrimeApi();

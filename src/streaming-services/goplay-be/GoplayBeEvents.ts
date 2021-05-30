@@ -15,7 +15,7 @@ class _GoplayBeEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	onUrlChange = async (oldUrl: string, newUrl: string): Promise<void> => {
+	async onUrlChange(oldUrl: string, newUrl: string): Promise<void> {
 		// https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-1#autoplay
 		if (oldUrl.includes('video') && newUrl.includes('video')) {
 			await this.stop();
@@ -31,9 +31,9 @@ class _GoplayBeEvents extends ScrobbleEvents {
 			this.videoId = '';
 			this.isPlaying = true;
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		const newUrl = this.getLocation();
 
 		if (this.url !== newUrl) {
@@ -62,7 +62,7 @@ class _GoplayBeEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 500);
-	};
+	}
 }
 
 export const GoplayBeEvents = new _GoplayBeEvents();

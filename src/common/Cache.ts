@@ -27,27 +27,27 @@ class _Cache {
 		this.startTimers();
 	}
 
-	private getInitialValues = (): CacheValues => {
+	private getInitialValues(): CacheValues {
 		return {
 			correctionSuggestions: {},
 			tmdbImages: {},
 		};
-	};
+	}
 
-	private invalidate = <K extends keyof CacheValues>(key: K, expiry: number): void => {
+	private invalidate<K extends keyof CacheValues>(key: K, expiry: number): void {
 		this.values[key] = this.getInitialValues()[key];
-		this.timers[key] = window.setTimeout(this.invalidate, expiry * 1e3, key, expiry);
-	};
+		this.timers[key] = window.setTimeout(() => this.invalidate(key, expiry), expiry * 1e3);
+	}
 
-	startTimers = (): void => {
+	startTimers(): void {
 		for (const [key, expiry] of Object.entries(this.expiries) as [keyof CacheValues, number][]) {
 			if (this.timers[key] === null) {
-				this.timers[key] = window.setTimeout(this.invalidate, expiry * 1e3, key, expiry);
+				this.timers[key] = window.setTimeout(() => this.invalidate(key, expiry), expiry * 1e3);
 			}
 		}
-	};
+	}
 
-	stopTimers = () => {
+	stopTimers() {
 		for (const [key, timer] of Object.entries(this.timers) as [
 			keyof CacheValues,
 			number | null
@@ -57,7 +57,7 @@ class _Cache {
 				this.timers[key] = null;
 			}
 		}
-	};
+	}
 }
 
 export const Cache = new _Cache();

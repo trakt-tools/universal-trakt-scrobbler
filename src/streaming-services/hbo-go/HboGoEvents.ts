@@ -18,12 +18,12 @@ class _HboGoEvents extends ScrobbleEvents {
 		this.videoId = '';
 	}
 
-	startListeners = () => {
-		this.addChangeListener();
+	startListeners() {
+		super.startListeners();
 		document.body.addEventListener('click', (event) => void this.onClick(event), true);
-	};
+	}
 
-	onClick = async (event: Event) => {
+	async onClick(event: Event) {
 		const target: HTMLElement = event.target as HTMLElement;
 		const playButton: HTMLElement | null = target.matches(
 			'.buttonComponent.play, [href*="/content/"]'
@@ -42,9 +42,9 @@ class _HboGoEvents extends ScrobbleEvents {
 				HboGoParser.id = this.videoId;
 			}
 		}
-	};
+	}
 
-	checkForChanges = async (): Promise<void> => {
+	async checkForChanges(): Promise<void> {
 		// If we can access the global sdk object from the page, there is no need to parse the page in order to retrieve information about the item being watched.
 		const session = await HboGoApi.getSession();
 		if (typeof session !== 'undefined') {
@@ -116,7 +116,7 @@ class _HboGoEvents extends ScrobbleEvents {
 			}
 		}
 		this.changeListenerId = window.setTimeout(() => void this.checkForChanges(), 2000);
-	};
+	}
 }
 
 export const HboGoEvents = new _HboGoEvents();

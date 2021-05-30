@@ -10,19 +10,19 @@ class _HboGoParser implements ScrobbleParser {
 		this.id = '';
 	}
 
-	parseItem = async (): Promise<Item | undefined> => {
+	async parseItem(): Promise<Item | undefined> {
 		const session = await HboGoApi.getSession();
 		const id = session?.videoId || this.id;
 		const item = id ? await HboGoApi.getItem(id) : undefined;
 		return item;
-	};
+	}
 
-	parseSession = (): HboGoSession => {
+	parseSession(): HboGoSession {
 		const [progress, progressMs] = this.parseProgress();
 		return { videoId: '', progress, progressMs };
-	};
+	}
 
-	parseProgress = (): [number, number] => {
+	parseProgress(): [number, number] {
 		let progress = 0.0;
 		let progressMs = 0.0;
 		const scrubber: HTMLElement | null = document.querySelector('.timelineProgress');
@@ -34,7 +34,7 @@ class _HboGoParser implements ScrobbleParser {
 			progressMs = parseInt(scrubberMs.textContent?.replace(/:/g, '') ?? '0');
 		}
 		return [progress, progressMs];
-	};
+	}
 }
 
 export const HboGoParser = new _HboGoParser();
