@@ -33,7 +33,7 @@ export interface SavedItem extends ItemBase {
 
 export interface ItemBase {
 	serviceId: StreamingServiceId;
-	id: string;
+	id?: string;
 	type: 'show' | 'movie';
 	title: string;
 	year: number;
@@ -72,7 +72,6 @@ export class Item implements IItem {
 
 	constructor(options: IItem) {
 		this.serviceId = options.serviceId;
-		this.id = options.id;
 		this.type = options.type;
 		this.title = correctTitles[options.title] || options.title;
 		this.year = options.year;
@@ -89,6 +88,7 @@ export class Item implements IItem {
 		this.index = options.index;
 		this.correctionSuggestions = options.correctionSuggestions;
 		this.imageUrl = options.imageUrl;
+		this.id = options.id || this.generateId();
 	}
 
 	static save(item: Item): SavedItem {
@@ -117,6 +117,24 @@ export class Item implements IItem {
 		};
 
 		return new Item(options);
+	}
+
+	/**
+	 * Generates an ID for items that don't have an official ID from the streaming service.
+	 *
+	 * Examples:
+	 *   - Show: `dark-s1-e1-secrets`
+	 *   - Movie: `resident-evil-the-final-chapter`
+	 */
+	generateId() {
+		const titleId = this.title.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
+		if (this.type === 'show') {
+			const episodeTitleId = this.episodeTitle?.toLowerCase().replace(/[^A-Za-z0-9]/g, '') ?? '';
+			return `${titleId}-s${this.season?.toString() ?? '0'}-e${
+				this.episode?.toString() ?? '0'
+			}-${episodeTitleId}`;
+		}
+		return titleId;
 	}
 
 	getFullTitle() {
