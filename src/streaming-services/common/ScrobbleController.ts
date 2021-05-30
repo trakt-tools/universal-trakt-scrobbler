@@ -1,10 +1,11 @@
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { TraktSearch } from '../../api/TraktSearch';
-import { BrowserStorage, ScrobblingItem } from '../../common/BrowserStorage';
+import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '../../common/Events';
 import { Messaging } from '../../common/Messaging';
 import { RequestException } from '../../common/Requests';
+import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
 
 export interface ScrobbleParser {
@@ -16,6 +17,7 @@ export class ScrobbleController {
 	item: Item | undefined;
 	reachedScrobbleThreshold: boolean;
 	scrobbleThreshold: number;
+	progress = 0.0;
 
 	constructor(parser: ScrobbleParser) {
 		this.parser = parser;
@@ -58,6 +60,7 @@ export class ScrobbleController {
 	async startScrobble(): Promise<void> {
 		try {
 			this.reachedScrobbleThreshold = false;
+			this.progress = 0.0;
 			if (!this.item) {
 				this.item = await this.parser.parseItem();
 			}
@@ -70,7 +73,12 @@ export class ScrobbleController {
 				}
 				if (this.item.trakt) {
 					await TraktScrobble.start(this.item.trakt);
-					await BrowserStorage.set({ scrobblingItem: this.getScrobblingItem() }, false);
+					if (Shared.pageType !== 'background') {
+						await Messaging.toBackground({
+							action: 'start-scrobble',
+							item: Item.save(this.item),
+						});
+					}
 				}
 			}
 		} catch (err) {
@@ -83,6 +91,9 @@ export class ScrobbleController {
 	async pauseScrobble(): Promise<void> {
 		if (this.item?.trakt) {
 			await TraktScrobble.pause(this.item.trakt);
+			if (Shared.pageType !== 'background') {
+				await Messaging.toBackground({ action: 'pause-scrobble' });
+			}
 		}
 	}
 
@@ -91,31 +102,42 @@ export class ScrobbleController {
 			return;
 		}
 		await TraktScrobble.stop(this.item.trakt);
-		await BrowserStorage.remove('scrobblingItem');
+		if (Shared.pageType !== 'background') {
+			await Messaging.toBackground({ action: 'stop-scrobble' });
+		}
 		this.item = undefined;
 		this.reachedScrobbleThreshold = false;
+		this.progress = 0.0;
 	}
 
 	async updateProgress(progress: number): Promise<void> {
-		if (!this.item?.trakt) {
+		if (!this.item) {
 			return;
 		}
 		this.item.progress = progress;
+		if (!this.item?.trakt) {
+			return;
+		}
 		this.item.trakt.progress = progress;
 		if (!this.reachedScrobbleThreshold && this.item.trakt.progress > this.scrobbleThreshold) {
-			// Update the stored progress after reaching the scrobble threshold to make sure that the item is scrobbled on tab close.
-			await BrowserStorage.set({ scrobblingItem: this.getScrobblingItem() }, false);
+			// Update the scrobbling item after reaching the scrobble threshold to make sure that the item is scrobbled on tab close
 			this.reachedScrobbleThreshold = true;
+			await Messaging.toBackground({
+				action: 'update-scrobbling-item',
+				item: Item.save(this.item),
+			});
+		} else if (
+			this.item.progress < this.progress ||
+			(this.progress === 0.0 && this.item.progress > 1.0) ||
+			this.item.progress - this.progress > 10.0
+		) {
+			// Update the scrobbling item once the progress reaches 1% and then every time it increases by 10%
+			this.progress = this.item.progress;
+			await Messaging.toBackground({
+				action: 'update-scrobbling-item',
+				item: Item.save(this.item),
+			});
 		}
-	}
-
-	getScrobblingItem(): ScrobblingItem | undefined {
-		return this.item?.trakt
-			? {
-					...Item.save(this.item),
-					correctionSuggestions: this.item.correctionSuggestions,
-			  }
-			: undefined;
 	}
 
 	onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {

@@ -23,7 +23,10 @@ export interface MessageRequests {
 	'set-rotating-icon': SetRotatingIconMessage;
 	'set-static-icon': SetStaticIconMessage;
 	'start-scrobble': StartScrobbleMessage;
+	'pause-scrobble': PauseScrobbleMessage;
 	'stop-scrobble': StopScrobbleMessage;
+	'update-scrobbling-item': UpdateScrobblingItemMessage;
+	'get-scrobbling-info': GetScrobblingInfoMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
 	'wrong-item-corrected': WrongItemCorrectedMessage;
@@ -50,7 +53,14 @@ export interface ReturnTypes<GetCacheKey extends keyof CacheValues = keyof Cache
 	'set-rotating-icon': void;
 	'set-static-icon': void;
 	'start-scrobble': void;
+	'pause-scrobble': void;
 	'stop-scrobble': void;
+	'update-scrobbling-item': void;
+	'get-scrobbling-info': {
+		item: SavedItem | null;
+		tabId: number | null;
+		isPaused: boolean;
+	};
 	'send-request': string;
 	'show-notification': void;
 	'wrong-item-corrected': void;
@@ -130,10 +140,24 @@ export interface ShowNotificationMessage {
 
 export interface StartScrobbleMessage {
 	action: 'start-scrobble';
+	item: SavedItem;
+}
+
+export interface PauseScrobbleMessage {
+	action: 'pause-scrobble';
 }
 
 export interface StopScrobbleMessage {
 	action: 'stop-scrobble';
+}
+
+export interface UpdateScrobblingItemMessage {
+	action: 'update-scrobbling-item';
+	item: SavedItem;
+}
+
+export interface GetScrobblingInfoMessage {
+	action: 'get-scrobbling-info';
 }
 
 export interface WrongItemCorrectedMessage {

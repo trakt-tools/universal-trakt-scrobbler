@@ -15,7 +15,7 @@ import { Notifications } from '../../common/Notifications';
 import { Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Tabs } from '../../common/Tabs';
-import { Item } from '../../models/Item';
+import { Item, SavedItem } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { AutoSync } from '../../streaming-services/common/AutoSync';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
@@ -25,6 +25,9 @@ let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
 let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
 let isCheckingAutoSync = false;
 let autoSyncCheckTimeout: number | null = null;
+let scrobblingItem: SavedItem | null = null;
+let scrobblingTabId: number | null = null;
+let isScrobblingItemPaused = false;
 
 const init = async () => {
 	Shared.pageType = 'background';
@@ -52,6 +55,7 @@ const init = async () => {
 		addWebRequestListener();
 	}
 	Messaging.startListeners();
+	await stopScrobblingItem();
 };
 
 const checkAutoSync = async () => {
@@ -261,24 +265,33 @@ Messaging.messageHandlers = {
 	'set-static-icon': () => BrowserAction.setStaticIcon(),
 
 	'start-scrobble': async (message, tabId) => {
-		if (!tabId) {
-			return;
-		}
-		const { scrobblingItem, scrobblingTabId } = await BrowserStorage.get([
-			'scrobblingItem',
-			'scrobblingTabId',
-		]);
-		if (scrobblingItem && tabId !== scrobblingTabId) {
-			// Stop the previous scrobble if it exists.
-			if (scrobblingItem.trakt) {
-				await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
-			}
-			await BrowserStorage.remove('scrobblingItem');
-		}
-		await BrowserStorage.set({ scrobblingTabId: tabId }, false);
+		scrobblingItem = message.item;
+		scrobblingTabId = tabId;
+		isScrobblingItemPaused = false;
+		await BrowserStorage.set({ scrobblingItem }, false);
 	},
 
-	'stop-scrobble': () => BrowserStorage.remove('scrobblingTabId'),
+	'pause-scrobble': () => {
+		isScrobblingItemPaused = true;
+	},
+
+	'stop-scrobble': async () => {
+		scrobblingItem = null;
+		scrobblingTabId = null;
+		isScrobblingItemPaused = false;
+		await BrowserStorage.remove('scrobblingItem');
+	},
+
+	'update-scrobbling-item': async (message) => {
+		scrobblingItem = message.item;
+		await BrowserStorage.set({ scrobblingItem }, false);
+	},
+
+	'get-scrobbling-info': () => ({
+		item: scrobblingItem,
+		tabId: scrobblingTabId,
+		isPaused: isScrobblingItemPaused,
+	}),
 
 	'show-notification': (message) => Notifications.show(message.title, message.message),
 
@@ -294,19 +307,24 @@ Messaging.onPortDisconnected = async (port, tabId) => {
 	if (injectedTabs.has(tabId)) {
 		injectedTabs.delete(tabId);
 	}
-	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
-	if (tabId !== scrobblingTabId) {
+	if (tabId === scrobblingTabId) {
+		await stopScrobblingItem();
+	}
+};
+
+const stopScrobblingItem = async () => {
+	scrobblingItem = (await BrowserStorage.get('scrobblingItem')).scrobblingItem ?? null;
+	if (!scrobblingItem) {
 		return;
 	}
-	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
-	if (scrobblingItem) {
-		if (scrobblingItem.trakt) {
-			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
-		}
-		await BrowserStorage.remove('scrobblingItem');
+	if (scrobblingItem.trakt) {
+		await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
 	}
-	await BrowserStorage.remove('scrobblingTabId');
+	await BrowserStorage.remove('scrobblingItem');
 	await BrowserAction.setInactiveIcon();
+	scrobblingItem = null;
+	scrobblingTabId = null;
+	isScrobblingItemPaused = false;
 };
 
 void init();

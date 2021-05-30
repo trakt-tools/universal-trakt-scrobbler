@@ -1,6 +1,6 @@
 import { Color } from '@material-ui/lab';
 import { TraktSearchItem } from '../api/TraktSearch';
-import { Item } from '../models/Item';
+import { Item, SavedItem } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import {
@@ -20,7 +20,7 @@ export interface EventData {
 	SCROBBLE_ERROR: ScrobbleErrorData;
 	SCROBBLE_ACTIVE: SuccessData;
 	SCROBBLE_INACTIVE: SuccessData;
-	SCROBBLE_START: SuccessData;
+	SCROBBLE_START: ScrobbleStartData;
 	SCROBBLE_PAUSE: SuccessData;
 	SCROBBLE_STOP: SuccessData;
 	SCROBBLE_PROGRESS: ScrobbleProgressData;
@@ -44,6 +44,7 @@ export interface EventData {
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
 	STORAGE_OPTIONS_CHANGE: SuccessData;
+	SCROBBLING_ITEM_UPDATE: ScrobblingItemUpdateData;
 }
 
 export type Event = keyof EventData;
@@ -66,6 +67,10 @@ export interface ScrobbleSuccessData {
 export type ScrobbleErrorData = ScrobbleSuccessData & {
 	error: RequestException;
 };
+
+export interface ScrobbleStartData {
+	item?: SavedItem;
+}
 
 export interface ScrobbleProgressData {
 	progress: number;
@@ -142,6 +147,10 @@ export interface HistorySyncSuccessData {
 
 export interface RequestsCancelData {
 	key: string;
+}
+
+export interface ScrobblingItemUpdateData {
+	scrobblingItem?: SavedItem;
 }
 
 export type EventDispatcherListeners = Record<

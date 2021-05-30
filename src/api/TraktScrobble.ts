@@ -1,8 +1,6 @@
-import { TraktItem } from '../models/TraktItem';
 import { EventDispatcher } from '../common/Events';
-import { Messaging } from '../common/Messaging';
 import { RequestException, Requests } from '../common/Requests';
-import { Shared } from '../common/Shared';
+import { TraktItem } from '../models/TraktItem';
 import { TraktApi } from './TraktApi';
 
 export interface TraktScrobbleData {
@@ -41,9 +39,6 @@ class _TraktScrobble extends TraktApi {
 	}
 
 	async start(item: TraktItem): Promise<void> {
-		if (Shared.pageType !== 'background') {
-			await Messaging.toBackground({ action: 'start-scrobble' });
-		}
 		await this.send(item, this.START);
 	}
 
@@ -53,9 +48,6 @@ class _TraktScrobble extends TraktApi {
 
 	async stop(item: TraktItem): Promise<void> {
 		await this.send(item, this.STOP);
-		if (Shared.pageType !== 'background') {
-			await Messaging.toBackground({ action: 'stop-scrobble' });
-		}
 	}
 
 	async send(item: TraktItem, scrobbleType: number): Promise<void> {

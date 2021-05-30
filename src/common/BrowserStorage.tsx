@@ -1,8 +1,8 @@
 import { Link } from '@material-ui/core';
 import * as React from 'react';
 import { TraktAuthDetails } from '../api/TraktAuth';
-import { CorrectionSuggestion, SavedItem } from '../models/Item';
-import { SavedTraktItem, TraktItemBase } from '../models/TraktItem';
+import { SavedItem } from '../models/Item';
+import { SavedTraktItem } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
 import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
 import { EventDispatcher } from './Events';
@@ -21,8 +21,7 @@ export type StorageValuesV2 = {
 	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
-	scrobblingItem?: ScrobblingItem;
-	scrobblingTabId?: number;
+	scrobblingItem?: Omit<SavedItem, ''>;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
@@ -31,9 +30,9 @@ export type StorageValuesV1 = {
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV1;
 	syncOptions?: StorageValuesSyncOptionsV1;
-	traktCache?: Record<string, Omit<TraktItemBase, ''>>;
+	traktCache?: unknown;
 	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
-	scrobblingItem?: Omit<TraktItemBase, ''>;
+	scrobblingItem?: unknown;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
@@ -90,10 +89,6 @@ export type CorrectItem = {
 	type: 'episode' | 'movie';
 	traktId?: number;
 	url: string;
-};
-
-export type ScrobblingItem = Omit<SavedItem, ''> & {
-	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
 };
 
 export type Options = {
@@ -182,7 +177,7 @@ class _BrowserStorage {
 			console.log('Upgrading to v2...');
 
 			await BrowserStorage.remove(
-				['traktCache', 'correctUrls', 'scrobblingItem'] as (keyof StorageValues)[],
+				(['traktCache', 'correctUrls', 'scrobblingItem'] as unknown) as (keyof StorageValues)[],
 				true
 			);
 
@@ -231,7 +226,12 @@ class _BrowserStorage {
 			console.log('Downgrading to v1...');
 
 			await BrowserStorage.remove(
-				['traktCache', 'syncCache', 'correctItems', 'scrobblingItem'] as (keyof StorageValues)[],
+				([
+					'traktCache',
+					'syncCache',
+					'correctItems',
+					'scrobblingItem',
+				] as unknown) as (keyof StorageValues)[],
 				true
 			);
 
@@ -291,6 +291,7 @@ class _BrowserStorage {
 		if (areaName !== 'local') {
 			return;
 		}
+
 		const newOptions = changes.options?.newValue as StorageValuesOptions | undefined;
 		if (newOptions) {
 			for (const [id, value] of Object.entries(newOptions) as [

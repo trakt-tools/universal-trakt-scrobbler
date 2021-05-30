@@ -29,6 +29,8 @@ export interface IItem extends ItemBase {
 export interface SavedItem extends ItemBase {
 	watchedAt?: number;
 	trakt?: Omit<SavedTraktItem, ''> | null;
+	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
+	imageUrl?: string | null;
 }
 
 export interface ItemBase {
@@ -101,6 +103,8 @@ export class Item implements IItem {
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,
 			trakt: item.trakt && TraktItem.save(item.trakt),
+			correctionSuggestions: item.correctionSuggestions,
+			imageUrl: item.imageUrl,
 		};
 	}
 
