@@ -344,8 +344,8 @@ class _NetflixApi extends Api {
 		return item;
 	}
 
-	async getItem(id: string): Promise<Item | undefined> {
-		let item: Item | undefined;
+	async getItem(id: string): Promise<Item | null> {
+		let item: Item | null = null;
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -425,20 +425,6 @@ class _NetflixApi extends Api {
 				}
 			}
 			return apiParams;
-		});
-	}
-
-	getSession(): Promise<NetflixScrobbleSession | undefined | null> {
-		return ScriptInjector.inject<NetflixScrobbleSession | undefined>(this.id, 'session', '', () => {
-			let session: NetflixScrobbleSession | undefined | null;
-			const { netflix } = window;
-			if (netflix) {
-				const sessions = netflix.appContext.state.playerApp.getState().videoPlayer
-					.playbackStateBySessionId;
-				const currentId = Object.keys(sessions).find((id) => id.startsWith('watch'));
-				session = currentId ? sessions[currentId] : null;
-			}
-			return session;
 		});
 	}
 }

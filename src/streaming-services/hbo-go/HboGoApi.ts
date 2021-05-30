@@ -288,8 +288,8 @@ class _HboGoApi extends Api {
 		return item;
 	}
 
-	async getItem(id: string): Promise<Item | undefined> {
-		let item: Item | undefined;
+	async getItem(id: string): Promise<Item | null> {
+		let item: Item | null = null;
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -326,24 +326,6 @@ class _HboGoApi extends Api {
 				return { swVersion, token };
 			}
 		);
-	}
-
-	getSession(): Promise<HboGoSession | undefined | null> {
-		return ScriptInjector.inject<HboGoSession | undefined>(this.id, 'session', '', () => {
-			let session: HboGoSession | undefined | null;
-			const { sdk } = window;
-			if (sdk) {
-				const videoId = sdk.player.content?.Id;
-				const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
-				const progress = currentPlayback.progressPercent;
-				const progressMs = currentPlayback.progressMs;
-				session =
-					videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
-						? { videoId, progress, progressMs }
-						: null;
-			}
-			return session;
-		});
 	}
 }
 

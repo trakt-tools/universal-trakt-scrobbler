@@ -51,7 +51,7 @@ export class TraktItem implements ITraktItem {
 		this.releaseDate = options.releaseDate?.clone();
 		this.syncId = options.syncId;
 		this.watchedAt = options.watchedAt?.clone();
-		this.progress = options.progress ?? 0;
+		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 	}
 
 	static save(item: TraktItem): SavedTraktItem {

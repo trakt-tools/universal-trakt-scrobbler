@@ -2,9 +2,9 @@
 
 import { init } from '../common/content';
 
-// Import all files that are required for the scrobbler to work here. Since './ScrobblerTemplateParser' already imports './ScrobblerTemplateApi', we do not need to import it twice.
+// You only need to import the `*Events` class, because it imports the `*Parser` class, which, in turn, imports  the `*Api` class.
 import './ScrobblerTemplateEvents';
-import './ScrobblerTemplateParser';
 
 // This function prevents us from writing duplicate code, as it already initializes everything that should be enough to make most scrobblers work out of the box. You can always not use it and implement your own init function.
+// @ts-expect-error
 void init('scrobbler-template');

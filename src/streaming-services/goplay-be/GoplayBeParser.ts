@@ -1,42 +1,26 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser } from '../common/ScrobbleParser';
 import { GoplayBeApi } from './GoplayBeApi';
 
-export interface GoplayBeSession {
-	paused: boolean;
-	progress: number;
-}
-
-class _GoplayBeParser implements ScrobbleParser {
-	id: string;
-	videoId: string;
-	progress: number;
-	isPaused: boolean;
-
+class _GoplayBeParser extends ScrobbleParser {
 	constructor() {
-		this.id = '';
-		this.videoId = '';
-		this.progress = 0.0;
-		this.isPaused = false;
+		super(GoplayBeApi, {
+			watchingUrlRegex: /\/video\/.+\/([^#]+)/, // https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-1#autoplay => hetisingewikkeld-s2-aflevering-1
+		});
 	}
 
-	parseProgress(): number {
-		let progress = 0.0;
-		const scrubber: HTMLElement | null = document.querySelector('.vjs-play-progress');
+	parsePlaybackFromDom() {
+		const progressElement: HTMLElement | null = document.querySelector('.vjs-play-progress');
+		const progress = progressElement ? parseFloat(progressElement.style.width) : 0.0;
 
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.width);
-			this.progress = progress;
-		}
-
-		return progress;
+		return progress > 0.0 ? { progress } : null;
 	}
 
-	parseItem(): Item | undefined {
-		const serviceId = 'goplay-be';
+	parseItemFromDom() {
+		const serviceId = this.api.id;
 		const titleElement = document.querySelector('title');
-		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
+		const id = this.parseItemIdFromUrl();
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -54,10 +38,8 @@ class _GoplayBeParser implements ScrobbleParser {
 		const episode = parseInt(episodeId ?? '') || 0;
 		const type = seasonId ? 'show' : 'movie';
 
-		if (titleElement) {
-			this.videoId = id;
-		} else {
-			return undefined;
+		if (!titleElement) {
+			return null;
 		}
 
 		return new Item({

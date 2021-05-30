@@ -2,7 +2,6 @@ import * as moment from 'moment';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { RequestException, Requests } from '../../common/Requests';
-import { ScriptInjector } from '../../common/ScriptInjector';
 import { IItem, Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -304,30 +303,7 @@ class _NrkApi extends Api {
 		return JSON.parse(response) as NrkProgramPage;
 	}
 
-	getSession(): Promise<NrkSession | undefined | null> {
-		return ScriptInjector.inject<NrkSession | undefined>(this.id, 'session', '', () => {
-			let session: NrkSession | undefined | null;
-			const { player } = window;
-			if (player && player.getPlaybackSession()) {
-				const playbacksession = player.getPlaybackSession();
-				session = {
-					currentTime: playbacksession.currentTime,
-					duration: playbacksession.duration,
-					mediaItem: {
-						id: playbacksession.mediaItem?.id,
-						title: playbacksession.mediaItem?.title,
-						subtitle: playbacksession.mediaItem?.subtitle,
-					},
-					playbackSessionId: playbacksession.playbackSessionId,
-					playbackStarted: playbacksession.playbackStarted,
-					sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
-				};
-			}
-			return session;
-		});
-	}
-
-	async getItem(id: string): Promise<Item | undefined> {
+	async getItem(id: string): Promise<Item | null> {
 		const programPage = await this.lookupNrkItem(this.PROGRAM_URL + id);
 		const title = this.getTitle(programPage);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';

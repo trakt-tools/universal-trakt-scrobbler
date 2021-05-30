@@ -6,7 +6,6 @@ class _VrtnuBeApi extends Api {
 		super('vrtnu-be');
 	}
 
-	// This method is only required for syncing, but since it is an abstract method, we have to implement at least a basic block for it.
 	loadHistory(itemsToLoad: number): Promise<void> {
 		return Promise.resolve();
 	}

@@ -1,13 +1,15 @@
+import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { registerApi } from '../common/common';
 
 // Define any types you need here.
 
-// This class should communicate with the service API, in order to retrieve the necessary information for scrobbling. If the service does not have an API, that information should be retrieved in the *Parser class instead, so that this class only deals with requests, and not direct DOM manipulation. Keep in mind that some services might have hidden APIs that you can use (you can usually find them by watching your network requests when using the service).
+// This class should communicate with the service API, if it has one. Keep in mind that some services might have hidden APIs that you can use (you can usually find them by watching your network requests when using the service).
 class _ScrobblerTemplateApi extends Api {
 	// Define any properties you need here.
 
 	constructor() {
+		// @ts-expect-error
 		super('scrobbler-template');
 	}
 
@@ -16,9 +18,15 @@ class _ScrobblerTemplateApi extends Api {
 		return Promise.resolve();
 	}
 
+	// **This method is optional.** It should only be implemented if the API offers an endpoint for retrieving information about an item using an ID.
+	getItem(id: string): Promise<Item | null> {
+		return Promise.resolve(null);
+	}
+
 	// Define any methods you need here.
 }
 
 export const ScrobblerTemplateApi = new _ScrobblerTemplateApi();
 
+// @ts-expect-error
 registerApi('scrobbler-template', ScrobblerTemplateApi);

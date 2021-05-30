@@ -1,19 +1,41 @@
-import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser, ScrobblePlayback } from '../common/ScrobbleParser';
 import { NrkApi } from './NrkApi';
 
-class _ScrobblerTemplateParser implements ScrobbleParser {
-	async parseItem(): Promise<Item | undefined> {
-		const player = await NrkApi.getSession();
-		const id = player?.mediaItem.id;
-		if (!id) {
-			return;
-		}
-		return await NrkApi.getItem(id);
+class _NrkParser extends ScrobbleParser {
+	constructor() {
+		super(NrkApi);
 	}
+
+	playbackFnToInject = () => {
+		let playback: Partial<ScrobblePlayback> | null = null;
+		const { player } = window;
+		if (player) {
+			const playbackSession = player.getPlaybackSession();
+			if (playbackSession) {
+				const { isPaused } = playbackSession.sequenceObserver;
+				const { currentTime, duration } = playbackSession;
+				if (duration) {
+					playback = { isPaused, currentTime, duration };
+				}
+			}
+		}
+		return playback;
+	};
+
+	itemIdFnToInject = () => {
+		let itemId: string | null = null;
+		const { player } = window;
+		if (player) {
+			const playbackSession = player.getPlaybackSession();
+			if (playbackSession) {
+				itemId = playbackSession.mediaItem?.id ?? null;
+			}
+		}
+		return itemId;
+	};
 }
 
-export const NrkParser = new _ScrobblerTemplateParser();
+export const NrkParser = new _NrkParser();
 
 registerScrobbleParser('nrk', NrkParser);

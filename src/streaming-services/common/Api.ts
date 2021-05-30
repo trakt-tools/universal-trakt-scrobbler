@@ -9,7 +9,7 @@ import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services';
 
 export abstract class Api {
-	id: StreamingServiceId;
+	readonly id: StreamingServiceId;
 
 	constructor(id: StreamingServiceId) {
 		this.id = id;
@@ -120,4 +120,11 @@ export abstract class Api {
 	}
 
 	abstract loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void>;
+
+	/**
+	 * If an item can be retrieved from the API based on the ID, this method should be overridden in the child class.
+	 */
+	getItem(id: string): Promise<Item | null> {
+		return Promise.resolve(null);
+	}
 }

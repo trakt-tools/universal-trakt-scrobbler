@@ -35,7 +35,7 @@ export interface SavedItem extends ItemBase {
 
 export interface ItemBase {
 	serviceId: StreamingServiceId;
-	id?: string;
+	id?: string | null;
 	type: 'show' | 'movie';
 	title: string;
 	year?: number;
@@ -81,7 +81,7 @@ export class Item implements IItem {
 			this.episodeTitle = options.episodeTitle;
 		}
 		this.watchedAt = options.watchedAt?.clone();
-		this.progress = options.progress ?? 0;
+		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
 		this.isSelected = options.isSelected;
 		this.index = options.index;

@@ -1,41 +1,49 @@
-import { Item } from '../../models/Item';
-import { AmazonPrimeApi } from './AmazonPrimeApi';
-import { ScrobbleParser } from '../common/ScrobbleController';
 import { registerScrobbleParser } from '../common/common';
+import { ScrobbleParser } from '../common/ScrobbleParser';
+import { AmazonPrimeApi } from './AmazonPrimeApi';
 
-export interface AmazonPrimeSession {
-	playing: boolean;
-	paused: boolean;
-	progress: number;
-}
-
-class _AmazonPrimeParser implements ScrobbleParser {
-	id: string;
+class _AmazonPrimeParser extends ScrobbleParser {
+	itemId = '';
 
 	constructor() {
-		this.id = '';
+		super(AmazonPrimeApi, {
+			videoPlayerSelector: '.dv-player-fullscreen video:not(.tst-video-overlay-player-html5)',
+		});
 	}
 
-	async parseItem(): Promise<Item | undefined> {
-		const item = this.id ? await AmazonPrimeApi.getItem(this.id) : undefined;
+	onClick = (event: Event) => {
+		const targetElement = event.target as HTMLElement | null;
+		if (!targetElement) {
+			return;
+		}
+
+		const selector = '[data-asin], #dv-action-box-wrapper';
+		const playButton: HTMLElement | null = targetElement.matches(selector)
+			? targetElement
+			: targetElement.closest(selector);
+		if (!playButton) {
+			return;
+		}
+
+		const itemId =
+			playButton.dataset.asin ||
+			playButton.querySelector<HTMLInputElement>('[name="titleId"]')?.value;
+		if (itemId && itemId !== this.itemId) {
+			this.itemId = itemId;
+		}
+	};
+
+	async parseItemFromApi() {
+		const item = await super.parseItemFromApi();
+		if (item) {
+			// Get the next item ID in case the user plays the next episode
+			this.itemId = AmazonPrimeApi.nextItemId;
+		}
 		return item;
 	}
 
-	parseSession(): AmazonPrimeSession {
-		const loadingSpinner = document.querySelector('.loadingSpinner:not([style="display: none;"])');
-		const playing = !!loadingSpinner || !!document.querySelector('.pausedIcon');
-		const paused = !!document.querySelector('.playIcon');
-		const progress = this.parseProgress();
-		return { playing, paused, progress };
-	}
-
-	parseProgress(): number {
-		let progress = 0.0;
-		const scrubber: HTMLElement | null = document.querySelector('.positionBar:not(.vertical)');
-		if (scrubber) {
-			progress = parseFloat(scrubber.style.width);
-		}
-		return progress;
+	parseItemIdFromCustom() {
+		return this.itemId;
 	}
 }
 
