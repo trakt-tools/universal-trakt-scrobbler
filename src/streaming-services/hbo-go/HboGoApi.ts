@@ -1,9 +1,7 @@
-import { BrowserStorage } from '../../common/BrowserStorage';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { RequestException, Requests } from '../../common/Requests';
-import { Shared } from '../../common/Shared';
-import { Tabs } from '../../common/Tabs';
+import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -107,58 +105,16 @@ class _HboGoApi extends Api {
 	apiParams: Partial<HboGoApiParams>;
 	leftoverHistoryItems: HboGoHistoryItem[] = [];
 	hasReachedHistoryEnd = false;
-	hasInjectedApiParamsScript: boolean;
-	hasInjectedSessionScript: boolean;
-	apiParamsListener: ((event: Event) => void) | null;
-	sessionListener: ((event: Event) => void) | null;
 
 	constructor() {
 		super('hbo-go');
 
 		this.isActivated = false;
 		this.apiParams = {};
-		this.hasInjectedApiParamsScript = false;
-		this.hasInjectedSessionScript = false;
-		this.apiParamsListener = null;
-		this.sessionListener = null;
 	}
 
 	async activate() {
-		let apiParams: Partial<HboGoApiParams> | undefined;
-		if (Shared.pageType === 'content') {
-			apiParams = await this.getApiParams();
-		}
-		if (!apiParams || !this.checkParams(apiParams)) {
-			const { hboGoApiParams } = await BrowserStorage.get('hboGoApiParams');
-			apiParams = hboGoApiParams;
-		}
-		if (!apiParams || !this.checkParams(apiParams)) {
-			// To make calls for the API, we need the user's token, which is not available through fetch requests. Therefore we need to create a new HBO Go tab and inject a script into it to retrieve the token.
-			const tab = await Tabs.open(this.ACCOUNT_URL, { active: false });
-			if (!tab?.id) {
-				throw new Error('Failed to activate API');
-			}
-			await browser.tabs.executeScript(tab.id, {
-				file: '/js/lib/browser-polyfill.js',
-				runAt: 'document_end',
-			});
-			await browser.tabs.executeScript(tab.id, {
-				file: '/js/hbo-go.js',
-				runAt: 'document_end',
-			});
-			const port = browser.tabs.connect(tab.id);
-			apiParams = await new Promise((resolve) => {
-				port.onMessage.addListener((apiParams) => {
-					if (tab.id) {
-						void browser.tabs.remove(tab.id);
-					}
-					if (apiParams && this.checkParams(apiParams)) {
-						void BrowserStorage.set({ hboGoApiParams: apiParams }, false);
-					}
-					resolve(apiParams);
-				});
-			});
-		}
+		const apiParams = await this.getApiParams();
 		if (!apiParams || !this.checkParams(apiParams)) {
 			throw new Error('Failed to activate API');
 		}
@@ -354,114 +310,39 @@ class _HboGoApi extends Api {
 		return item;
 	}
 
-	getApiParams(): Promise<Partial<HboGoApiParams>> {
-		return new Promise((resolve) => {
-			if ('wrappedJSObject' in window && window.wrappedJSObject) {
-				// Firefox wraps page objects, so we can access the global hbo object by unwrapping it.
+	getApiParams(): Promise<Partial<HboGoApiParams> | null> {
+		return ScriptInjector.inject<Partial<HboGoApiParams>>(
+			this.id,
+			'api-params',
+			this.ACCOUNT_URL,
+			() => {
 				let swVersion, token;
-				const { localStorage } = window.wrappedJSObject;
-				const tokenStr = localStorage.getItem('go-token');
+				const tokenStr = window.localStorage.getItem('go-token');
 				if (tokenStr) {
 					const tokenObj = JSON.parse(tokenStr) as HboGoTokenObj;
 					swVersion = tokenObj.sdkVersion;
 					token = tokenObj.data;
 				}
-				resolve({ swVersion, token });
-			} else {
-				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global hbo object.
-				if (!this.hasInjectedApiParamsScript) {
-					const script = document.createElement('script');
-					script.textContent = `
-						window.addEventListener('uts-getApiParams', () => {
-							let swVersion, token;
-							const { localStorage } = window;
-							const tokenStr = localStorage.getItem('go-token');
-							if (tokenStr) {
-								const tokenObj = JSON.parse(tokenStr);
-								swVersion = tokenObj.sdkVersion;
-								token = tokenObj.data;
-							}
-							const event = new CustomEvent('uts-onApiParamsReceived', {
-								detail: { swVersion, token },
-							});
-							window.dispatchEvent(event);
-						});
-					`;
-					document.body.appendChild(script);
-					this.hasInjectedApiParamsScript = true;
-				}
-				if (this.apiParamsListener) {
-					window.removeEventListener('uts-onApiParamsReceived', this.apiParamsListener);
-				}
-				this.apiParamsListener = (event: Event) =>
-					resolve((event as CustomEvent<Partial<HboGoApiParams>>).detail);
-				window.addEventListener('uts-onApiParamsReceived', this.apiParamsListener, false);
-				const event = new CustomEvent('uts-getApiParams');
-				window.dispatchEvent(event);
+				return { swVersion, token };
 			}
-		});
+		);
 	}
 
 	getSession(): Promise<HboGoSession | undefined | null> {
-		return new Promise((resolve) => {
-			if ('wrappedJSObject' in window && window.wrappedJSObject) {
-				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
-				let session: HboGoSession | undefined | null;
-				const { sdk } = window.wrappedJSObject;
-				if (sdk) {
-					const videoId = sdk.player.content?.Id;
-					const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
-					const progress = currentPlayback.progressPercent;
-					const progressMs = currentPlayback.progressMs;
-					session =
-						videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
-							? { videoId, progress, progressMs }
-							: null;
-				}
-				resolve(session);
-			} else {
-				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
-				if (!this.hasInjectedSessionScript) {
-					const script = document.createElement('script');
-					script.textContent = `
-						window.addEventListener('uts-getSession', () => {
-							let session;
-							const { sdk } = window;
-							if (sdk) {
-								const videoId = sdk.player.content?.Id;
-								const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
-								const progress = currentPlayback.progressPercent;
-								const progressMs = currentPlayback.progressMs;
-								session =
-									videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
-										? { videoId, progress, progressMs }
-										: null;
-							}
-							const event = new CustomEvent('uts-onSessionReceived', {
-								detail: { session: JSON.stringify(session) },
-							});
-							window.dispatchEvent(event);
-						});
-					`;
-					document.body.appendChild(script);
-					this.hasInjectedSessionScript = true;
-				}
-				if (this.sessionListener) {
-					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
-				}
-				this.sessionListener = (event: Event) => {
-					const session = (event as CustomEvent<Record<'session', string | undefined>>).detail
-						.session;
-					if (typeof session === 'undefined') {
-						resolve(session);
-					} else {
-						resolve(JSON.parse(session) as HboGoSession | null);
-					}
-				};
-				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
-				const event = new CustomEvent('uts-getSession');
-				window.dispatchEvent(event);
+		return ScriptInjector.inject<HboGoSession | undefined>(this.id, 'session', '', () => {
+			let session: HboGoSession | undefined | null;
+			const { sdk } = window;
+			if (sdk) {
+				const videoId = sdk.player.content?.Id;
+				const currentPlayback = sdk.player.currentPlaybackProgress.source.value;
+				const progress = currentPlayback.progressPercent;
+				const progressMs = currentPlayback.progressMs;
+				session =
+					videoId && typeof progress !== 'undefined' && typeof progressMs !== 'undefined'
+						? { videoId, progress, progressMs }
+						: null;
 			}
+			return session;
 		});
 	}
 }

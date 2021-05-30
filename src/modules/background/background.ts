@@ -166,6 +166,7 @@ const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 		!tab.id ||
 		!tab.url ||
 		!tab.url.startsWith('http') ||
+		tab.url.endsWith('#noinject') ||
 		(injectedTabs.has(tab.id) && Messaging.ports.has(tab.id))
 	) {
 		return;

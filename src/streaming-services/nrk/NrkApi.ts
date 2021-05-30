@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { RequestException, Requests } from '../../common/Requests';
+import { ScriptInjector } from '../../common/ScriptInjector';
 import { IItem, Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { getSyncStore, registerApi } from '../common/common';
@@ -130,8 +131,6 @@ class _NrkApi extends Api {
 	isActivated: boolean;
 	leftoverHistoryItems: NrkProgressItem[] = [];
 	hasReachedHistoryEnd = false;
-	hasInjectedSessionScript: any;
-	sessionListener: any;
 
 	constructor() {
 		super('nrk');
@@ -306,74 +305,25 @@ class _NrkApi extends Api {
 	}
 
 	getSession(): Promise<NrkSession | undefined | null> {
-		return new Promise((resolve) => {
-			if ('wrappedJSObject' in window && window.wrappedJSObject) {
-				// Firefox wraps page objects, so we can access the global netflix object by unwrapping it.
-				let session: NrkSession | undefined | null;
-				const { player } = window.wrappedJSObject;
-				if (player && player.getPlaybackSession()) {
-					const playbacksession = player.getPlaybackSession();
-					session = {
-						currentTime: playbacksession.currentTime,
-						duration: playbacksession.duration,
-						mediaItem: {
-							id: playbacksession.mediaItem?.id,
-							title: playbacksession.mediaItem?.title,
-							subtitle: playbacksession.mediaItem?.subtitle,
-						},
-						playbackSessionId: playbacksession.playbackSessionId,
-						playbackStarted: playbacksession.playbackStarted,
-						sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
-					};
-				}
-				resolve(session);
-			} else {
-				// Chrome does not allow accessing page objects from extensions, so we need to inject a script into the page and exchange messages in order to access the global netflix object.
-				if (!this.hasInjectedSessionScript) {
-					const script = document.createElement('script');
-					script.textContent = `
-						window.addEventListener('uts-getSession', () => {
-							let session;
-							if (window.player && window.player.getPlaybackSession()) {
-								const playbacksession = window.player.getPlaybackSession()
-								session = {
-									currentTime: playbacksession.currentTime,
-									duration: playbacksession.duration,
-									mediaItem: {
-										id: playbacksession.mediaItem?.id,
-										title: playbacksession.mediaItem?.title,
-										subtitle: playbacksession.mediaItem?.subtitle,
-									},
-									playbackSessionId: playbacksession.playbackSessionId,
-									playbackStarted: playbacksession.playbackStarted,
-									sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
-								}
-							}
-							const event = new CustomEvent('uts-onSessionReceived', {
-								detail: { session: JSON.stringify(session) },
-							});
-							window.dispatchEvent(event);
-						});
-					`;
-					document.body.appendChild(script);
-					this.hasInjectedSessionScript = true;
-				}
-				if (this.sessionListener) {
-					window.removeEventListener('uts-onSessionReceived', this.sessionListener);
-				}
-				this.sessionListener = (event: Event) => {
-					const session = (event as CustomEvent<Record<'session', string | undefined>>).detail
-						.session;
-					if (typeof session === 'undefined') {
-						resolve(session);
-					} else {
-						resolve(JSON.parse(session) as NrkSession | null);
-					}
+		return ScriptInjector.inject<NrkSession | undefined>(this.id, 'session', '', () => {
+			let session: NrkSession | undefined | null;
+			const { player } = window;
+			if (player && player.getPlaybackSession()) {
+				const playbacksession = player.getPlaybackSession();
+				session = {
+					currentTime: playbacksession.currentTime,
+					duration: playbacksession.duration,
+					mediaItem: {
+						id: playbacksession.mediaItem?.id,
+						title: playbacksession.mediaItem?.title,
+						subtitle: playbacksession.mediaItem?.subtitle,
+					},
+					playbackSessionId: playbacksession.playbackSessionId,
+					playbackStarted: playbacksession.playbackStarted,
+					sequenceObserver: { isPaused: playbacksession.sequenceObserver.isPaused },
 				};
-				window.addEventListener('uts-onSessionReceived', this.sessionListener, false);
-				const event = new CustomEvent('uts-getSession');
-				window.dispatchEvent(event);
 			}
+			return session;
 		});
 	}
 

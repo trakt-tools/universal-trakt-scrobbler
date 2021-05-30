@@ -4,6 +4,7 @@ import { Errors } from '../../common/Errors';
 import { EventDispatcher } from '../../common/Events';
 import { Messaging } from '../../common/Messaging';
 import { Notifications } from '../../common/Notifications';
+import { ScriptInjector } from '../../common/ScriptInjector';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
 import { StreamingServiceId } from '../streaming-services';
@@ -21,6 +22,7 @@ export const init = async (serviceId: StreamingServiceId) => {
 		Notifications.startListeners();
 	}
 	BrowserAction.startListeners();
+	ScriptInjector.startListeners();
 	getScrobbleController(serviceId).startListeners();
 	getScrobbleEvents(serviceId).startListeners();
 	Messaging.startListeners();
