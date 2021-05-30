@@ -37,7 +37,6 @@ class _GoplayBeParser implements ScrobbleParser {
 		const serviceId = 'goplay-be';
 		const titleElement = document.querySelector('title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const year = 0;
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -67,7 +66,6 @@ class _GoplayBeParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,

@@ -64,7 +64,6 @@ class _AmazonPrimeApi extends Api {
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
 		const type = entityType === 'TV Show' ? 'show' : 'movie';
-		const year = 0;
 		if (type === 'show') {
 			let title = '';
 			let season;
@@ -80,7 +79,6 @@ class _AmazonPrimeApi extends Api {
 				id,
 				type,
 				title,
-				year,
 				isCollection,
 				season,
 				episode,
@@ -88,7 +86,12 @@ class _AmazonPrimeApi extends Api {
 			});
 		} else {
 			const { title } = catalog;
-			item = new Item({ serviceId, id, type, title, year });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+			});
 		}
 		return item;
 	}

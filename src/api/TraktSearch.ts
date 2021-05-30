@@ -154,17 +154,24 @@ class _TraktSearch extends TraktApi {
 			method: 'GET',
 		});
 		const searchItems = JSON.parse(responseText) as TraktSearchItem[];
-		if (item.type === 'show') {
-			searchItem = searchItems[0] as TraktSearchShowItem; //TODO can probably avoid assigning with clever generics
-		} else if (searchItems.length === 1) {
+		if (searchItems.length === 1) {
 			// If there is only one search result, use it
-			searchItem = searchItems[0] as TraktSearchMovieItem;
+			searchItem = searchItems[0];
 		} else {
-			// Get the exact match if there are multiple movies with the same name by checking the year.
-			searchItem = (searchItems as TraktSearchMovieItem[]).find(
-				(x) =>
-					x.movie.title.toLowerCase() === item.title.toLowerCase() && x.movie.year === item.year
-			);
+			// Try to match by name and year, or just name if year isn't available
+			const itemTitle = item.title.toLowerCase();
+			const itemYear = item.year;
+			searchItem = searchItems.find((currentSearchItem) => {
+				const info = 'show' in currentSearchItem ? currentSearchItem.show : currentSearchItem.movie;
+				const title = info.title.toLowerCase();
+				const year = info.year;
+
+				return title === itemTitle && (!itemYear || !year || itemYear === year);
+			});
+			if (!searchItem) {
+				// Couldn't match, so just use the first result
+				searchItem = searchItems[0];
+			}
 		}
 		if (!searchItem) {
 			throw {

@@ -37,7 +37,6 @@ class _StreamzBeParser implements ScrobbleParser {
 		const serviceId = 'streamz-be';
 		const titleElement = document.querySelector('.player__title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const year = 0;
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -68,7 +67,6 @@ class _StreamzBeParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,

@@ -36,7 +36,7 @@ export interface ItemBase {
 	id?: string;
 	type: 'show' | 'movie';
 	title: string;
-	year: number;
+	year?: number;
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
@@ -74,7 +74,7 @@ export class Item implements IItem {
 		this.serviceId = options.serviceId;
 		this.type = options.type;
 		this.title = correctTitles[options.title] || options.title;
-		this.year = options.year;
+		this.year = options.year ?? 0;
 		if (this.type === 'show') {
 			this.season = options.season;
 			this.episode = options.episode;

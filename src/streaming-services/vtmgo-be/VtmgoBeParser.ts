@@ -32,7 +32,6 @@ class _VtmgoBeParser implements ScrobbleParser {
 		const serviceId = 'vtmgo-be';
 		const titleElement = document.querySelector('.player__title');
 		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const year = 0;
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -63,7 +62,6 @@ class _VtmgoBeParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,

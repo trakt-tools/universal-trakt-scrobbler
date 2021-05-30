@@ -54,7 +54,6 @@ class _DisneyplusParser implements ScrobbleParser {
 			[, seasonAndEpisode, seasonStr, episodeStr, subTitle] = matches;
 		}
 
-		const year = 0;
 		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
 		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
 		const episodeTitle = subTitle ?? '';
@@ -71,7 +70,6 @@ class _DisneyplusParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,
