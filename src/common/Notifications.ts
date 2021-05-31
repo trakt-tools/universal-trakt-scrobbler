@@ -4,6 +4,7 @@ import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData } from './Event
 import { I18N } from './I18N';
 import { Messaging } from './Messaging';
 import { RequestException } from './Requests';
+import { Shared } from './Shared';
 
 class _Notifications {
 	messageNames: Record<number, MessageName>;
@@ -59,7 +60,19 @@ class _Notifications {
 	}
 
 	async show(title: string, message: string): Promise<void> {
-		await Messaging.toBackground({ action: 'show-notification', title, message });
+		if (Shared.pageType === 'background') {
+			const hasPermissions = await browser.permissions.contains({ permissions: ['notifications'] });
+			if (hasPermissions) {
+				await browser.notifications.create({
+					type: 'basic',
+					iconUrl: 'images/uts-icon-128.png',
+					title,
+					message,
+				});
+			}
+		} else {
+			await Messaging.toBackground({ action: 'show-notification', title, message });
+		}
 	}
 }
 

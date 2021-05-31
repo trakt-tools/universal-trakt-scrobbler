@@ -11,6 +11,7 @@ import { Cache } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { I18N } from '../../common/I18N';
 import { Messaging } from '../../common/Messaging';
+import { Notifications } from '../../common/Notifications';
 import { Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Tabs } from '../../common/Tabs';
@@ -30,6 +31,9 @@ const init = async () => {
 	await BrowserStorage.init();
 	if (BrowserStorage.options.allowRollbar) {
 		Errors.startRollbar();
+	}
+	if (BrowserStorage.options.showNotifications) {
+		Notifications.startListeners();
 	}
 	browser.storage.onChanged.addListener(onStorageChanged);
 	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices) as [
@@ -276,18 +280,7 @@ Messaging.messageHandlers = {
 
 	'stop-scrobble': () => BrowserStorage.remove('scrobblingTabId'),
 
-	'show-notification': async (message) => {
-		const hasPermissions = await browser.permissions.contains({ permissions: ['notifications'] });
-		if (hasPermissions) {
-			await browser.notifications.create({
-				type: 'basic',
-				iconUrl: 'images/uts-icon-128.png',
-				title: message.title,
-				message: message.message,
-			});
-		}
-		return Promise.resolve();
-	},
+	'show-notification': (message) => Notifications.show(message.title, message.message),
 
 	'save-correction-suggestion': (message) => {
 		const item = Item.load(message.item);
