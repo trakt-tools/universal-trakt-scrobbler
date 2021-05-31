@@ -47,15 +47,12 @@ class _Requests {
 		let responseText = '';
 		if (
 			Shared.pageType === 'background' ||
-			(Shared.pageType === 'popup' && typeof tabId !== 'undefined') ||
+			(Shared.pageType === 'popup' && tabId !== null) ||
 			(Shared.pageType === 'content' && request.url.includes(window.location.host))
 		) {
 			responseText = await this.sendDirectly(request, tabId);
 		} else {
-			const response = await Messaging.toBackground({ action: 'send-request', request });
-			if (response) {
-				responseText = response;
-			}
+			responseText = await Messaging.toBackground({ action: 'send-request', request });
 		}
 		return responseText;
 	}
@@ -128,7 +125,7 @@ class _Requests {
 	}
 
 	async getCookies(request: RequestDetails, tabId = Shared.tabId): Promise<string | undefined> {
-		if (typeof tabId === 'undefined') {
+		if (tabId === null) {
 			return;
 		}
 		if (!BrowserStorage.options.grantCookies || !browser.cookies || !browser.webRequest) {

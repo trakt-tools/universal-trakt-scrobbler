@@ -1,4 +1,3 @@
-import { CacheValues } from '../common/Cache';
 import { Errors } from '../common/Errors';
 import { Messaging } from '../common/Messaging';
 import { RequestException, Requests } from '../common/Requests';
@@ -81,10 +80,10 @@ class _TmdbApi {
 		if (!this.config || !item?.tmdbId) {
 			return null;
 		}
-		const cache = (await Messaging.toBackground({
+		const cache = await Messaging.toBackground({
 			action: 'get-cache',
 			key: 'tmdbImages',
-		})) as CacheValues['tmdbImages'];
+		});
 		let imageUrl = cache[item.id.toString()];
 		if (imageUrl) {
 			return imageUrl;
@@ -145,10 +144,10 @@ class _TmdbApi {
 			return;
 		}
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'tmdbImages',
-			})) as CacheValues['tmdbImages'];
+			});
 			const itemsToFetch = [];
 			for (const item of missingItems) {
 				if (!item.trakt) {
@@ -217,10 +216,10 @@ class _TmdbApi {
 		}
 		let imageUrl;
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'tmdbImages',
-			})) as CacheValues['tmdbImages'];
+			});
 			imageUrl = cache[itemCopy.trakt.id.toString()];
 			if (!imageUrl) {
 				let json;

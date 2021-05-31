@@ -202,7 +202,6 @@ const getManifest = (config: Config, browserName: string): string => {
 			'cookies',
 			'notifications',
 			'tabs',
-			'webNavigation',
 			'webRequest',
 			'webRequestBlocking',
 			'*://api.rollbar.com/*',

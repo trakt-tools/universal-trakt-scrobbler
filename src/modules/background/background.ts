@@ -1,4 +1,4 @@
-import { TraktAuth, TraktAuthDetails } from '../../api/TraktAuth';
+import { TraktAuth } from '../../api/TraktAuth';
 import { TraktScrobble } from '../../api/TraktScrobble';
 import { WrongItemApi } from '../../api/WrongItemApi';
 import { BrowserAction } from '../../common/BrowserAction';
@@ -7,177 +7,17 @@ import {
 	StorageValuesOptions,
 	StreamingServiceValue,
 } from '../../common/BrowserStorage';
-import { Cache, CacheValues } from '../../common/Cache';
+import { Cache } from '../../common/Cache';
 import { Errors } from '../../common/Errors';
 import { I18N } from '../../common/I18N';
-import { RequestDetails, Requests } from '../../common/Requests';
+import { Messaging } from '../../common/Messaging';
+import { Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
-import { TabProperties, Tabs } from '../../common/Tabs';
+import { Tabs } from '../../common/Tabs';
 import { Item } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { AutoSync } from '../../streaming-services/common/AutoSync';
 import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
-
-export type MessageRequest =
-	| OpenTabMessage
-	| GetTabIdMessage
-	| CheckLoginMessage
-	| FinishLoginMessage
-	| LoginMessage
-	| LogoutMessage
-	| GetCacheMessage
-	| SetCacheMessage<keyof CacheValues>
-	| SetTitleMessage
-	| SetActiveIconMessage
-	| SetInactiveIconMessage
-	| SetRotatingIconMessage
-	| SetStaticIconMessage
-	| CheckScrobbleMessage
-	| StartScrobbleMessage
-	| StopScrobbleMessage
-	| SendRequestMessage
-	| ShowNotificationMessage
-	| WrongItemCorrectedMessage
-	| SaveCorrectionSuggestionMessage
-	| CheckAutoSyncMessage;
-
-export interface ReturnTypes {
-	'open-tab': browser.tabs.Tab;
-	'get-tab-id': {
-		tabId?: number;
-	};
-	'check-login': TraktAuthDetails;
-	'finish-login': null;
-	login: TraktAuthDetails;
-	logout: null;
-	'get-cache': CacheValues[keyof CacheValues];
-	'set-cache': null;
-	'set-title': null;
-	'set-active-icon': null;
-	'set-inactive-icon': null;
-	'set-rotating-icon': null;
-	'set-static-icon': null;
-	'check-scrobble': null;
-	'start-scrobble': null;
-	'stop-scrobble': null;
-	'send-request': string;
-	'show-notification': string;
-	'wrong-item-corrected': null;
-	'save-correction-suggestion': null;
-	'check-auto-sync': null;
-}
-
-export interface ErrorReturnType {
-	error: {
-		message: string;
-	};
-}
-
-export interface OpenTabMessage {
-	action: 'open-tab';
-	url: string;
-	extraProperties?: TabProperties;
-}
-
-export interface GetTabIdMessage {
-	action: 'get-tab-id';
-}
-
-export interface CheckLoginMessage {
-	action: 'check-login';
-}
-
-export interface FinishLoginMessage {
-	action: 'finish-login';
-	redirectUrl: string;
-}
-
-export interface LoginMessage {
-	action: 'login';
-}
-
-export interface LogoutMessage {
-	action: 'logout';
-}
-
-export interface GetCacheMessage {
-	action: 'get-cache';
-	key: keyof CacheValues;
-}
-
-export interface SetCacheMessage<K extends keyof CacheValues> {
-	action: 'set-cache';
-	key: K;
-	value: CacheValues[K];
-}
-
-export interface SendRequestMessage {
-	action: 'send-request';
-	request: RequestDetails;
-}
-
-export interface SetTitleMessage {
-	action: 'set-title';
-	title: string;
-}
-
-export interface SetActiveIconMessage {
-	action: 'set-active-icon';
-}
-
-export interface SetInactiveIconMessage {
-	action: 'set-inactive-icon';
-}
-
-export interface SetRotatingIconMessage {
-	action: 'set-rotating-icon';
-}
-
-export interface SetStaticIconMessage {
-	action: 'set-static-icon';
-}
-
-export interface ShowNotificationMessage {
-	action: 'show-notification';
-	title: string;
-	message: string;
-}
-
-export interface CheckScrobbleMessage {
-	action: 'check-scrobble';
-}
-
-export interface StartScrobbleMessage {
-	action: 'start-scrobble';
-}
-
-export interface StopScrobbleMessage {
-	action: 'stop-scrobble';
-}
-
-export interface WrongItemCorrectedMessage {
-	action: 'wrong-item-corrected';
-	item: Item;
-	type: 'episode' | 'movie';
-	traktId?: number;
-	url: string;
-}
-
-export interface SaveCorrectionSuggestionMessage {
-	action: 'save-correction-suggestion';
-	item: Item;
-	url: string;
-}
-
-export interface CheckAutoSyncMessage {
-	action: 'check-auto-sync';
-}
-
-export interface NavigationCommittedParams {
-	transitionType: browser.webNavigation.TransitionType;
-	tabId: number;
-	url: string;
-}
 
 const injectedTabs = new Set();
 let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
@@ -191,7 +31,6 @@ const init = async () => {
 	if (BrowserStorage.options.allowRollbar) {
 		Errors.startRollbar();
 	}
-	browser.tabs.onRemoved.addListener((tabId) => void onTabRemoved(tabId));
 	browser.storage.onChanged.addListener(onStorageChanged);
 	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices) as [
 		StreamingServiceId,
@@ -202,13 +41,13 @@ const init = async () => {
 			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 	);
 	if (scrobblerEnabled) {
-		addWebNavigationListener(BrowserStorage.options);
+		addTabListener(BrowserStorage.options);
 	}
 	void checkAutoSync();
 	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
 	}
-	browser.runtime.onMessage.addListener((onMessage as unknown) as browser.runtime.onMessageEvent);
+	Messaging.startListeners();
 };
 
 const checkAutoSync = async () => {
@@ -250,69 +89,6 @@ const checkAutoSync = async () => {
 	isCheckingAutoSync = false;
 };
 
-const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
-	void injectScript(tab);
-};
-
-/**
- * Checks if the tab that was closed was the tab that was scrobbling and, if that's the case, stops the scrobble.
- */
-const onTabRemoved = async (tabId: number) => {
-	try {
-		/**
-		 * Some single-page apps trigger the onTabRemoved event when navigating through pages,
-		 * so we double check here to make sure that the tab was actually removed.
-		 * If the tab was removed, this will throw an error.
-		 */
-		await browser.tabs.get(tabId);
-		return;
-	} catch (err) {
-		// Do nothing
-	}
-	if (injectedTabs.has(tabId)) {
-		injectedTabs.delete(tabId);
-	}
-	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
-	if (tabId !== scrobblingTabId) {
-		return;
-	}
-	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
-	if (scrobblingItem) {
-		if (scrobblingItem.trakt) {
-			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
-		}
-		await BrowserStorage.remove('scrobblingItem');
-	}
-	await BrowserStorage.remove('scrobblingTabId');
-	await BrowserAction.setInactiveIcon();
-};
-
-const injectScript = async (tab: Partial<browser.tabs.Tab>, reload = false) => {
-	if (
-		!streamingServiceScripts ||
-		tab.status !== 'complete' ||
-		!tab.id ||
-		!tab.url ||
-		!tab.url.startsWith('http') ||
-		(injectedTabs.has(tab.id) && !reload)
-	) {
-		return;
-	}
-	for (const { matches, js, run_at: runAt } of streamingServiceScripts) {
-		if (!js || !runAt) {
-			continue;
-		}
-		const isMatch = matches.find((match) => tab.url?.match(match));
-		if (isMatch) {
-			injectedTabs.add(tab.id);
-			for (const file of js) {
-				await browser.tabs.executeScript(tab.id, { file, runAt });
-			}
-			break;
-		}
-	}
-};
-
 const onStorageChanged = (
 	changes: browser.storage.ChangeDict,
 	areaName: browser.storage.StorageName
@@ -338,9 +114,9 @@ const onStorageChanged = (
 				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
-			addWebNavigationListener(newValue);
+			addTabListener(newValue);
 		} else {
-			removeWebNavigationListener();
+			removeTabListener();
 		}
 	}
 	if (newValue.grantCookies) {
@@ -350,7 +126,7 @@ const onStorageChanged = (
 	}
 };
 
-const addWebNavigationListener = (options: StorageValuesOptions) => {
+const addTabListener = (options: StorageValuesOptions) => {
 	streamingServiceScripts = Object.values(streamingServices)
 		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
 		.map((service) => ({
@@ -363,40 +139,42 @@ const addWebNavigationListener = (options: StorageValuesOptions) => {
 	if (!browser.tabs.onUpdated.hasListener(onTabUpdated)) {
 		browser.tabs.onUpdated.addListener(onTabUpdated);
 	}
-	if (
-		!browser.webNavigation ||
-		browser.webNavigation.onCommitted.hasListener(onNavigationCommitted)
-	) {
-		return;
-	}
-	browser.webNavigation.onCommitted.addListener(onNavigationCommitted);
 };
 
-const removeWebNavigationListener = () => {
+const removeTabListener = () => {
 	if (browser.tabs.onUpdated.hasListener(onTabUpdated)) {
 		browser.tabs.onUpdated.removeListener(onTabUpdated);
 	}
+};
+
+const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
+	void injectScript(tab);
+};
+
+const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 	if (
-		!browser.webNavigation ||
-		!browser.webNavigation.onCommitted.hasListener(onNavigationCommitted)
+		!streamingServiceScripts ||
+		tab.status !== 'complete' ||
+		!tab.id ||
+		!tab.url ||
+		!tab.url.startsWith('http') ||
+		(injectedTabs.has(tab.id) && Messaging.ports.has(tab.id))
 	) {
 		return;
 	}
-	browser.webNavigation.onCommitted.removeListener(onNavigationCommitted);
-};
-
-const onNavigationCommitted = ({ transitionType, tabId, url }: NavigationCommittedParams) => {
-	if (transitionType !== 'reload') {
-		return;
+	for (const { matches, js, run_at: runAt } of streamingServiceScripts) {
+		if (!js || !runAt) {
+			continue;
+		}
+		const isMatch = matches.find((match) => tab.url?.match(match));
+		if (isMatch) {
+			injectedTabs.add(tab.id);
+			for (const file of js) {
+				await browser.tabs.executeScript(tab.id, { file, runAt });
+			}
+			break;
+		}
 	}
-	void injectScript(
-		{
-			status: 'complete',
-			id: tabId,
-			url: url,
-		},
-		true
-	);
 };
 
 const addWebRequestListener = () => {
@@ -449,145 +227,93 @@ const onBeforeSendHeaders = ({ requestHeaders }: browser.webRequest.BlockingResp
 	};
 };
 
-const onMessage = (request: string, sender: browser.runtime.MessageSender): Promise<string> => {
-	let executingAction: Promise<unknown>;
-	const parsedRequest = JSON.parse(request) as MessageRequest;
-	switch (parsedRequest.action) {
-		case 'open-tab': {
-			executingAction = Tabs.open(parsedRequest.url, parsedRequest.extraProperties);
-			break;
+Messaging.messageHandlers = {
+	'open-tab': (message) => Tabs.open(message.url, message.extraProperties),
+
+	'get-tab-id': (message, tabId) => tabId,
+
+	'check-login': () => TraktAuth.validateToken(),
+
+	'finish-login': (message) => TraktAuth.finishManualAuth(message.redirectUrl),
+
+	login: () => TraktAuth.authorize(),
+
+	logout: () => TraktAuth.revokeToken(),
+
+	'get-cache': (message) => Cache.getValue(message.key),
+
+	'set-cache': (message) => Cache.setValue(message.key, message.value),
+
+	'send-request': (message, tabId) => Requests.send(message.request, tabId),
+
+	'set-title': (message) => BrowserAction.setTitle(message.title),
+
+	'set-active-icon': () => BrowserAction.setActiveIcon(),
+
+	'set-inactive-icon': () => BrowserAction.setInactiveIcon(),
+
+	'set-rotating-icon': () => BrowserAction.setRotatingIcon(),
+
+	'set-static-icon': () => BrowserAction.setStaticIcon(),
+
+	'start-scrobble': async (message, tabId) => {
+		if (!tabId) {
+			return;
 		}
-		case 'get-tab-id': {
-			executingAction = Promise.resolve({ tabId: sender.tab?.id });
-			break;
-		}
-		case 'check-login': {
-			executingAction = TraktAuth.validateToken();
-			break;
-		}
-		case 'finish-login': {
-			executingAction = TraktAuth.finishManualAuth(parsedRequest.redirectUrl);
-			break;
-		}
-		case 'login': {
-			executingAction = TraktAuth.authorize();
-			break;
-		}
-		case 'logout': {
-			executingAction = TraktAuth.revokeToken();
-			break;
-		}
-		case 'get-cache': {
-			executingAction = Promise.resolve(Cache.values[parsedRequest.key]);
-			break;
-		}
-		case 'set-cache': {
-			setCacheMessage(parsedRequest);
-			executingAction = Promise.resolve();
-			break;
-		}
-		case 'send-request': {
-			executingAction = Requests.send(parsedRequest.request, sender.tab?.id);
-			break;
-		}
-		case 'set-title': {
-			executingAction = BrowserAction.setTitle(parsedRequest.title);
-			break;
-		}
-		case 'set-active-icon': {
-			executingAction = BrowserAction.setActiveIcon();
-			break;
-		}
-		case 'set-inactive-icon': {
-			executingAction = BrowserAction.setInactiveIcon();
-			break;
-		}
-		case 'set-rotating-icon': {
-			executingAction = BrowserAction.setRotatingIcon();
-			break;
-		}
-		case 'set-static-icon': {
-			executingAction = BrowserAction.setStaticIcon();
-			break;
-		}
-		case 'check-scrobble': {
-			if (sender.tab?.id) {
-				executingAction = onTabRemoved(sender.tab.id);
-			} else {
-				executingAction = Promise.resolve();
+		const { scrobblingItem, scrobblingTabId } = await BrowserStorage.get([
+			'scrobblingItem',
+			'scrobblingTabId',
+		]);
+		if (scrobblingItem && tabId !== scrobblingTabId) {
+			// Stop the previous scrobble if it exists.
+			if (scrobblingItem.trakt) {
+				await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
 			}
-			break;
+			await BrowserStorage.remove('scrobblingItem');
 		}
-		case 'start-scrobble': {
-			executingAction = setScrobblingTabId(sender.tab?.id);
-			break;
-		}
-		case 'stop-scrobble': {
-			executingAction = removeScrobblingTabId();
-			break;
-		}
-		case 'show-notification': {
-			executingAction = browser.permissions
-				.contains({ permissions: ['notifications'] })
-				.then((hasPermissions) => {
-					if (hasPermissions) {
-						return browser.notifications.create({
-							type: 'basic',
-							iconUrl: 'images/uts-icon-128.png',
-							title: parsedRequest.title,
-							message: parsedRequest.message,
-						});
-					}
-				});
-			break;
-		}
-		case 'save-correction-suggestion': {
-			const item = new Item(parsedRequest.item);
-			executingAction = WrongItemApi.saveSuggestion(item, parsedRequest.url);
-			break;
-		}
-		case 'check-auto-sync': {
-			executingAction = checkAutoSync();
-			break;
-		}
-	}
-	return new Promise((resolve) => {
-		executingAction
-			.then((response) => {
-				resolve(JSON.stringify(response || null));
-			})
-			.catch((err: Error) => {
-				Errors.log('Failed to execute action.', err);
-				resolve(
-					JSON.stringify({
-						error: { message: err.message },
-					})
-				);
+		await BrowserStorage.set({ scrobblingTabId: tabId }, false);
+	},
+
+	'stop-scrobble': () => BrowserStorage.remove('scrobblingTabId'),
+
+	'show-notification': async (message) => {
+		const hasPermissions = await browser.permissions.contains({ permissions: ['notifications'] });
+		if (hasPermissions) {
+			await browser.notifications.create({
+				type: 'basic',
+				iconUrl: 'images/uts-icon-128.png',
+				title: message.title,
+				message: message.message,
 			});
-	});
+		}
+		return Promise.resolve();
+	},
+
+	'save-correction-suggestion': (message) => {
+		const item = Item.load(message.item);
+		return WrongItemApi.saveSuggestion(item, message.url);
+	},
+
+	'check-auto-sync': () => checkAutoSync(),
 };
 
-const setCacheMessage = <K extends keyof CacheValues>(message: SetCacheMessage<K>) => {
-	Cache.values[message.key] = message.value;
-};
-
-const setScrobblingTabId = async (tabId?: number): Promise<void> => {
-	const { scrobblingItem, scrobblingTabId } = await BrowserStorage.get([
-		'scrobblingItem',
-		'scrobblingTabId',
-	]);
-	if (scrobblingItem && tabId !== scrobblingTabId) {
-		// Stop the previous scrobble if it exists.
+Messaging.onPortDisconnected = async (port, tabId) => {
+	if (injectedTabs.has(tabId)) {
+		injectedTabs.delete(tabId);
+	}
+	const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
+	if (tabId !== scrobblingTabId) {
+		return;
+	}
+	const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
+	if (scrobblingItem) {
 		if (scrobblingItem.trakt) {
 			await TraktScrobble.stop(TraktItem.load(scrobblingItem.trakt));
 		}
 		await BrowserStorage.remove('scrobblingItem');
 	}
-	await BrowserStorage.set({ scrobblingTabId: tabId }, false);
-};
-
-const removeScrobblingTabId = (): Promise<void> => {
-	return BrowserStorage.remove('scrobblingTabId');
+	await BrowserStorage.remove('scrobblingTabId');
+	await BrowserAction.setInactiveIcon();
 };
 
 void init();

@@ -3,7 +3,7 @@ import { History } from 'history';
 interface SharedValues {
 	browser: BrowserName;
 	pageType: PageType;
-	tabId?: number;
+	tabId: number | null;
 	history?: History;
 	redirectPath?: string;
 	dateFormat: string;
@@ -27,5 +27,6 @@ const browserPrefix = browser
 export const Shared: SharedValues = {
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',
+	tabId: null,
 	dateFormat: 'ddd D MMM YYYY, H:mm:ss',
 };

@@ -133,7 +133,7 @@ export class ScrobbleController {
 		try {
 			await Messaging.toBackground({
 				action: 'save-correction-suggestion',
-				item: this.item,
+				item: Item.save(this.item),
 				url: data.url,
 			});
 		} catch (err) {

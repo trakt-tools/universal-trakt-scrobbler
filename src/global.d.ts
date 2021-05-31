@@ -17,3 +17,5 @@ declare type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 declare type Messages = typeof import('./_locales/en/messages.json');
 
 declare type MessageName = keyof Messages;
+
+declare type Promisable<T> = T | PromiseLike<T>;

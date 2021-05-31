@@ -151,13 +151,15 @@ class _TraktAuth extends TraktApi {
 		await BrowserStorage.remove('auth', true);
 	}
 
-	async validateToken(): Promise<TraktAuthDetails | undefined> {
-		let auth: TraktAuthDetails | undefined;
+	async validateToken(): Promise<TraktAuthDetails | null> {
+		let auth: TraktAuthDetails | null = null;
 		const values = await BrowserStorage.get('auth');
-		if (values.auth && values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
-			auth = await this.refreshToken(values.auth.refresh_token);
-		} else {
-			auth = values.auth;
+		if (values.auth) {
+			if (values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
+				auth = await this.refreshToken(values.auth.refresh_token);
+			} else {
+				auth = values.auth;
+			}
 		}
 		return auth;
 	}

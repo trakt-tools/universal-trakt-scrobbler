@@ -52,7 +52,7 @@ export const LoginPage: React.FC = () => {
 
 	useEffect(() => {
 		const init = async () => {
-			Shared.tabId = (await Messaging.toBackground({ action: 'get-tab-id' }))?.tabId;
+			Shared.tabId = await Messaging.toBackground({ action: 'get-tab-id' });
 			await BrowserStorage.init();
 			if (BrowserStorage.options.allowRollbar) {
 				Errors.startRollbar();

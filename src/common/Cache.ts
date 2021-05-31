@@ -58,6 +58,14 @@ class _Cache {
 			}
 		}
 	}
+
+	setValue<K extends keyof CacheValues>(key: K, value: CacheValues[K]) {
+		Cache.values[key] = value;
+	}
+
+	getValue<K extends keyof CacheValues>(key: K): CacheValues[K] {
+		return this.values[key];
+	}
 }
 
 export const Cache = new _Cache();

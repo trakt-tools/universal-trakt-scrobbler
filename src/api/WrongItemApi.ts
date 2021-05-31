@@ -1,5 +1,4 @@
 import { BrowserStorage } from '../common/BrowserStorage';
-import { CacheValues } from '../common/Cache';
 import { Messaging } from '../common/Messaging';
 import { Requests } from '../common/Requests';
 import { CorrectionSuggestion, Item } from '../models/Item';
@@ -22,10 +21,10 @@ class _WrongItemApi {
 			return;
 		}
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'correctionSuggestions',
-			})) as CacheValues['correctionSuggestions'];
+			});
 			const servicesToFetch: Partial<Record<StreamingServiceId, Item[]>> = {};
 			for (const item of missingItems) {
 				const suggestions = cache[item.serviceId]?.[item.id];
@@ -97,10 +96,10 @@ class _WrongItemApi {
 		}
 		let suggestions;
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'correctionSuggestions',
-			})) as CacheValues['correctionSuggestions'];
+			});
 			let serviceSuggestions = cache[itemCopy.serviceId];
 			suggestions = serviceSuggestions?.[itemCopy.id];
 			if (!suggestions) {

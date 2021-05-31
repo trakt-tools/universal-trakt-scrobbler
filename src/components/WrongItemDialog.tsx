@@ -112,7 +112,14 @@ export const WrongItemDialog: React.FC = () => {
 			if (Shared.pageType === 'popup') {
 				const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
 				if (scrobblingTabId) {
-					await Messaging.toContent({ action: 'wrong-item-corrected', ...data }, scrobblingTabId);
+					await Messaging.toContent(
+						{
+							action: 'wrong-item-corrected',
+							...data,
+							item: Item.save(data.item),
+						},
+						scrobblingTabId
+					);
 				}
 			}
 		} catch (err) {
