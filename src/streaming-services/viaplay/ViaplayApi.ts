@@ -184,9 +184,9 @@ class _ViaplayApi extends Api {
 		let item: Item;
 		const serviceId = this.id;
 		const year = historyItem.content.production.year;
-		const progress = historyItem.user.progress;
-		const percentageWatched = progress?.elapsedPercent || 0;
-		const watchedAt = progress ? moment(progress.updated) : undefined;
+		const progressInfo = historyItem.user.progress;
+		const progress = progressInfo?.elapsedPercent || 0;
+		const watchedAt = progressInfo ? moment(progressInfo.updated) : undefined;
 		const id = historyItem.system.guid;
 		if (historyItem.type === 'episode') {
 			const content = historyItem.content;
@@ -203,13 +203,20 @@ class _ViaplayApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection: false,
-				percentageWatched,
+				progress,
 				watchedAt,
 			});
 		} else {
 			const title = historyItem.content.title;
-			item = new Item({ serviceId, id, type: 'movie', title, year, percentageWatched, watchedAt });
+			item = new Item({
+				serviceId,
+				id,
+				type: 'movie',
+				title,
+				year,
+				progress,
+				watchedAt,
+			});
 		}
 		return item;
 	}

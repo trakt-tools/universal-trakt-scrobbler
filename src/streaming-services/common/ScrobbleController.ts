@@ -100,6 +100,7 @@ export class ScrobbleController {
 		if (!this.item?.trakt) {
 			return;
 		}
+		this.item.progress = progress;
 		this.item.trakt.progress = progress;
 		if (!this.reachedScrobbleThreshold && this.item.trakt.progress > this.scrobbleThreshold) {
 			// Update the stored progress after reaching the scrobble threshold to make sure that the item is scrobbled on tab close.

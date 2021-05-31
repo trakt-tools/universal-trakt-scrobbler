@@ -57,7 +57,6 @@ class _DisneyplusParser implements ScrobbleParser {
 		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
 		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
 		const episodeTitle = subTitle ?? '';
-		const isCollection = false;
 
 		if (titleElement) {
 			this.videoId = id;
@@ -73,7 +72,6 @@ class _DisneyplusParser implements ScrobbleParser {
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
 	}
 }

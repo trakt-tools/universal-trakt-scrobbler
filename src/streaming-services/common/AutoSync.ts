@@ -27,9 +27,7 @@ class _AutoSync {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
 				items = store.data.items.filter(
-					(item) =>
-						typeof item.percentageWatched === 'undefined' ||
-						item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
+					(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
 					await Api.loadTraktHistory(items);

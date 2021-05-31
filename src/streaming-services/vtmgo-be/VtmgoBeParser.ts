@@ -49,7 +49,6 @@ class _VtmgoBeParser implements ScrobbleParser {
 		const season = parseInt(seasonId ?? '') || 0;
 		const episode = parseInt(episodeId ?? '') || 0;
 		const type = seasonId ? 'show' : 'movie';
-		const isCollection = false;
 
 		if (titleElement) {
 			this.videoId = id;
@@ -65,7 +64,6 @@ class _VtmgoBeParser implements ScrobbleParser {
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
 	}
 }

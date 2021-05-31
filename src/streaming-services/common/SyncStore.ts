@@ -173,9 +173,7 @@ export class SyncStore {
 				this.data.visibleItems = this.data.visibleItems.filter((item) => !item.trakt?.watchedAt);
 			}
 			this.data.visibleItems = this.data.visibleItems.filter(
-				(item) =>
-					typeof item.percentageWatched === 'undefined' ||
-					item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
+				(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
 			);
 		}
 		for (const item of this.data.items) {

@@ -40,8 +40,7 @@ export interface ItemBase {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	isCollection?: boolean;
-	percentageWatched?: number;
+	progress?: number;
 }
 
 export interface CorrectionSuggestion {
@@ -61,9 +60,8 @@ export class Item implements IItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	isCollection?: boolean;
 	watchedAt?: moment.Moment;
-	percentageWatched?: number;
+	progress: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
@@ -79,10 +77,9 @@ export class Item implements IItem {
 			this.season = options.season;
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
-			this.isCollection = options.isCollection;
 		}
 		this.watchedAt = options.watchedAt?.clone();
-		this.percentageWatched = options.percentageWatched ?? 0;
+		this.progress = options.progress ?? 0;
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
 		this.isSelected = options.isSelected;
 		this.index = options.index;
@@ -101,9 +98,8 @@ export class Item implements IItem {
 			season: item.season,
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
-			isCollection: item.isCollection,
 			watchedAt: item.watchedAt?.unix(),
-			percentageWatched: item.percentageWatched,
+			progress: item.progress,
 			trakt: item.trakt && TraktItem.save(item.trakt),
 		};
 	}

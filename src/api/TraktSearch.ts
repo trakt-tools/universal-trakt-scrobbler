@@ -228,7 +228,7 @@ class _TraktSearch extends TraktApi {
 		let url = '';
 		if (typeof item.season !== 'undefined' && typeof item.episode !== 'undefined') {
 			url = `${this.SHOWS_URL}/${traktId}/seasons/${item.season}/episodes/${item.episode}?extended=full`;
-		} else if (item.isCollection && item.episodeTitle) {
+		} else if (item.episodeTitle) {
 			url = `${this.SEARCH_URL}/episode?query=${encodeURIComponent(
 				item.episodeTitle
 			)}&extended=full`;

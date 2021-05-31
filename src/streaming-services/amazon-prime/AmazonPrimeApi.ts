@@ -73,13 +73,11 @@ class _AmazonPrimeApi extends Api {
 				season = seasonInfo.catalog.seasonNumber;
 			}
 			const { episodeNumber: episode, title: episodeTitle } = catalog;
-			const isCollection = false;
 			item = new Item({
 				serviceId,
 				id,
 				type,
 				title,
-				isCollection,
 				season,
 				episode,
 				episodeTitle,

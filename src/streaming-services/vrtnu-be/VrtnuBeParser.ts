@@ -52,7 +52,6 @@ class _VrtnuBeParser implements ScrobbleParser {
 		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
 		const type = seasonAndEpisode ? 'show' : 'movie';
 		const year = !seasonAndEpisode ? parseInt(seasonOrYear ?? '') : 0;
-		const isCollection = false;
 
 		if (id) {
 			this.videoId = id;
@@ -69,7 +68,6 @@ class _VrtnuBeParser implements ScrobbleParser {
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
 	}
 }

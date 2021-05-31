@@ -280,7 +280,7 @@ class _TeliaPlayApi extends Api {
 		const id = mediaObject.loopId;
 		const type = this.parseType(mediaObject);
 		const year = parseInt(mediaObject.productionYear);
-		const percentageWatched = this.pctWatched(watched);
+		const progress = this.pctWatched(watched);
 		const watchedDate = new Date(watched.timestamp);
 		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
 		if (type === 'show') {
@@ -305,13 +305,20 @@ class _TeliaPlayApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection: false,
-				percentageWatched,
+				progress,
 				watchedAt,
 			});
 		} else {
 			const title = mediaObject.title.trim();
-			item = new Item({ serviceId, id, type, title, year, percentageWatched, watchedAt });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				progress,
+				watchedAt,
+			});
 		}
 		return item;
 	}

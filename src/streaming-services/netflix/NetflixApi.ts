@@ -314,7 +314,7 @@ class _NetflixApi extends Api {
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
 		const watchedAt = moment(historyItem.date + historyItem.duration * 1000);
-		const percentageWatched = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
+		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
 			let season;
@@ -335,9 +335,8 @@ class _NetflixApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection,
 				watchedAt,
-				percentageWatched,
+				progress,
 			});
 		} else {
 			const title = historyItem.title.trim();
@@ -348,7 +347,7 @@ class _NetflixApi extends Api {
 				title,
 				year,
 				watchedAt,
-				percentageWatched,
+				progress,
 			});
 		}
 		return item;
@@ -397,8 +396,12 @@ class _NetflixApi extends Api {
 				throw new Error('Could not find item');
 			}
 			const isCollection = seasonInfo.shortName.includes('C');
-			const season = seasonInfo.seq;
-			const episode = episodeInfo.seq;
+			let season;
+			let episode;
+			if (!isCollection) {
+				season = seasonInfo.seq;
+				episode = episodeInfo.seq;
+			}
 			const episodeTitle = episodeInfo.title;
 			item = new Item({
 				serviceId,
@@ -406,7 +409,6 @@ class _NetflixApi extends Api {
 				type,
 				title,
 				year,
-				isCollection,
 				season,
 				episode,
 				episodeTitle,

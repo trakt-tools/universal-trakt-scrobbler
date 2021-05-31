@@ -247,8 +247,7 @@ class _NrkApi extends Api {
 			serviceId,
 			title,
 			year: programPage.moreInformation.productionYear,
-			percentageWatched:
-				historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
+			progress: historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
 			watchedAt,
 		};
 

@@ -300,13 +300,12 @@ class _HboGoApi extends Api {
 	parseHistoryItem(historyItem: HboGoHistoryItemWithMetadata) {
 		let item: Item;
 		const serviceId = this.id;
-		const { Id: id, ProductionYear: year, ElapsedPercentage: percentageWatched } = historyItem;
+		const { Id: id, ProductionYear: year, ElapsedPercentage: progress } = historyItem;
 		if (historyItem.Category === 'Series') {
 			const type = 'show';
 			const title = historyItem.SeriesName.trim();
 			const { SeasonIndex: season, Index: episode } = historyItem;
 			const episodeTitle = historyItem.Name.trim();
-			const isCollection = false;
 			item = new Item({
 				serviceId,
 				id,
@@ -316,8 +315,7 @@ class _HboGoApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection,
-				percentageWatched,
+				progress,
 			});
 		} else {
 			const type = 'movie';
@@ -328,7 +326,7 @@ class _HboGoApi extends Api {
 				type,
 				title,
 				year,
-				percentageWatched,
+				progress,
 			});
 		}
 		return item;
