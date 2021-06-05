@@ -41,17 +41,19 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 
 ### Which streaming services are supported?
 
-- Amazon Prime (Scrobble only)
-- HBO Go (Only available for Latin America, can only sync the 30 last watched items)
-- Netflix
-- NRK
-- Viaplay (Sync only)
-- Telia Play (Sync only)
-- Disney Plus (Scrobble only)
-- Streamz Belgium (Scrobble only)
-- VRTNu Belgium (Scrobble only)
-- VTM Go Belgium (Scrobble only)
-- GoPlay Belgium (Scrobble only)
+| Streaming Service | Scrobble | Sync | Limitations                                                                     |
+| :---------------: | :------: | :--: | :------------------------------------------------------------------------------ |
+|   Amazon Prime    |    ✔️    |  ❌  | -                                                                               |
+|    Disney Plus    |    ✔️    |  ❌  | -                                                                               |
+|  GoPlay Belgium   |    ✔️    |  ❌  | -                                                                               |
+|      HBO Go       |    ✔️    |  ✔️  | - Only available for Latin America<br>- Can only sync the 30 last watched items |
+|      Netflix      |    ✔️    |  ✔️  | -                                                                               |
+|        NRK        |    ✔️    |  ✔️  | -                                                                               |
+|  Streamz Belgium  |    ✔️    |  ❌  | -                                                                               |
+|    Telia Play     |    ❌    |  ✔️  | -                                                                               |
+|      Viaplay      |    ❌    |  ✔️  | -                                                                               |
+|   VRTNu Belgium   |    ✔️    |  ❌  | -                                                                               |
+|  VTM Go Belgium   |    ✔️    |  ❌  | -                                                                               |
 
 ### How does the extension work?
 
