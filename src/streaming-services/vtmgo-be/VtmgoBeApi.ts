@@ -5,10 +5,6 @@ class _VtmgoBeApi extends Api {
 	constructor() {
 		super('vtmgo-be');
 	}
-
-	loadHistory(itemsToLoad: number): Promise<void> {
-		return Promise.resolve();
-	}
 }
 
 export const VtmgoBeApi = new _VtmgoBeApi();

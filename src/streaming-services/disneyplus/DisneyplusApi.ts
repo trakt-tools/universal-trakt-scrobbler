@@ -5,10 +5,6 @@ class _DisneyplusApi extends Api {
 	constructor() {
 		super('disneyplus');
 	}
-
-	loadHistory(itemsToLoad: number): Promise<void> {
-		return Promise.resolve();
-	}
 }
 
 export const DisneyplusApi = new _DisneyplusApi();

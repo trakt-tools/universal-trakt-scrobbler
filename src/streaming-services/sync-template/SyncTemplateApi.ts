@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { getSyncStore, registerApi } from '../common/common';
+import { Requests } from '../../common/Requests';
+import { Api, HistoryItem } from '../common/Api';
+import { registerApi } from '../common/common';
 
 // Define any types you need here.
 
@@ -9,23 +9,40 @@ class _SyncTemplateApi extends Api {
 	// Define any properties you need here.
 
 	constructor() {
+		// @ts-expect-error
 		super('sync-template');
 	}
 
-	// This method should load the next page of history items and update the sync store for the service.
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		// The code could look like this.
-		const store = getSyncStore('sync-template');
-		let { hasReachedEnd } = store.data;
-		let items: Item[] = [];
-		let itemsLoaded = 0;
-		while (itemsLoaded < itemsToLoad && !hasReachedEnd) {
-			const nextItems = await this.loadNextPage();
-			items.push(...nextItems);
-			itemsLoaded += nextItems.length;
-			hasReachedEnd = this.checkLastPage();
-		}
-		store.setData({ items, hasReachedEnd });
+	// This method should load more history items. It should also set `hasReachedHistoryEnd` to true when there are no more history items to load.
+	async loadNextHistoryPage(): Promise<HistoryItem[]> {
+		// Example implementation:
+
+		let historyItems: HistoryItem[] = [];
+
+		// Retrieve the history items
+		const responseText = await Requests.send({
+			url: '...',
+			method: 'GET',
+		});
+		const responseJson = JSON.parse(responseText);
+		historyItems = responseJson.items ?? [];
+
+		// Check if it has reached the history end
+		this.hasReachedHistoryEnd = historyItems.length === 0;
+
+		return historyItems;
+	}
+
+	// This method should check if a history item is new
+	isNewHistoryItem(historyItem: HistoryItem, lastSync: number, lastSyncId: string) {
+		// Example implementation:
+
+		return historyItem.date > lastSync;
+	}
+
+	// This method should transform history items into items
+	convertHistoryItems(historyItems: HistoryItem[]) {
+		return Promise.resolve([]);
 	}
 
 	// Define any methods you need here.
@@ -33,4 +50,5 @@ class _SyncTemplateApi extends Api {
 
 export const SyncTemplateApi = new _SyncTemplateApi();
 
+// @ts-expect-error
 registerApi('sync-template', SyncTemplateApi);

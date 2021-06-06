@@ -1,10 +1,8 @@
 import * as moment from 'moment';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
-import { RequestException, Requests } from '../../common/Requests';
+import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { getSyncStore, registerApi } from '../common/common';
+import { Api, HistoryItem } from '../common/Api';
+import { registerApi } from '../common/common';
 
 export interface TeliaContinueWatchingList {
 	list: TeliaContinueWatchingItem[];
@@ -20,7 +18,7 @@ export interface TeliaContinueWatchingItem {
 	mediaObject: TeliaMediaObject;
 }
 
-export interface TeliaMediaObject {
+export interface TeliaMediaObject extends HistoryItem {
 	loopId: string;
 	seriesTitle: string;
 	seasonNumber: number;
@@ -46,6 +44,7 @@ export interface TeliaMediaObject {
 	seasons: TeliaSeason[];
 	totalEpisodes: number;
 	age: number;
+	watched?: TeliaWatchedItem;
 }
 
 export interface TeliaAuth {
@@ -160,97 +159,102 @@ class _TeliaPlayApi extends Api {
 		this.isActivated = true;
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		try {
-			if (!this.isActivated) {
-				await this.activate();
-			}
-
-			//Get Continue Watching
-			const cwResponseText = await this.doGet(`${this.CONTINUE_WATCHING_API_URL}`);
-			const cwResponseJson = JSON.parse(cwResponseText) as TeliaContinueWatchingList;
-			const cwList = cwResponseJson.list;
-
-			//Get "my list"
-			const myListResponse = await this.doGet(`${this.MY_LIST_API_URL}`);
-			const myListJson = JSON.parse(myListResponse) as TeliaMyList;
-			const myListIds = myListJson.items.map((item) => item.id);
-
-			//Explore my list to find the ids of the shows
-			const exploreResponse = await this.doGet(`${this.EXPLORE_URL}/${myListIds.join()}`);
-			const exploreJson = JSON.parse(exploreResponse) as TeliaExploreItem[];
-
-			//Get videos to find season ids and movie metadata
-			const seriesIds: string[] = [];
-			//Add shows from explore & "Continue watching" list
-			seriesIds.push(...exploreJson.map((item) => item.references.loopSeriesId));
-			seriesIds.push(...cwList.map((cw) => cw.mediaObject.seriesId));
-			//Add movie IDs from both lists
-			const movieIds = exploreJson
-				.filter((e) => !e.references.seriesId)
-				.map((e) => e.references.loopId);
-			const movieIdsFromCw = cwList
-				.filter((cw) => !cw.mediaObject.seriesId)
-				.map((cw) => cw.mediaObject.loopId);
-			movieIds.push(...movieIdsFromCw);
-			seriesIds.push(...movieIds);
-			const ids = seriesIds.join();
-			//Must replace both ID lists for movies to work
-			const videosUrl = this.VIDEOS_URL.replace('{SERIES_IDS}', ids).replace('{SERIES_IDS}', ids);
-			const videosResponse = await this.doGet(videosUrl);
-			const videosJson = JSON.parse(videosResponse) as TeliaHits;
-
-			//Get episode info for each show / season
-			const allEpisodes: TeliaMediaObject[] = [];
-			for (const show of videosJson.Data.directHits) {
-				//Skip movies
-				if (show.object.seasons) {
-					const showId = show.object.loopId;
-					const showUrl = this.EPISODES_URL.replace('{SHOW_ID}', showId);
-					for (const season of show.object.seasons) {
-						const seasonUrl = showUrl.replace('{SEASON_ID}', season.loopId);
-						const episodesResponse = await this.doGet(seasonUrl);
-						const episodesJson = JSON.parse(episodesResponse) as TeliaHits;
-
-						const seasonEpisodes = episodesJson.Data.directHits.map((dh) => dh.object);
-						allEpisodes.push(...seasonEpisodes);
-					}
-				}
-			}
-
-			//Get watched status of all episodes / movies
-			const episodeIds = allEpisodes.map((e) => e.loopId);
-			const allIds = [...movieIds, ...episodeIds];
-			const watchedUrl = this.WATCHED_URL.replace('{EPISODE_IDS}', allIds.join());
-			const watchedResponse = await this.doGet(watchedUrl);
-			const watchedJson = JSON.parse(watchedResponse) as TeliaWatched;
-			const wMap = new Map(Object.entries(watchedJson.map));
-
-			//Limit 10% watched
-			const watchedEps = allEpisodes.filter((ep) => this.pctWatched(wMap.get(ep.loopId)) > 10);
-			const movies = videosJson.Data.directHits
-				.map((hit) => hit.object)
-				.filter((o) => this.parseType(o) === 'movie');
-			const watchedMovies = movies.filter((m) => this.pctWatched(wMap.get(m.loopId)));
-
-			//Skip season and episode-less shows (news shows and such)
-			const validEps = watchedEps.filter((ep) => ep.seasonNumber > 0 && ep.episodeNumber > 0);
-
-			//Convert to items
-			const items: Item[] = [];
-			items.push(...validEps.map((ep) => this.parseHistoryItem(ep, wMap.get(ep.loopId))));
-			items.push(...watchedMovies.map((m) => this.parseHistoryItem(m, wMap.get(m.loopId))));
-
-			getSyncStore('telia-play').setData({ items, hasReachedEnd: true });
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to load telia history.', err);
-				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
-				});
-			}
-			throw err;
+	async loadHistoryItems(): Promise<TeliaMediaObject[]> {
+		if (!this.isActivated) {
+			await this.activate();
 		}
+
+		// Get Continue Watching
+		const cwResponseText = await this.doGet(this.CONTINUE_WATCHING_API_URL);
+		const cwResponseJson = JSON.parse(cwResponseText) as TeliaContinueWatchingList;
+		const cwList = cwResponseJson.list;
+
+		// Get "my list"
+		const myListResponse = await this.doGet(this.MY_LIST_API_URL);
+		const myListJson = JSON.parse(myListResponse) as TeliaMyList;
+		const myListIds = myListJson.items.map((item) => item.id);
+
+		// Explore my list to find the ids of the shows
+		const exploreResponse = await this.doGet(`${this.EXPLORE_URL}/${myListIds.join()}`);
+		const exploreJson = JSON.parse(exploreResponse) as TeliaExploreItem[];
+
+		// Get videos to find season ids and movie metadata
+		const seriesIds: string[] = [];
+		// Add shows from explore & "Continue watching" list
+		seriesIds.push(...exploreJson.map((item) => item.references.loopSeriesId));
+		seriesIds.push(...cwList.map((cw) => cw.mediaObject.seriesId));
+		// Add movie IDs from both lists
+		const movieIds = exploreJson
+			.filter((e) => !e.references.seriesId)
+			.map((e) => e.references.loopId);
+		const movieIdsFromCw = cwList
+			.filter((cw) => !cw.mediaObject.seriesId)
+			.map((cw) => cw.mediaObject.loopId);
+		movieIds.push(...movieIdsFromCw);
+		seriesIds.push(...movieIds);
+		const ids = seriesIds.join();
+		// Must replace both ID lists for movies to work
+		const videosUrl = this.VIDEOS_URL.replace('{SERIES_IDS}', ids).replace('{SERIES_IDS}', ids);
+		const videosResponse = await this.doGet(videosUrl);
+		const videosJson = JSON.parse(videosResponse) as TeliaHits;
+
+		// Get episode info for each show / season and movies
+		const allEpisodes: TeliaMediaObject[] = [];
+		const movies: TeliaMediaObject[] = [];
+		for (const hit of videosJson.Data.directHits) {
+			if (this.parseType(hit.object) === 'show') {
+				const showId = hit.object.loopId;
+				const showUrl = this.EPISODES_URL.replace('{SHOW_ID}', showId);
+				for (const season of hit.object.seasons) {
+					const seasonUrl = showUrl.replace('{SEASON_ID}', season.loopId);
+					const episodesResponse = await this.doGet(seasonUrl);
+					const episodesJson = JSON.parse(episodesResponse) as TeliaHits;
+
+					const seasonEpisodes = episodesJson.Data.directHits.map((directHit) => directHit.object);
+					allEpisodes.push(...seasonEpisodes);
+				}
+			} else {
+				movies.push(hit.object);
+			}
+		}
+
+		// Get watched status of all episodes / movies
+		const episodeIds = allEpisodes.map((episode) => episode.loopId);
+		const allIds = [...movieIds, ...episodeIds];
+		const watchedUrl = this.WATCHED_URL.replace('{EPISODE_IDS}', allIds.join());
+		const watchedResponse = await this.doGet(watchedUrl);
+		const watchedJson = JSON.parse(watchedResponse) as TeliaWatched;
+		const watchedMap = new Map<string, TeliaWatchedItem>(Object.entries(watchedJson.map));
+		for (const episode of allEpisodes) {
+			episode.watched = watchedMap.get(episode.loopId);
+		}
+		for (const movie of movies) {
+			movie.watched = watchedMap.get(movie.loopId);
+		}
+
+		// Limit 10% watched
+		const watchedEpisodes = allEpisodes.filter(
+			(episode) => this.getPercentageWatched(episode.watched) > 10
+		);
+		const watchedMovies = movies.filter((movie) => this.getPercentageWatched(movie.watched));
+
+		// Skip season and episode-less shows (news shows and such)
+		const validEpisodes = watchedEpisodes.filter(
+			(episode) => episode.seasonNumber > 0 && episode.episodeNumber > 0
+		);
+
+		const historyItems: TeliaMediaObject[] = [];
+		historyItems.push(...validEpisodes);
+		historyItems.push(...watchedMovies);
+
+		this.hasReachedHistoryEnd = true;
+
+		return historyItems;
+	}
+
+	convertHistoryItems(historyItems: TeliaMediaObject[]) {
+		const items = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
+		return items;
 	}
 
 	async doGet(url: string) {
@@ -263,7 +267,7 @@ class _TeliaPlayApi extends Api {
 		return response;
 	}
 
-	pctWatched(watched: TeliaWatchedItem | undefined) {
+	getPercentageWatched(watched: TeliaWatchedItem | undefined) {
 		if (typeof watched === 'undefined') {
 			return 0;
 		}
@@ -274,21 +278,21 @@ class _TeliaPlayApi extends Api {
 		return mediaObject.categories.includes('Film') ? 'movie' : 'show';
 	}
 
-	parseHistoryItem(mediaObject: TeliaMediaObject, watched: TeliaWatchedItem): Item {
+	parseHistoryItem(mediaObject: TeliaMediaObject): Item {
 		let item: Item;
 		const serviceId = this.id;
 		const id = mediaObject.loopId;
 		const type = this.parseType(mediaObject);
 		const year = parseInt(mediaObject.productionYear);
-		const progress = this.pctWatched(watched);
-		const watchedDate = new Date(watched.timestamp);
+		const progress = this.getPercentageWatched(mediaObject.watched);
+		const watchedDate = mediaObject.watched && new Date(mediaObject.watched.timestamp);
 		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
 		if (type === 'show') {
 			const title = mediaObject.seriesTitle;
 			const season = mediaObject.seasonNumber;
 			const episode = mediaObject.episodeNumber;
 
-			//Cleanup HBO titles on the format "01:01 I Was Flying - Avenue 5"
+			// Cleanup HBO titles on the format "01:01 I Was Flying - Avenue 5"
 			let episodeTitle = mediaObject.title;
 			if (mediaObject.contentproviderName === 'HBO') {
 				if (episodeTitle.search(/^\d\d:\d\d\s/) > -1 && episodeTitle.search(` - ${title}`) > 0) {

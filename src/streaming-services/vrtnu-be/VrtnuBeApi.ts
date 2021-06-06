@@ -5,10 +5,6 @@ class _VrtnuBeApi extends Api {
 	constructor() {
 		super('vrtnu-be');
 	}
-
-	loadHistory(itemsToLoad: number): Promise<void> {
-		return Promise.resolve();
-	}
 }
 
 export const VrtnuBeApi = new _VrtnuBeApi();

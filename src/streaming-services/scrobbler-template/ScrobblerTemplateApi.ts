@@ -13,11 +13,6 @@ class _ScrobblerTemplateApi extends Api {
 		super('scrobbler-template');
 	}
 
-	// This method is only required for syncing, but since it is an abstract method, we have to implement at least a basic block for it.
-	loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		return Promise.resolve();
-	}
-
 	// **This method is optional.** It should only be implemented if the API offers an endpoint for retrieving information about an item using an ID.
 	getItem(id: string): Promise<Item | null> {
 		return Promise.resolve(null);

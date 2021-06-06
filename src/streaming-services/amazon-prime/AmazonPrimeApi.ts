@@ -80,10 +80,6 @@ class _AmazonPrimeApi extends Api {
 		this.isActivated = true;
 	}
 
-	loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		return Promise.resolve();
-	}
-
 	async getItem(id: string): Promise<Item | null> {
 		let item: Item | null = null;
 		try {

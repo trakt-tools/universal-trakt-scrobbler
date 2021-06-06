@@ -1,11 +1,10 @@
 import * as moment from 'moment';
 import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
 import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { getSyncStore, registerApi } from '../common/common';
+import { Api, HistoryItem } from '../common/Api';
+import { registerApi } from '../common/common';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -56,7 +55,7 @@ export interface NetflixHistoryResponse {
 
 export type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
 
-export interface NetflixHistoryShowItem {
+export interface NetflixHistoryShowItem extends HistoryItem {
 	bookmark: number;
 	date: number;
 	duration: number;
@@ -68,7 +67,7 @@ export interface NetflixHistoryShowItem {
 	title: string;
 }
 
-export interface NetflixHistoryMovieItem {
+export interface NetflixHistoryMovieItem extends HistoryItem {
 	bookmark: number;
 	date: number;
 	duration: number;
@@ -149,9 +148,7 @@ class _NetflixApi extends Api {
 	BUILD_IDENTIFIER_REGEX: RegExp;
 	isActivated: boolean;
 	apiParams: Partial<NetflixApiParams>;
-	leftoverHistoryItems: NetflixHistoryItem[] = [];
 	nextHistoryPage = 0;
-	hasReachedHistoryEnd = false;
 
 	constructor() {
 		super('netflix');
@@ -197,69 +194,31 @@ class _NetflixApi extends Api {
 		);
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string) {
-		try {
-			if (!this.isActivated) {
-				await this.activate();
-			}
-			if (!this.checkParams(this.apiParams)) {
-				throw new Error('Invalid API params');
-			}
-			const store = getSyncStore('netflix');
-			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
-			let items: Item[] = [];
-			const historyItems: NetflixHistoryItem[] = [];
-			do {
-				let responseItems: NetflixHistoryItem[] = [];
-				if (this.leftoverHistoryItems.length > 0) {
-					responseItems = this.leftoverHistoryItems;
-					this.leftoverHistoryItems = [];
-				} else if (!this.hasReachedHistoryEnd) {
-					const responseText = await Requests.send({
-						url: `${this.API_URL}/${this.apiParams.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.apiParams.authUrl}&pg=${this.nextHistoryPage}`,
-						method: 'GET',
-					});
-					const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
-					if (responseJson) {
-						responseItems = responseJson.viewedItems;
-					}
-					this.nextHistoryPage += 1;
-					this.hasReachedHistoryEnd = responseItems.length === 0;
-				}
-				if (responseItems.length > 0) {
-					let filteredItems: NetflixHistoryItem[] = [];
-					if (lastSync > 0) {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (responseItem.date && Math.trunc(responseItem.date / 1e3) > lastSync) {
-								filteredItems.push(responseItem);
-							} else {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								hasReachedLastSyncDate = true;
-								break;
-							}
-						}
-					} else {
-						filteredItems = responseItems;
-					}
-					itemsToLoad -= filteredItems.length;
-					historyItems.push(...filteredItems);
-				}
-				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
-			} while (!hasReachedEnd && itemsToLoad > 0);
-			if (historyItems.length > 0) {
-				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
-				items = historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
-			}
-			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to load Netflix history.', err);
-				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
-				});
-			}
-			throw err;
+	async loadHistoryItems(): Promise<NetflixHistoryItem[]> {
+		if (!this.isActivated) {
+			await this.activate();
 		}
+		if (!this.checkParams(this.apiParams)) {
+			throw new Error('Invalid API params');
+		}
+		const responseText = await Requests.send({
+			url: `${this.API_URL}/${this.apiParams.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.apiParams.authUrl}&pg=${this.nextHistoryPage}`,
+			method: 'GET',
+		});
+		const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
+		const responseItems = responseJson?.viewedItems ?? [];
+		this.nextHistoryPage += 1;
+		this.hasReachedHistoryEnd = responseItems.length === 0;
+		return responseItems;
+	}
+
+	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number, lastSyncId: string) {
+		return historyItem.date > 0 && Math.trunc(historyItem.date / 1e3) > lastSync;
+	}
+
+	async convertHistoryItems(historyItems: NetflixHistoryItem[]) {
+		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
+		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
 	}
 
 	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
