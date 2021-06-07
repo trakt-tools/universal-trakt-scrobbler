@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { CorrectItem } from '../common/BrowserStorage';
 import { EventDispatcher } from '../common/Events';
-import { Requests } from '../common/Requests';
+import { RequestException, Requests } from '../common/Requests';
 import { Item } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { TraktApi } from './TraktApi';
@@ -113,7 +113,7 @@ class _TraktSearch extends TraktApi {
 			}
 			await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
 		} catch (err) {
-			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as Error });
+			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as RequestException });
 			throw err;
 		}
 		return traktItem;

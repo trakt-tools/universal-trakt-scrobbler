@@ -25,7 +25,7 @@ export interface EventData {
 	SCROBBLE_STOP: SuccessData;
 	SCROBBLE_PROGRESS: ScrobbleProgressData;
 	SEARCH_SUCCESS: SearchSuccessData;
-	SEARCH_ERROR: ErrorData;
+	SEARCH_ERROR: SearchErrorData;
 	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
 	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<StreamingServiceId>;
 	OPTIONS_CLEAR: SuccessData;
@@ -78,6 +78,10 @@ export interface ScrobbleProgressData {
 
 export interface SearchSuccessData {
 	searchItem: TraktSearchItem;
+}
+
+export interface SearchErrorData {
+	error: RequestException;
 }
 
 export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
@@ -224,6 +228,7 @@ class _EventDispatcher {
 				await listener(data);
 			} catch (err) {
 				Errors.log('Failed to dispatch.', err);
+				throw err;
 			}
 		}
 	}

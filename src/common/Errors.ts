@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Rollbar from 'rollbar';
 import { secrets } from '../secrets';
 import { BrowserStorage } from './BrowserStorage';
-import { ErrorData, EventDispatcher, ScrobbleErrorData } from './Events';
+import { EventDispatcher, ScrobbleErrorData, SearchErrorData } from './Events';
 import { RequestException } from './Requests';
 
 class _Errors {
@@ -28,12 +28,15 @@ class _Errors {
 		EventDispatcher.subscribe('SCROBBLE_ERROR', null, (data: ScrobbleErrorData) =>
 			this.onItemError(data, 'scrobble')
 		);
-		EventDispatcher.subscribe('SEARCH_ERROR', null, (data: ErrorData) =>
+		EventDispatcher.subscribe('SEARCH_ERROR', null, (data: SearchErrorData) =>
 			this.onItemError(data, 'find')
 		);
 	}
 
-	async onItemError(data: ScrobbleErrorData | ErrorData, type: 'scrobble' | 'find'): Promise<void> {
+	async onItemError(
+		data: ScrobbleErrorData | SearchErrorData,
+		type: 'scrobble' | 'find'
+	): Promise<void> {
 		if (data.error) {
 			const values = await BrowserStorage.get('auth');
 			if (values.auth && values.auth.access_token) {

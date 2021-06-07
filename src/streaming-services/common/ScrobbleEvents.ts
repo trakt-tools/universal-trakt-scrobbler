@@ -66,10 +66,14 @@ export abstract class ScrobbleEvents {
 				this.progress = newProgress;
 			}
 
-			if (playback.isPaused && !this.isPaused) {
-				await this.pause();
-			} else if (!playback.isPaused && this.isPaused) {
-				await this.start();
+			try {
+				if (playback.isPaused && !this.isPaused) {
+					await this.pause();
+				} else if (!playback.isPaused && this.isPaused) {
+					await this.start();
+				}
+			} catch (err) {
+				// Do nothing
 			}
 			this.playbackStarted = true;
 			this.isPaused = playback.isPaused;

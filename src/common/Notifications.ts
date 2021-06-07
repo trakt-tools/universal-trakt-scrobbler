@@ -1,6 +1,6 @@
 import { TraktScrobble } from '../api/TraktScrobble';
 import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData } from './Events';
+import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData, SearchErrorData } from './Events';
 import { I18N } from './I18N';
 import { Messaging } from './Messaging';
 import { RequestException } from './Requests';
@@ -20,6 +20,7 @@ class _Notifications {
 	startListeners() {
 		EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
 		EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
+		EventDispatcher.subscribe('SEARCH_ERROR', null, this.onSearchError);
 	}
 
 	onScrobble = async (data: ScrobbleSuccessData | ScrobbleErrorData): Promise<void> => {
@@ -35,6 +36,12 @@ class _Notifications {
 			title = data.item.title;
 			message = I18N.translate(this.messageNames[data.scrobbleType]);
 		}
+		await this.show(title, message);
+	};
+
+	onSearchError = async (data: SearchErrorData): Promise<void> => {
+		const title = await this.getTitleFromException(data.error);
+		const message = '';
 		await this.show(title, message);
 	};
 

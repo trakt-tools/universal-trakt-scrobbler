@@ -11,6 +11,7 @@ import { ScrobbleParser } from './ScrobbleParser';
 
 export class ScrobbleController {
 	readonly parser: ScrobbleParser;
+	private hasSearchedItem = false;
 	private reachedScrobbleThreshold = false;
 	private scrobbleThreshold = 80.0;
 	private progress = 0.0;
@@ -58,7 +59,8 @@ export class ScrobbleController {
 		}
 		this.reachedScrobbleThreshold = false;
 		this.progress = 0.0;
-		if (!item.trakt) {
+		if (!item.trakt && !this.hasSearchedItem) {
+			this.hasSearchedItem = true;
 			const storage = await BrowserStorage.get(['correctItems']);
 			const { correctItems } = storage;
 			const correctItem = correctItems?.[item.serviceId]?.[item.id];
@@ -88,6 +90,7 @@ export class ScrobbleController {
 	}
 
 	async stopScrobble(): Promise<void> {
+		this.hasSearchedItem = false;
 		const item = this.parser.getItem();
 		if (!item?.trakt) {
 			return;
