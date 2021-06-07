@@ -45,7 +45,7 @@ class _TmdbApi {
 	API_URL = `https://api.themoviedb.org/${this.API_VERSION}`;
 	CONFIGURATION_URL = `${this.API_URL}/configuration`;
 	DATABASE_URL =
-		'https://script.google.com/macros/s/AKfycbygXJgOdsu8leGxOyNUmrR3FMBsS561-OjJhSrNKzNMBhjQcJE/exec';
+		'https://script.google.com/macros/s/AKfycbwicnLLG7ieloWYmKuVMGJUmxf7HAleg9ZRUMrGw4mQ6kXKwV6poeiHnaJT550DjKNA/exec';
 	PLACEHOLDER_IMAGE =
 		'https://trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png';
 

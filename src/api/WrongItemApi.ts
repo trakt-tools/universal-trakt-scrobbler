@@ -5,7 +5,8 @@ import { CorrectionSuggestion, Item } from '../models/Item';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 
 class _WrongItemApi {
-	URL = 'https://script.google.com/macros/s/AKfycbyz0AYx9-R2cKHxyyRNrMYbqUnqvJbiYxSZTFV0/exec';
+	URL =
+		'https://script.google.com/macros/s/AKfycbyRy2Xf9mqeR3mqN77VYxzr8wSyYOxcFBgyMwQQduZo37eW0TDTyPSkwc_52SNMRi4X/exec';
 
 	async loadSuggestions(items: Item[]): Promise<void> {
 		const missingItems = items.filter((item) => typeof item.correctionSuggestions === 'undefined');
