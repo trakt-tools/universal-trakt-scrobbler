@@ -69,6 +69,7 @@ export class ScrobbleController {
 		if (!item.trakt) {
 			return;
 		}
+		item.trakt.progress = item.progress;
 		await TraktScrobble.start(item.trakt);
 		if (Shared.pageType !== 'background') {
 			await Messaging.toBackground({
