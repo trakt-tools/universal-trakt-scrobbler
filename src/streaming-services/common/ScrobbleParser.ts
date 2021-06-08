@@ -120,7 +120,7 @@ export abstract class ScrobbleParser {
 			this.item = await this.parseItem();
 		}
 
-		return playback;
+		return this.item ? playback : null;
 	}
 
 	protected parsePlaybackFromVideoPlayer(): Promisable<Partial<ScrobblePlayback> | null> {
