@@ -139,7 +139,7 @@ const addTabListener = (options: StorageValuesOptions) => {
 		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
-				hostPattern.replace(/^\*:\/\/\*\./, 'https?://(www.)?').replace(/\/\*$/, '')
+				hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
 			),
 			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
 			run_at: 'document_idle',
@@ -167,7 +167,7 @@ const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 		!tab.url ||
 		!tab.url.startsWith('http') ||
 		tab.url.endsWith('#noinject') ||
-		(injectedTabs.has(tab.id) && Messaging.ports.has(tab.id))
+		injectedTabs.has(tab.id)
 	) {
 		return;
 	}
