@@ -1,9 +1,8 @@
 import { CorrectionSuggestion } from '../models/Item';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 
 export interface CacheValues {
 	correctionSuggestions: Partial<
-		Record<StreamingServiceId, Record<string, CorrectionSuggestion[] | undefined>>
+		Record<string, Record<string, CorrectionSuggestion[] | undefined>>
 	>;
 	tmdbImages: Record<string, string>;
 }

@@ -1,4 +1,3 @@
-import { registerScrobbleEvents } from '../common/common';
 import { ScrobbleEvents } from '../common/ScrobbleEvents';
 import { NrkParser } from './NrkParser';
 
@@ -9,5 +8,3 @@ class _NrkEvents extends ScrobbleEvents {
 }
 
 export const NrkEvents = new _NrkEvents();
-
-registerScrobbleEvents('nrk', NrkEvents);

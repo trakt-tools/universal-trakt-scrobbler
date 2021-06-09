@@ -7,10 +7,9 @@ import { Notifications } from '../../common/Notifications';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
-import { StreamingServiceId } from '../streaming-services';
 import { getScrobbleController, getScrobbleEvents } from './common';
 
-export const init = async (serviceId: StreamingServiceId) => {
+export const init = async (serviceId: string) => {
 	Shared.pageType = 'content';
 	await BrowserStorage.init();
 	const { allowRollbar, showNotifications } = BrowserStorage.options;

@@ -1,4 +1,3 @@
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { NrkApi } from './NrkApi';
 
@@ -20,5 +19,3 @@ class _NrkParser extends ScrobbleParser {
 	};
 }
 export const NrkParser = new _NrkParser();
-
-registerScrobbleParser('nrk', NrkParser);

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
-import { StreamingServicePage, streamingServicePages } from '../../../streaming-services/pages';
+import { getServicePages, StreamingServicePage } from '../../../streaming-services/common/common';
 import { HistoryInfo } from '../components/HistoryInfo';
 
 export const HomePage: React.FC = () => {
@@ -19,7 +19,8 @@ export const HomePage: React.FC = () => {
 		const checkEnabledServices = () => {
 			const serviceOptions = BrowserStorage.options.streamingServices;
 			const enabledServices = [];
-			for (const service of streamingServicePages) {
+			const servicePages = getServicePages();
+			for (const service of servicePages) {
 				if (service.hasSync && serviceOptions[service.id].sync) {
 					enabledServices.push(service);
 				}

@@ -1,3 +1,13 @@
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
+import * as webpack from 'webpack';
+import VirtualModulesPlugin = require('webpack-virtual-modules');
+import { StreamingService } from './src/streaming-services/streaming-services';
+import * as configJson from './config.json';
+import * as packageJson from './package.json';
+
 interface Environment {
 	development: boolean;
 	production: boolean;
@@ -26,15 +36,6 @@ type Manifest = Omit<
 	optional_permissions?: string[];
 	permissions?: string[];
 };
-
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
-import * as webpack from 'webpack';
-import * as configJson from './config.json';
-import * as packageJson from './package.json';
-import { streamingServices } from './src/streaming-services/streaming-services';
 
 const BASE_PATH = process.cwd();
 const loaders = {
@@ -71,7 +72,51 @@ const plugins = {
 	runAfterBuild: RunAfterBuildPlugin,
 };
 
-const getWebpackConfig = (env: Environment) => {
+const streamingServices: Record<string, StreamingService> = {};
+const apiImports: string[] = [];
+let virtualModules: VirtualModulesPlugin;
+
+const loadStreamingServices = async () => {
+	const modules: Record<string, string> = {};
+
+	const servicesPath = path.resolve(BASE_PATH, 'src', 'streaming-services');
+	const ignoreKeys = [
+		'common',
+		'scrobbler-template',
+		'sync-template',
+		'apis.ts',
+		'streaming-services.ts',
+	];
+
+	const keys = fs.readdirSync(servicesPath);
+	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
+	for (const serviceId of serviceIds) {
+		const servicePath = path.resolve(servicesPath, serviceId);
+
+		const service = (await import(
+			path.resolve(servicePath, `${serviceId}.json`)
+		)) as StreamingService;
+		streamingServices[service.id] = service;
+
+		const serviceKey = serviceId
+			.split('-')
+			.map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
+			.join('');
+		apiImports.push(`import './${serviceId}/${serviceKey}Api';`);
+		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
+			import { init } from '../common/content';
+			import './${serviceKey}Events';
+
+			void init('${serviceId}');
+		`;
+	}
+
+	virtualModules = new VirtualModulesPlugin(modules);
+};
+
+const getWebpackConfig = async (env: Environment) => {
+	await loadStreamingServices();
+
 	let mode: 'production' | 'development';
 	if (env.production) {
 		mode = 'production';
@@ -119,6 +164,22 @@ const getWebpackConfig = (env: Environment) => {
 					},
 				},
 				{
+					test: /apis\.ts$/,
+					loader: 'string-replace-loader',
+					options: {
+						search: '// This will be automatically filled by Webpack during build',
+						replace: apiImports.join('\n'),
+					},
+				},
+				{
+					test: /streaming-services\.ts$/,
+					loader: 'string-replace-loader',
+					options: {
+						search: '// This will be automatically filled by Webpack during build',
+						replace: JSON.stringify(streamingServices).slice(1, -1),
+					},
+				},
+				{
 					test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
 					loader: 'file-loader',
 					options: {
@@ -162,6 +223,7 @@ const getWebpackConfig = (env: Environment) => {
 		plugins: [
 			new plugins.clean(),
 			new plugins.progressBar(),
+			virtualModules,
 			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(config))]),
 		],
 		resolve: {

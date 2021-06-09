@@ -1,5 +1,4 @@
 import { Item } from '../../models/Item';
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { StreamzBeApi } from './StreamzBeApi';
 
@@ -49,5 +48,3 @@ class _StreamzBeParser extends ScrobbleParser {
 }
 
 export const StreamzBeParser = new _StreamzBeParser();
-
-registerScrobbleParser('streamz-be', StreamzBeParser);

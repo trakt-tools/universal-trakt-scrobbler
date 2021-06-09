@@ -3,7 +3,7 @@ import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as AmazonPrime from './amazon-prime.json';
 
 export interface AmazonPrimeApiParams {
 	deviceId: string;
@@ -63,7 +63,7 @@ class _AmazonPrimeApi extends Api {
 	nextItemId = '';
 
 	constructor() {
-		super('amazon-prime');
+		super(AmazonPrime.id);
 	}
 
 	async activate() {
@@ -159,5 +159,3 @@ class _AmazonPrimeApi extends Api {
 }
 
 export const AmazonPrimeApi = new _AmazonPrimeApi();
-
-registerApi('amazon-prime', AmazonPrimeApi);

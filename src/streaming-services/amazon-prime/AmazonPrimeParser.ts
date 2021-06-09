@@ -1,4 +1,3 @@
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { AmazonPrimeApi } from './AmazonPrimeApi';
 
@@ -48,5 +47,3 @@ class _AmazonPrimeParser extends ScrobbleParser {
 }
 
 export const AmazonPrimeParser = new _AmazonPrimeParser();
-
-registerScrobbleParser('amazon-prime', AmazonPrimeParser);

@@ -10,7 +10,8 @@ import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { LoginWrapper } from '../../components/LoginWrapper';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { streamingServicePages } from '../../streaming-services/pages';
+import '../../streaming-services/apis';
+import { getServicePages } from '../../streaming-services/common/common';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
 import { AutoSyncPage } from './pages/AutoSyncPage';
@@ -61,7 +62,7 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{streamingServicePages.map((service) => (
+						{getServicePages().map((service) => (
 							<Route key={service.id} path={service.path} render={service.pageBuilder} />
 						))}
 						<Route

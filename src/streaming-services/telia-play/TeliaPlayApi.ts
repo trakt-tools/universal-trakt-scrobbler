@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { Api, HistoryItem } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as TeliaPlay from './telia-play.json';
 
 export interface TeliaContinueWatchingList {
 	list: TeliaContinueWatchingItem[];
@@ -132,7 +132,7 @@ class _TeliaPlayApi extends Api {
 	jwt: string;
 
 	constructor() {
-		super('telia-play');
+		super(TeliaPlay.id);
 
 		this.AUTH_URL =
 			'https://www.teliaplay.se/rest/secure/users/authentication?deviceId=DASHJS_0245b511-4414-4b80-8ead-8e29da49075d&coreVersion=3.35.1&model=desktop_windows&nativeVersion=unknown_nativeVersion&uiVersion=6.24.0(578)';
@@ -329,5 +329,3 @@ class _TeliaPlayApi extends Api {
 }
 
 export const TeliaPlayApi = new _TeliaPlayApi();
-
-registerApi('telia-play', TeliaPlayApi);

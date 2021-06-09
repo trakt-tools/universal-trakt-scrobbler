@@ -2,7 +2,6 @@ import { BrowserStorage } from '../common/BrowserStorage';
 import { Messaging } from '../common/Messaging';
 import { Requests } from '../common/Requests';
 import { CorrectionSuggestion, Item } from '../models/Item';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 
 class _WrongItemApi {
 	URL =
@@ -24,7 +23,7 @@ class _WrongItemApi {
 				action: 'get-cache',
 				key: 'correctionSuggestions',
 			});
-			const servicesToFetch: Partial<Record<StreamingServiceId, Item[]>> = {};
+			const servicesToFetch: Partial<Record<string, Item[]>> = {};
 			for (const item of missingItems) {
 				let serviceSuggestions = cache[item.serviceId];
 				if (!serviceSuggestions) {
@@ -44,7 +43,7 @@ class _WrongItemApi {
 				}
 			}
 			for (const [serviceId, itemsToFetch] of Object.entries(servicesToFetch) as [
-				StreamingServiceId,
+				string,
 				Item[]
 			][]) {
 				if (itemsToFetch.length === 0) {

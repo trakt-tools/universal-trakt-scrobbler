@@ -2,7 +2,6 @@ import { Color } from '@material-ui/lab';
 import { TraktSearchItem } from '../api/TraktSearch';
 import { Item, SavedItem } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 import {
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
@@ -27,7 +26,7 @@ export interface EventData {
 	SEARCH_SUCCESS: SearchSuccessData;
 	SEARCH_ERROR: SearchErrorData;
 	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
-	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<StreamingServiceId>;
+	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<string>;
 	OPTIONS_CLEAR: SuccessData;
 	DIALOG_SHOW: DialogShowData;
 	SNACKBAR_SHOW: SnackbarShowData;
@@ -89,7 +88,7 @@ export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
 	value: StorageValuesOptions[K];
 }
 
-export type StreamingServiceOptionsChangeData<K extends StreamingServiceId> = {
+export type StreamingServiceOptionsChangeData<K extends string> = {
 	id: K;
 	value: Partial<StreamingServiceValue>;
 }[];
@@ -108,7 +107,7 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 	items: Item[];
 }
 
@@ -117,7 +116,7 @@ export interface MissingWatchedDateAddedData {
 }
 
 export interface WrongItemDialogShowData {
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 	item?: Item;
 }
 

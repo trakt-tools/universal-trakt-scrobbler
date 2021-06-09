@@ -1,12 +1,10 @@
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as StreamzBe from './streamz-be.json';
 
 class _StreamzBeApi extends Api {
 	constructor() {
-		super('streamz-be');
+		super(StreamzBe.id);
 	}
 }
 
 export const StreamzBeApi = new _StreamzBeApi();
-
-registerApi('streamz-be', StreamzBeApi);

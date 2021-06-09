@@ -1,6 +1,7 @@
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item, SavedItem } from '../../models/Item';
 import { Api } from './Api';
+import { registerScrobbleParser } from './common';
 
 export interface ScrobbleParserOptions {
 	/**
@@ -26,7 +27,7 @@ export interface ScrobblePlayback {
 }
 
 export abstract class ScrobbleParser {
-	protected api: Api;
+	readonly api: Api;
 	readonly options: Readonly<ScrobbleParserOptions>;
 	protected item: Item | null = null;
 	protected videoPlayer: HTMLVideoElement | null = null;
@@ -39,6 +40,8 @@ export abstract class ScrobbleParser {
 			...this.getDefaultOptions(),
 			...options,
 		});
+
+		registerScrobbleParser(this.api.id, this);
 	}
 
 	protected getDefaultOptions(): ScrobbleParserOptions {

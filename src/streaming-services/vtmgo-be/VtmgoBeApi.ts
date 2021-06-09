@@ -1,12 +1,10 @@
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as VtmgoBe from './vtmgo-be.json';
 
 class _VtmgoBeApi extends Api {
 	constructor() {
-		super('vtmgo-be');
+		super(VtmgoBe.id);
 	}
 }
 
 export const VtmgoBeApi = new _VtmgoBeApi();
-
-registerApi('vtmgo-be', VtmgoBeApi);

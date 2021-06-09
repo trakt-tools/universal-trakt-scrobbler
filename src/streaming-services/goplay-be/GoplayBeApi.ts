@@ -1,12 +1,10 @@
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as GoplayBe from './goplay-be.json';
 
 class _GoplayBeApi extends Api {
 	constructor() {
-		super('goplay-be');
+		super(GoplayBe.id);
 	}
 }
 
 export const GoplayBeApi = new _GoplayBeApi();
-
-registerApi('goplay-be', GoplayBeApi);

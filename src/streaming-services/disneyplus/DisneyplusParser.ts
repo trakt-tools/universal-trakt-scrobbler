@@ -1,5 +1,4 @@
 import { Item } from '../../models/Item';
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { DisneyplusApi } from './DisneyplusApi';
 
@@ -51,5 +50,3 @@ class _DisneyplusParser extends ScrobbleParser {
 }
 
 export const DisneyplusParser = new _DisneyplusParser();
-
-registerScrobbleParser('disneyplus', DisneyplusParser);

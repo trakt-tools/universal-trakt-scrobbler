@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import { BrowserStorage } from '../common/BrowserStorage';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { SavedTraktItem, TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
@@ -34,7 +33,7 @@ export interface SavedItem extends ItemBase {
 }
 
 export interface ItemBase {
-	serviceId: StreamingServiceId;
+	serviceId: string;
 	id?: string | null;
 	type: 'show' | 'movie';
 	title: string;
@@ -54,7 +53,7 @@ export interface CorrectionSuggestion {
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
 export class Item implements IItem {
-	serviceId: StreamingServiceId;
+	serviceId: string;
 	id: string;
 	type: 'show' | 'movie';
 	title: string;

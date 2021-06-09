@@ -6,20 +6,21 @@ import { EventDispatcher } from '../../common/Events';
 import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
-import { StreamingServiceId } from '../streaming-services';
-import { getSyncStore } from './common';
+import { getSyncStore, registerApi } from './common';
 
 export interface HistoryItem {
 	[key: string]: unknown;
 }
 
 export abstract class Api {
-	readonly id: StreamingServiceId;
+	readonly id: string;
 	private leftoverHistoryItems: HistoryItem[] = [];
 	hasReachedHistoryEnd = false;
 
-	constructor(id: StreamingServiceId) {
+	constructor(id: string) {
 		this.id = id;
+
+		registerApi(this.id, this);
 	}
 
 	static async loadTraktHistory(items: Item[]) {

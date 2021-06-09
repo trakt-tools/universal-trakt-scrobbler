@@ -1,5 +1,4 @@
 import { Item } from '../../models/Item';
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { GoplayBeApi } from './GoplayBeApi';
 
@@ -48,5 +47,3 @@ class _GoplayBeParser extends ScrobbleParser {
 }
 
 export const GoplayBeParser = new _GoplayBeParser();
-
-registerScrobbleParser('goplay-be', GoplayBeParser);

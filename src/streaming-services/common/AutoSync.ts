@@ -1,13 +1,12 @@
 import { TraktSync } from '../../api/TraktSync';
 import { BrowserStorage, StreamingServiceValue } from '../../common/BrowserStorage';
 import { Item } from '../../models/Item';
-import '../pages';
-import { StreamingServiceId } from '../streaming-services';
+import '../apis';
 import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
 
 class _AutoSync {
-	async sync(serviceEntries: [StreamingServiceId, StreamingServiceValue][], now: number) {
+	async sync(serviceEntries: [string, StreamingServiceValue][], now: number) {
 		let { syncCache } = await BrowserStorage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {

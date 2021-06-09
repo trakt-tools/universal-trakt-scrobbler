@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { IItem, Item } from '../../models/Item';
 import { Api, HistoryItem } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as Nrk from './nrk.json';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
@@ -128,7 +128,7 @@ class _NrkApi extends Api {
 	isActivated: boolean;
 
 	constructor() {
-		super('nrk');
+		super(Nrk.id);
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
@@ -301,5 +301,3 @@ class _NrkApi extends Api {
 }
 
 export const NrkApi = new _NrkApi();
-
-registerApi('nrk', NrkApi);

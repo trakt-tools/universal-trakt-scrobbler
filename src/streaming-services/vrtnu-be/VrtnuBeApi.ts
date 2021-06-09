@@ -1,12 +1,10 @@
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as VrtnuBe from './vrtnu-be.json';
 
 class _VrtnuBeApi extends Api {
 	constructor() {
-		super('vrtnu-be');
+		super(VrtnuBe.id);
 	}
 }
 
 export const VrtnuBeApi = new _VrtnuBeApi();
-
-registerApi('vrtnu-be', VrtnuBeApi);

@@ -10,13 +10,10 @@ import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { Shared } from '../../../common/Shared';
 import { Tabs } from '../../../common/Tabs';
-import {
-	StreamingServiceId,
-	streamingServices,
-} from '../../../streaming-services/streaming-services';
+import { streamingServices } from '../../../streaming-services/streaming-services';
 
 interface StreamingServiceOptionProps {
-	id: StreamingServiceId;
+	id: string;
 	value: StreamingServiceValue;
 }
 

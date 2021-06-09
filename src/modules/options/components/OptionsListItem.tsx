@@ -17,7 +17,6 @@ import {
 } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
-import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { StreamingServiceOptions } from './StreamingServiceOptions';
 
 interface OptionsListItemProps {
@@ -48,7 +47,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({
+			Object.keys(option.value).map((id) => ({
 				id,
 				value: { scrobble: true, sync: true },
 			}))
@@ -62,7 +61,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.keys(option.value) as StreamingServiceId[]).map((id) => ({
+			Object.keys(option.value).map((id) => ({
 				id,
 				value: { scrobble: false, sync: false },
 			}))
@@ -76,12 +75,10 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		await EventDispatcher.dispatch(
 			'STREAMING_SERVICE_OPTIONS_CHANGE',
 			null,
-			(Object.entries(option.value) as [StreamingServiceId, StreamingServiceValue][]).map(
-				([id, value]) => ({
-					id,
-					value: { scrobble: !value.scrobble, sync: !value.sync },
-				})
-			)
+			Object.entries(option.value).map(([id, value]) => ({
+				id,
+				value: { scrobble: !value.scrobble, sync: !value.sync },
+			}))
 		);
 	};
 

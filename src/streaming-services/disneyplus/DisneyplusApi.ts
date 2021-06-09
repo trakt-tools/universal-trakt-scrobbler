@@ -1,12 +1,10 @@
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as Disneyplus from './disneyplus.json';
 
 class _DisneyplusApi extends Api {
 	constructor() {
-		super('disneyplus');
+		super(Disneyplus.id);
 	}
 }
 
 export const DisneyplusApi = new _DisneyplusApi();
-
-registerApi('disneyplus', DisneyplusApi);

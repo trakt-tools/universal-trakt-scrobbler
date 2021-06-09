@@ -1,5 +1,4 @@
 import { Item } from '../../models/Item';
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { VtmgoBeApi } from './VtmgoBeApi';
 
@@ -49,5 +48,3 @@ class _VtmgoBeParser extends ScrobbleParser {
 }
 
 export const VtmgoBeParser = new _VtmgoBeParser();
-
-registerScrobbleParser('vtmgo-be', VtmgoBeParser);

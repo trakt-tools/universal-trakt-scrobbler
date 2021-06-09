@@ -4,7 +4,7 @@ import { TraktAuthDetails } from '../api/TraktAuth';
 import { SavedItem } from '../models/Item';
 import { SavedTraktItem } from '../models/TraktItem';
 import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
-import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
+import { streamingServices } from '../streaming-services/streaming-services';
 import { EventDispatcher } from './Events';
 import { I18N } from './I18N';
 import { Shared } from './Shared';
@@ -20,7 +20,7 @@ export type StorageValuesV2 = {
 	syncOptions?: StorageValuesSyncOptionsV2;
 	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
-	correctItems?: Partial<Record<StreamingServiceId, Record<string, CorrectItem>>>;
+	correctItems?: Partial<Record<string, Record<string, CorrectItem>>>;
 	scrobblingItem?: Omit<SavedItem, ''>;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
@@ -31,14 +31,14 @@ export type StorageValuesV1 = {
 	options?: StorageValuesOptionsV1;
 	syncOptions?: StorageValuesSyncOptionsV1;
 	traktCache?: unknown;
-	correctUrls?: Partial<Record<StreamingServiceId, Record<string, string>>>;
+	correctUrls?: Partial<Record<string, Record<string, string>>>;
 	scrobblingItem?: unknown;
 	scrobblingTabId?: number;
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
 export type StorageValuesOptionsV2 = {
-	streamingServices: Record<StreamingServiceId, StreamingServiceValue>;
+	streamingServices: Record<string, StreamingServiceValue>;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
 	theme: ThemeValue;
@@ -47,7 +47,7 @@ export type StorageValuesOptionsV2 = {
 };
 
 export type StorageValuesOptionsV1 = {
-	streamingServices: Record<StreamingServiceId, boolean>;
+	streamingServices: Record<string, boolean>;
 	disableScrobbling: boolean;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
@@ -187,10 +187,7 @@ class _BrowserStorage {
 			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
 			if (optionsV1 && optionsV2) {
 				if (optionsV1.streamingServices && optionsV2.streamingServices) {
-					for (const [id, value] of Object.entries(optionsV1.streamingServices) as [
-						StreamingServiceId,
-						boolean
-					][]) {
+					for (const [id, value] of Object.entries(optionsV1.streamingServices)) {
 						if (typeof value !== 'boolean') {
 							continue;
 						}
@@ -241,10 +238,7 @@ class _BrowserStorage {
 			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
 			if (optionsV1 && optionsV2) {
 				if (optionsV1.streamingServices && optionsV2.streamingServices) {
-					for (const [id, value] of Object.entries(optionsV2.streamingServices) as [
-						StreamingServiceId,
-						StreamingServiceValue
-					][]) {
+					for (const [id, value] of Object.entries(optionsV2.streamingServices)) {
 						if (typeof value === 'boolean') {
 							continue;
 						}
@@ -392,7 +386,7 @@ class _BrowserStorage {
 							lastSyncId: '',
 						},
 					])
-				) as Record<StreamingServiceId, StreamingServiceValue>,
+				) as Record<string, StreamingServiceValue>,
 				origins: [],
 				permissions: [],
 				doShow: true,
@@ -478,7 +472,7 @@ class _BrowserStorage {
 				typeof this.options[option.id] !== 'undefined' ? this.options[option.id] : option.value;
 			if (option.id === 'streamingServices') {
 				const missingServices = Object.fromEntries(
-					(Object.keys(streamingServices) as StreamingServiceId[])
+					Object.keys(streamingServices)
 						.filter((serviceId) => !(serviceId in option.value))
 						.map((serviceId) => [
 							serviceId,
@@ -491,7 +485,7 @@ class _BrowserStorage {
 								lastSyncId: '',
 							},
 						])
-				) as Record<StreamingServiceId, StreamingServiceValue>;
+				) as Record<string, StreamingServiceValue>;
 				option.value = { ...option.value, ...missingServices };
 			}
 			this.addOption(option);
@@ -511,19 +505,16 @@ class _BrowserStorage {
 	addOption<K extends keyof StorageValuesOptions>(option: Partial<Option<K>>) {
 		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
 			if (BrowserStorage.isStreamingServiceOption(option)) {
-				for (const [id, value] of Object.entries(option.value) as [
-					StreamingServiceId,
-					StreamingServiceValue
-				][]) {
-					if (!this.options[option.id]) {
-						this.options[option.id] = {} as Record<StreamingServiceId, StreamingServiceValue>;
+				for (const [id, value] of Object.entries(option.value)) {
+					if (!this.options.streamingServices) {
+						this.options.streamingServices = {};
 					}
-					this.options[option.id][id] = {
-						...(this.options[option.id]?.[id] ?? {}),
+					this.options.streamingServices[id] = {
+						...(this.options.streamingServices?.[id] ?? {}),
 						...value,
 					};
-					this.optionsDetails[option.id].value[id] = {
-						...this.optionsDetails[option.id].value[id],
+					this.optionsDetails.streamingServices.value[id] = {
+						...this.optionsDetails.streamingServices.value[id],
 						...value,
 					};
 				}

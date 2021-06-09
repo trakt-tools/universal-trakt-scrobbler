@@ -1,4 +1,3 @@
-import { registerScrobbleEvents } from '../common/common';
 import { ScrobbleEvents } from '../common/ScrobbleEvents';
 import { DisneyplusParser } from './DisneyplusParser';
 
@@ -9,5 +8,3 @@ class _DisneyplusEvents extends ScrobbleEvents {
 }
 
 export const DisneyplusEvents = new _DisneyplusEvents();
-
-registerScrobbleEvents('disneyplus', DisneyplusEvents);

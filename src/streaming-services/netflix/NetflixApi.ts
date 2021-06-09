@@ -4,7 +4,7 @@ import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api, HistoryItem } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as Netflix from './netflix.json';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -151,7 +151,7 @@ class _NetflixApi extends Api {
 	nextHistoryPage = 0;
 
 	constructor() {
-		super('netflix');
+		super(Netflix.id);
 
 		this.HOST_URL = 'https://www.netflix.com';
 		this.API_URL = `${this.HOST_URL}/api/shakti`;
@@ -389,5 +389,3 @@ class _NetflixApi extends Api {
 }
 
 export const NetflixApi = new _NetflixApi();
-
-registerApi('netflix', NetflixApi);

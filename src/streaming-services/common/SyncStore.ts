@@ -1,9 +1,6 @@
 import { BrowserStorage } from '../../common/BrowserStorage';
 import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
 import { Item } from '../../models/Item';
-import { StreamingServiceId } from '../streaming-services';
-
-export type SyncStoreId = StreamingServiceId | 'multiple';
 
 export interface SyncStoreData {
 	items: Item[];
@@ -18,10 +15,10 @@ export interface SyncStoreData {
 }
 
 export class SyncStore {
-	id: SyncStoreId;
+	id: string;
 	data: SyncStoreData;
 
-	constructor(id: SyncStoreId) {
+	constructor(id: string) {
 		this.id = id;
 		this.data = SyncStore.getInitialData();
 	}
