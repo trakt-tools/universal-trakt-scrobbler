@@ -10,13 +10,6 @@ class _GoplayBeParser extends ScrobbleParser {
 		});
 	}
 
-	parsePlaybackFromDom() {
-		const progressElement: HTMLElement | null = document.querySelector('.vjs-play-progress');
-		const progress = progressElement ? parseFloat(progressElement.style.width) : 0.0;
-
-		return progress > 0.0 ? { progress } : null;
-	}
-
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const titleElement = document.querySelector('title');

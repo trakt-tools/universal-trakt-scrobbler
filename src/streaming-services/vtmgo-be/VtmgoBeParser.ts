@@ -10,13 +10,6 @@ class _VtmgoBeParser extends ScrobbleParser {
 		});
 	}
 
-	parsePlaybackFromDom() {
-		const progressElement: HTMLElement | null = document.querySelector('.pui__seekbar__scrubber');
-		const progress = progressElement ? parseFloat(progressElement.style.left) : 0.0;
-
-		return progress > 0.0 ? { progress } : null;
-	}
-
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const titleElement = document.querySelector('.player__title');
