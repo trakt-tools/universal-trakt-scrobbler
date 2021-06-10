@@ -1,12 +1,13 @@
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { ScrobblerTemplateApi } from './ScrobblerTemplateApi';
 
-// Define any types you need here.
+// Define any types you need here
 
-// This class should parse information about what the user is watching.
+/**
+ * This class should parse information about what the user is watching.
+ */
 class _ScrobblerTemplateParser extends ScrobbleParser {
-	// Define any properties you need here.
+	// Define any properties you need here
 
 	constructor() {
 		super(ScrobblerTemplateApi, {
@@ -43,10 +44,7 @@ class _ScrobblerTemplateParser extends ScrobbleParser {
 	 * An example of application for custom methods is when the only way to parse information is to do so when the user clicks on the play button. In that scenario, `onClick` should be implemented.
 	 */
 
-	// Define any methods you need here.
+	// Define any methods you need here
 }
 
 export const ScrobblerTemplateParser = new _ScrobblerTemplateParser();
-
-// @ts-expect-error
-registerScrobbleParser('scrobbler-template', ScrobblerTemplateParser);

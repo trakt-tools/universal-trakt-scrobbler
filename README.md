@@ -112,11 +112,8 @@ npm run zip
 
 #### How to add more streaming services
 
-- First of all, edit the file `src/streaming-services/streaming-services.ts` and add an entry for the new service with a unique ID e.g. 'Netflix' => 'netflix', 'Amazon Prime' => 'amazon-prime'. Don't forget to set the `hasScrobbler` and `hasSync` flags correctly.
-- Some services can have different aspects and limitations, and updates may be needed elsewhere in the source code to handle these cases, so the steps below are more of a guideline.
-- For a scrobbler: copy the `src/streaming-services/scrobbler-template/` folder and adjust accordingly. Remember to use **the same ID** specified in `src/streaming-services/streaming-services.ts` for the folder name and for the content script file name. That's it!
-- For a sync: copy the `src/streaming-services/sync-template/` folder and adjust accordingly. Remember to use **the same ID** specified in `src/streaming-services/streaming-services.ts` for the folder name, and don't forget to import the `*Api.ts` file in `src/streaming-services/pages.ts`, otherwise the service won't load at all. That's it!
-- You can see the folders of the other services for some reference. The templates are just the basic to get you started.
+- Run `npx create-streaming-service`. It will prompt you a few questions about the service and automatically generate all the necessary files.
+- Go to the generated files and adjust them accordingly. You can see the files of the other services for some reference.
 
 ### Credits
 

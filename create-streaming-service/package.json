@@ -1,0 +1,26 @@
+{
+	"name": "@trakt-tools/create-streaming-service",
+	"version": "1.0.0",
+	"description": "A CLI to bootstrap new streaming services for Universal Trakt Scrobbler.",
+	"author": "trakt-tools",
+	"main": "src/index.js",
+	"bin": {
+		"@trakt-tools/create-streaming-service": "bin/create-streaming-service",
+		"create-streaming-service": "bin/create-streaming-service"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"arg": "^5.0.0",
+		"inquirer": "^8.1.0"
+	},
+	"devDependencies": {
+		"@types/inquirer": "^7.3.1"
+	},
+	"keywords": [
+		"cli",
+		"create-streaming-service"
+	],
+	"license": "MIT"
+}
