@@ -26,7 +26,7 @@ export interface EventData {
 	SEARCH_SUCCESS: SearchSuccessData;
 	SEARCH_ERROR: SearchErrorData;
 	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
-	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<string>;
+	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData;
 	OPTIONS_CLEAR: SuccessData;
 	DIALOG_SHOW: DialogShowData;
 	SNACKBAR_SHOW: SnackbarShowData;
@@ -88,8 +88,8 @@ export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
 	value: StorageValuesOptions[K];
 }
 
-export type StreamingServiceOptionsChangeData<K extends string> = {
-	id: K;
+export type StreamingServiceOptionsChangeData = {
+	id: string;
 	value: Partial<StreamingServiceValue>;
 }[];
 

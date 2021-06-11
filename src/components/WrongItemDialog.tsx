@@ -13,7 +13,7 @@ import {
 	TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { BrowserStorage, CorrectItem } from '../common/BrowserStorage';
+import { BrowserStorage } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
@@ -88,7 +88,7 @@ export const WrongItemDialog: React.FC = () => {
 			if (!correctItems) {
 				correctItems = Object.fromEntries(
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
-				) as Record<string, Record<string, CorrectItem>>;
+				);
 			}
 			if (!correctItems[dialog.item.serviceId]) {
 				correctItems[dialog.item.serviceId] = {};

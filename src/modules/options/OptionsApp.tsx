@@ -96,7 +96,7 @@ export const OptionsApp: React.FC = () => {
 			}
 		};
 
-		const onStreamingServiceOptionChange = (data: StreamingServiceOptionsChangeData<string>) => {
+		const onStreamingServiceOptionChange = (data: StreamingServiceOptionsChangeData) => {
 			const streamingServiceValues = {} as Record<string, StreamingServiceValue>;
 			for (const [id, value] of Object.entries(BrowserStorage.options.streamingServices)) {
 				streamingServiceValues[id] = { ...value };

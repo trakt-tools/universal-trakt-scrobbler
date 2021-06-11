@@ -386,7 +386,7 @@ class _BrowserStorage {
 							lastSyncId: '',
 						},
 					])
-				) as Record<string, StreamingServiceValue>,
+				),
 				origins: [],
 				permissions: [],
 				doShow: true,
@@ -485,7 +485,7 @@ class _BrowserStorage {
 								lastSyncId: '',
 							},
 						])
-				) as Record<string, StreamingServiceValue>;
+				);
 				option.value = { ...option.value, ...missingServices };
 			}
 			this.addOption(option);
