@@ -1,4 +1,4 @@
-const arg = require('arg');
+const commander = require('commander');
 const fs = require('fs');
 const inquirer = require('inquirer');
 const path = require('path');
@@ -55,37 +55,57 @@ const replaceTemplate = (template, serviceId, serviceKey) => {
 };
 
 /**
+ * @param {(value: string) => boolean | string} validator
+ */
+const validateArg = (validator) => {
+	return (/** @type {string} */ value) => {
+		const result = validator(value);
+		if (typeof result === 'string') {
+			throw new commander.InvalidOptionArgumentError(result);
+		}
+		return value;
+	};
+};
+
+/**
+ * @param {string} id
+ */
+const validateId = (id) => {
+	if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(id)) {
+		return 'IDs must contain only lowercase letters, numbers or dash (-), and not begin or end with a dash';
+	}
+
+	const servicePath = path.resolve(servicesPath, id);
+	if (fs.existsSync(servicePath)) {
+		return 'Service already exists or ID is already being used by another service';
+	}
+
+	return true;
+};
+
+/**
  * @param {string[]} rawArgs
  * @returns {StreamingService}
  */
 const parseArgsIntoOptions = (rawArgs) => {
-	const args = arg(
-		{
-			'--name': String,
-			'--id': String,
-			'--homePage': String,
-			'--hasScrobbler': Boolean,
-			'--hasSync': Boolean,
-			'--hasAutoSync': Boolean,
-			'-n': '--name',
-			'-i': '--id',
-			'-h': '--homePage',
-			'-a': '--hasScrobbler',
-			'-b': '--hasSync',
-			'-c': '--hasAutoSync',
-		},
-		{
-			argv: rawArgs,
-		}
-	);
+	const args = commander.program
+		.description('Create a new streaming service')
+		.option('-n, --name <name>', 'The name of the service')
+		.option('-i, --id <id>', 'A unique ID for the service', validateArg(validateId))
+		.option('-h, --home-page <home-page>', 'The URL for the home page of the service')
+		.option('-a, --has-scrobbler', 'If the service will have a scrobbler function')
+		.option('-b, --has-sync', 'If the service will have a sync function')
+		.option('-c, --has-auto-sync', 'If the service will have an auto sync function')
+		.parse(rawArgs)
+		.opts();
 
 	return {
-		name: args['--name'] ?? '',
-		id: args['--id'] ?? (args['--name'] && generateId(args['--name'])) ?? '',
-		homePage: args['--homePage'] ?? '',
-		hasScrobbler: args['--hasScrobbler'] ?? false,
-		hasSync: args['--hasSync'] ?? false,
-		hasAutoSync: args['--hasAutoSync'] ?? false,
+		name: args.name ?? '',
+		id: args.id ?? (args.name && generateId(args.name)) ?? '',
+		homePage: args.homePage ?? '',
+		hasScrobbler: args.hasScrobbler ?? false,
+		hasSync: args.hasSync ?? false,
+		hasAutoSync: args.hasAutoSync ?? false,
 	};
 };
 
@@ -110,13 +130,7 @@ const promptForMissingOptions = async (options) => {
 			default: (/** @type {Record<string, unknown>} */ answers) => {
 				return generateId(/** @type {string} */ (answers.name));
 			},
-			validate: (/** @type {string} */ input) => {
-				const servicePath = path.resolve(servicesPath, input);
-				if (fs.existsSync(servicePath)) {
-					return 'Service already exists or ID is already being used by another service';
-				}
-				return true;
-			},
+			validate: (/** @type {string} */ input) => validateId(input),
 		});
 	}
 	if (!options.homePage) {
@@ -167,20 +181,13 @@ const promptForMissingOptions = async (options) => {
 const cli = async (/** @type {string[]} */ args) => {
 	let options = /** @type {StreamingService} */ ({});
 
-	args = args.slice(2);
-	if (args.length > 0) {
+	if (args.length > 2) {
 		options = parseArgsIntoOptions(args);
-		if (options.id) {
-			const servicePath = path.resolve(servicesPath, options.id);
-			if (fs.existsSync(servicePath)) {
-				console.log(
-					'Failed to create service! Service already exists or ID is already being used by another service.'
-				);
-				return;
-			}
-		}
 	}
 	options = await promptForMissingOptions(options);
+	if (!/^https?:\/\//.test(options.homePage)) {
+		options.homePage = `https://${options.homePage}`;
+	}
 	if (options.hasAutoSync && !options.hasSync) {
 		options.hasSync = true;
 	}

@@ -112,7 +112,7 @@ npm run zip
 
 #### How to add more streaming services
 
-- Run `npx create-streaming-service`. It will prompt you a few questions about the service and automatically generate all the necessary files.
+- Run `npx create-streaming-service`. It will prompt you a few questions about the service and automatically generate all the necessary files. If you want to provide all the information at once without being prompted, run `npx create-streaming-service --help` to see the options.
 - Go to the generated files and adjust them accordingly. You can see the files of the other services for some reference.
 
 ### Credits
