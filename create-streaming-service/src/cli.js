@@ -2,6 +2,7 @@ const commander = require('commander');
 const fs = require('fs');
 const inquirer = require('inquirer');
 const path = require('path');
+const prettier = require('prettier');
 
 const BASE_PATH = __dirname;
 const CURRENT_PATH = process.cwd();
@@ -211,7 +212,10 @@ const cli = async (/** @type {string[]} */ args) => {
 
 	fs.writeFileSync(
 		path.resolve(servicePath, `${service.id}.json`),
-		JSON.stringify(service, null, 2)
+		prettier.format(JSON.stringify(service), {
+			parser: 'json',
+			useTabs: true,
+		})
 	);
 
 	let apiTemplate;
