@@ -16,7 +16,7 @@ class _TraktSettings extends TraktApi {
 		super();
 	}
 
-	getTimeAndDateFormat = async () => {
+	async getTimeAndDateFormat() {
 		let dateFormat = 'ddd ';
 		try {
 			const responseText = await Requests.send({
@@ -51,7 +51,7 @@ class _TraktSettings extends TraktApi {
 			dateFormat += 'D MMM YYYY, H:mm:ss';
 		}
 		return dateFormat;
-	};
+	}
 }
 
 export const TraktSettings = new _TraktSettings();

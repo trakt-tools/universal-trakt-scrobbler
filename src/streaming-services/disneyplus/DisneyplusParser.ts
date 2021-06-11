@@ -1,68 +1,18 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser } from '../common/ScrobbleParser';
 import { DisneyplusApi } from './DisneyplusApi';
 
-// TODO Cleanup
-
-export interface DisneyplusSession {
-	paused: boolean;
-	progress: number;
-}
-
-class _DisneyplusParser implements ScrobbleParser {
-	id: string;
-	videoId: string;
-	progress: number;
-	isPaused: boolean;
-
+class _DisneyplusParser extends ScrobbleParser {
 	constructor() {
-		this.id = '';
-		this.videoId = '';
-		this.progress = 0.0;
-		this.isPaused = false;
+		super(DisneyplusApi, {
+			watchingUrlRegex: /\/video\/(.+)/, // https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d => f3f11053-d810-4b92-9c95-567bef5f215d
+		});
 	}
 
-	parseSession = (): DisneyplusSession => {
-		const loadingSpinner =
-			document.querySelector('.overlay__loading:not([style="display: none;"])') !== null;
-		const pauseIcon = document.querySelector('.pause-icon') !== null;
-		const playIcon = document.querySelector('.play-icon') !== null;
-
-		if (loadingSpinner) {
-			this.isPaused = true;
-		} else if (playIcon && !pauseIcon) {
-			this.isPaused = true;
-		} else if (pauseIcon && !playIcon) {
-			this.isPaused = false;
-		}
-
-		const paused = this.isPaused;
-		const progress = this.parseProgress();
-		return { paused, progress };
-	};
-
-	parseProgress = (): number => {
-		let progress = 0.0;
-		const scrubbers: NodeListOf<HTMLElement> = document.querySelectorAll(
-			'.slider-handle-container'
-		);
-		const scrubber = scrubbers[scrubbers.length - 1];
-
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.width);
-			this.progress = progress;
-		}
-		// Failsafe
-		if (progress == 0) {
-			progress = this.progress;
-		}
-		return progress;
-	};
-
-	parseItem = (): Item | undefined => {
-		const serviceId = 'disneyplus';
-		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
+	parseItemFromDom() {
+		const serviceId = this.api.id;
+		const id = this.parseItemIdFromUrl();
 		const titleElement = document.querySelector('.title-field');
 		const title = titleElement?.textContent ?? '';
 		const subTitleElement = document.querySelector('.subtitle-field');
@@ -80,16 +30,12 @@ class _DisneyplusParser implements ScrobbleParser {
 			[, seasonAndEpisode, seasonStr, episodeStr, subTitle] = matches;
 		}
 
-		const year = 0;
 		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
 		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
 		const episodeTitle = subTitle ?? '';
-		const isCollection = false;
 
-		if (titleElement) {
-			this.videoId = id;
-		} else {
-			return undefined;
+		if (!titleElement) {
+			return null;
 		}
 
 		return new Item({
@@ -97,13 +43,11 @@ class _DisneyplusParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
-	};
+	}
 }
 
 export const DisneyplusParser = new _DisneyplusParser();

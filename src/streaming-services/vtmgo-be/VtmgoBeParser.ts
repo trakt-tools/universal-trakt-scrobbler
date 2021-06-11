@@ -1,38 +1,19 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser } from '../common/ScrobbleParser';
 import { VtmgoBeApi } from './VtmgoBeApi';
 
-class _VtmgoBeParser implements ScrobbleParser {
-	id: string;
-	videoId: string;
-	progress: number;
-	isPaused: boolean;
-
+class _VtmgoBeParser extends ScrobbleParser {
 	constructor() {
-		this.id = '';
-		this.videoId = '';
-		this.progress = 0.0;
-		this.isPaused = false;
+		super(VtmgoBeApi, {
+			watchingUrlRegex: /\/afspelen\/(.+)/, // https://vtm.be/vtmgo/afspelen/eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d => eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d
+		});
 	}
 
-	parseProgress = (): number => {
-		let progress = 0.0;
-		const scrubber: HTMLElement | null = document.querySelector('.pui__seekbar__scrubber');
-
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.left);
-			this.progress = progress;
-		}
-
-		return progress;
-	};
-
-	parseItem = (): Item | undefined => {
-		const serviceId = 'vtmgo-be';
+	parseItemFromDom() {
+		const serviceId = this.api.id;
 		const titleElement = document.querySelector('.player__title');
-		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const year = 0;
+		const id = this.parseItemIdFromUrl();
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -50,12 +31,9 @@ class _VtmgoBeParser implements ScrobbleParser {
 		const season = parseInt(seasonId ?? '') || 0;
 		const episode = parseInt(episodeId ?? '') || 0;
 		const type = seasonId ? 'show' : 'movie';
-		const isCollection = false;
 
-		if (titleElement) {
-			this.videoId = id;
-		} else {
-			return undefined;
+		if (!titleElement) {
+			return null;
 		}
 
 		return new Item({
@@ -63,13 +41,11 @@ class _VtmgoBeParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
-	};
+	}
 }
 
 export const VtmgoBeParser = new _VtmgoBeParser();

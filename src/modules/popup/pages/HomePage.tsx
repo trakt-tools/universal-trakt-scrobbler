@@ -1,20 +1,30 @@
 import { CircularProgress } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { TmdbApi } from '../../../api/TmdbApi';
+import { WrongItemApi } from '../../../api/WrongItemApi';
 import { BrowserStorage } from '../../../common/BrowserStorage';
+import {
+	EventDispatcher,
+	ScrobbleStartData,
+	ScrobblingItemUpdateData,
+} from '../../../common/Events';
+import { Messaging } from '../../../common/Messaging';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { IItem, Item } from '../../../models/Item';
+import { Item } from '../../../models/Item';
 import { PopupNotWatching } from '../components/PopupNotWatching';
 import { PopupWatching } from '../components/PopupWatching';
 
 interface IPopupHomeContent {
 	isLoading: boolean;
 	scrobblingItem: Item | null;
+	isPaused: boolean;
 }
 
 const initialContentState: IPopupHomeContent = {
 	isLoading: true,
 	scrobblingItem: null,
+	isPaused: false,
 };
 
 export const HomePage: React.FC = () => {
@@ -22,10 +32,11 @@ export const HomePage: React.FC = () => {
 
 	useEffect(() => {
 		const getScrobblingItem = async (): Promise<void> => {
-			const { scrobblingItem } = await BrowserStorage.get('scrobblingItem');
+			const { item, isPaused } = await Messaging.toBackground({ action: 'get-scrobbling-info' });
 			setContent({
 				isLoading: false,
-				scrobblingItem: scrobblingItem ? new Item(scrobblingItem as IItem) : null,
+				scrobblingItem: item ? Item.load(item) : null,
+				isPaused,
 			});
 		};
 
@@ -34,33 +45,88 @@ export const HomePage: React.FC = () => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			browser.storage.onChanged.addListener(onStorageChanged);
+			EventDispatcher.subscribe('SCROBBLE_START', null, onScrobbleStart);
+			EventDispatcher.subscribe('SCROBBLE_PAUSE', null, onScrobblePause);
+			EventDispatcher.subscribe('SCROBBLE_STOP', null, onScrobbleStop);
+			EventDispatcher.subscribe('SCROBBLING_ITEM_UPDATE', null, onScrobblingItemUpdate);
 		};
 
 		const stopListeners = () => {
-			browser.storage.onChanged.removeListener(onStorageChanged);
+			EventDispatcher.unsubscribe('SCROBBLE_START', null, onScrobbleStart);
+			EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, onScrobblePause);
+			EventDispatcher.unsubscribe('SCROBBLE_STOP', null, onScrobbleStop);
+			EventDispatcher.unsubscribe('SCROBBLING_ITEM_UPDATE', null, onScrobblingItemUpdate);
 		};
 
-		const onStorageChanged = (
-			changes: browser.storage.ChangeDict,
-			areaName: browser.storage.StorageName
-		) => {
-			if (areaName !== 'local') {
-				return;
-			}
-			if ('scrobblingItem' in changes) {
-				setContent({
-					isLoading: false,
-					scrobblingItem: changes.scrobblingItem.newValue
-						? new Item(changes.scrobblingItem.newValue as IItem)
-						: null,
-				});
-			}
+		const onScrobbleStart = (data: ScrobbleStartData) => {
+			setContent((prevContent) => ({
+				...prevContent,
+				scrobblingItem: data.item
+					? Item.load({
+							...data.item,
+							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							imageUrl: prevContent.scrobblingItem?.imageUrl,
+					  })
+					: null,
+				isPaused: false,
+			}));
+		};
+
+		const onScrobblePause = () => {
+			setContent((prevContent) => ({
+				...prevContent,
+				isPaused: true,
+			}));
+		};
+
+		const onScrobbleStop = () => {
+			setContent((prevContent) => ({
+				...prevContent,
+				scrobblingItem: null,
+				isPaused: false,
+			}));
+		};
+
+		const onScrobblingItemUpdate = (data: ScrobblingItemUpdateData) => {
+			setContent((prevContent) => ({
+				...prevContent,
+				scrobblingItem: data.scrobblingItem
+					? Item.load({
+							...data.scrobblingItem,
+							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							imageUrl: prevContent.scrobblingItem?.imageUrl,
+					  })
+					: null,
+			}));
 		};
 
 		startListeners();
 		return stopListeners;
-	});
+	}, []);
+
+	useEffect(() => {
+		const loadData = async () => {
+			if (
+				!content.scrobblingItem ||
+				(BrowserStorage.options.sendReceiveSuggestions &&
+					typeof content.scrobblingItem.correctionSuggestions !== 'undefined') ||
+				typeof content.scrobblingItem.imageUrl !== 'undefined'
+			) {
+				return;
+			}
+			let newItem = content.scrobblingItem;
+			if (BrowserStorage.options.sendReceiveSuggestions) {
+				newItem = await WrongItemApi.loadItemSuggestions(newItem);
+			}
+			newItem = await TmdbApi.loadItemImage(newItem);
+			setContent((prevContent) => ({
+				...prevContent,
+				scrobblingItem: newItem,
+			}));
+		};
+
+		void loadData();
+	}, [content.scrobblingItem]);
 
 	let component = null;
 	if (content.isLoading) {
@@ -70,7 +136,7 @@ export const HomePage: React.FC = () => {
 			</UtsCenter>
 		);
 	} else if (content.scrobblingItem) {
-		component = <PopupWatching item={content.scrobblingItem} />;
+		component = <PopupWatching item={content.scrobblingItem} isPaused={content.isPaused} />;
 	} else {
 		component = <PopupNotWatching />;
 	}

@@ -105,11 +105,11 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 					)}
 				</UtsCenter>
 			</CardContent>
-			{item && 'percentageWatched' in item && item.percentageWatched !== undefined && (
-				<Tooltip title={I18N.translate('progress', item.percentageWatched.toString())}>
+			{item && item.progress > 0.0 && (
+				<Tooltip title={I18N.translate('progress', item.progress.toString())}>
 					<LinearProgress
 						classes={{ root: 'history-list-item-progress' }}
-						value={item.percentageWatched}
+						value={item.progress}
 						variant="determinate"
 					/>
 				</Tooltip>

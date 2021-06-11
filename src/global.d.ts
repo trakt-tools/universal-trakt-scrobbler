@@ -1,10 +1,7 @@
 declare interface Window {
-	wrappedJSObject?: {
-		localStorage: Storage;
-		netflix?: import('./streaming-services/netflix/NetflixApi').NetflixGlobalObject;
-		sdk?: import('./streaming-services/hbo-go/HboGoApi').HboGoGlobalObject;
-		player?: import('./streaming-services/nrk/NrkApi').NrkGlobalObject;
-	};
+	netflix?: import('./streaming-services/netflix/NetflixApi').NetflixGlobalObject;
+	sdk?: import('./streaming-services/hbo-go/HboGoApi').HboGoGlobalObject;
+	player?: import('./streaming-services/nrk/NrkApi').NrkGlobalObject;
 	Rollbar?: import('rollbar');
 }
 
@@ -17,3 +14,5 @@ declare type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 declare type Messages = typeof import('./_locales/en/messages.json');
 
 declare type MessageName = keyof Messages;
+
+declare type Promisable<T> = T | PromiseLike<T>;

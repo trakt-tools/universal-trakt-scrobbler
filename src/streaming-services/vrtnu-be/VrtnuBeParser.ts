@@ -1,35 +1,17 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser } from '../common/ScrobbleParser';
 import { VrtnuBeApi } from './VrtnuBeApi';
 
-class _VrtnuBeParser implements ScrobbleParser {
-	id: string;
-	videoId: string;
-	progress: number;
-	isPaused: boolean;
-
+class _VrtnuBeParser extends ScrobbleParser {
 	constructor() {
-		this.id = '';
-		this.videoId = '';
-		this.progress = 0.0;
-		this.isPaused = false;
+		super(VrtnuBeApi, {
+			watchingUrlRegex: /\/a-z\/.+?\/.+?\/(.+?)\//, // https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
+		});
 	}
 
-	parseProgress = (): number => {
-		let progress = 0.0;
-		const scrubber: HTMLElement | null = document.querySelector('.vjs-play-progress');
-
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.left);
-			this.progress = progress;
-		}
-
-		return progress;
-	};
-
-	parseItem = (): Item | undefined => {
-		const serviceId = 'vrtnu-be';
+	parseItemFromDom() {
+		const serviceId = this.api.id;
 		let showTitle: string | null = null;
 		let seasonOrYear: string | null = null;
 		let subTitle: string | undefined = undefined;
@@ -40,7 +22,7 @@ class _VrtnuBeParser implements ScrobbleParser {
 
 		// https://www.vrt.be/vrtnu/a-z/dertigers/3/dertigers-s3a1/
 		// https://www.vrt.be/vrtnu/a-z/une-soeur/2018/une-soeur/
-		const matches = /\/a-z\/(.+)\/(.+)\/((.+?)(-s(\d+)a(\d+))?)\//.exec(location.href);
+		const matches = /\/a-z\/(.+?)\/(.+?)\/((.+?)(-s(\d+)a(\d+))?)\//.exec(this.getLocation());
 
 		if (matches) {
 			[, showTitle, seasonOrYear, id, subTitle, seasonAndEpisode, seasonStr, episodeStr] = matches;
@@ -52,12 +34,9 @@ class _VrtnuBeParser implements ScrobbleParser {
 		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
 		const type = seasonAndEpisode ? 'show' : 'movie';
 		const year = !seasonAndEpisode ? parseInt(seasonOrYear ?? '') : 0;
-		const isCollection = false;
 
-		if (id) {
-			this.videoId = id;
-		} else {
-			return undefined;
+		if (!id) {
+			return null;
 		}
 
 		return new Item({
@@ -69,9 +48,8 @@ class _VrtnuBeParser implements ScrobbleParser {
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
-	};
+	}
 }
 
 export const VrtnuBeParser = new _VrtnuBeParser();

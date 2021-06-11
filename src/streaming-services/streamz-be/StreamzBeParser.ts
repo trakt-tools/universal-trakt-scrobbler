@@ -1,43 +1,19 @@
 import { Item } from '../../models/Item';
 import { registerScrobbleParser } from '../common/common';
-import { ScrobbleParser } from '../common/ScrobbleController';
+import { ScrobbleParser } from '../common/ScrobbleParser';
 import { StreamzBeApi } from './StreamzBeApi';
 
-export interface StreamzBeSession {
-	paused: boolean;
-	progress: number;
-}
-
-class _StreamzBeParser implements ScrobbleParser {
-	id: string;
-	videoId: string;
-	progress: number;
-	isPaused: boolean;
-
+class _StreamzBeParser extends ScrobbleParser {
 	constructor() {
-		this.id = '';
-		this.videoId = '';
-		this.progress = 0.0;
-		this.isPaused = false;
+		super(StreamzBeApi, {
+			watchingUrlRegex: /\/afspelen\/(.+)/, // https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096 => e870cbdf1-77f7-4b06-8dce-2437686eb096
+		});
 	}
 
-	parseProgress = (): number => {
-		let progress = 0.0;
-		const scrubber: HTMLElement | null = document.querySelector('.pui__seekbar__scrubber');
-
-		if (scrubber) {
-			progress = parseFloat(scrubber?.style.left);
-			this.progress = progress;
-		}
-
-		return progress;
-	};
-
-	parseItem = (): Item | undefined => {
-		const serviceId = 'streamz-be';
+	parseItemFromDom() {
+		const serviceId = this.api.id;
 		const titleElement = document.querySelector('.player__title');
-		const id = location.href.substring(location.href.lastIndexOf('/') + 1);
-		const year = 0;
+		const id = this.parseItemIdFromUrl();
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
@@ -55,12 +31,9 @@ class _StreamzBeParser implements ScrobbleParser {
 		const season = parseInt(seasonId ?? '') || 0;
 		const episode = parseInt(episodeId ?? '') || 0;
 		const type = seasonId ? 'show' : 'movie';
-		const isCollection = false;
 
-		if (titleElement) {
-			this.videoId = id;
-		} else {
-			return undefined;
+		if (!titleElement) {
+			return null;
 		}
 
 		return new Item({
@@ -68,13 +41,11 @@ class _StreamzBeParser implements ScrobbleParser {
 			id,
 			type,
 			title,
-			year,
 			episodeTitle,
 			season,
 			episode,
-			isCollection,
 		});
-	};
+	}
 }
 
 export const StreamzBeParser = new _StreamzBeParser();

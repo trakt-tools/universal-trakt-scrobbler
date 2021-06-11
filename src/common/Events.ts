@@ -1,6 +1,6 @@
 import { Color } from '@material-ui/lab';
 import { TraktSearchItem } from '../api/TraktSearch';
-import { Item } from '../models/Item';
+import { Item, SavedItem } from '../models/Item';
 import { TraktItem } from '../models/TraktItem';
 import { StreamingServiceId } from '../streaming-services/streaming-services';
 import {
@@ -20,12 +20,12 @@ export interface EventData {
 	SCROBBLE_ERROR: ScrobbleErrorData;
 	SCROBBLE_ACTIVE: SuccessData;
 	SCROBBLE_INACTIVE: SuccessData;
-	SCROBBLE_START: SuccessData;
+	SCROBBLE_START: ScrobbleStartData;
 	SCROBBLE_PAUSE: SuccessData;
 	SCROBBLE_STOP: SuccessData;
 	SCROBBLE_PROGRESS: ScrobbleProgressData;
 	SEARCH_SUCCESS: SearchSuccessData;
-	SEARCH_ERROR: ErrorData;
+	SEARCH_ERROR: SearchErrorData;
 	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
 	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData<StreamingServiceId>;
 	OPTIONS_CLEAR: SuccessData;
@@ -44,6 +44,7 @@ export interface EventData {
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
 	STORAGE_OPTIONS_CHANGE: SuccessData;
+	SCROBBLING_ITEM_UPDATE: ScrobblingItemUpdateData;
 }
 
 export type Event = keyof EventData;
@@ -67,12 +68,20 @@ export type ScrobbleErrorData = ScrobbleSuccessData & {
 	error: RequestException;
 };
 
+export interface ScrobbleStartData {
+	item?: SavedItem;
+}
+
 export interface ScrobbleProgressData {
 	progress: number;
 }
 
 export interface SearchSuccessData {
 	searchItem: TraktSearchItem;
+}
+
+export interface SearchErrorData {
+	error: RequestException;
 }
 
 export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
@@ -144,6 +153,10 @@ export interface RequestsCancelData {
 	key: string;
 }
 
+export interface ScrobblingItemUpdateData {
+	scrobblingItem?: SavedItem;
+}
+
 export type EventDispatcherListeners = Record<
 	string,
 	Record<string, EventDispatcherListener<any>[]>
@@ -159,11 +172,11 @@ class _EventDispatcher {
 		this.listeners = {};
 	}
 
-	subscribe = <K extends Event>(
+	subscribe<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		listener: EventDispatcherListener<K>
-	): void => {
+	): void {
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}
@@ -174,13 +187,13 @@ class _EventDispatcher {
 			this.listeners[eventType][eventSpecifier] = [];
 		}
 		this.listeners[eventType][eventSpecifier].push(listener);
-	};
+	}
 
-	unsubscribe = <K extends Event>(
+	unsubscribe<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		listener: EventDispatcherListener<K>
-	): void => {
+	): void {
 		if (!this.listeners[eventType]) {
 			return;
 		}
@@ -192,13 +205,13 @@ class _EventDispatcher {
 				(fn) => fn !== listener
 			);
 		}
-	};
+	}
 
-	dispatch = async <K extends Event>(
+	async dispatch<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
 		data: EventData[K]
-	): Promise<void> => {
+	): Promise<void> {
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}
@@ -215,9 +228,10 @@ class _EventDispatcher {
 				await listener(data);
 			} catch (err) {
 				Errors.log('Failed to dispatch.', err);
+				throw err;
 			}
 		}
-	};
+	}
 }
 
 export const EventDispatcher = new _EventDispatcher();

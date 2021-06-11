@@ -2,7 +2,6 @@
 
 .popup-container {
 	height: 200px;
-	padding: 8px;
 	position: relative;
 	width: 400px;
 }
@@ -18,7 +17,15 @@
 
 .popup-container--overlay-color {
 	@extend %full-view;
+	align-items: center;
 	background-color: rgba(0, 0, 0, 0.5);
+	color: #fff;
+	display: flex;
+	justify-content: center;
+
+	* {
+		font-size: 1000%;
+	}
 }
 
 .popup-container--overlay-image {
@@ -35,7 +42,7 @@
 	color: #fff;
 	text-align: center;
 
-	> * {
+	> *:not(.popup-watching-progress) {
 		margin: 8px 0;
 	}
 }
@@ -47,4 +54,12 @@
 	> * {
 		height: 100%;
 	}
+}
+
+.popup-watching-progress {
+	bottom: 0;
+	height: 8px;
+	left: 0;
+	position: absolute;
+	width: 100%;
 }

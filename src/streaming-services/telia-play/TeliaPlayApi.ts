@@ -149,7 +149,7 @@ class _TeliaPlayApi extends Api {
 		this.jwt = '';
 	}
 
-	activate = async () => {
+	async activate() {
 		const response = await Requests.send({
 			url: this.AUTH_URL,
 			method: 'GET',
@@ -158,13 +158,9 @@ class _TeliaPlayApi extends Api {
 		this.jwt = responseJson.token.accessToken;
 
 		this.isActivated = true;
-	};
+	}
 
-	loadHistory = async (
-		itemsToLoad: number,
-		lastSync: number,
-		lastSyncId: string
-	): Promise<void> => {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -255,9 +251,9 @@ class _TeliaPlayApi extends Api {
 			}
 			throw err;
 		}
-	};
+	}
 
-	doGet = async (url: string) => {
+	async doGet(url: string) {
 		const response = await Requests.send({
 			url: url,
 			method: 'GET',
@@ -265,26 +261,26 @@ class _TeliaPlayApi extends Api {
 		});
 
 		return response;
-	};
+	}
 
-	pctWatched = (watched: TeliaWatchedItem | undefined) => {
+	pctWatched(watched: TeliaWatchedItem | undefined) {
 		if (typeof watched === 'undefined') {
 			return 0;
 		}
 		return Math.round(100 * (watched.position / watched.duration));
-	};
+	}
 
-	parseType = (mediaObject: TeliaMediaObject) => {
+	parseType(mediaObject: TeliaMediaObject) {
 		return mediaObject.categories.includes('Film') ? 'movie' : 'show';
-	};
+	}
 
-	parseHistoryItem = (mediaObject: TeliaMediaObject, watched: TeliaWatchedItem): Item => {
+	parseHistoryItem(mediaObject: TeliaMediaObject, watched: TeliaWatchedItem): Item {
 		let item: Item;
 		const serviceId = this.id;
 		const id = mediaObject.loopId;
 		const type = this.parseType(mediaObject);
 		const year = parseInt(mediaObject.productionYear);
-		const percentageWatched = this.pctWatched(watched);
+		const progress = this.pctWatched(watched);
 		const watchedDate = new Date(watched.timestamp);
 		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
 		if (type === 'show') {
@@ -309,16 +305,23 @@ class _TeliaPlayApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection: false,
-				percentageWatched,
+				progress,
 				watchedAt,
 			});
 		} else {
 			const title = mediaObject.title.trim();
-			item = new Item({ serviceId, id, type, title, year, percentageWatched, watchedAt });
+			item = new Item({
+				serviceId,
+				id,
+				type,
+				title,
+				year,
+				progress,
+				watchedAt,
+			});
 		}
 		return item;
-	};
+	}
 }
 
 export const TeliaPlayApi = new _TeliaPlayApi();

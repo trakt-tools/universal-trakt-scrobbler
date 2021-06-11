@@ -6,10 +6,9 @@ class _GoplayBeApi extends Api {
 		super('goplay-be');
 	}
 
-	// This method is only required for syncing, but since it is an abstract method, we have to implement at least a basic block for it.
-	loadHistory = (itemsToLoad: number): Promise<void> => {
+	loadHistory(itemsToLoad: number): Promise<void> {
 		return Promise.resolve();
-	};
+	}
 }
 
 export const GoplayBeApi = new _GoplayBeApi();

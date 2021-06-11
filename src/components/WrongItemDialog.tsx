@@ -110,9 +110,16 @@ export const WrongItemDialog: React.FC = () => {
 			};
 			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, data);
 			if (Shared.pageType === 'popup') {
-				const { scrobblingTabId } = await BrowserStorage.get('scrobblingTabId');
-				if (scrobblingTabId) {
-					await Messaging.toContent({ action: 'wrong-item-corrected', ...data }, scrobblingTabId);
+				const scrobblingInfo = await Messaging.toBackground({ action: 'get-scrobbling-info' });
+				if (scrobblingInfo.tabId) {
+					await Messaging.toContent(
+						{
+							action: 'wrong-item-corrected',
+							...data,
+							item: Item.save(data.item),
+						},
+						scrobblingInfo.tabId
+					);
 				}
 			}
 		} catch (err) {

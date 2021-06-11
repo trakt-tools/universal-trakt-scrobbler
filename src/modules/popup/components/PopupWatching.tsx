@@ -1,8 +1,7 @@
-import { Box, Button, Typography } from '@material-ui/core';
+import { Box, Button, LinearProgress, Tooltip, Typography } from '@material-ui/core';
+import PauseIcon from '@material-ui/icons/Pause';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
-import { TmdbApi } from '../../../api/TmdbApi';
-import { WrongItemApi } from '../../../api/WrongItemApi';
 import { BrowserStorage } from '../../../common/BrowserStorage';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
@@ -14,38 +13,16 @@ import { PopupInfo } from './PopupInfo';
 
 export interface IPopupWatching {
 	item: Item;
+	isPaused: boolean;
 }
 
-export const PopupWatching: React.FC<IPopupWatching> = ({ item: itemParam }) => {
-	const [item, setItem] = React.useState(itemParam);
-
+export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 	const openWrongItemDialog = async () => {
 		await EventDispatcher.dispatch('WRONG_ITEM_DIALOG_SHOW', null, {
 			serviceId: item.serviceId,
 			item,
 		});
 	};
-
-	React.useEffect(() => {
-		const loadSuggestions = async () => {
-			if (!BrowserStorage.options.sendReceiveSuggestions) {
-				return;
-			}
-			const newItem = await WrongItemApi.loadItemSuggestions(item);
-			setItem(newItem);
-		};
-
-		void loadSuggestions();
-	}, []);
-
-	React.useEffect(() => {
-		const loadImage = async () => {
-			const newItem = await TmdbApi.loadItemImage(item);
-			setItem(newItem);
-		};
-
-		void loadImage();
-	}, []);
 
 	return (
 		<>
@@ -78,9 +55,25 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item: itemParam }) => 
 								) : null}
 							</Typography>
 						</Button>
+						{item.progress > 0.0 && (
+							<Tooltip title={I18N.translate('progress', item.progress.toString())}>
+								<LinearProgress
+									classes={{ root: 'popup-watching-progress' }}
+									value={item.progress}
+									variant="determinate"
+								/>
+							</Tooltip>
+						)}
 					</PopupInfo>
 				</Box>
 			</Box>
+			{isPaused && (
+				<>
+					<Box className="popup-container--overlay-color">
+						<PauseIcon />
+					</Box>
+				</>
+			)}
 			<WrongItemDialog />
 			<UtsSnackbar />
 		</>
@@ -89,4 +82,5 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item: itemParam }) => 
 
 PopupWatching.propTypes = {
 	item: PropTypes.instanceOf(Item).isRequired,
+	isPaused: PropTypes.bool.isRequired,
 };

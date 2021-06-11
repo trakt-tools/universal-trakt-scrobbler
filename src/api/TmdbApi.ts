@@ -1,4 +1,3 @@
-import { CacheValues } from '../common/Cache';
 import { Errors } from '../common/Errors';
 import { Messaging } from '../common/Messaging';
 import { RequestException, Requests } from '../common/Requests';
@@ -46,13 +45,13 @@ class _TmdbApi {
 	API_URL = `https://api.themoviedb.org/${this.API_VERSION}`;
 	CONFIGURATION_URL = `${this.API_URL}/configuration`;
 	DATABASE_URL =
-		'https://script.google.com/macros/s/AKfycbygXJgOdsu8leGxOyNUmrR3FMBsS561-OjJhSrNKzNMBhjQcJE/exec';
+		'https://script.google.com/macros/s/AKfycbwicnLLG7ieloWYmKuVMGJUmxf7HAleg9ZRUMrGw4mQ6kXKwV6poeiHnaJT550DjKNA/exec';
 	PLACEHOLDER_IMAGE =
 		'https://trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png';
 
 	config: TmdbApiConfig | undefined;
 
-	activate = async (): Promise<void> => {
+	async activate(): Promise<void> {
 		const responseText = await Requests.send({
 			url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
 			method: 'GET',
@@ -65,9 +64,9 @@ class _TmdbApi {
 				show: responseJson.images?.still_sizes?.[2] ?? '',
 			},
 		};
-	};
+	}
 
-	findImage = async (item?: TraktItem | null): Promise<string | null> => {
+	async findImage(item?: TraktItem | null): Promise<string | null> {
 		if (!this.config) {
 			try {
 				await this.activate();
@@ -81,10 +80,10 @@ class _TmdbApi {
 		if (!this.config || !item?.tmdbId) {
 			return null;
 		}
-		const cache = (await Messaging.toBackground({
+		const cache = await Messaging.toBackground({
 			action: 'get-cache',
 			key: 'tmdbImages',
-		})) as CacheValues['tmdbImages'];
+		});
 		let imageUrl = cache[item.id.toString()];
 		if (imageUrl) {
 			return imageUrl;
@@ -102,7 +101,7 @@ class _TmdbApi {
 					cache[item.id.toString()] = imageUrl;
 					await Messaging.toBackground({
 						action: 'set-cache',
-						key: 'correctionSuggestions',
+						key: 'tmdbImages',
 						value: cache,
 					});
 					return imageUrl;
@@ -114,9 +113,9 @@ class _TmdbApi {
 			}
 		}
 		return null;
-	};
+	}
 
-	getItemUrl = (item: TraktItem): string => {
+	getItemUrl(item: TraktItem): string {
 		let type = '';
 		let path = '';
 		if (item.type === 'show') {
@@ -130,14 +129,12 @@ class _TmdbApi {
 			path = item.tmdbId.toString();
 		}
 		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
-	};
+	}
 
-	loadImages = async (items: Item[]): Promise<void> => {
+	async loadImages(items: Item[]): Promise<void> {
 		const missingItems = items.filter((item) => typeof item.imageUrl === 'undefined');
-		if (missingItems.length === 0) {
-			return;
-		}
 		if (
+			missingItems.length === 0 ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
 			}))
@@ -145,17 +142,17 @@ class _TmdbApi {
 			return;
 		}
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'tmdbImages',
-			})) as CacheValues['tmdbImages'];
+			});
 			const itemsToFetch = [];
 			for (const item of missingItems) {
 				if (!item.trakt) {
 					continue;
 				}
 				const imageUrl = cache[item.trakt.id.toString()];
-				if (imageUrl) {
+				if (typeof imageUrl !== 'undefined') {
 					item.imageUrl = imageUrl;
 				} else {
 					itemsToFetch.push(item);
@@ -185,11 +182,10 @@ class _TmdbApi {
 					if (!item.trakt) {
 						continue;
 					}
-					const imageUrl = json ? json[item.trakt.id.toString()] : await this.findImage(item.trakt);
-					if (imageUrl) {
-						item.imageUrl = imageUrl;
-						cache[item.trakt.id.toString()] = imageUrl;
-					}
+					const imageUrl =
+						(json ? json[item.trakt.id.toString()] : await this.findImage(item.trakt)) ?? '';
+					item.imageUrl = imageUrl;
+					cache[item.trakt.id.toString()] = imageUrl;
 				}
 				await Messaging.toBackground({
 					action: 'set-cache',
@@ -201,13 +197,14 @@ class _TmdbApi {
 			// Do nothing
 		}
 		for (const item of missingItems) {
-			item.imageUrl = item.imageUrl ?? this.PLACEHOLDER_IMAGE;
+			item.imageUrl = item.imageUrl || this.PLACEHOLDER_IMAGE;
 		}
-	};
+	}
 
-	loadItemImage = async (item: Item): Promise<Item> => {
+	async loadItemImage(item: Item): Promise<Item> {
 		const itemCopy = new Item(item);
 		if (
+			typeof itemCopy.imageUrl !== 'undefined' ||
 			!itemCopy.trakt ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
@@ -217,12 +214,12 @@ class _TmdbApi {
 		}
 		let imageUrl;
 		try {
-			const cache = (await Messaging.toBackground({
+			const cache = await Messaging.toBackground({
 				action: 'get-cache',
 				key: 'tmdbImages',
-			})) as CacheValues['tmdbImages'];
+			});
 			imageUrl = cache[itemCopy.trakt.id.toString()];
-			if (!imageUrl) {
+			if (typeof imageUrl === 'undefined') {
 				let json;
 				try {
 					const response = await Requests.send({
@@ -244,22 +241,21 @@ class _TmdbApi {
 				} catch (err) {
 					// Do nothing
 				}
-				imageUrl = json ? json[itemCopy.trakt.id.toString()] : await this.findImage(itemCopy.trakt);
-				if (imageUrl) {
-					cache[itemCopy.trakt.id.toString()] = imageUrl;
-					await Messaging.toBackground({
-						action: 'set-cache',
-						key: 'correctionSuggestions',
-						value: cache,
-					});
-				}
+				imageUrl =
+					(json ? json[itemCopy.trakt.id.toString()] : await this.findImage(itemCopy.trakt)) ?? '';
+				cache[itemCopy.trakt.id.toString()] = imageUrl;
+				await Messaging.toBackground({
+					action: 'set-cache',
+					key: 'tmdbImages',
+					value: cache,
+				});
 			}
 		} catch (err) {
 			// Do nothing
 		}
-		itemCopy.imageUrl = imageUrl ?? this.PLACEHOLDER_IMAGE;
+		itemCopy.imageUrl = imageUrl || this.PLACEHOLDER_IMAGE;
 		return itemCopy;
-	};
+	}
 }
 
 export const TmdbApi = new _TmdbApi();

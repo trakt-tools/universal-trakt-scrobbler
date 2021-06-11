@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '../../assets/assets';
+import { Messaging } from '../../common/Messaging';
 import { Requests } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { ThemeWrapper } from '../../components/ThemeWrapper';
@@ -10,6 +11,7 @@ import { HistoryApp } from './HistoryApp';
 const init = () => {
 	Shared.pageType = 'popup';
 	Requests.startListeners();
+	Messaging.startListeners();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
 		<ThemeWrapper>
@@ -18,5 +20,7 @@ const init = () => {
 		root
 	);
 };
+
+Messaging.messageHandlers = {};
 
 init();

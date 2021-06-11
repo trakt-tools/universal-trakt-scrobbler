@@ -7,7 +7,7 @@ import { Api } from './Api';
 import { getApi, getSyncStore } from './common';
 
 class _AutoSync {
-	sync = async (serviceEntries: [StreamingServiceId, StreamingServiceValue][], now: number) => {
+	async sync(serviceEntries: [StreamingServiceId, StreamingServiceValue][], now: number) {
 		let { syncCache } = await BrowserStorage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
@@ -27,9 +27,7 @@ class _AutoSync {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
 				items = store.data.items.filter(
-					(item) =>
-						typeof item.percentageWatched === 'undefined' ||
-						item.percentageWatched >= BrowserStorage.syncOptions.minPercentageWatched
+					(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
 					await Api.loadTraktHistory(items);
@@ -71,7 +69,7 @@ class _AutoSync {
 
 		await BrowserStorage.saveOptions({});
 		await BrowserStorage.set({ syncCache }, false);
-	};
+	}
 }
 
 export const AutoSync = new _AutoSync();

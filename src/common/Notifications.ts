@@ -1,9 +1,10 @@
 import { TraktScrobble } from '../api/TraktScrobble';
 import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData } from './Events';
+import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData, SearchErrorData } from './Events';
 import { I18N } from './I18N';
 import { Messaging } from './Messaging';
 import { RequestException } from './Requests';
+import { Shared } from './Shared';
 
 class _Notifications {
 	messageNames: Record<number, MessageName>;
@@ -16,10 +17,11 @@ class _Notifications {
 		};
 	}
 
-	startListeners = () => {
+	startListeners() {
 		EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
 		EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
-	};
+		EventDispatcher.subscribe('SEARCH_ERROR', null, this.onSearchError);
+	}
 
 	onScrobble = async (data: ScrobbleSuccessData | ScrobbleErrorData): Promise<void> => {
 		if (!data.item?.title) {
@@ -37,7 +39,13 @@ class _Notifications {
 		await this.show(title, message);
 	};
 
-	getTitleFromException = async (err: RequestException): Promise<string> => {
+	onSearchError = async (data: SearchErrorData): Promise<void> => {
+		const title = await this.getTitleFromException(data.error);
+		const message = '';
+		await this.show(title, message);
+	};
+
+	async getTitleFromException(err: RequestException): Promise<string> {
 		let title = '';
 		if (err) {
 			if (err.status === 404) {
@@ -56,11 +64,23 @@ class _Notifications {
 			title = I18N.translate('errorNotification');
 		}
 		return title;
-	};
+	}
 
-	show = async (title: string, message: string): Promise<void> => {
-		await Messaging.toBackground({ action: 'show-notification', title, message });
-	};
+	async show(title: string, message: string): Promise<void> {
+		if (Shared.pageType === 'background') {
+			const hasPermissions = await browser.permissions.contains({ permissions: ['notifications'] });
+			if (hasPermissions) {
+				await browser.notifications.create({
+					type: 'basic',
+					iconUrl: 'images/uts-icon-128.png',
+					title,
+					message,
+				});
+			}
+		} else {
+			await Messaging.toBackground({ action: 'show-notification', title, message });
+		}
+	}
 }
 
 const Notifications = new _Notifications();

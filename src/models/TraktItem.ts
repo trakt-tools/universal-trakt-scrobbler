@@ -51,10 +51,10 @@ export class TraktItem implements ITraktItem {
 		this.releaseDate = options.releaseDate?.clone();
 		this.syncId = options.syncId;
 		this.watchedAt = options.watchedAt?.clone();
-		this.progress = options.progress ?? 0;
+		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 	}
 
-	static save = (item: TraktItem): SavedTraktItem => {
+	static save(item: TraktItem): SavedTraktItem {
 		return {
 			id: item.id,
 			tmdbId: item.tmdbId,
@@ -69,9 +69,9 @@ export class TraktItem implements ITraktItem {
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,
 		};
-	};
+	}
 
-	static load = (savedItem: SavedTraktItem): TraktItem => {
+	static load(savedItem: SavedTraktItem): TraktItem {
 		const options: ITraktItem = {
 			...savedItem,
 			releaseDate:
@@ -82,5 +82,5 @@ export class TraktItem implements ITraktItem {
 				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
 		};
 		return new TraktItem(options);
-	};
+	}
 }

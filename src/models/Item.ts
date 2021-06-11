@@ -29,19 +29,20 @@ export interface IItem extends ItemBase {
 export interface SavedItem extends ItemBase {
 	watchedAt?: number;
 	trakt?: Omit<SavedTraktItem, ''> | null;
+	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
+	imageUrl?: string | null;
 }
 
 export interface ItemBase {
 	serviceId: StreamingServiceId;
-	id: string;
+	id?: string | null;
 	type: 'show' | 'movie';
 	title: string;
-	year: number;
+	year?: number;
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	isCollection?: boolean;
-	percentageWatched?: number;
+	progress?: number;
 }
 
 export interface CorrectionSuggestion {
@@ -61,9 +62,8 @@ export class Item implements IItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	isCollection?: boolean;
 	watchedAt?: moment.Moment;
-	percentageWatched?: number;
+	progress: number;
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
@@ -72,26 +72,25 @@ export class Item implements IItem {
 
 	constructor(options: IItem) {
 		this.serviceId = options.serviceId;
-		this.id = options.id;
 		this.type = options.type;
 		this.title = correctTitles[options.title] || options.title;
-		this.year = options.year;
+		this.year = options.year ?? 0;
 		if (this.type === 'show') {
 			this.season = options.season;
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
-			this.isCollection = options.isCollection;
 		}
 		this.watchedAt = options.watchedAt?.clone();
-		this.percentageWatched = options.percentageWatched ?? 0;
+		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
 		this.isSelected = options.isSelected;
 		this.index = options.index;
 		this.correctionSuggestions = options.correctionSuggestions;
 		this.imageUrl = options.imageUrl;
+		this.id = options.id || this.generateId();
 	}
 
-	static save = (item: Item): SavedItem => {
+	static save(item: Item): SavedItem {
 		return {
 			serviceId: item.serviceId,
 			id: item.id,
@@ -101,37 +100,57 @@ export class Item implements IItem {
 			season: item.season,
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
-			isCollection: item.isCollection,
 			watchedAt: item.watchedAt?.unix(),
-			percentageWatched: item.percentageWatched,
+			progress: item.progress,
 			trakt: item.trakt && TraktItem.save(item.trakt),
+			correctionSuggestions: item.correctionSuggestions,
+			imageUrl: item.imageUrl,
 		};
-	};
+	}
 
-	static load = (savedItem: SavedItem): Item => {
+	static load(savedItem: SavedItem): Item {
 		const options: IItem = {
 			...savedItem,
 			watchedAt:
 				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
 			trakt: savedItem.trakt && TraktItem.load(savedItem.trakt),
 		};
-		return new Item(options);
-	};
 
-	getFullTitle = () => {
+		return new Item(options);
+	}
+
+	/**
+	 * Generates an ID for items that don't have an official ID from the streaming service.
+	 *
+	 * Examples:
+	 *   - Show: `dark-s1-e1-secrets`
+	 *   - Movie: `resident-evil-the-final-chapter`
+	 */
+	generateId() {
+		const titleId = this.title.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
+		if (this.type === 'show') {
+			const episodeTitleId = this.episodeTitle?.toLowerCase().replace(/[^A-Za-z0-9]/g, '') ?? '';
+			return `${titleId}-s${this.season?.toString() ?? '0'}-e${
+				this.episode?.toString() ?? '0'
+			}-${episodeTitleId}`;
+		}
+		return titleId;
+	}
+
+	getFullTitle() {
 		if (this.type === 'show') {
 			return `${this.title} S${this.season?.toString() ?? '0'} E${
 				this.episode?.toString() ?? '0'
 			} - ${this.episodeTitle ?? 'Untitled'}`;
 		}
 		return `${this.title} (${this.year})`;
-	};
+	}
 
-	isSelectable = () => {
+	isSelectable() {
 		return this.trakt && !this.trakt.watchedAt;
-	};
+	}
 
-	isMissingWatchedDate = () => {
+	isMissingWatchedDate() {
 		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
@@ -140,9 +159,9 @@ export class Item implements IItem {
 			return !this.trakt?.releaseDate;
 		}
 		return !this.watchedAt;
-	};
+	}
 
-	getWatchedDate = () => {
+	getWatchedDate() {
 		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
@@ -151,5 +170,5 @@ export class Item implements IItem {
 			return this.trakt?.releaseDate;
 		}
 		return this.watchedAt;
-	};
+	}
 }

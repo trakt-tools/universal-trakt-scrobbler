@@ -92,7 +92,7 @@ class _ViaplayApi extends Api {
 		super('viaplay');
 	}
 
-	activate = async () => {
+	async activate() {
 		const response = await fetch(this.INITIAL_URL);
 		const host = response.url.split('//')[1];
 		const region = /no|se|dk|fi/.exec(host)?.[0] ?? 'no';
@@ -107,9 +107,9 @@ class _ViaplayApi extends Api {
 			method: 'GET',
 		});
 		this.isActivated = true;
-	};
+	}
 
-	loadHistory = async (itemsToLoad: number, lastSync: number, lastSyncId: string) => {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string) {
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -166,7 +166,7 @@ class _ViaplayApi extends Api {
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				items = historyItems.map(this.parseHistoryItem);
+				items = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
 			}
 			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
@@ -178,15 +178,15 @@ class _ViaplayApi extends Api {
 			}
 			throw err;
 		}
-	};
+	}
 
-	parseHistoryItem = (historyItem: ViaplayProduct): Item => {
+	parseHistoryItem(historyItem: ViaplayProduct): Item {
 		let item: Item;
 		const serviceId = this.id;
 		const year = historyItem.content.production.year;
-		const progress = historyItem.user.progress;
-		const percentageWatched = progress?.elapsedPercent || 0;
-		const watchedAt = progress ? moment(progress.updated) : undefined;
+		const progressInfo = historyItem.user.progress;
+		const progress = progressInfo?.elapsedPercent || 0;
+		const watchedAt = progressInfo ? moment(progressInfo.updated) : undefined;
 		const id = historyItem.system.guid;
 		if (historyItem.type === 'episode') {
 			const content = historyItem.content;
@@ -203,16 +203,23 @@ class _ViaplayApi extends Api {
 				season,
 				episode,
 				episodeTitle,
-				isCollection: false,
-				percentageWatched,
+				progress,
 				watchedAt,
 			});
 		} else {
 			const title = historyItem.content.title;
-			item = new Item({ serviceId, id, type: 'movie', title, year, percentageWatched, watchedAt });
+			item = new Item({
+				serviceId,
+				id,
+				type: 'movie',
+				title,
+				year,
+				progress,
+				watchedAt,
+			});
 		}
 		return item;
-	};
+	}
 }
 
 export const ViaplayApi = new _ViaplayApi();

@@ -10,7 +10,7 @@ class _Session {
 		this.isLoggedIn = false;
 	}
 
-	checkLogin = async (): Promise<void> => {
+	async checkLogin(): Promise<void> {
 		try {
 			const auth = await Messaging.toBackground({ action: 'check-login' });
 			if (auth && auth.access_token) {
@@ -23,9 +23,9 @@ class _Session {
 			this.isLoggedIn = false;
 			await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
 		}
-	};
+	}
 
-	login = async (): Promise<void> => {
+	async login(): Promise<void> {
 		try {
 			const auth = await Messaging.toBackground({ action: 'login' });
 			if (auth && auth.access_token) {
@@ -41,9 +41,9 @@ class _Session {
 				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
 			}
 		}
-	};
+	}
 
-	logout = async (): Promise<void> => {
+	async logout(): Promise<void> {
 		try {
 			await Messaging.toBackground({ action: 'logout' });
 			this.isLoggedIn = false;
@@ -55,14 +55,14 @@ class _Session {
 				await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err as Error });
 			}
 		}
-	};
+	}
 
-	finishLogin = async (): Promise<void> => {
+	async finishLogin(): Promise<void> {
 		const redirectUrl = window.location.search;
 		if (redirectUrl.includes('code')) {
 			await Messaging.toBackground({ action: 'finish-login', redirectUrl });
 		}
-	};
+	}
 }
 
 export const Session = new _Session();
