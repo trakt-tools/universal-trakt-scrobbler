@@ -1,7 +1,9 @@
 import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as SyncTemplate from './sync-template.json';
+
+interface TemplateHistoryItem {}
 
 // Define any types you need here
 
@@ -22,10 +24,10 @@ class _SyncTemplateApi extends Api {
 	 *
 	 * It should also set `hasReachedHistoryEnd` to true when there are no more history items to load.
 	 */
-	async loadNextHistoryPage(): Promise<HistoryItem[]> {
+	async loadNextHistoryPage(): Promise<TemplateHistoryItem[]> {
 		// Example implementation:
 
-		let historyItems: HistoryItem[] = [];
+		let historyItems: TemplateHistoryItem[] = [];
 
 		// Retrieve the history items
 		const responseText = await Requests.send({
@@ -44,7 +46,7 @@ class _SyncTemplateApi extends Api {
 	/**
 	 * This method should check if a history item is new.
 	 */
-	isNewHistoryItem(historyItem: HistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: TemplateHistoryItem, lastSync: number, lastSyncId: string) {
 		// Example implementation:
 
 		return historyItem.date > lastSync;
@@ -53,7 +55,7 @@ class _SyncTemplateApi extends Api {
 	/**
 	 * This method should transform history items into items.
 	 */
-	convertHistoryItems(historyItems: HistoryItem[]) {
+	convertHistoryItems(historyItems: TemplateHistoryItem[]) {
 		// Example implementation:
 
 		const items = historyItems.map(

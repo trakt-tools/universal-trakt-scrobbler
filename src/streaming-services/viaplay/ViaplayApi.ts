@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as Viaplay from './viaplay.json';
 
 export interface ViaplayWatchedTopResponse {
@@ -27,7 +27,7 @@ export interface ViaplayHistoryPage {
 
 export type ViaplayProduct = ViaplayEpisode | ViaplayMovie;
 
-export interface ViaplayProductBase extends HistoryItem {
+export interface ViaplayProductBase {
 	type: string;
 	publicPath: string;
 	system: {

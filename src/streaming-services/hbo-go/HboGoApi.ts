@@ -2,7 +2,7 @@ import { Errors } from '../../common/Errors';
 import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as HboGo from './hbo-go.json';
 
 export interface HboGoGlobalObject {
@@ -65,7 +65,7 @@ export interface HboGoHistoryResponse {
 	)[];
 }
 
-export interface HboGoHistoryItem extends HistoryItem {
+export interface HboGoHistoryItem {
 	Id: string;
 	ElapsedPercentage: number;
 }

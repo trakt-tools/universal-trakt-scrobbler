@@ -8,13 +8,9 @@ import { Item } from '../../models/Item';
 import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
 import { getSyncStore, registerApi } from './common';
 
-export interface HistoryItem {
-	[key: string]: unknown;
-}
-
 export abstract class Api {
 	readonly id: string;
-	private leftoverHistoryItems: HistoryItem[] = [];
+	private leftoverHistoryItems: unknown[] = [];
 	hasReachedHistoryEnd = false;
 
 	constructor(id: string) {
@@ -132,9 +128,9 @@ export abstract class Api {
 			const store = getSyncStore(this.id);
 			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			let items: Item[] = [];
-			const historyItems: HistoryItem[] = [];
+			const historyItems: unknown[] = [];
 			do {
-				let responseItems: HistoryItem[] = [];
+				let responseItems: unknown[] = [];
 				if (this.leftoverHistoryItems.length > 0) {
 					responseItems = this.leftoverHistoryItems;
 					this.leftoverHistoryItems = [];
@@ -142,7 +138,7 @@ export abstract class Api {
 					responseItems = await this.loadHistoryItems();
 				}
 				if (responseItems.length > 0) {
-					let filteredItems: HistoryItem[] = [];
+					let filteredItems: unknown[] = [];
 					if (lastSync > 0 && lastSyncId) {
 						for (const [index, responseItem] of responseItems.entries()) {
 							if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
@@ -181,7 +177,7 @@ export abstract class Api {
 	 *
 	 * Should be overridden in the child class.
 	 */
-	loadHistoryItems(): Promise<HistoryItem[]> {
+	loadHistoryItems(): Promise<unknown[]> {
 		return Promise.resolve([]);
 	}
 
@@ -190,7 +186,7 @@ export abstract class Api {
 	 *
 	 * Should be overridden in the child class.
 	 */
-	isNewHistoryItem(historyItem: HistoryItem, lastSync: number, lastSyncId: string): boolean {
+	isNewHistoryItem(historyItem: unknown, lastSync: number, lastSyncId: string): boolean {
 		return true;
 	}
 
@@ -199,7 +195,7 @@ export abstract class Api {
 	 *
 	 * Should be overridden in the child class.
 	 */
-	convertHistoryItems(historyItems: HistoryItem[]): Promisable<Item[]> {
+	convertHistoryItems(historyItems: unknown[]): Promisable<Item[]> {
 		return Promise.resolve([]);
 	}
 

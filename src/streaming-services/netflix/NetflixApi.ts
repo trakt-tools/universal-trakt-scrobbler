@@ -3,7 +3,7 @@ import { Errors } from '../../common/Errors';
 import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as Netflix from './netflix.json';
 
 export interface NetflixGlobalObject {
@@ -55,7 +55,7 @@ export interface NetflixHistoryResponse {
 
 export type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
 
-export interface NetflixHistoryShowItem extends HistoryItem {
+export interface NetflixHistoryShowItem {
 	bookmark: number;
 	date: number;
 	duration: number;
@@ -67,7 +67,7 @@ export interface NetflixHistoryShowItem extends HistoryItem {
 	title: string;
 }
 
-export interface NetflixHistoryMovieItem extends HistoryItem {
+export interface NetflixHistoryMovieItem {
 	bookmark: number;
 	date: number;
 	duration: number;

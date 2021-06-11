@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { IItem, Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as Nrk from './nrk.json';
 
 export interface NrkGlobalObject {
@@ -43,12 +43,12 @@ interface NrkProgressItemCommon {
 
 type NrkProgressItem = NrkProgressItemFinished | NrkProgressItemInProgress;
 
-interface NrkProgressItemFinished extends NrkProgressItemCommon, HistoryItem {
+interface NrkProgressItemFinished extends NrkProgressItemCommon {
 	finished: true;
 	progress: 'finished';
 }
 
-interface NrkProgressItemInProgress extends NrkProgressItemCommon, HistoryItem {
+interface NrkProgressItemInProgress extends NrkProgressItemCommon {
 	progress: 'inProgress';
 	registeredAt: string;
 	inProgress: {

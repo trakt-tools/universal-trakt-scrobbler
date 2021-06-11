@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
-import { Api, HistoryItem } from '../common/Api';
+import { Api } from '../common/Api';
 import * as TeliaPlay from './telia-play.json';
 
 export interface TeliaContinueWatchingList {
@@ -18,7 +18,7 @@ export interface TeliaContinueWatchingItem {
 	mediaObject: TeliaMediaObject;
 }
 
-export interface TeliaMediaObject extends HistoryItem {
+export interface TeliaMediaObject {
 	loopId: string;
 	seriesTitle: string;
 	seasonNumber: number;
