@@ -90,12 +90,16 @@ const validateId = (id) => {
 const parseArgsIntoOptions = (rawArgs) => {
 	const args = commander.program
 		.description('Create a new streaming service')
-		.option('-n, --name <name>', 'The name of the service')
-		.option('-i, --id <id>', 'A unique ID for the service', validateArg(validateId))
-		.option('-h, --home-page <home-page>', 'The URL for the home page of the service')
-		.option('-a, --has-scrobbler', 'If the service will have a scrobbler function')
-		.option('-b, --has-sync', 'If the service will have a sync function')
-		.option('-c, --has-auto-sync', 'If the service will have an auto sync function')
+		.option('-n, --name <name>', 'the name of the service')
+		.option(
+			'-i, --id <id>',
+			'a unique ID for the service (automatically generated based on the name if not provided)',
+			validateArg(validateId)
+		)
+		.option('-h, --home-page <home-page>', 'the URL for the home page of the service')
+		.option('-a, --has-scrobbler', 'if the service will have a scrobbler function')
+		.option('-b, --has-sync', 'if the service will have a sync function')
+		.option('-c, --has-auto-sync', 'if the service will have an auto sync function')
 		.parse(rawArgs)
 		.opts();
 
