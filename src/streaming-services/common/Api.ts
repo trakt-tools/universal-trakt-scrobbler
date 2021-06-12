@@ -6,13 +6,17 @@ import { EventDispatcher } from '../../common/Events';
 import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
-import { StreamingServiceId } from '../streaming-services';
+import { getSyncStore, registerApi } from './common';
 
 export abstract class Api {
-	readonly id: StreamingServiceId;
+	readonly id: string;
+	private leftoverHistoryItems: unknown[] = [];
+	hasReachedHistoryEnd = false;
 
-	constructor(id: StreamingServiceId) {
+	constructor(id: string) {
 		this.id = id;
+
+		registerApi(this.id, this);
 	}
 
 	static async loadTraktHistory(items: Item[]) {
@@ -119,7 +123,81 @@ export abstract class Api {
 		return title.toLowerCase().replace(/[^\w]/g, '-').replace(/-+/g, '-');
 	}
 
-	abstract loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void>;
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
+		try {
+			const store = getSyncStore(this.id);
+			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
+			let items: Item[] = [];
+			const historyItems: unknown[] = [];
+			do {
+				let responseItems: unknown[] = [];
+				if (this.leftoverHistoryItems.length > 0) {
+					responseItems = this.leftoverHistoryItems;
+					this.leftoverHistoryItems = [];
+				} else if (!this.hasReachedHistoryEnd) {
+					responseItems = await this.loadHistoryItems();
+				}
+				if (responseItems.length > 0) {
+					let filteredItems: unknown[] = [];
+					if (lastSync > 0 && lastSyncId) {
+						for (const [index, responseItem] of responseItems.entries()) {
+							if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
+								filteredItems.push(responseItem);
+							} else {
+								this.leftoverHistoryItems = responseItems.slice(index);
+								hasReachedLastSyncDate = true;
+								break;
+							}
+						}
+					} else {
+						filteredItems = responseItems;
+					}
+					itemsToLoad -= filteredItems.length;
+					historyItems.push(...filteredItems);
+				}
+				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
+			} while (!hasReachedEnd && itemsToLoad > 0);
+			if (historyItems.length > 0) {
+				items = await this.convertHistoryItems(historyItems);
+			}
+			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
+		} catch (err) {
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to load history.', err);
+				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+					error: err as Error,
+				});
+			}
+			throw err;
+		}
+	}
+
+	/**
+	 * This method is responsible for loading more history items. It should set `hasReachedHistoryEnd` to true when there are no more history items to load.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	loadHistoryItems(): Promise<unknown[]> {
+		return Promise.resolve([]);
+	}
+
+	/**
+	 * This method is responsible for checking if a history item is new, based on `lastSync` and `lastSyncId`.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	isNewHistoryItem(historyItem: unknown, lastSync: number, lastSyncId: string): boolean {
+		return true;
+	}
+
+	/**
+	 * This method is responsible for transforming history items into items.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	convertHistoryItems(historyItems: unknown[]): Promisable<Item[]> {
+		return Promise.resolve([]);
+	}
 
 	/**
 	 * If an item can be retrieved from the API based on the ID, this method should be overridden in the child class.

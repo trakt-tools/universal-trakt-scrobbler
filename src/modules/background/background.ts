@@ -18,10 +18,10 @@ import { Tabs } from '../../common/Tabs';
 import { Item, SavedItem } from '../../models/Item';
 import { TraktItem } from '../../models/TraktItem';
 import { AutoSync } from '../../streaming-services/common/AutoSync';
-import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
+import { streamingServices } from '../../streaming-services/streaming-services';
 
 const injectedTabs = new Set();
-let streamingServiceEntries: [StreamingServiceId, StreamingServiceValue][] = [];
+let streamingServiceEntries: [string, StreamingServiceValue][] = [];
 let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
 let isCheckingAutoSync = false;
 let autoSyncCheckTimeout: number | null = null;
@@ -39,10 +39,7 @@ const init = async () => {
 		Notifications.startListeners();
 	}
 	browser.storage.onChanged.addListener(onStorageChanged);
-	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices) as [
-		StreamingServiceId,
-		StreamingServiceValue
-	][];
+	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices);
 	const scrobblerEnabled = streamingServiceEntries.some(
 		([streamingServiceId, value]) =>
 			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
@@ -112,10 +109,7 @@ const onStorageChanged = (
 		return;
 	}
 	if (newValue.streamingServices) {
-		streamingServiceEntries = Object.entries(newValue.streamingServices) as [
-			StreamingServiceId,
-			StreamingServiceValue
-		][];
+		streamingServiceEntries = Object.entries(newValue.streamingServices);
 
 		const scrobblerEnabled = streamingServiceEntries.some(
 			([streamingServiceId, value]) =>

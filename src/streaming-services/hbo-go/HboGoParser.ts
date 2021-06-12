@@ -1,4 +1,3 @@
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { HboGoApi } from './HboGoApi';
 
@@ -14,5 +13,3 @@ class _HboGoParser extends ScrobbleParser {
 }
 
 export const HboGoParser = new _HboGoParser();
-
-registerScrobbleParser('hbo-go', HboGoParser);

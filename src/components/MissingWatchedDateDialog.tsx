@@ -19,13 +19,12 @@ import { EventDispatcher, MissingWatchedDateDialogShowData } from '../common/Eve
 import { I18N } from '../common/I18N';
 import { RequestException } from '../common/Requests';
 import { Item } from '../models/Item';
-import { StreamingServiceId } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 	items: Item[];
 	dateType: MissingWatchedDateType | null;
 	date: moment.Moment | null;

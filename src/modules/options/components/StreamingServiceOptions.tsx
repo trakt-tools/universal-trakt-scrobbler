@@ -2,11 +2,10 @@ import { Grid, ListItem, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { StreamingServiceValue } from '../../../common/BrowserStorage';
 import { I18N } from '../../../common/I18N';
-import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { StreamingServiceOption } from './StreamingServiceOption';
 
 interface StreamingServiceOptionsProps {
-	options: Record<StreamingServiceId, StreamingServiceValue>;
+	options: Record<string, StreamingServiceValue>;
 }
 
 export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
@@ -32,7 +31,7 @@ export const StreamingServiceOptions: React.FC<StreamingServiceOptionsProps> = (
 						</Grid>
 					</Grid>
 				</Grid>
-				{(Object.entries(options) as [StreamingServiceId, StreamingServiceValue][])
+				{Object.entries(options)
 					.sort(([idA], [idB]) => idA.localeCompare(idB))
 					.map(([id, value]) => (
 						<StreamingServiceOption key={id} id={id} value={value} />

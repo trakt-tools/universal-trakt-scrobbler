@@ -1,4 +1,3 @@
-import { registerScrobbleEvents } from '../common/common';
 import { ScrobbleEvents } from '../common/ScrobbleEvents';
 import { HboGoParser } from './HboGoParser';
 
@@ -9,5 +8,3 @@ class _HboGoEvents extends ScrobbleEvents {
 }
 
 export const HboGoEvents = new _HboGoEvents();
-
-registerScrobbleEvents('hbo-go', HboGoEvents);

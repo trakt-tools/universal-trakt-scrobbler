@@ -1,5 +1,4 @@
 import { Item } from '../../models/Item';
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { VrtnuBeApi } from './VrtnuBeApi';
 
@@ -53,5 +52,3 @@ class _VrtnuBeParser extends ScrobbleParser {
 }
 
 export const VrtnuBeParser = new _VrtnuBeParser();
-
-registerScrobbleParser('vrtnu-be', VrtnuBeParser);

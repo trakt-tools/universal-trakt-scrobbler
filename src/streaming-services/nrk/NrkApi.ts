@@ -1,10 +1,8 @@
 import * as moment from 'moment';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
-import { RequestException, Requests } from '../../common/Requests';
+import { Requests } from '../../common/Requests';
 import { IItem, Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import { getSyncStore, registerApi } from '../common/common';
+import * as Nrk from './nrk.json';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
@@ -128,11 +126,9 @@ class _NrkApi extends Api {
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
-	leftoverHistoryItems: NrkProgressItem[] = [];
-	hasReachedHistoryEnd = false;
 
 	constructor() {
-		super('nrk');
+		super(Nrk.id);
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
@@ -159,73 +155,37 @@ class _NrkApi extends Api {
 		this.isActivated = true;
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string) {
-		try {
-			if (!this.isActivated) {
-				await this.activate();
-			}
-			const store = getSyncStore('nrk');
-			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
-			let items: Item[] = [];
-			const historyItems: NrkProgressItem[] = [];
-			do {
-				let responseItems: NrkProgressItem[] = [];
-				if (this.leftoverHistoryItems.length > 0) {
-					responseItems = this.leftoverHistoryItems;
-					this.leftoverHistoryItems = [];
-				} else if (!this.hasReachedHistoryEnd) {
-					const responseText = await Requests.send({
-						url: this.HISTORY_API_URL,
-						method: 'GET',
-						headers: {
-							Authorization: 'Bearer ' + this.token,
-						},
-					});
-					const responseJson = JSON.parse(responseText) as NrkProgressResponse;
-					responseItems = responseJson.progresses;
-					if (responseJson._links.next) {
-						this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
-					} else {
-						this.hasReachedHistoryEnd = true;
-					}
-				}
-				if (responseItems.length > 0) {
-					let filteredItems: NrkProgressItem[] = [];
-					if (lastSync > 0) {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (
-								responseItem.registeredAt &&
-								Math.trunc(new Date(responseItem.registeredAt).getTime() / 1e3) > lastSync
-							) {
-								filteredItems.push(responseItem);
-							} else {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								hasReachedLastSyncDate = true;
-								break;
-							}
-						}
-					} else {
-						filteredItems = responseItems;
-					}
-					itemsToLoad -= filteredItems.length;
-					historyItems.push(...filteredItems);
-				}
-				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
-			} while (!hasReachedEnd && itemsToLoad > 0);
-			if (historyItems.length > 0) {
-				const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
-				items = await Promise.all(promises);
-			}
-			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to load NRK history.', err);
-				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
-				});
-			}
-			throw err;
+	async loadHistoryItems(): Promise<NrkProgressItem[]> {
+		if (!this.isActivated) {
+			await this.activate();
 		}
+		const responseText = await Requests.send({
+			url: this.HISTORY_API_URL,
+			method: 'GET',
+			headers: {
+				Authorization: 'Bearer ' + this.token,
+			},
+		});
+		const responseJson = JSON.parse(responseText) as NrkProgressResponse;
+		const responseItems = responseJson.progresses;
+		if (responseJson._links.next) {
+			this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
+		} else {
+			this.hasReachedHistoryEnd = true;
+		}
+		return responseItems;
+	}
+
+	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number, lastSyncId: string) {
+		return (
+			!!historyItem.registeredAt &&
+			Math.trunc(new Date(historyItem.registeredAt).getTime() / 1e3) > lastSync
+		);
+	}
+
+	convertHistoryItems(historyItems: NrkProgressItem[]) {
+		const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
+		return Promise.all(promises);
 	}
 
 	async parseHistoryItem(historyItem: NrkProgressItem): Promise<Item> {
@@ -341,5 +301,3 @@ class _NrkApi extends Api {
 }
 
 export const NrkApi = new _NrkApi();
-
-registerApi('nrk', NrkApi);

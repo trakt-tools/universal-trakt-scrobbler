@@ -1,4 +1,5 @@
 import { EventDispatcher } from '../../common/Events';
+import { registerScrobbleEvents } from './common';
 import { ScrobbleParser } from './ScrobbleParser';
 
 export interface ScrobbleEventsOptions {
@@ -11,7 +12,7 @@ export interface ScrobbleEventsOptions {
 }
 
 export abstract class ScrobbleEvents {
-	protected parser: ScrobbleParser;
+	readonly parser: ScrobbleParser;
 	readonly options: Readonly<ScrobbleEventsOptions>;
 	protected changeListenerId: number | null = null;
 	protected url = '';
@@ -25,6 +26,8 @@ export abstract class ScrobbleEvents {
 			...this.getDefaultOptions(),
 			...options,
 		});
+
+		registerScrobbleEvents(this.parser.api.id, this);
 	}
 
 	protected getDefaultOptions(): ScrobbleEventsOptions {

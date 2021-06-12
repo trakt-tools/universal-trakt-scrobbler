@@ -5,15 +5,12 @@ import * as React from 'react';
 import { EventDispatcher } from '../../../common/Events';
 import { I18N } from '../../../common/I18N';
 import { Item } from '../../../models/Item';
-import {
-	StreamingServiceId,
-	streamingServices,
-} from '../../../streaming-services/streaming-services';
+import { streamingServices } from '../../../streaming-services/streaming-services';
 import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
 	item: Item;
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 }
 
 export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryListItemProps) => {

@@ -1,65 +1,82 @@
 import * as React from 'react';
 import { LoginWrapper } from '../../components/LoginWrapper';
 import { SyncPage } from '../../modules/history/pages/SyncPage';
-import { StreamingServiceId } from '../streaming-services';
+import { StreamingService, streamingServices } from '../streaming-services';
 import { Api } from './Api';
 import { ScrobbleController } from './ScrobbleController';
 import { ScrobbleEvents } from './ScrobbleEvents';
 import { ScrobbleParser } from './ScrobbleParser';
-import { SyncStore, SyncStoreId } from './SyncStore';
+import { SyncStore } from './SyncStore';
 
-const apis = {} as Record<StreamingServiceId, Api>;
+export interface StreamingServicePage extends StreamingService {
+	path: string;
+	pageBuilder: () => React.ReactNode | null;
+}
 
-export const registerApi = (serviceId: StreamingServiceId, serviceApi: Api) => {
-	apis[serviceId] = serviceApi;
+const apis: Record<string, Api> = {};
+
+export const registerApi = (id: string, api: Api) => {
+	apis[id] = api;
 };
 
-export const getApi = (serviceId: StreamingServiceId) => {
-	return apis[serviceId];
+export const getApi = (id: string) => {
+	return apis[id];
 };
 
-const scrobbleParsers = {} as Record<StreamingServiceId, ScrobbleParser>;
+const scrobbleParsers: Record<string, ScrobbleParser> = {};
 
-export const registerScrobbleParser = (serviceId: StreamingServiceId, parser: ScrobbleParser) => {
-	scrobbleParsers[serviceId] = parser;
+export const registerScrobbleParser = (id: string, parser: ScrobbleParser) => {
+	scrobbleParsers[id] = parser;
 };
 
-const scrobbleControllers = {} as Record<StreamingServiceId, ScrobbleController>;
+export const getScrobbleParser = (id: string) => {
+	return scrobbleParsers[id];
+};
 
-export const getScrobbleController = (serviceId: StreamingServiceId) => {
-	if (!scrobbleControllers[serviceId]) {
-		scrobbleControllers[serviceId] = new ScrobbleController(scrobbleParsers[serviceId]);
+const scrobbleEvents: Record<string, ScrobbleEvents> = {};
+
+export const registerScrobbleEvents = (id: string, events: ScrobbleEvents) => {
+	scrobbleEvents[id] = events;
+};
+
+export const getScrobbleEvents = (id: string) => {
+	return scrobbleEvents[id];
+};
+
+const scrobbleControllers: Record<string, ScrobbleController> = {};
+
+export const getScrobbleController = (id: string) => {
+	if (!scrobbleControllers[id]) {
+		scrobbleControllers[id] = new ScrobbleController(scrobbleParsers[id]);
 	}
-	return scrobbleControllers[serviceId];
+	return scrobbleControllers[id];
 };
 
-const scrobbleEvents = {} as Record<StreamingServiceId, ScrobbleEvents>;
+const syncStores: Record<string, SyncStore> = {};
 
-export const registerScrobbleEvents = (serviceId: StreamingServiceId, events: ScrobbleEvents) => {
-	scrobbleEvents[serviceId] = events;
-};
-
-export const getScrobbleEvents = (serviceId: StreamingServiceId) => {
-	return scrobbleEvents[serviceId];
-};
-
-const syncStores = {} as Record<SyncStoreId, SyncStore>;
-
-export const getSyncStore = (serviceId: StreamingServiceId | null) => {
-	const storeId: SyncStoreId = serviceId || 'multiple';
+export const getSyncStore = (serviceId: string | null) => {
+	const storeId = serviceId || 'multiple';
 	if (!syncStores[storeId]) {
 		syncStores[storeId] = new SyncStore(storeId);
 	}
 	return syncStores[storeId];
 };
 
-const syncPageBuilders = {} as Record<StreamingServiceId, () => React.ReactNode | null>;
+const syncPageBuilders: Record<string, () => React.ReactNode | null> = {};
 
-export const getSyncPageBuilder = (
-	serviceId: StreamingServiceId
-): (() => React.ReactNode | null) => {
-	if (!syncPageBuilders[serviceId]) {
-		syncPageBuilders[serviceId] = LoginWrapper.wrap(() => <SyncPage serviceId={serviceId} />);
+export const getSyncPageBuilder = (id: string): (() => React.ReactNode | null) => {
+	if (!syncPageBuilders[id]) {
+		syncPageBuilders[id] = LoginWrapper.wrap(() => <SyncPage serviceId={id} />);
 	}
-	return syncPageBuilders[serviceId];
+	return syncPageBuilders[id];
+};
+
+export const getServicePages = () => {
+	return Object.values(streamingServices)
+		.filter((service) => service.hasSync)
+		.map((service) => ({
+			...service,
+			path: `/${service.id}`,
+			pageBuilder: getSyncPageBuilder(service.id),
+		}));
 };

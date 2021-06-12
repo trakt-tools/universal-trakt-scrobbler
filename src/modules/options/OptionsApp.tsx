@@ -20,7 +20,7 @@ import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UtsCenter } from '../../components/UtsCenter';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { StreamingServiceId, streamingServices } from '../../streaming-services/streaming-services';
+import { streamingServices } from '../../streaming-services/streaming-services';
 import { OptionsActions } from './components/OptionsActions';
 import { OptionsHeader } from './components/OptionsHeader';
 import { OptionsList } from './components/OptionsList';
@@ -96,14 +96,9 @@ export const OptionsApp: React.FC = () => {
 			}
 		};
 
-		const onStreamingServiceOptionChange = (
-			data: StreamingServiceOptionsChangeData<StreamingServiceId>
-		) => {
-			const streamingServiceValues = {} as Record<StreamingServiceId, StreamingServiceValue>;
-			for (const [id, value] of Object.entries(BrowserStorage.options.streamingServices) as [
-				StreamingServiceId,
-				StreamingServiceValue
-			][]) {
+		const onStreamingServiceOptionChange = (data: StreamingServiceOptionsChangeData) => {
+			const streamingServiceValues = {} as Record<string, StreamingServiceValue>;
+			for (const [id, value] of Object.entries(BrowserStorage.options.streamingServices)) {
 				streamingServiceValues[id] = { ...value };
 			}
 			const originsToAdd = [];
@@ -130,10 +125,7 @@ export const OptionsApp: React.FC = () => {
 				}
 				streamingServiceValues[id] = value;
 			}
-			const scrobblerEnabled = (Object.entries(streamingServiceValues) as [
-				StreamingServiceId,
-				StreamingServiceValue
-			][]).some(
+			const scrobblerEnabled = Object.entries(streamingServiceValues).some(
 				([streamingServiceId, value]) =>
 					streamingServices[streamingServiceId].hasScrobbler && value.scrobble
 			);

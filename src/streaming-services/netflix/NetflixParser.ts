@@ -1,4 +1,3 @@
-import { registerScrobbleParser } from '../common/common';
 import { ScrobbleParser } from '../common/ScrobbleParser';
 import { NetflixApi } from './NetflixApi';
 
@@ -11,5 +10,3 @@ class _NetflixParser extends ScrobbleParser {
 }
 
 export const NetflixParser = new _NetflixParser();
-
-registerScrobbleParser('netflix', NetflixParser);

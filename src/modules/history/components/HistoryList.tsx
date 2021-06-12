@@ -3,12 +3,11 @@ import * as React from 'react';
 import { MissingWatchedDateDialog } from '../../../components/MissingWatchedDateDialog';
 import { WrongItemDialog } from '../../../components/WrongItemDialog';
 import { Item } from '../../../models/Item';
-import { StreamingServiceId } from '../../../streaming-services/streaming-services';
 import { HistoryListItem } from './HistoryListItem';
 
 interface HistoryListProps {
 	items: Item[];
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 }
 
 export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps) => {

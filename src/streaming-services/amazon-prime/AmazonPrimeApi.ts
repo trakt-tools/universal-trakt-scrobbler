@@ -3,7 +3,7 @@ import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import { registerApi } from '../common/common';
+import * as AmazonPrime from './amazon-prime.json';
 
 export interface AmazonPrimeApiParams {
 	deviceId: string;
@@ -63,7 +63,7 @@ class _AmazonPrimeApi extends Api {
 	nextItemId = '';
 
 	constructor() {
-		super('amazon-prime');
+		super(AmazonPrime.id);
 	}
 
 	async activate() {
@@ -78,10 +78,6 @@ class _AmazonPrimeApi extends Api {
 		this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=${this.apiParams.deviceId}&deviceTypeID=AOAGZA014O5RE&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
 
 		this.isActivated = true;
-	}
-
-	loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		return Promise.resolve();
 	}
 
 	async getItem(id: string): Promise<Item | null> {
@@ -163,5 +159,3 @@ class _AmazonPrimeApi extends Api {
 }
 
 export const AmazonPrimeApi = new _AmazonPrimeApi();
-
-registerApi('amazon-prime', AmazonPrimeApi);

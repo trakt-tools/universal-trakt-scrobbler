@@ -20,20 +20,17 @@ import { RequestException } from '../../../common/Requests';
 import { UtsCenter } from '../../../components/UtsCenter';
 import { Api } from '../../../streaming-services/common/Api';
 import { getApi, getSyncStore } from '../../../streaming-services/common/common';
-import {
-	StreamingServiceId,
-	streamingServices,
-} from '../../../streaming-services/streaming-services';
+import { streamingServices } from '../../../streaming-services/streaming-services';
 import { HistoryActions } from '../components/HistoryActions';
 import { HistoryList } from '../components/HistoryList';
 import { HistoryOptionsList } from '../components/HistoryOptionsList';
 
 interface PageProps {
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 }
 
 type LastSyncData = Record<
-	StreamingServiceId,
+	string,
 	{
 		lastSync: number;
 		lastSyncId: string;

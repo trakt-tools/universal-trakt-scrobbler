@@ -13,7 +13,7 @@ import {
 	TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { BrowserStorage, CorrectItem } from '../common/BrowserStorage';
+import { BrowserStorage } from '../common/BrowserStorage';
 import { Errors } from '../common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
 import { I18N } from '../common/I18N';
@@ -21,13 +21,13 @@ import { Messaging } from '../common/Messaging';
 import { RequestException } from '../common/Requests';
 import { Shared } from '../common/Shared';
 import { CorrectionSuggestion, Item } from '../models/Item';
-import { StreamingServiceId, streamingServices } from '../streaming-services/streaming-services';
+import { streamingServices } from '../streaming-services/streaming-services';
 import { UtsCenter } from './UtsCenter';
 
 interface WrongItemDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId: StreamingServiceId | null;
+	serviceId: string | null;
 	item?: Item;
 	type: 'episode' | 'movie';
 	traktId?: number;
@@ -88,7 +88,7 @@ export const WrongItemDialog: React.FC = () => {
 			if (!correctItems) {
 				correctItems = Object.fromEntries(
 					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
-				) as Record<StreamingServiceId, Record<string, CorrectItem>>;
+				);
 			}
 			if (!correctItems[dialog.item.serviceId]) {
 				correctItems[dialog.item.serviceId] = {};

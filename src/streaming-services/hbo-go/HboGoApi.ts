@@ -1,10 +1,9 @@
 import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
 import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import { getSyncStore, registerApi } from '../common/common';
+import * as HboGo from './hbo-go.json';
 
 export interface HboGoGlobalObject {
 	player: {
@@ -103,11 +102,9 @@ class _HboGoApi extends Api {
 	CONTENT_URL = '';
 	isActivated: boolean;
 	apiParams: Partial<HboGoApiParams>;
-	leftoverHistoryItems: HboGoHistoryItem[] = [];
-	hasReachedHistoryEnd = false;
 
 	constructor() {
-		super('hbo-go');
+		super(HboGo.id);
 
 		this.isActivated = false;
 		this.apiParams = {};
@@ -167,71 +164,33 @@ class _HboGoApi extends Api {
 		return typeof apiParams.swVersion !== 'undefined' && typeof apiParams.token !== 'undefined';
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
-		try {
-			if (!this.isActivated) {
-				await this.activate();
-			}
-			if (!this.checkParams(this.apiParams)) {
-				throw new Error('Invalid API params');
-			}
-			const store = getSyncStore('hbo-go');
-			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
-			let items: Item[] = [];
-			const historyItems = [];
-			do {
-				let responseItems: HboGoHistoryItem[] = [];
-				if (this.leftoverHistoryItems.length > 0) {
-					responseItems = this.leftoverHistoryItems;
-					this.leftoverHistoryItems = [];
-				} else if (!this.hasReachedHistoryEnd) {
-					const responseText = await Requests.send({
-						url: this.HISTORY_URL,
-						headers: {
-							'GO-Token': this.apiParams.token,
-						},
-						method: 'GET',
-					});
-					const responseJson = JSON.parse(responseText) as HboGoHistoryResponse;
-					if (responseJson) {
-						responseItems = responseJson.Container[0]?.Contents.Items ?? [];
-					}
-					this.hasReachedHistoryEnd = true;
-				}
-				if (responseItems.length > 0) {
-					let filteredItems = [];
-					if (lastSync > 0 && lastSyncId) {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (responseItem.Id && responseItem.Id !== lastSyncId) {
-								filteredItems.push(responseItem);
-							} else {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								hasReachedLastSyncDate = true;
-								break;
-							}
-						}
-					} else {
-						filteredItems = responseItems;
-					}
-					itemsToLoad -= filteredItems.length;
-					historyItems.push(...filteredItems);
-				}
-				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
-			} while (!hasReachedEnd && itemsToLoad > 0);
-			if (historyItems.length > 0) {
-				const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
-				items = historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
-			}
-			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to load HBO Go history.', err as Error);
-				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
-				});
-			}
-			throw err;
+	async loadHistoryItems(): Promise<HboGoHistoryItem[]> {
+		if (!this.isActivated) {
+			await this.activate();
 		}
+		if (!this.checkParams(this.apiParams)) {
+			throw new Error('Invalid API params');
+		}
+		const responseText = await Requests.send({
+			url: this.HISTORY_URL,
+			headers: {
+				'GO-Token': this.apiParams.token,
+			},
+			method: 'GET',
+		});
+		const responseJson = JSON.parse(responseText) as HboGoHistoryResponse;
+		const responseItems = responseJson?.Container[0]?.Contents.Items ?? [];
+		this.hasReachedHistoryEnd = true;
+		return responseItems;
+	}
+
+	isNewHistoryItem(historyItem: HboGoHistoryItem, lastSync: number, lastSyncId: string) {
+		return !!historyItem.Id && historyItem.Id !== lastSyncId;
+	}
+
+	async convertHistoryItems(historyItems: HboGoHistoryItem[]) {
+		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
+		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
 	}
 
 	async getHistoryMetadata(historyItems: HboGoHistoryItem[]) {
@@ -330,5 +289,3 @@ class _HboGoApi extends Api {
 }
 
 export const HboGoApi = new _HboGoApi();
-
-registerApi('hbo-go', HboGoApi);
