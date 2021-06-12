@@ -64,6 +64,7 @@
 		"@octokit/rest": "^18.0.4",
 		"@rafaelgomesxyz/eslint-plugin-i18n-json": "^3.2.0",
 		"@svgr/webpack": "^5.4.0",
+		"@trakt-tools/cli": "^0.1.0",
 		"@types/fs-extra": "^9.0.1",
 		"@types/gulp": "^4.0.6",
 		"@types/gulp-zip": "^4.0.1",

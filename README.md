@@ -112,8 +112,12 @@ npm run zip
 
 #### How to add more streaming services
 
-- Run `npx create-streaming-service`. It will prompt you a few questions about the service and automatically generate all the necessary files. If you want to provide all the information at once without being prompted, run `npx create-streaming-service --help` to see the options.
+- Run `npx trakt-tools dev create-service`. It will prompt you a few questions about the service and automatically generate all the necessary files. If you want to provide all the information at once without being prompted, run `npx trakt-tools dev create-service --help` to see the options.
 - Go to the generated files and adjust them accordingly. You can see the files of the other services for some reference.
+
+#### How to add scrobbler/sync to streaming services
+
+- If a service is missing either the scrobbler or the sync function, you can run `npx trakt-tools dev update-service` to automatically generate all the missing files.
 
 ### Credits
 
