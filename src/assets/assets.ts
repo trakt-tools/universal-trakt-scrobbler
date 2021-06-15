@@ -1,4 +1,4 @@
-import 'typeface-roboto';
+import '@fontsource/roboto';
 import './images/background.jpg';
 import './images/uts-icon-128.png';
 import './images/uts-icon-16.png';
