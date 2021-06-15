@@ -30,7 +30,8 @@
 		"lint-translations": "eslint \"**/_locales/**/*.json\" --fix --quiet",
 		"tsc": "tsc --noEmit",
 		"check": "run-s format-check-other tsc lint-check-typed",
-		"fix": "run-s format-other tsc lint-typed"
+		"fix": "run-s format-other tsc lint-typed",
+		"prepare": "husky install"
 	},
 	"@comment dependencies": {
 		"@date-io/moment": "Do not update to v2 while using @material-ui/pickers v3",
@@ -139,10 +140,5 @@
 		"printWidth": 100,
 		"useTabs": true,
 		"singleQuote": true
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
 	}
 }
