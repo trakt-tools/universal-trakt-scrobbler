@@ -127,8 +127,9 @@ class _HboGoApi extends Api {
 			method: 'GET',
 		});
 		const config = JSON.parse(configResponseText) as HboGoConfigResponse;
-		const settingsUrl = config.ConfigurationAPIList.find((api) => api.Url.includes('Settings'))
-			?.Url;
+		const settingsUrl = config.ConfigurationAPIList.find((api) =>
+			api.Url.includes('Settings')
+		)?.Url;
 		if (!settingsUrl) {
 			throw new Error('Failed to activate API');
 		}

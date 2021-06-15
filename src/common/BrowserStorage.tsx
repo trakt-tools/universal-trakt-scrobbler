@@ -177,7 +177,7 @@ class _BrowserStorage {
 			console.log('Upgrading to v2...');
 
 			await BrowserStorage.remove(
-				(['traktCache', 'correctUrls', 'scrobblingItem'] as unknown) as (keyof StorageValues)[],
+				['traktCache', 'correctUrls', 'scrobblingItem'] as unknown as (keyof StorageValues)[],
 				true
 			);
 
@@ -205,7 +205,7 @@ class _BrowserStorage {
 
 				delete optionsV1.disableScrobbling;
 
-				await BrowserStorage.set({ options: (optionsV2 as unknown) as StorageValuesOptions }, true);
+				await BrowserStorage.set({ options: optionsV2 as unknown as StorageValuesOptions }, true);
 			}
 		}
 
@@ -223,12 +223,12 @@ class _BrowserStorage {
 			console.log('Downgrading to v1...');
 
 			await BrowserStorage.remove(
-				([
+				[
 					'traktCache',
 					'syncCache',
 					'correctItems',
 					'scrobblingItem',
-				] as unknown) as (keyof StorageValues)[],
+				] as unknown as (keyof StorageValues)[],
 				true
 			);
 
@@ -249,7 +249,7 @@ class _BrowserStorage {
 
 				delete optionsV2.theme;
 
-				await BrowserStorage.set({ options: (optionsV1 as unknown) as StorageValuesOptions }, true);
+				await BrowserStorage.set({ options: optionsV1 as unknown as StorageValuesOptions }, true);
 			}
 
 			const syncOptionsV1 = values.syncOptions as Partial<StorageValuesSyncOptionsV1> | undefined;
@@ -259,7 +259,7 @@ class _BrowserStorage {
 				delete syncOptionsV2.minPercentageWatched;
 
 				await BrowserStorage.set(
-					{ syncOptions: (syncOptionsV1 as unknown) as StorageValuesSyncOptions },
+					{ syncOptions: syncOptionsV1 as unknown as StorageValuesSyncOptions },
 					true
 				);
 			}

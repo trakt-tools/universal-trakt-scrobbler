@@ -52,9 +52,9 @@ class _WrongItemApi {
 				try {
 					const response = await Requests.send({
 						method: 'GET',
-						url: `${this.URL}?serviceId=${encodeURIComponent(
-							serviceId
-						)}&ids=${itemsToFetch.map((item) => encodeURIComponent(item.id)).join(',')}`,
+						url: `${this.URL}?serviceId=${encodeURIComponent(serviceId)}&ids=${itemsToFetch
+							.map((item) => encodeURIComponent(item.id))
+							.join(',')}`,
 					});
 					const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
 					const serviceSuggestions = cache[serviceId];

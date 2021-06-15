@@ -62,7 +62,7 @@ module.exports = {
 				'plugin:react/recommended',
 				'plugin:@typescript-eslint/recommended',
 				'plugin:@typescript-eslint/recommended-requiring-type-checking',
-				'prettier/@typescript-eslint', // Disables TypeScript rules that conflict with Prettier.
+				'prettier', // Disables TypeScript rules that conflict with Prettier.
 				'plugin:prettier/recommended', // Displays Prettier errors as ESLint errors. **Make sure this is always the last configuration.**
 			],
 			rules: {
