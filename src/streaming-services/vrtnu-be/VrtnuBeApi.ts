@@ -1,9 +1,9 @@
 import { Api } from '../common/Api';
-import * as VrtnuBe from './vrtnu-be.json';
+import { VrtnuBeService } from './VrtnuBeService';
 
 class _VrtnuBeApi extends Api {
 	constructor() {
-		super(VrtnuBe.id);
+		super(VrtnuBeService.id);
 	}
 }
 

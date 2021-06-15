@@ -9,10 +9,10 @@
 		"url": "git://github.com/trakt-tools/universal-trakt-scrobbler.git"
 	},
 	"scripts": {
-		"build": "webpack --env.production",
-		"build-dev": "webpack --env.development",
+		"build": "webpack --env production",
+		"build-dev": "webpack --env development",
 		"generate-release": "node ./scripts/generateRelease.js",
-		"start": "webpack --env.development --env.watch",
+		"start": "webpack --env development --env watch",
 		"zip": "gulp zip",
 		"prettier": "prettier \"**/*.{js,jsx,ts,tsx}\"",
 		"format-check": "npm run prettier -- --check",

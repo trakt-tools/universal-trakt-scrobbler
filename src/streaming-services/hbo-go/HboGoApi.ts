@@ -3,7 +3,7 @@ import { RequestException, Requests } from '../../common/Requests';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import * as HboGo from './hbo-go.json';
+import { HboGoService } from './HboGoService';
 
 export interface HboGoGlobalObject {
 	player: {
@@ -104,7 +104,7 @@ class _HboGoApi extends Api {
 	apiParams: Partial<HboGoApiParams>;
 
 	constructor() {
-		super(HboGo.id);
+		super(HboGoService.id);
 
 		this.isActivated = false;
 		this.apiParams = {};

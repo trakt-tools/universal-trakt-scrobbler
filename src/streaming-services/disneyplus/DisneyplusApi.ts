@@ -1,9 +1,9 @@
 import { Api } from '../common/Api';
-import * as Disneyplus from './disneyplus.json';
+import { DisneyplusService } from './DisneyplusService';
 
 class _DisneyplusApi extends Api {
 	constructor() {
-		super(Disneyplus.id);
+		super(DisneyplusService.id);
 	}
 }
 

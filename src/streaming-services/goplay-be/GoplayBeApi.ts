@@ -1,9 +1,9 @@
 import { Api } from '../common/Api';
-import * as GoplayBe from './goplay-be.json';
+import { GoplayBeService } from './GoplayBeService';
 
 class _GoplayBeApi extends Api {
 	constructor() {
-		super(GoplayBe.id);
+		super(GoplayBeService.id);
 	}
 }
 
