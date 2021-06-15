@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
-import * as Viaplay from './viaplay.json';
+import { ViaplayService } from './ViaplayService';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
@@ -85,7 +85,7 @@ class _ViaplayApi extends Api {
 	isActivated = false;
 
 	constructor() {
-		super(Viaplay.id);
+		super(ViaplayService.id);
 	}
 
 	async activate() {

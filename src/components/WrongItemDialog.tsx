@@ -137,7 +137,8 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
-	const validUrlRegex = /\/shows\/([\w-]+)\/seasons\/([\w-]+)\/episodes\/([\w-]+)|\/movies\/([\w-]+)/;
+	const validUrlRegex =
+		/\/shows\/([\w-]+)\/seasons\/([\w-]+)\/episodes\/([\w-]+)|\/movies\/([\w-]+)/;
 
 	const isValidUrl = (url: string): boolean => {
 		return !!validUrlRegex.exec(url);

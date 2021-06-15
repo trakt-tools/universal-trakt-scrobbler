@@ -91,17 +91,20 @@ const loadStreamingServices = async () => {
 	const keys = fs.readdirSync(servicesPath);
 	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
 	for (const serviceId of serviceIds) {
-		const servicePath = path.resolve(servicesPath, serviceId);
-
-		const service = (await import(
-			path.resolve(servicePath, `${serviceId}.json`)
-		)) as StreamingService;
-		streamingServices[service.id] = service;
-
 		const serviceKey = serviceId
 			.split('-')
 			.map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
 			.join('');
+		const servicePath = path.resolve(servicesPath, serviceId);
+
+		const service = (
+			(await import(path.resolve(servicePath, `${serviceKey}Service.ts`))) as Record<
+				string,
+				StreamingService
+			>
+		)[`${serviceKey}Service`];
+		streamingServices[service.id] = service;
+
 		apiImports.push(`import './${serviceId}/${serviceKey}Api';`);
 		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
 			import { init } from '../common/content';
@@ -199,11 +202,11 @@ const getWebpackConfig = async (env: Environment) => {
 				},
 				{
 					test: /\.scss$/,
-					loaders: [loaders.style, loaders.css, loaders.sass],
+					use: [loaders.style, loaders.css, loaders.sass],
 				},
 				{
 					test: /\.css$/,
-					loaders: [loaders.style, loaders.css],
+					use: [loaders.style, loaders.css],
 				},
 				{
 					test: /\.(t|j)sx?$/,

@@ -128,7 +128,7 @@ class _ScriptInjector {
 					void browser.tabs.remove(tab.id);
 				}
 				void BrowserStorage.set({ [storageKey]: value as unknown }, false);
-				resolve((value as unknown) as T | null);
+				resolve(value as unknown as T | null);
 			});
 			port.postMessage({ serviceId, key, url, fnStr });
 		});

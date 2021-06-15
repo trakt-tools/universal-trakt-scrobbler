@@ -26,12 +26,12 @@ async function generateRelease() {
 	const url = release.data.upload_url;
 	const files = [
 		{
-			content: fs.readFileSync(path.resolve(__dirname, '../dist/chrome.zip')),
+			content: fs.readFileSync(path.resolve(__dirname, '../dist/chrome.zip'), 'utf-8'),
 			name: 'chrome.zip',
 			type: 'application/zip',
 		},
 		{
-			content: fs.readFileSync(path.resolve(__dirname, '../dist/firefox.zip')),
+			content: fs.readFileSync(path.resolve(__dirname, '../dist/firefox.zip'), 'utf-8'),
 			name: 'firefox.zip',
 			type: 'application/zip',
 		},

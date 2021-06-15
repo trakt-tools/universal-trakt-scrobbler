@@ -219,9 +219,8 @@ class _Messaging {
 		});
 	};
 
-	onPortDisconnected:
-		| ((port: browser.runtime.Port, tabId: number) => Promisable<void>)
-		| null = null;
+	onPortDisconnected: ((port: browser.runtime.Port, tabId: number) => Promisable<void>) | null =
+		null;
 
 	private onMessage = <T extends MessageRequest>(
 		message: T,

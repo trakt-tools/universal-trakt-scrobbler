@@ -1,9 +1,9 @@
 import { Api } from '../common/Api';
-import * as VtmgoBe from './vtmgo-be.json';
+import { VtmgoBeService } from './VtmgoBeService';
 
 class _VtmgoBeApi extends Api {
 	constructor() {
-		super(VtmgoBe.id);
+		super(VtmgoBeService.id);
 	}
 }
 
