@@ -11,7 +11,7 @@ export const ViaplayService: StreamingService = {
 		'*://*.viaplay.dk/*',
 		'*://*.viaplay.fi/*',
 	],
-	hasScrobbler: false,
+	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
 };
