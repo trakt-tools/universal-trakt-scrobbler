@@ -98,10 +98,10 @@ class _ViaplayApi extends Api {
 
 	async activate() {
 		let host;
-		let isLoggedIn = false;
+		let isAuthorized = false;
 		if (location.hostname.includes('viaplay')) {
 			host = location.hostname + '/';
-			isLoggedIn = true;
+			isAuthorized = true;
 		} else {
 			const response = await fetch(this.INITIAL_URL);
 			host = response.url.split('//')[1];
@@ -114,7 +114,7 @@ class _ViaplayApi extends Api {
 		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-${region}`;
 		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
 
-		if (!isLoggedIn) {
+		if (!isAuthorized) {
 			await Requests.send({
 				url: this.AUTH_URL,
 				method: 'GET',
