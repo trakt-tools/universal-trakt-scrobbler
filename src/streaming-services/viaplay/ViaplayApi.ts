@@ -1,8 +1,9 @@
 import * as moment from 'moment';
-import { Requests } from '../../common/Requests';
+import { RequestException, Requests } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { Api } from '../common/Api';
 import { ViaplayService } from './ViaplayService';
+import { Errors } from '../../common/Errors';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
@@ -22,6 +23,12 @@ export interface ViaplayHistoryPage {
 		next: {
 			href: string;
 		};
+	};
+}
+
+interface ViaplayProductQuery {
+	_embedded: {
+		'viaplay:product': ViaplayProduct;
 	};
 }
 
@@ -79,6 +86,7 @@ export interface ViaplayProductUserInfo {
 class _ViaplayApi extends Api {
 	INITIAL_URL = 'https://viaplay.com/';
 	HOST_URL = '';
+	API_BASE_URL = '';
 	HISTORY_API_URL = '';
 	HISTORY_API_NEXT_PAGE_URL = '';
 	AUTH_URL = '';
@@ -89,19 +97,29 @@ class _ViaplayApi extends Api {
 	}
 
 	async activate() {
-		const response = await fetch(this.INITIAL_URL);
-		const host = response.url.split('//')[1];
+		let host;
+		let isAuthorized = false;
+		if (location.hostname.includes('viaplay')) {
+			host = location.hostname + '/';
+			isAuthorized = true;
+		} else {
+			const response = await fetch(this.INITIAL_URL);
+			host = response.url.split('//')[1];
+		}
 		const region = /no|se|dk|fi/.exec(host)?.[0] ?? 'no';
 
 		this.HOST_URL = `https://content.${host}`;
-		this.HISTORY_API_URL = `${this.HOST_URL}pcdash-${region}/watched`;
+		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
+		this.HISTORY_API_URL = `${this.API_BASE_URL}watched`;
 		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-${region}`;
 		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
 
-		await Requests.send({
-			url: this.AUTH_URL,
-			method: 'GET',
-		});
+		if (!isAuthorized) {
+			await Requests.send({
+				url: this.AUTH_URL,
+				method: 'GET',
+			});
+		}
 		this.isActivated = true;
 	}
 
@@ -136,20 +154,20 @@ class _ViaplayApi extends Api {
 	}
 
 	convertHistoryItems(historyItems: ViaplayProduct[]) {
-		const items = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
+		const items = historyItems.map((historyItem) => this.parseViaplayProduct(historyItem));
 		return items;
 	}
 
-	parseHistoryItem(historyItem: ViaplayProduct): Item {
+	parseViaplayProduct(product: ViaplayProduct): Item {
 		let item: Item;
 		const serviceId = this.id;
-		const year = historyItem.content.production.year;
-		const progressInfo = historyItem.user.progress;
+		const year = product.content.production.year;
+		const progressInfo = product.user.progress;
 		const progress = progressInfo?.elapsedPercent || 0;
 		const watchedAt = progressInfo ? moment(progressInfo.updated) : undefined;
-		const id = historyItem.system.guid;
-		if (historyItem.type === 'episode') {
-			const content = historyItem.content;
+		const id = product.system.guid;
+		if (product.type === 'episode') {
+			const content = product.content;
 			const title = content.originalTitle ?? content.series.title;
 			const season = content.series.season.seasonNumber;
 			const episode = content.series.episodeNumber;
@@ -167,7 +185,7 @@ class _ViaplayApi extends Api {
 				watchedAt,
 			});
 		} else {
-			const title = historyItem.content.title;
+			const title = product.content.title;
 			item = new Item({
 				serviceId,
 				id,
@@ -177,6 +195,27 @@ class _ViaplayApi extends Api {
 				progress,
 				watchedAt,
 			});
+		}
+		return item;
+	}
+
+	async getItem(id: string): Promise<Item | null> {
+		let item: Item | null = null;
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		try {
+			const responseText = await Requests.send({
+				url: this.API_BASE_URL + id + '?partial=true', //the params are optional, but makes the response smaller.
+				method: 'GET',
+			});
+			item = this.parseViaplayProduct(
+				(JSON.parse(responseText) as ViaplayProductQuery)._embedded['viaplay:product']
+			);
+		} catch (err) {
+			if (!(err as RequestException).canceled) {
+				Errors.error('Failed to get item.', err);
+			}
 		}
 		return item;
 	}
