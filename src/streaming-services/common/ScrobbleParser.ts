@@ -1,7 +1,6 @@
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Item, SavedItem } from '../../models/Item';
 import { Api } from './Api';
-import { registerScrobbleParser } from './common';
 
 export interface ScrobbleParserOptions {
 	/**
@@ -25,6 +24,16 @@ export interface ScrobblePlayback {
 	duration?: number;
 	progress: number;
 }
+
+const scrobbleParsers: Record<string, ScrobbleParser> = {};
+
+export const registerScrobbleParser = (id: string, parser: ScrobbleParser) => {
+	scrobbleParsers[id] = parser;
+};
+
+export const getScrobbleParser = (id: string) => {
+	return scrobbleParsers[id];
+};
 
 export abstract class ScrobbleParser {
 	readonly api: Api;

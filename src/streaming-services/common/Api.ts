@@ -6,7 +6,17 @@ import { EventDispatcher } from '../../common/Events';
 import { RequestException } from '../../common/Requests';
 import { Item } from '../../models/Item';
 import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
-import { getSyncStore, registerApi } from './common';
+import { getSyncStore } from './SyncStore';
+
+const apis: Record<string, Api> = {};
+
+export const registerApi = (id: string, api: Api) => {
+	apis[id] = api;
+};
+
+export const getApi = (id: string) => {
+	return apis[id];
+};
 
 export abstract class Api {
 	readonly id: string;

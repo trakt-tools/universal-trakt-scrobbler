@@ -7,7 +7,8 @@ import { Notifications } from '../../common/Notifications';
 import { ScriptInjector } from '../../common/ScriptInjector';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
-import { getScrobbleController, getScrobbleEvents } from './common';
+import { getScrobbleController } from './ScrobbleController';
+import { getScrobbleEvents } from './ScrobbleEvents';
 
 export const init = async (serviceId: string) => {
 	Shared.pageType = 'content';

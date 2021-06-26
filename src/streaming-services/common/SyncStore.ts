@@ -14,6 +14,16 @@ export interface SyncStoreData {
 	hasReachedLastSyncDate: boolean;
 }
 
+const syncStores: Record<string, SyncStore> = {};
+
+export const getSyncStore = (serviceId: string | null) => {
+	const storeId = serviceId || 'multiple';
+	if (!syncStores[storeId]) {
+		syncStores[storeId] = new SyncStore(storeId);
+	}
+	return syncStores[storeId];
+};
+
 export class SyncStore {
 	id: string;
 	data: SyncStoreData;

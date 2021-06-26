@@ -11,12 +11,13 @@ import { LoginWrapper } from '../../components/LoginWrapper';
 import { UtsDialog } from '../../components/UtsDialog';
 import { UtsSnackbar } from '../../components/UtsSnackbar';
 import '../../streaming-services/apis';
-import { getServicePages } from '../../streaming-services/common/common';
+import { streamingServices } from '../../streaming-services/streaming-services';
 import { HistoryHeader } from './components/HistoryHeader';
 import { AboutPage } from './pages/AboutPage';
 import { AutoSyncPage } from './pages/AutoSyncPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { SyncPage } from './pages/SyncPage';
 
 const history = createHashHistory();
 Shared.history = history;
@@ -62,9 +63,17 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{getServicePages().map((service) => (
-							<Route key={service.id} path={service.path} render={service.pageBuilder} />
-						))}
+						{Object.values(streamingServices)
+							.filter((service) => service.hasSync)
+							.map((service) => (
+								<Route
+									key={service.id}
+									path={`/${service.id}`}
+									render={LoginWrapper.wrap(() => (
+										<SyncPage serviceId={service.id} />
+									))}
+								/>
+							))}
 						<Route
 							path="/auto-sync"
 							render={LoginWrapper.wrap(() => (
