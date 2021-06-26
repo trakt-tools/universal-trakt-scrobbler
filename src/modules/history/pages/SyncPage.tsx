@@ -18,8 +18,8 @@ import {
 import { I18N } from '../../../common/I18N';
 import { RequestException } from '../../../common/Requests';
 import { UtsCenter } from '../../../components/UtsCenter';
-import { Api } from '../../../streaming-services/common/Api';
-import { getApi, getSyncStore } from '../../../streaming-services/common/common';
+import { Api, getApi } from '../../../streaming-services/common/Api';
+import { getSyncStore } from '../../../streaming-services/common/SyncStore';
 import { streamingServices } from '../../../streaming-services/streaming-services';
 import { HistoryActions } from '../components/HistoryActions';
 import { HistoryList } from '../components/HistoryList';

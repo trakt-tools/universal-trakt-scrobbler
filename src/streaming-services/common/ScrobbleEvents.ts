@@ -1,5 +1,4 @@
 import { EventDispatcher } from '../../common/Events';
-import { registerScrobbleEvents } from './common';
 import { ScrobbleParser } from './ScrobbleParser';
 
 export interface ScrobbleEventsOptions {
@@ -10,6 +9,16 @@ export interface ScrobbleEventsOptions {
 	 */
 	checkFrequency: number;
 }
+
+const scrobbleEvents: Record<string, ScrobbleEvents> = {};
+
+export const registerScrobbleEvents = (id: string, events: ScrobbleEvents) => {
+	scrobbleEvents[id] = events;
+};
+
+export const getScrobbleEvents = (id: string) => {
+	return scrobbleEvents[id];
+};
 
 export abstract class ScrobbleEvents {
 	readonly parser: ScrobbleParser;

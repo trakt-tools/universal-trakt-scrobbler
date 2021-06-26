@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { BrowserStorage, StorageValues } from '../../../common/BrowserStorage';
 import { Item } from '../../../models/Item';
-import { getSyncStore } from '../../../streaming-services/common/common';
+import { getSyncStore } from '../../../streaming-services/common/SyncStore';
 import { SyncPage } from './SyncPage';
 
 export const AutoSyncPage: React.FC = () => {

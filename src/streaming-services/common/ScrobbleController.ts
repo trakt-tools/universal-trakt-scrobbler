@@ -7,7 +7,16 @@ import { Messaging } from '../../common/Messaging';
 import { RequestException } from '../../common/Requests';
 import { Shared } from '../../common/Shared';
 import { Item } from '../../models/Item';
-import { ScrobbleParser } from './ScrobbleParser';
+import { getScrobbleParser, ScrobbleParser } from './ScrobbleParser';
+
+const scrobbleControllers: Record<string, ScrobbleController> = {};
+
+export const getScrobbleController = (id: string) => {
+	if (!scrobbleControllers[id]) {
+		scrobbleControllers[id] = new ScrobbleController(getScrobbleParser(id));
+	}
+	return scrobbleControllers[id];
+};
 
 export class ScrobbleController {
 	readonly parser: ScrobbleParser;
