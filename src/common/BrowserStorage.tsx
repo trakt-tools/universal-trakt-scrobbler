@@ -5,8 +5,9 @@ import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
 import { Link } from '@material-ui/core';
 import { SavedItem } from '@models/Item';
+import { getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
-import { services } from '@services';
+import '@services';
 import * as React from 'react';
 
 export type StorageValues = StorageValuesV3;
@@ -428,8 +429,8 @@ class _BrowserStorage {
 				name: '',
 				description: '',
 				value: Object.fromEntries(
-					Object.keys(services).map((serviceId) => [
-						serviceId,
+					getServices().map((service) => [
+						service.id,
 						{
 							scrobble: false,
 							sync: false,
@@ -525,10 +526,10 @@ class _BrowserStorage {
 				typeof this.options[option.id] !== 'undefined' ? this.options[option.id] : option.value;
 			if (option.id === 'services') {
 				const missingServices = Object.fromEntries(
-					Object.keys(services)
-						.filter((serviceId) => !(serviceId in option.value))
-						.map((serviceId) => [
-							serviceId,
+					getServices()
+						.filter((service) => !(service.id in option.value))
+						.map((service) => [
+							service.id,
 							{
 								scrobble: false,
 								sync: false,

@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const GoplayBeService: Service = {
+export const GoplayBeService = new Service({
 	id: 'goplay-be',
 	name: 'GoPlay BE',
 	homePage: 'https://www.goplay.be/',
@@ -8,4 +8,4 @@ export const GoplayBeService: Service = {
 	hasScrobbler: true,
 	hasSync: false,
 	hasAutoSync: false,
-};
+});

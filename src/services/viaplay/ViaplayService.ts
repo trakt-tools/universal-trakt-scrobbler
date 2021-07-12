@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const ViaplayService: Service = {
+export const ViaplayService = new Service({
 	id: 'viaplay',
 	name: 'Viaplay',
 	homePage: 'https://viaplay.com/',
@@ -14,4 +14,4 @@ export const ViaplayService: Service = {
 	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
-};
+});

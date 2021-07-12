@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const NrkService: Service = {
+export const NrkService = new Service({
 	id: 'nrk',
 	name: 'NRK',
 	homePage: 'https://tv.nrk.no/',
@@ -8,4 +8,4 @@ export const NrkService: Service = {
 	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
-};
+});

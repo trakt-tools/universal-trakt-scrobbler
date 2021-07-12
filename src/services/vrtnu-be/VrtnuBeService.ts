@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const VrtnuBeService: Service = {
+export const VrtnuBeService = new Service({
 	id: 'vrtnu-be',
 	name: 'VRTNu BE',
 	homePage: 'https://www.vrt.be/vrtnu',
@@ -8,4 +8,4 @@ export const VrtnuBeService: Service = {
 	hasScrobbler: true,
 	hasSync: false,
 	hasAutoSync: false,
-};
+});

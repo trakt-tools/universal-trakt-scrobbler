@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const HboGoService: Service = {
+export const HboGoService = new Service({
 	id: 'hbo-go',
 	name: 'HBO Go',
 	homePage: 'https://www.hbogola.com/',
@@ -8,4 +8,4 @@ export const HboGoService: Service = {
 	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
-};
+});

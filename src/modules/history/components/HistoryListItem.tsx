@@ -5,7 +5,7 @@ import { Box, Checkbox, Tooltip } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import { Item } from '@models/Item';
-import { services } from '@services';
+import { getService } from '@models/Service';
 import * as React from 'react';
 
 interface HistoryListItemProps {
@@ -53,7 +53,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			)}
 			<HistoryListItemCard
 				item={item}
-				name={services[item.serviceId].name}
+				name={getService(item.serviceId).name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 			/>
 			<Tooltip title={I18N.translate(statusMessageName)}>

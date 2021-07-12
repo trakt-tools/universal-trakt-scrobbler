@@ -2,7 +2,7 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
-import { Service, services } from '@services';
+import { getServices, Service } from '@models/Service';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -18,7 +18,7 @@ export const HomePage: React.FC = () => {
 	useEffect(() => {
 		const checkEnabledServices = () => {
 			const serviceOptions = BrowserStorage.options.services;
-			const enabledServices = Object.values(services).filter(
+			const enabledServices = getServices().filter(
 				(service) => service.hasSync && serviceOptions[service.id].sync
 			);
 			setServices(enabledServices);
@@ -38,7 +38,7 @@ export const HomePage: React.FC = () => {
 								key={service.id}
 								button={true}
 								divider={true}
-								onClick={() => onRouteClick(`/${service.id}`)}
+								onClick={() => onRouteClick(service.path)}
 							>
 								<ListItemText primary={service.name} />
 							</ListItem>

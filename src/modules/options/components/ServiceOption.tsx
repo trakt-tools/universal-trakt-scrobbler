@@ -8,7 +8,7 @@ import BlockIcon from '@material-ui/icons/Block';
 import ClearIcon from '@material-ui/icons/Clear';
 import ErrorIcon from '@material-ui/icons/Error';
 import LaunchIcon from '@material-ui/icons/Launch';
-import { services } from '@services';
+import { getService } from '@models/Service';
 import * as moment from 'moment';
 import * as React from 'react';
 
@@ -22,7 +22,7 @@ export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOption
 
 	const [autoSyncDays, setAutoSyncDays] = React.useState(value.autoSyncDays);
 
-	const service = services[id];
+	const service = getService(id);
 
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
@@ -112,7 +112,7 @@ export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOption
 										disabled={!value.sync}
 										size="small"
 										onClick={() =>
-											onLinkClick(browser.runtime.getURL(`html/history.html#/${service.id}`))
+											onLinkClick(browser.runtime.getURL(`html/history.html#${service.path}`))
 										}
 									>
 										<LaunchIcon fontSize="small" />

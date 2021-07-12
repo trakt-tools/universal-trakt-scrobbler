@@ -14,14 +14,18 @@ export interface SyncStoreData {
 	hasReachedLastSyncDate: boolean;
 }
 
-const syncStores: Record<string, SyncStore> = {};
+const syncStores = new Map<string, SyncStore>();
 
 export const getSyncStore = (serviceId: string | null) => {
 	const storeId = serviceId || 'multiple';
-	if (!syncStores[storeId]) {
-		syncStores[storeId] = new SyncStore(storeId);
+	if (!syncStores.has(storeId)) {
+		syncStores.set(storeId, new SyncStore(storeId));
 	}
-	return syncStores[storeId];
+	const store = syncStores.get(storeId);
+	if (!store) {
+		throw new Error(`Sync store not registered for ${serviceId || 'null'}`);
+	}
+	return store;
 };
 
 export class SyncStore {

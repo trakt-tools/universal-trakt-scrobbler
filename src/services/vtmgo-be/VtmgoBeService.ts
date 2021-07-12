@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const VtmgoBeService: Service = {
+export const VtmgoBeService = new Service({
 	id: 'vtmgo-be',
 	name: 'VTMGo BE',
 	homePage: 'https://www.vtm.be/vtmgo',
@@ -8,4 +8,4 @@ export const VtmgoBeService: Service = {
 	hasScrobbler: true,
 	hasSync: false,
 	hasAutoSync: false,
-};
+});

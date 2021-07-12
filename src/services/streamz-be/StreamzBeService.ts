@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const StreamzBeService: Service = {
+export const StreamzBeService = new Service({
 	id: 'streamz-be',
 	name: 'Streamz BE',
 	homePage: 'https://www.streamz.be/',
@@ -8,4 +8,4 @@ export const StreamzBeService: Service = {
 	hasScrobbler: true,
 	hasSync: false,
 	hasAutoSync: false,
-};
+});

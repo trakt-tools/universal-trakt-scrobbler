@@ -13,8 +13,8 @@ import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Item, SavedItem } from '@models/Item';
+import { getService, getServices } from '@models/Service';
 import { TraktItem } from '@models/TraktItem';
-import { services } from '@services';
 
 const injectedTabs = new Set();
 let serviceEntries: [string, ServiceValue][] = [];
@@ -37,7 +37,7 @@ const init = async () => {
 	browser.storage.onChanged.addListener(onStorageChanged);
 	serviceEntries = Object.entries(BrowserStorage.options.services);
 	const scrobblerEnabled = serviceEntries.some(
-		([serviceId, value]) => services[serviceId].hasScrobbler && value.scrobble
+		([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 	);
 	if (scrobblerEnabled) {
 		addTabListener(BrowserStorage.options);
@@ -63,8 +63,8 @@ const checkAutoSync = async () => {
 	const now = Math.trunc(Date.now() / 1e3);
 	const servicesToSync = serviceEntries.filter(
 		([serviceId, value]) =>
-			services[serviceId].hasSync &&
-			services[serviceId].hasAutoSync &&
+			getService(serviceId).hasSync &&
+			getService(serviceId).hasAutoSync &&
 			value.sync &&
 			value.autoSync &&
 			value.autoSyncDays > 0 &&
@@ -107,7 +107,7 @@ const onStorageChanged = (
 		serviceEntries = Object.entries(newValue.services);
 
 		const scrobblerEnabled = serviceEntries.some(
-			([serviceId, value]) => services[serviceId].hasScrobbler && value.scrobble
+			([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addTabListener(newValue);
@@ -123,7 +123,7 @@ const onStorageChanged = (
 };
 
 const addTabListener = (options: StorageValuesOptions) => {
-	serviceScripts = Object.values(services)
+	serviceScripts = getServices()
 		.filter((service) => service.hasScrobbler && options.services[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
@@ -185,7 +185,7 @@ const addWebRequestListener = () => {
 		types: ['xmlhttprequest'],
 		urls: [
 			'*://*.trakt.tv/*',
-			...Object.values(services)
+			...getServices()
 				.map((service) => service.hostPatterns)
 				.flat(),
 		],

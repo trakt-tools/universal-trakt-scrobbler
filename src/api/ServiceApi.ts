@@ -8,14 +8,18 @@ import { Item } from '@models/Item';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 import { getSyncStore } from '@stores/SyncStore';
 
-const serviceApis: Record<string, ServiceApi> = {};
+const serviceApis = new Map<string, ServiceApi>();
 
 export const registerServiceApi = (id: string, api: ServiceApi) => {
-	serviceApis[id] = api;
+	serviceApis.set(id, api);
 };
 
 export const getServiceApi = (id: string) => {
-	return serviceApis[id];
+	const api = serviceApis.get(id);
+	if (!api) {
+		throw new Error(`API not registered for ${id}`);
+	}
+	return api;
 };
 
 export abstract class ServiceApi {

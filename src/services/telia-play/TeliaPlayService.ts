@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const TeliaPlayService: Service = {
+export const TeliaPlayService = new Service({
 	id: 'telia-play',
 	name: 'Telia Play',
 	homePage: 'https://teliaplay.se/',
@@ -8,4 +8,4 @@ export const TeliaPlayService: Service = {
 	hasScrobbler: false,
 	hasSync: true,
 	hasAutoSync: false,
-};
+});

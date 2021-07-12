@@ -19,7 +19,7 @@ import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
 import { UtsCenter } from '@components/UtsCenter';
 import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
-import { services } from '@services';
+import { getService } from '@models/Service';
 import { getSyncStore } from '@stores/SyncStore';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
@@ -42,7 +42,7 @@ const lastSyncData = {} as LastSyncData;
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const { serviceId } = props;
 
-	const service = serviceId ? services[serviceId] : null;
+	const service = serviceId ? getService(serviceId) : null;
 	const store = getSyncStore(serviceId);
 	const api = serviceId ? getServiceApi(serviceId) : null;
 

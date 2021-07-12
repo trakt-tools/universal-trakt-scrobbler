@@ -10,14 +10,18 @@ export interface ScrobbleEventsOptions {
 	checkFrequency: number;
 }
 
-const scrobbleEvents: Record<string, ScrobbleEvents> = {};
+const scrobbleEvents = new Map<string, ScrobbleEvents>();
 
 export const registerScrobbleEvents = (id: string, events: ScrobbleEvents) => {
-	scrobbleEvents[id] = events;
+	scrobbleEvents.set(id, events);
 };
 
 export const getScrobbleEvents = (id: string) => {
-	return scrobbleEvents[id];
+	const events = scrobbleEvents.get(id);
+	if (!events) {
+		throw new Error(`Scrobble events not registered for ${id}`);
+	}
+	return events;
 };
 
 export abstract class ScrobbleEvents {

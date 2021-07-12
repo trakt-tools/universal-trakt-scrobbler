@@ -7,12 +7,12 @@ import { LoginWrapper } from '@components/LoginWrapper';
 import { UtsDialog } from '@components/UtsDialog';
 import { UtsSnackbar } from '@components/UtsSnackbar';
 import { Container } from '@material-ui/core';
+import { getServices } from '@models/Service';
 import { AutoSyncPage } from '@pages/AutoSyncPage';
 import { AboutPage } from '@pages/HistoryAboutPage';
 import { HomePage } from '@pages/HistoryHomePage';
 import { LoginPage } from '@pages/HistoryLoginPage';
 import { SyncPage } from '@pages/SyncPage';
-import { services } from '@services';
 import '@services-apis';
 import { createHashHistory } from 'history';
 import * as React from 'react';
@@ -63,12 +63,12 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{Object.values(services)
+						{getServices()
 							.filter((service) => service.hasSync)
 							.map((service) => (
 								<Route
 									key={service.id}
-									path={`/${service.id}`}
+									path={service.path}
 									render={LoginWrapper.wrap(() => (
 										<SyncPage serviceId={service.id} />
 									))}

@@ -13,7 +13,7 @@ import { UtsCenter } from '@components/UtsCenter';
 import { UtsDialog } from '@components/UtsDialog';
 import { UtsSnackbar } from '@components/UtsSnackbar';
 import { CircularProgress, Container } from '@material-ui/core';
-import { services } from '@services';
+import { getService } from '@models/Service';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -88,7 +88,7 @@ export const OptionsApp: React.FC = () => {
 			const originsToAdd = [];
 			const originsToRemove = [];
 			for (const { id, value: partialValue } of data) {
-				const service = services[id];
+				const service = getService(id);
 				const value = {
 					...serviceValues[id],
 					...partialValue,
@@ -110,7 +110,7 @@ export const OptionsApp: React.FC = () => {
 				serviceValues[id] = value;
 			}
 			const scrobblerEnabled = Object.entries(serviceValues).some(
-				([serviceId, value]) => services[serviceId].hasScrobbler && value.scrobble
+				([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 			);
 			const permissionPromises: Promise<boolean>[] = [];
 			if (originsToAdd.length > 0) {

@@ -21,7 +21,7 @@ import {
 	TextField,
 } from '@material-ui/core';
 import { CorrectionSuggestion, Item } from '@models/Item';
-import { services } from '@services';
+import { getServices } from '@models/Service';
 import * as React from 'react';
 
 interface WrongItemDialogState {
@@ -86,9 +86,7 @@ export const WrongItemDialog: React.FC = () => {
 			const url = cleanUrl(dialog.url);
 			let { correctItems } = await BrowserStorage.get('correctItems');
 			if (!correctItems) {
-				correctItems = Object.fromEntries(
-					Object.keys(services).map((serviceId) => [serviceId, {}])
-				);
+				correctItems = Object.fromEntries(getServices().map((service) => [service.id, {}]));
 			}
 			if (!correctItems[dialog.item.serviceId]) {
 				correctItems[dialog.item.serviceId] = {};

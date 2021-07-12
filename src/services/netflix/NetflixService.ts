@@ -1,6 +1,6 @@
-import { Service } from '@services';
+import { Service } from '@models/Service';
 
-export const NetflixService: Service = {
+export const NetflixService = new Service({
 	id: 'netflix',
 	name: 'Netflix',
 	homePage: 'https://www.netflix.com/',
@@ -8,4 +8,4 @@ export const NetflixService: Service = {
 	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
-};
+});

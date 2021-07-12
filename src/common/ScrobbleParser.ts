@@ -25,14 +25,18 @@ export interface ScrobblePlayback {
 	progress: number;
 }
 
-const scrobbleParsers: Record<string, ScrobbleParser> = {};
+const scrobbleParsers = new Map<string, ScrobbleParser>();
 
 export const registerScrobbleParser = (id: string, parser: ScrobbleParser) => {
-	scrobbleParsers[id] = parser;
+	scrobbleParsers.set(id, parser);
 };
 
 export const getScrobbleParser = (id: string) => {
-	return scrobbleParsers[id];
+	const parser = scrobbleParsers.get(id);
+	if (!parser) {
+		throw new Error(`Scrobble parser not registered for ${id}`);
+	}
+	return parser;
 };
 
 export abstract class ScrobbleParser {

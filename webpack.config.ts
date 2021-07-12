@@ -1,4 +1,4 @@
-import { Service } from '@services';
+import { ServiceValues } from '@models/Service';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -74,35 +74,41 @@ const plugins = {
 	tsConfigPaths: TsconfigPathsPlugin,
 };
 
-const services: Record<string, Service> = {};
+const services: Record<string, ServiceValues> = {};
+const serviceImports: string[] = [];
 const apiImports: string[] = [];
 let virtualModules: VirtualModulesPlugin;
 
-const loadServices = async () => {
+const loadServices = () => {
 	const modules: Record<string, string> = {};
 
-	const servicesPath = path.resolve(BASE_PATH, 'src', 'services');
-	const ignoreKeys = ['apis.ts', 'services.ts'];
-
-	const keys = fs.readdirSync(servicesPath);
-	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
+	const servicesDir = path.resolve(BASE_PATH, 'src', 'services');
+	const serviceIds = fs.readdirSync(servicesDir).filter((fileName) => !fileName.endsWith('.ts'));
 	for (const serviceId of serviceIds) {
 		const serviceKey = serviceId
 			.split('-')
 			.map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
 			.join('');
-		const servicePath = path.resolve(servicesPath, serviceId);
-
-		const service = (
-			(await import(path.resolve(servicePath, `${serviceKey}Service.ts`))) as Record<
-				string,
-				Service
-			>
-		)[`${serviceKey}Service`];
+		const serviceDir = path.resolve(servicesDir, serviceId);
+		const servicePath = path.resolve(serviceDir, `${serviceKey}Service.ts`);
+		const serviceFile = fs.readFileSync(servicePath, 'utf-8');
+		const serviceMatches = /Service\(([\S\s]+?)\)/m.exec(serviceFile);
+		if (!serviceMatches) {
+			throw new Error(`No service matches for ${serviceId}`);
+		}
+		const service = JSON.parse(
+			serviceMatches[1]
+				.replace(/\r?\n|\r|\t/g, '')
+				.replace(/([{,])(\w+?):/g, '$1"$2":')
+				.replace(/'/g, '"')
+				.replace(/,([\]}])/g, '$1')
+		) as ServiceValues;
 		services[service.id] = service;
 
+		serviceImports.push(`import '@/${serviceId}/${serviceKey}Service';`);
 		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
-		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
+
+		modules[path.resolve(serviceDir, `${serviceId}.ts`)] = `
 			import { init } from '@service';
 			import '@/${serviceId}/${serviceKey}Events';
 
@@ -113,8 +119,8 @@ const loadServices = async () => {
 	virtualModules = new VirtualModulesPlugin(modules);
 };
 
-const getWebpackConfig = async (env: Environment) => {
-	await loadServices();
+const getWebpackConfig = (env: Environment) => {
+	loadServices();
 
 	let mode: 'production' | 'development';
 	if (env.production) {
@@ -166,7 +172,7 @@ const getWebpackConfig = async (env: Environment) => {
 					test: /apis\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
-						search: '// This will be automatically filled by Webpack during build',
+						search: '// @import-services-apis',
 						replace: apiImports.join('\n'),
 					},
 				},
@@ -174,8 +180,8 @@ const getWebpackConfig = async (env: Environment) => {
 					test: /services\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
-						search: '// This will be automatically filled by Webpack during build',
-						replace: JSON.stringify(services).slice(1, -1),
+						search: '// @import-services',
+						replace: serviceImports.join('\n'),
 					},
 				},
 				{

@@ -9,13 +9,18 @@ import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 
-const scrobbleControllers: Record<string, ScrobbleController> = {};
+const scrobbleControllers = new Map<string, ScrobbleController>();
 
 export const getScrobbleController = (id: string) => {
-	if (!scrobbleControllers[id]) {
-		scrobbleControllers[id] = new ScrobbleController(getScrobbleParser(id));
+	if (!scrobbleControllers.has(id)) {
+		const scrobbleParser = getScrobbleParser(id);
+		scrobbleControllers.set(id, new ScrobbleController(scrobbleParser));
 	}
-	return scrobbleControllers[id];
+	const controller = scrobbleControllers.get(id);
+	if (!controller) {
+		throw new Error(`Scrobble controller not registered for ${id}`);
+	}
+	return controller;
 };
 
 export class ScrobbleController {
