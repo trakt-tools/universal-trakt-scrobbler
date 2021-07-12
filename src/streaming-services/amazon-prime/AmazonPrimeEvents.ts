@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { AmazonPrimeParser } from './AmazonPrimeParser';
+import { AmazonPrimeParser } from '@/amazon-prime/AmazonPrimeParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _AmazonPrimeEvents extends ScrobbleEvents {
 	constructor() {

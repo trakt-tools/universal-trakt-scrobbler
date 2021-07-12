@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { VrtnuBeApi } from './VrtnuBeApi';
+import { VrtnuBeApi } from '@/vrtnu-be/VrtnuBeApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Item } from '@models/Item';
 
 class _VrtnuBeParser extends ScrobbleParser {
 	constructor() {

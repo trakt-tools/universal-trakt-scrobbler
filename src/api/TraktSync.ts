@@ -1,9 +1,9 @@
+import { TraktApi } from '@api/TraktApi';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
+import { RequestException, Requests } from '@common/Requests';
+import { Item } from '@models/Item';
 import * as moment from 'moment';
-import { Errors } from '../common/Errors';
-import { EventDispatcher } from '../common/Events';
-import { RequestException, Requests } from '../common/Requests';
-import { Item } from '../models/Item';
-import { TraktApi } from './TraktApi';
 
 export interface TraktHistoryItem {
 	id: number;

@@ -1,9 +1,9 @@
+import { ViaplayService } from '@/viaplay/ViaplayService';
+import { Api } from '@common/Api';
+import { Errors } from '@common/Errors';
+import { RequestException, Requests } from '@common/Requests';
+import { Item } from '@models/Item';
 import * as moment from 'moment';
-import { RequestException, Requests } from '../../common/Requests';
-import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { ViaplayService } from './ViaplayService';
-import { Errors } from '../../common/Errors';
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {

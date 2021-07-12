@@ -1,5 +1,5 @@
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { AmazonPrimeApi } from './AmazonPrimeApi';
+import { AmazonPrimeApi } from '@/amazon-prime/AmazonPrimeApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _AmazonPrimeParser extends ScrobbleParser {
 	itemId = '';

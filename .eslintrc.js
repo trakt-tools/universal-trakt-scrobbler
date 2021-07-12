@@ -46,6 +46,18 @@ const getJsOverride = () => {
 					allowTemplateLiterals: false,
 				},
 			],
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							group: ['.*'],
+							message:
+								'Please use aliases instead of relative paths for imports (see tsconfig.json).',
+						},
+					],
+				},
+			],
 		},
 	};
 };

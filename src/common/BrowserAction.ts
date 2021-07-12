@@ -1,6 +1,6 @@
-import { EventDispatcher } from './Events';
-import { Messaging } from './Messaging';
-import { Shared } from './Shared';
+import { EventDispatcher } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
 
 export interface BrowserActionRotating {
 	image: HTMLImageElement | null;

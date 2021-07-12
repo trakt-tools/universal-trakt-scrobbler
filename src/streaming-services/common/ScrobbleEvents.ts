@@ -1,6 +1,6 @@
-import { EventDispatcher } from '../../common/Events';
-import { registerScrobbleEvents } from './common';
-import { ScrobbleParser } from './ScrobbleParser';
+import { registerScrobbleEvents } from '@common';
+import { EventDispatcher } from '@common/Events';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 export interface ScrobbleEventsOptions {
 	/**

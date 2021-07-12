@@ -1,13 +1,13 @@
+import { HboGoApiParams } from '@/hbo-go/HboGoApi';
+import { TraktAuthDetails } from '@api/TraktAuth';
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Link } from '@material-ui/core';
+import { SavedItem } from '@models/Item';
+import { SavedTraktItem } from '@models/TraktItem';
+import { streamingServices } from '@streaming-services';
 import * as React from 'react';
-import { TraktAuthDetails } from '../api/TraktAuth';
-import { SavedItem } from '../models/Item';
-import { SavedTraktItem } from '../models/TraktItem';
-import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
-import { streamingServices } from '../streaming-services/streaming-services';
-import { EventDispatcher } from './Events';
-import { I18N } from './I18N';
-import { Shared } from './Shared';
 
 export type StorageValues = StorageValuesV2;
 export type StorageValuesOptions = StorageValuesOptionsV2;

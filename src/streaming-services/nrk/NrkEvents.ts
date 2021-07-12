@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { NrkParser } from './NrkParser';
+import { NrkParser } from '@/nrk/NrkParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _NrkEvents extends ScrobbleEvents {
 	constructor() {

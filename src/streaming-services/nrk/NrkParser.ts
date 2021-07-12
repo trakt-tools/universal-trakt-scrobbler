@@ -1,5 +1,5 @@
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { NrkApi } from './NrkApi';
+import { NrkApi } from '@/nrk/NrkApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _NrkParser extends ScrobbleParser {
 	constructor() {

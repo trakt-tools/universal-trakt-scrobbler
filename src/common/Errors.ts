@@ -1,9 +1,9 @@
+import { secrets } from '@/secrets';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, ScrobbleErrorData, SearchErrorData } from '@common/Events';
+import { RequestException } from '@common/Requests';
 import * as React from 'react';
 import * as Rollbar from 'rollbar';
-import { secrets } from '../secrets';
-import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, ScrobbleErrorData, SearchErrorData } from './Events';
-import { RequestException } from './Requests';
 
 class _Errors {
 	rollbar?: Rollbar;

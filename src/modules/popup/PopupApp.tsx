@@ -1,18 +1,18 @@
+import { EventDispatcher } from '@common/Events';
+import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
+import { ErrorBoundary } from '@components/ErrorBoundary';
+import { LoginWrapper } from '@components/LoginWrapper';
+import { PopupHeader } from '@components/PopupHeader';
 import { Box } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
+import { AboutPage } from '@pages/PopupAboutPage';
+import { HomePage } from '@pages/PopupHomePage';
+import { LoginPage } from '@pages/PopupLoginPage';
 import { createHashHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
-import { EventDispatcher } from '../../common/Events';
-import { Session } from '../../common/Session';
-import { Shared } from '../../common/Shared';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { LoginWrapper } from '../../components/LoginWrapper';
-import { PopupHeader } from './components/PopupHeader';
-import { AboutPage } from './pages/AboutPage';
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
 
 const history = createHashHistory();
 Shared.history = history;

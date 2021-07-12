@@ -1,4 +1,4 @@
-import { CorrectionSuggestion } from '../models/Item';
+import { CorrectionSuggestion } from '@models/Item';
 
 export interface CacheValues {
 	correctionSuggestions: Partial<

@@ -1,10 +1,15 @@
-import { TraktScrobble } from '../api/TraktScrobble';
-import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, ScrobbleErrorData, ScrobbleSuccessData, SearchErrorData } from './Events';
-import { I18N } from './I18N';
-import { Messaging } from './Messaging';
-import { RequestException } from './Requests';
-import { Shared } from './Shared';
+import { TraktScrobble } from '@api/TraktScrobble';
+import { BrowserStorage } from '@common/BrowserStorage';
+import {
+	EventDispatcher,
+	ScrobbleErrorData,
+	ScrobbleSuccessData,
+	SearchErrorData,
+} from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Messaging } from '@common/Messaging';
+import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
 
 class _Notifications {
 	messageNames: Record<number, MessageName>;

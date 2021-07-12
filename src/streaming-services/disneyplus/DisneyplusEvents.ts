@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { DisneyplusParser } from './DisneyplusParser';
+import { DisneyplusParser } from '@/disneyplus/DisneyplusParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _DisneyplusEvents extends ScrobbleEvents {
 	constructor() {

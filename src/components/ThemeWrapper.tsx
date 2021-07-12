@@ -1,7 +1,7 @@
+import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
 import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
-import { BrowserStorage, ThemeValue } from '../common/BrowserStorage';
 
 interface ThemeWrapperProps {
 	children: React.ReactNode;

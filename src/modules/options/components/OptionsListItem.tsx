@@ -1,3 +1,7 @@
+import { BrowserStorage, Option, StorageValuesOptions } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { StreamingServiceOptions } from '@components/StreamingServiceOptions';
 import {
 	Button,
 	ButtonGroup,
@@ -9,15 +13,6 @@ import {
 	Switch,
 } from '@material-ui/core';
 import * as React from 'react';
-import {
-	BrowserStorage,
-	Option,
-	StorageValuesOptions,
-	StreamingServiceValue,
-} from '../../../common/BrowserStorage';
-import { EventDispatcher } from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { StreamingServiceOptions } from './StreamingServiceOptions';
 
 interface OptionsListItemProps {
 	option: Option<keyof StorageValuesOptions>;

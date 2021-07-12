@@ -1,29 +1,29 @@
-import { CircularProgress, Container } from '@material-ui/core';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { TraktSettings } from '../../api/TraktSettings';
+import { TraktSettings } from '@api/TraktSettings';
 import {
 	BrowserStorage,
 	StorageValuesOptions,
 	StreamingServiceValue,
-} from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
+} from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import {
 	EventDispatcher,
 	OptionsChangeData,
 	StreamingServiceOptionsChangeData,
-} from '../../common/Events';
-import { Messaging } from '../../common/Messaging';
-import { Session } from '../../common/Session';
-import { Shared } from '../../common/Shared';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { UtsCenter } from '../../components/UtsCenter';
-import { UtsDialog } from '../../components/UtsDialog';
-import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { streamingServices } from '../../streaming-services/streaming-services';
-import { OptionsActions } from './components/OptionsActions';
-import { OptionsHeader } from './components/OptionsHeader';
-import { OptionsList } from './components/OptionsList';
+} from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
+import { ErrorBoundary } from '@components/ErrorBoundary';
+import { OptionsActions } from '@components/OptionsActions';
+import { OptionsHeader } from '@components/OptionsHeader';
+import { OptionsList } from '@components/OptionsList';
+import { UtsCenter } from '@components/UtsCenter';
+import { UtsDialog } from '@components/UtsDialog';
+import { UtsSnackbar } from '@components/UtsSnackbar';
+import { CircularProgress, Container } from '@material-ui/core';
+import { streamingServices } from '@streaming-services';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 export const OptionsApp: React.FC = () => {
 	const [content, setContent] = useState({

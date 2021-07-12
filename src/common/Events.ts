@@ -1,14 +1,14 @@
-import { Color } from '@material-ui/lab';
-import { TraktSearchItem } from '../api/TraktSearch';
-import { Item, SavedItem } from '../models/Item';
-import { TraktItem } from '../models/TraktItem';
+import { TraktSearchItem } from '@api/TraktSearch';
 import {
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
 	StreamingServiceValue,
-} from './BrowserStorage';
-import { Errors } from './Errors';
-import { RequestException } from './Requests';
+} from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { RequestException } from '@common/Requests';
+import { Color } from '@material-ui/lab';
+import { Item, SavedItem } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 
 export interface EventData {
 	LOGIN_SUCCESS: LoginSuccessData;

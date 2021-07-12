@@ -1,12 +1,13 @@
+import { StreamingService } from '@streaming-services';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
 import VirtualModulesPlugin = require('webpack-virtual-modules');
-import { StreamingService } from './src/streaming-services/streaming-services';
-import * as configJson from './config.json';
-import * as packageJson from './package.json';
+import configJson = require('./config.json');
+import packageJson = require('./package.json');
 
 interface Environment {
 	development: boolean;
@@ -70,6 +71,7 @@ const plugins = {
 	clean: CleanWebpackPlugin,
 	progressBar: ProgressBarWebpackPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
+	tsConfigPaths: TsconfigPathsPlugin,
 };
 
 const streamingServices: Record<string, StreamingService> = {};
@@ -105,10 +107,10 @@ const loadStreamingServices = async () => {
 		)[`${serviceKey}Service`];
 		streamingServices[service.id] = service;
 
-		apiImports.push(`import './${serviceId}/${serviceKey}Api';`);
+		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
 		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
-			import { init } from '../common/content';
-			import './${serviceKey}Events';
+			import { init } from '@common/content';
+			import '@/${serviceId}/${serviceKey}Events';
 
 			void init('${serviceId}');
 		`;
@@ -231,6 +233,7 @@ const getWebpackConfig = async (env: Environment) => {
 		],
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
+			plugins: [new plugins.tsConfigPaths()],
 		},
 		watch: !!(env.development && env.watch),
 		watchOptions: {

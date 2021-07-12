@@ -1,5 +1,5 @@
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { HboGoApi } from './HboGoApi';
+import { HboGoApi } from '@/hbo-go/HboGoApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _HboGoParser extends ScrobbleParser {
 	constructor() {

@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { GoplayBeParser } from './GoplayBeParser';
+import { GoplayBeParser } from '@/goplay-be/GoplayBeParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _GoplayBeEvents extends ScrobbleEvents {
 	constructor() {

@@ -1,8 +1,8 @@
+import { TeliaPlayService } from '@/telia-play/TeliaPlayService';
+import { Api } from '@common/Api';
+import { Requests } from '@common/Requests';
+import { Item } from '@models/Item';
 import * as moment from 'moment';
-import { Requests } from '../../common/Requests';
-import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { TeliaPlayService } from './TeliaPlayService';
 
 export interface TeliaContinueWatchingList {
 	list: TeliaContinueWatchingItem[];

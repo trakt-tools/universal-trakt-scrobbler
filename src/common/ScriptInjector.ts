@@ -1,6 +1,6 @@
-import { BrowserStorage, StorageValues } from './BrowserStorage';
-import { Shared } from './Shared';
-import { Tabs } from './Tabs';
+import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;

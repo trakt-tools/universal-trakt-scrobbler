@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { VtmgoBeApi } from './VtmgoBeApi';
+import { VtmgoBeApi } from '@/vtmgo-be/VtmgoBeApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Item } from '@models/Item';
 
 class _VtmgoBeParser extends ScrobbleParser {
 	constructor() {

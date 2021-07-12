@@ -1,12 +1,12 @@
+import { Api } from '@common/Api';
+import { ScrobbleController } from '@common/ScrobbleController';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { SyncStore } from '@common/SyncStore';
+import { LoginWrapper } from '@components/LoginWrapper';
+import { SyncPage } from '@pages/SyncPage';
+import { StreamingService, streamingServices } from '@streaming-services';
 import * as React from 'react';
-import { LoginWrapper } from '../../components/LoginWrapper';
-import { SyncPage } from '../../modules/history/pages/SyncPage';
-import { StreamingService, streamingServices } from '../streaming-services';
-import { Api } from './Api';
-import { ScrobbleController } from './ScrobbleController';
-import { ScrobbleEvents } from './ScrobbleEvents';
-import { ScrobbleParser } from './ScrobbleParser';
-import { SyncStore } from './SyncStore';
 
 export interface StreamingServicePage extends StreamingService {
 	path: string;

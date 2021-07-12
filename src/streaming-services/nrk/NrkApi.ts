@@ -1,8 +1,8 @@
+import { NrkService } from '@/nrk/NrkService';
+import { Api } from '@common/Api';
+import { Requests } from '@common/Requests';
+import { IItem, Item } from '@models/Item';
 import * as moment from 'moment';
-import { Requests } from '../../common/Requests';
-import { IItem, Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { NrkService } from './NrkService';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;

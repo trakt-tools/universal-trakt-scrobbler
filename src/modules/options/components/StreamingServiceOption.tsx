@@ -1,16 +1,16 @@
+import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
 import { Box, Grid, IconButton, Switch, TextField, Tooltip, Typography } from '@material-ui/core';
 import BlockIcon from '@material-ui/icons/Block';
 import ClearIcon from '@material-ui/icons/Clear';
 import ErrorIcon from '@material-ui/icons/Error';
 import LaunchIcon from '@material-ui/icons/Launch';
+import { streamingServices } from '@streaming-services';
 import * as moment from 'moment';
 import * as React from 'react';
-import { BrowserStorage, StreamingServiceValue } from '../../../common/BrowserStorage';
-import { EventDispatcher } from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { Shared } from '../../../common/Shared';
-import { Tabs } from '../../../common/Tabs';
-import { streamingServices } from '../../../streaming-services/streaming-services';
 
 interface StreamingServiceOptionProps {
 	id: string;

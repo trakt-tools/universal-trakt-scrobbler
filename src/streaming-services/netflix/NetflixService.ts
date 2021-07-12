@@ -1,4 +1,4 @@
-import { StreamingService } from '../streaming-services';
+import { StreamingService } from '@streaming-services';
 
 export const NetflixService: StreamingService = {
 	id: 'netflix',

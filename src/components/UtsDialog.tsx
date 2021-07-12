@@ -1,3 +1,5 @@
+import { DialogShowData, EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
 import {
 	Button,
 	Dialog,
@@ -8,8 +10,6 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { DialogShowData, EventDispatcher } from '../common/Events';
-import { I18N } from '../common/I18N';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;

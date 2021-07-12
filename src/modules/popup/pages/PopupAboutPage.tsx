@@ -1,8 +1,8 @@
+import { I18N } from '@common/I18N';
+import { Tabs } from '@common/Tabs';
+import { PopupInfo } from '@components/PopupInfo';
 import { Button, Typography } from '@material-ui/core';
 import * as React from 'react';
-import { I18N } from '../../../common/I18N';
-import { Tabs } from '../../../common/Tabs';
-import { PopupInfo } from '../components/PopupInfo';
 
 export const AboutPage: React.FC = () => {
 	const onLinkClick = async (url: string): Promise<void> => {

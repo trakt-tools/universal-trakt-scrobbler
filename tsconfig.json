@@ -11,6 +11,35 @@
 		"strict": true,
 		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
 		"resolveJsonModule": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"baseUrl": "./",
+		"paths": {
+			"@locales/*": ["./src/_locales/*"],
+			"@api/*": ["./src/api/*"],
+			"@images/*": ["./src/assets/images/*"],
+			"@styles/*": ["./src/assets/styles/*"],
+			"@assets": ["./src/assets/assets"],
+			"@common": ["./src/streaming-services/common/common"],
+			"@common/*": ["./src/common/*", "./src/streaming-services/common/*"],
+			"@components/*": [
+				"./src/components/*",
+				"./src/modules/history/components/*",
+				"./src/modules/options/components/*",
+				"./src/modules/popup/components/*"
+			],
+			"@models/*": ["./src/models/*"],
+			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],
+			"@background": ["./src/modules/background/background"],
+			"@trakt": ["./src/modules/content/trakt/trakt"],
+			"@history": ["./src/modules/history/history"],
+			"@history/*": ["./src/modules/history/*"],
+			"@options": ["./src/modules/options/options"],
+			"@options/*": ["./src/modules/options/*"],
+			"@popup": ["./src/modules/popup/popup"],
+			"@popup/*": ["./src/modules/popup/*"],
+			"@streaming-services": ["./src/streaming-services/streaming-services"],
+			"@streaming-services-apis": ["./src/streaming-services/apis"],
+			"@/*": ["./src/streaming-services/*", "./src/*"]
+		}
 	}
 }

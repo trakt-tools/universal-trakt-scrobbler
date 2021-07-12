@@ -1,6 +1,6 @@
-import { BrowserStorage } from './BrowserStorage';
-import { Messaging } from './Messaging';
-import { Shared } from './Shared';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
 
 export interface TabProperties {
 	active?: boolean;

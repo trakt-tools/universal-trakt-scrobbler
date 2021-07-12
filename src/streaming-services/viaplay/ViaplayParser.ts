@@ -1,5 +1,5 @@
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { ViaplayApi } from './ViaplayApi';
+import { ViaplayApi } from '@/viaplay/ViaplayApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _ViaplayParser extends ScrobbleParser {
 	constructor() {

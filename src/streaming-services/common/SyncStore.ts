@@ -1,6 +1,6 @@
-import { BrowserStorage } from '../../common/BrowserStorage';
-import { EventDispatcher, StreamingServiceHistoryChangeData } from '../../common/Events';
-import { Item } from '../../models/Item';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, StreamingServiceHistoryChangeData } from '@common/Events';
+import { Item } from '@models/Item';
 
 export interface SyncStoreData {
 	items: Item[];

@@ -1,3 +1,7 @@
+import { I18N } from '@common/I18N';
+import { Session } from '@common/Session';
+import { Tabs } from '@common/Tabs';
+import { UtsLeftRight } from '@components/UtsLeftRight';
 import { AppBar, Button, Toolbar } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HomeIcon from '@material-ui/icons/Home';
@@ -5,10 +9,6 @@ import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { History } from 'history';
 import * as React from 'react';
-import { I18N } from '../../../common/I18N';
-import { Session } from '../../../common/Session';
-import { Tabs } from '../../../common/Tabs';
-import { UtsLeftRight } from '../../../components/UtsLeftRight';
 
 interface HistoryHeaderProps {
 	history: History;

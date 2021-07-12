@@ -1,7 +1,7 @@
-import { EventDispatcher } from '../common/Events';
-import { RequestException, Requests } from '../common/Requests';
-import { TraktItem } from '../models/TraktItem';
-import { TraktApi } from './TraktApi';
+import { TraktApi } from '@api/TraktApi';
+import { EventDispatcher } from '@common/Events';
+import { RequestException, Requests } from '@common/Requests';
+import { TraktItem } from '@models/TraktItem';
 
 export interface TraktScrobbleData {
 	movie?: {

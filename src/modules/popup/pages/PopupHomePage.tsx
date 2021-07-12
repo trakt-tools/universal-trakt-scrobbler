@@ -1,19 +1,15 @@
+import { TmdbApi } from '@api/TmdbApi';
+import { WrongItemApi } from '@api/WrongItemApi';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, ScrobbleStartData, ScrobblingItemUpdateData } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { PopupNotWatching } from '@components/PopupNotWatching';
+import { PopupWatching } from '@components/PopupWatching';
+import { UtsCenter } from '@components/UtsCenter';
 import { CircularProgress } from '@material-ui/core';
+import { Item } from '@models/Item';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { TmdbApi } from '../../../api/TmdbApi';
-import { WrongItemApi } from '../../../api/WrongItemApi';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import {
-	EventDispatcher,
-	ScrobbleStartData,
-	ScrobblingItemUpdateData,
-} from '../../../common/Events';
-import { Messaging } from '../../../common/Messaging';
-import { UtsCenter } from '../../../components/UtsCenter';
-import { Item } from '../../../models/Item';
-import { PopupNotWatching } from '../components/PopupNotWatching';
-import { PopupWatching } from '../components/PopupWatching';
 
 interface IPopupHomeContent {
 	isLoading: boolean;

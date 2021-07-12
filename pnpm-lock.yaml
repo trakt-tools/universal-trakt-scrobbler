@@ -64,6 +64,7 @@ specifiers:
   string-replace-loader: ^3.0.2
   style-loader: ^2.0.0
   ts-node: ^10.0.0
+  tsconfig-paths-webpack-plugin: ^3.5.1
   typescript: ^4.3.2
   web-ext-types: ^3.2.1
   webextension-polyfill: ^0.8.0
@@ -138,6 +139,7 @@ devDependencies:
   string-replace-loader: 3.0.2_webpack@5.39.0
   style-loader: 2.0.0_webpack@5.39.0
   ts-node: 10.0.0_e3fb3700f8b176f300f1b7e599dc9c29
+  tsconfig-paths-webpack-plugin: 3.5.1
   typescript: 4.3.2
   web-ext-types: 3.2.1
   webpack: 5.39.0_webpack-cli@4.7.2
@@ -9872,6 +9874,28 @@ packages:
       source-map-support: 0.5.19
       typescript: 4.3.2
       yn: 3.1.1
+    dev: true
+
+  /tsconfig-paths-webpack-plugin/3.5.1:
+    resolution:
+      {
+        integrity: sha512-n5CMlUUj+N5pjBhBACLq4jdr9cPTitySCjIosoQm0zwK99gmrcTGAfY9CwxRFT9+9OleNWXPRUcxsKP4AYExxQ==,
+      }
+    dependencies:
+      chalk: 4.1.1
+      enhanced-resolve: 5.8.2
+      tsconfig-paths: 3.10.1
+    dev: true
+
+  /tsconfig-paths/3.10.1:
+    resolution:
+      {
+        integrity: sha512-rETidPDgCpltxF7MjBZlAFPUHv5aHH2MymyPvh+vEyWAED4Eb/WeMbsnD/JDr4OKPOA1TssDHgIcpTN5Kh0p6Q==,
+      }
+    dependencies:
+      json5: 2.2.0
+      minimist: 1.2.5
+      strip-bom: 3.0.0
     dev: true
 
   /tslib/1.14.1:

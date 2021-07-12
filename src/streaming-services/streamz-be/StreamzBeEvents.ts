@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { StreamzBeParser } from './StreamzBeParser';
+import { StreamzBeParser } from '@/streamz-be/StreamzBeParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _StreamzBeEvents extends ScrobbleEvents {
 	constructor() {

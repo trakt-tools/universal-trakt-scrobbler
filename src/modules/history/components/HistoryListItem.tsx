@@ -1,12 +1,12 @@
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { HistoryListItemCard } from '@components/HistoryListItemCard';
 import { Box, Checkbox, Tooltip } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
+import { Item } from '@models/Item';
+import { streamingServices } from '@streaming-services';
 import * as React from 'react';
-import { EventDispatcher } from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { Item } from '../../../models/Item';
-import { streamingServices } from '../../../streaming-services/streaming-services';
-import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
 	item: Item;

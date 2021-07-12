@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { HboGoParser } from './HboGoParser';
+import { HboGoParser } from '@/hbo-go/HboGoParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _HboGoEvents extends ScrobbleEvents {
 	constructor() {

@@ -1,13 +1,13 @@
-import { BrowserAction } from '../../common/BrowserAction';
-import { BrowserStorage } from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
-import { Messaging } from '../../common/Messaging';
-import { Notifications } from '../../common/Notifications';
-import { ScriptInjector } from '../../common/ScriptInjector';
-import { Shared } from '../../common/Shared';
-import { Item } from '../../models/Item';
-import { getScrobbleController, getScrobbleEvents } from './common';
+import { getScrobbleController, getScrobbleEvents } from '@common';
+import { BrowserAction } from '@common/BrowserAction';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Notifications } from '@common/Notifications';
+import { ScriptInjector } from '@common/ScriptInjector';
+import { Shared } from '@common/Shared';
+import { Item } from '@models/Item';
 
 export const init = async (serviceId: string) => {
 	Shared.pageType = 'content';

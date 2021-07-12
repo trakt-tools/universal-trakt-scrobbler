@@ -1,10 +1,10 @@
-import { TraktAuthDetails } from '../api/TraktAuth';
-import { SavedItem } from '../models/Item';
-import { CacheValues } from './Cache';
-import { Errors } from './Errors';
-import { RequestDetails } from './Requests';
-import { Shared } from './Shared';
-import { TabProperties } from './Tabs';
+import { TraktAuthDetails } from '@api/TraktAuth';
+import { CacheValues } from '@common/Cache';
+import { Errors } from '@common/Errors';
+import { RequestDetails } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { TabProperties } from '@common/Tabs';
+import { SavedItem } from '@models/Item';
 
 export type MessageRequest = MessageRequests[keyof MessageRequests];
 

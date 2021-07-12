@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { DisneyplusApi } from './DisneyplusApi';
+import { DisneyplusApi } from '@/disneyplus/DisneyplusApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Item } from '@models/Item';
 
 class _DisneyplusParser extends ScrobbleParser {
 	constructor() {

@@ -1,5 +1,5 @@
-import { Api } from '../common/Api';
-import { DisneyplusService } from './DisneyplusService';
+import { DisneyplusService } from '@/disneyplus/DisneyplusService';
+import { Api } from '@common/Api';
 
 class _DisneyplusApi extends Api {
 	constructor() {

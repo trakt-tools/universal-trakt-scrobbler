@@ -1,9 +1,9 @@
-import { TraktSync } from '../../api/TraktSync';
-import { BrowserStorage, StreamingServiceValue } from '../../common/BrowserStorage';
-import { Item } from '../../models/Item';
-import '../apis';
-import { Api } from './Api';
-import { getApi, getSyncStore } from './common';
+import { TraktSync } from '@api/TraktSync';
+import { getApi, getSyncStore } from '@common';
+import { Api } from '@common/Api';
+import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
+import { Item } from '@models/Item';
+import '@streaming-services-apis';
 
 class _AutoSync {
 	async sync(serviceEntries: [string, StreamingServiceValue][], now: number) {

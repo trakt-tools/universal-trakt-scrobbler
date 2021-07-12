@@ -1,5 +1,5 @@
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { NetflixApi } from './NetflixApi';
+import { NetflixApi } from '@/netflix/NetflixApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _NetflixParser extends ScrobbleParser {
 	constructor() {

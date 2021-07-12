@@ -1,5 +1,5 @@
-import { Requests } from '../common/Requests';
-import { TraktApi } from './TraktApi';
+import { TraktApi } from '@api/TraktApi';
+import { Requests } from '@common/Requests';
 
 export interface TraktSettingsResponse {
 	account: TraktAccount;

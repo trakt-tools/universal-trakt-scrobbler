@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { VrtnuBeParser } from './VrtnuBeParser';
+import { VrtnuBeParser } from '@/vrtnu-be/VrtnuBeParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _VrtnuBeEvents extends ScrobbleEvents {
 	constructor() {

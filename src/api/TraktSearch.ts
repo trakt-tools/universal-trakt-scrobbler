@@ -1,10 +1,10 @@
+import { TraktApi } from '@api/TraktApi';
+import { CorrectItem } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
+import { RequestException, Requests } from '@common/Requests';
+import { Item } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 import * as moment from 'moment';
-import { CorrectItem } from '../common/BrowserStorage';
-import { EventDispatcher } from '../common/Events';
-import { RequestException, Requests } from '../common/Requests';
-import { Item } from '../models/Item';
-import { TraktItem } from '../models/TraktItem';
-import { TraktApi } from './TraktApi';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
 

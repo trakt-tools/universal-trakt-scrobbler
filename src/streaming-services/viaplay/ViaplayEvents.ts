@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { ViaplayParser } from './ViaplayParser';
+import { ViaplayParser } from '@/viaplay/ViaplayParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _ViaplayEvents extends ScrobbleEvents {
 	constructor() {

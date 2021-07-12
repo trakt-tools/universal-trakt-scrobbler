@@ -1,3 +1,8 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
+import { TmdbImage } from '@components/TmdbImage';
+import { UtsCenter } from '@components/UtsCenter';
 import {
 	Button,
 	Card,
@@ -8,14 +13,9 @@ import {
 	Tooltip,
 	Typography,
 } from '@material-ui/core';
+import { CorrectionSuggestion, Item } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 import * as React from 'react';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { I18N } from '../../../common/I18N';
-import { Shared } from '../../../common/Shared';
-import { TmdbImage } from '../../../components/TmdbImage';
-import { UtsCenter } from '../../../components/UtsCenter';
-import { CorrectionSuggestion, Item } from '../../../models/Item';
-import { TraktItem } from '../../../models/TraktItem';
 
 interface HistoryListItemCardProps {
 	item?: Item | TraktItem | null;

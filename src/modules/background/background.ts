@@ -1,24 +1,24 @@
-import { TraktAuth } from '../../api/TraktAuth';
-import { TraktScrobble } from '../../api/TraktScrobble';
-import { WrongItemApi } from '../../api/WrongItemApi';
-import { BrowserAction } from '../../common/BrowserAction';
+import { TraktAuth } from '@api/TraktAuth';
+import { TraktScrobble } from '@api/TraktScrobble';
+import { WrongItemApi } from '@api/WrongItemApi';
+import { AutoSync } from '@common/AutoSync';
+import { BrowserAction } from '@common/BrowserAction';
 import {
 	BrowserStorage,
 	StorageValuesOptions,
 	StreamingServiceValue,
-} from '../../common/BrowserStorage';
-import { Cache } from '../../common/Cache';
-import { Errors } from '../../common/Errors';
-import { I18N } from '../../common/I18N';
-import { Messaging } from '../../common/Messaging';
-import { Notifications } from '../../common/Notifications';
-import { Requests } from '../../common/Requests';
-import { Shared } from '../../common/Shared';
-import { Tabs } from '../../common/Tabs';
-import { Item, SavedItem } from '../../models/Item';
-import { TraktItem } from '../../models/TraktItem';
-import { AutoSync } from '../../streaming-services/common/AutoSync';
-import { streamingServices } from '../../streaming-services/streaming-services';
+} from '@common/BrowserStorage';
+import { Cache } from '@common/Cache';
+import { Errors } from '@common/Errors';
+import { I18N } from '@common/I18N';
+import { Messaging } from '@common/Messaging';
+import { Notifications } from '@common/Notifications';
+import { Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
+import { Item, SavedItem } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
+import { streamingServices } from '@streaming-services';
 
 const injectedTabs = new Set();
 let streamingServiceEntries: [string, StreamingServiceValue][] = [];

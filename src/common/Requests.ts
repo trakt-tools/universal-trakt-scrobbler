@@ -1,9 +1,9 @@
+import { TraktAuth } from '@api/TraktAuth';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, RequestsCancelData } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
 import axios, { AxiosResponse, CancelTokenSource, Method } from 'axios';
-import { TraktAuth } from '../api/TraktAuth';
-import { BrowserStorage } from './BrowserStorage';
-import { EventDispatcher, RequestsCancelData } from './Events';
-import { Messaging } from './Messaging';
-import { Shared } from './Shared';
 
 export type RequestException = {
 	request: RequestDetails;

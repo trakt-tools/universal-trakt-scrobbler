@@ -1,7 +1,7 @@
-import { ScriptInjector } from '../../common/ScriptInjector';
-import { Item, SavedItem } from '../../models/Item';
-import { Api } from './Api';
-import { registerScrobbleParser } from './common';
+import { registerScrobbleParser } from '@common';
+import { Api } from '@common/Api';
+import { ScriptInjector } from '@common/ScriptInjector';
+import { Item, SavedItem } from '@models/Item';
 
 export interface ScrobbleParserOptions {
 	/**

@@ -1,9 +1,9 @@
-import { secrets } from '../secrets';
-import { BrowserStorage } from '../common/BrowserStorage';
-import { Requests } from '../common/Requests';
-import { Shared } from '../common/Shared';
-import { Tabs } from '../common/Tabs';
-import { TraktApi } from './TraktApi';
+import { secrets } from '@/secrets';
+import { TraktApi } from '@api/TraktApi';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
 
 export type TraktManualAuth = {
 	callback?: PromiseResolve<TraktAuthDetails>;

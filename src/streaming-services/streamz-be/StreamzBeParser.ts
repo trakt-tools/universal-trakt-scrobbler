@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { StreamzBeApi } from './StreamzBeApi';
+import { StreamzBeApi } from '@/streamz-be/StreamzBeApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Item } from '@models/Item';
 
 class _StreamzBeParser extends ScrobbleParser {
 	constructor() {

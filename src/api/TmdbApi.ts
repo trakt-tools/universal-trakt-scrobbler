@@ -1,9 +1,9 @@
-import { Errors } from '../common/Errors';
-import { Messaging } from '../common/Messaging';
-import { RequestException, Requests } from '../common/Requests';
-import { Item } from '../models/Item';
-import { TraktItem } from '../models/TraktItem';
-import { secrets } from '../secrets';
+import { secrets } from '@/secrets';
+import { Errors } from '@common/Errors';
+import { Messaging } from '@common/Messaging';
+import { RequestException, Requests } from '@common/Requests';
+import { Item } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 
 export interface TmdbConfigResponse {
 	images?: {

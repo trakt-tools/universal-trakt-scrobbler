@@ -1,13 +1,13 @@
-import { TraktScrobble } from '../../api/TraktScrobble';
-import { TraktSearch } from '../../api/TraktSearch';
-import { BrowserStorage } from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '../../common/Events';
-import { Messaging } from '../../common/Messaging';
-import { RequestException } from '../../common/Requests';
-import { Shared } from '../../common/Shared';
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from './ScrobbleParser';
+import { TraktScrobble } from '@api/TraktScrobble';
+import { TraktSearch } from '@api/TraktSearch';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { RequestException } from '@common/Requests';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Shared } from '@common/Shared';
+import { Item } from '@models/Item';
 
 export class ScrobbleController {
 	readonly parser: ScrobbleParser;

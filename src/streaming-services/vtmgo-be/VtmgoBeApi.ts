@@ -1,5 +1,5 @@
-import { Api } from '../common/Api';
-import { VtmgoBeService } from './VtmgoBeService';
+import { VtmgoBeService } from '@/vtmgo-be/VtmgoBeService';
+import { Api } from '@common/Api';
 
 class _VtmgoBeApi extends Api {
 	constructor() {

@@ -1,7 +1,7 @@
-import { BrowserStorage } from '../common/BrowserStorage';
-import { Messaging } from '../common/Messaging';
-import { Requests } from '../common/Requests';
-import { CorrectionSuggestion, Item } from '../models/Item';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Messaging } from '@common/Messaging';
+import { Requests } from '@common/Requests';
+import { CorrectionSuggestion, Item } from '@models/Item';
 
 class _WrongItemApi {
 	URL =

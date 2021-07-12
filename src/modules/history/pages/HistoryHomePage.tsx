@@ -1,11 +1,11 @@
+import { getServicePages, StreamingServicePage } from '@common';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { I18N } from '@common/I18N';
+import { HistoryInfo } from '@components/HistoryInfo';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { I18N } from '../../../common/I18N';
-import { getServicePages, StreamingServicePage } from '../../../streaming-services/common/common';
-import { HistoryInfo } from '../components/HistoryInfo';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();

@@ -1,4 +1,4 @@
-import { StreamingService } from '../streaming-services';
+import { StreamingService } from '@streaming-services';
 
 export const VtmgoBeService: StreamingService = {
 	id: 'vtmgo-be',

@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { NetflixParser } from './NetflixParser';
+import { NetflixParser } from '@/netflix/NetflixParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _NetflixEvents extends ScrobbleEvents {
 	constructor() {

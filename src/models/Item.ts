@@ -1,6 +1,6 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 import * as moment from 'moment';
-import { BrowserStorage } from '../common/BrowserStorage';
-import { SavedTraktItem, TraktItem } from './TraktItem';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {

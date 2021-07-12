@@ -1,5 +1,5 @@
-import { Api } from '../common/Api';
-import { StreamzBeService } from './StreamzBeService';
+import { StreamzBeService } from '@/streamz-be/StreamzBeService';
+import { Api } from '@common/Api';
 
 class _StreamzBeApi extends Api {
 	constructor() {

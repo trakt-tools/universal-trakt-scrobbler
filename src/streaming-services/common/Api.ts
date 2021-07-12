@@ -1,12 +1,12 @@
-import { TraktSearch } from '../../api/TraktSearch';
-import { TraktSync } from '../../api/TraktSync';
-import { BrowserStorage, CorrectItem } from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
-import { EventDispatcher } from '../../common/Events';
-import { RequestException } from '../../common/Requests';
-import { Item } from '../../models/Item';
-import { SavedTraktItem, TraktItem } from '../../models/TraktItem';
-import { getSyncStore, registerApi } from './common';
+import { TraktSearch } from '@api/TraktSearch';
+import { TraktSync } from '@api/TraktSync';
+import { getSyncStore, registerApi } from '@common';
+import { BrowserStorage, CorrectItem } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
+import { RequestException } from '@common/Requests';
+import { Item } from '@models/Item';
+import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 
 export abstract class Api {
 	readonly id: string;

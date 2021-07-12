@@ -1,6 +1,6 @@
-import { Item } from '../../models/Item';
-import { ScrobbleParser } from '../common/ScrobbleParser';
-import { GoplayBeApi } from './GoplayBeApi';
+import { GoplayBeApi } from '@/goplay-be/GoplayBeApi';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Item } from '@models/Item';
 
 class _GoplayBeParser extends ScrobbleParser {
 	constructor() {

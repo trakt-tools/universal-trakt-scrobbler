@@ -1,5 +1,5 @@
-import { ScrobbleEvents } from '../common/ScrobbleEvents';
-import { VtmgoBeParser } from './VtmgoBeParser';
+import { VtmgoBeParser } from '@/vtmgo-be/VtmgoBeParser';
+import { ScrobbleEvents } from '@common/ScrobbleEvents';
 
 class _VtmgoBeEvents extends ScrobbleEvents {
 	constructor() {

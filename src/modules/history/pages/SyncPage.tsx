@@ -1,12 +1,10 @@
-import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { TmdbApi } from '../../../api/TmdbApi';
-import { TraktSync } from '../../../api/TraktSync';
-import { WrongItemApi } from '../../../api/WrongItemApi';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { Errors } from '../../../common/Errors';
+import { TmdbApi } from '@api/TmdbApi';
+import { TraktSync } from '@api/TraktSync';
+import { WrongItemApi } from '@api/WrongItemApi';
+import { getApi, getSyncStore } from '@common';
+import { Api } from '@common/Api';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import {
 	EventDispatcher,
 	HistoryOptionsChangeData,
@@ -14,16 +12,18 @@ import {
 	MissingWatchedDateAddedData,
 	SyncStoreUpdateData,
 	WrongItemCorrectedData,
-} from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { RequestException } from '../../../common/Requests';
-import { UtsCenter } from '../../../components/UtsCenter';
-import { Api } from '../../../streaming-services/common/Api';
-import { getApi, getSyncStore } from '../../../streaming-services/common/common';
-import { streamingServices } from '../../../streaming-services/streaming-services';
-import { HistoryActions } from '../components/HistoryActions';
-import { HistoryList } from '../components/HistoryList';
-import { HistoryOptionsList } from '../components/HistoryOptionsList';
+} from '@common/Events';
+import { I18N } from '@common/I18N';
+import { RequestException } from '@common/Requests';
+import { HistoryActions } from '@components/HistoryActions';
+import { HistoryList } from '@components/HistoryList';
+import { HistoryOptionsList } from '@components/HistoryOptionsList';
+import { UtsCenter } from '@components/UtsCenter';
+import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { streamingServices } from '@streaming-services';
+import * as PropTypes from 'prop-types';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 interface PageProps {
 	serviceId: string | null;

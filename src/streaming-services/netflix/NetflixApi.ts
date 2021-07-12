@@ -1,10 +1,10 @@
+import { NetflixService } from '@/netflix/NetflixService';
+import { Api } from '@common/Api';
+import { Errors } from '@common/Errors';
+import { RequestException, Requests } from '@common/Requests';
+import { ScriptInjector } from '@common/ScriptInjector';
+import { Item } from '@models/Item';
 import * as moment from 'moment';
-import { Errors } from '../../common/Errors';
-import { RequestException, Requests } from '../../common/Requests';
-import { ScriptInjector } from '../../common/ScriptInjector';
-import { Item } from '../../models/Item';
-import { Api } from '../common/Api';
-import { NetflixService } from './NetflixService';
 
 export interface NetflixGlobalObject {
 	appContext: {
