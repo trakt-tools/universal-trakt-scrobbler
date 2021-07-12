@@ -1,4 +1,4 @@
-import { TraktSettings } from '@api/TraktSettings';
+import { TraktSettings } from '@apis/TraktSettings';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';

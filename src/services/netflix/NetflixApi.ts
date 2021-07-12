@@ -1,5 +1,5 @@
 import { NetflixService } from '@/netflix/NetflixService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';

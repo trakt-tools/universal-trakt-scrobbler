@@ -1,4 +1,4 @@
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Item, SavedItem } from '@models/Item';
 

@@ -1,4 +1,4 @@
-import { TraktSearchItem } from '@api/TraktSearch';
+import { TraktSearchItem } from '@apis/TraktSearch';
 import {
 	ServiceValue,
 	StorageValuesOptions,

@@ -1,5 +1,5 @@
-import { TraktSearch } from '@api/TraktSearch';
-import { TraktSync } from '@api/TraktSync';
+import { TraktSearch } from '@apis/TraktSearch';
+import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage, CorrectItem } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';

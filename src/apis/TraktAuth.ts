@@ -1,5 +1,5 @@
 import { secrets } from '@/secrets';
-import { TraktApi } from '@api/TraktApi';
+import { TraktApi } from '@apis/TraktApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';

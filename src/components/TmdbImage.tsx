@@ -1,4 +1,4 @@
-import { TmdbApi } from '@api/TmdbApi';
+import { TmdbApi } from '@apis/TmdbApi';
 import { Box } from '@material-ui/core';
 import * as React from 'react';
 

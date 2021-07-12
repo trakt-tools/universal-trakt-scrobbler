@@ -1,6 +1,6 @@
-import { TraktAuth } from '@api/TraktAuth';
-import { TraktScrobble } from '@api/TraktScrobble';
-import { WrongItemApi } from '@api/WrongItemApi';
+import { TraktAuth } from '@apis/TraktAuth';
+import { TraktScrobble } from '@apis/TraktScrobble';
+import { WrongItemApi } from '@apis/WrongItemApi';
 import { AutoSync } from '@common/AutoSync';
 import { BrowserAction } from '@common/BrowserAction';
 import { BrowserStorage, ServiceValue, StorageValuesOptions } from '@common/BrowserStorage';

@@ -1,4 +1,4 @@
-import { TraktApi } from '@api/TraktApi';
+import { TraktApi } from '@apis/TraktApi';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { TraktItem } from '@models/TraktItem';

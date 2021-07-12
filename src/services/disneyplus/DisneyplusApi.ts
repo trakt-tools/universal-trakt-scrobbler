@@ -1,5 +1,5 @@
 import { DisneyplusService } from '@/disneyplus/DisneyplusService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 
 class _DisneyplusApi extends ServiceApi {
 	constructor() {

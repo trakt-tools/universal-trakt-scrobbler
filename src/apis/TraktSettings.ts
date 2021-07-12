@@ -1,4 +1,4 @@
-import { TraktApi } from '@api/TraktApi';
+import { TraktApi } from '@apis/TraktApi';
 import { Requests } from '@common/Requests';
 
 export interface TraktSettingsResponse {

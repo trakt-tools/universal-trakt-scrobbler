@@ -15,7 +15,7 @@
 		"baseUrl": "./",
 		"paths": {
 			"@locales/*": ["./src/_locales/*"],
-			"@api/*": ["./src/api/*"],
+			"@apis/*": ["./src/apis/*"],
 			"@images/*": ["./src/assets/images/*"],
 			"@styles/*": ["./src/assets/styles/*"],
 			"@assets": ["./src/assets/assets"],

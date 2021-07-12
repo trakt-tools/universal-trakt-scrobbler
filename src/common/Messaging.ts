@@ -1,4 +1,4 @@
-import { TraktAuthDetails } from '@api/TraktAuth';
+import { TraktAuthDetails } from '@apis/TraktAuth';
 import { CacheValues } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { RequestDetails } from '@common/Requests';

@@ -1,4 +1,4 @@
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 import { EventDispatcher } from '@common/Events';
 import { getScrobbleController, ScrobbleController } from '@common/ScrobbleController';
 import { ScrobbleParser } from '@common/ScrobbleParser';

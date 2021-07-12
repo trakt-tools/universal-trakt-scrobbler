@@ -1,7 +1,7 @@
-import { getServiceApi, ServiceApi } from '@api/ServiceApi';
-import { TmdbApi } from '@api/TmdbApi';
-import { TraktSync } from '@api/TraktSync';
-import { WrongItemApi } from '@api/WrongItemApi';
+import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
+import { TmdbApi } from '@apis/TmdbApi';
+import { TraktSync } from '@apis/TraktSync';
+import { WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import {

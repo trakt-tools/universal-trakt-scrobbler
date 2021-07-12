@@ -1,5 +1,5 @@
 import { VrtnuBeService } from '@/vrtnu-be/VrtnuBeService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 
 class _VrtnuBeApi extends ServiceApi {
 	constructor() {

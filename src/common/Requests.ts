@@ -1,4 +1,4 @@
-import { TraktAuth } from '@api/TraktAuth';
+import { TraktAuth } from '@apis/TraktAuth';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, RequestsCancelData } from '@common/Events';
 import { Messaging } from '@common/Messaging';

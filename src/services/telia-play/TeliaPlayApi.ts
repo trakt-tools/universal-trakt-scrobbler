@@ -1,5 +1,5 @@
 import { TeliaPlayService } from '@/telia-play/TeliaPlayService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { Item } from '@models/Item';
 import * as moment from 'moment';

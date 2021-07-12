@@ -1,6 +1,6 @@
-import { ServiceApi } from '@api/ServiceApi';
-import { TraktScrobble } from '@api/TraktScrobble';
-import { TraktSearch } from '@api/TraktSearch';
+import { ServiceApi } from '@apis/ServiceApi';
+import { TraktScrobble } from '@apis/TraktScrobble';
+import { TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '@common/Events';

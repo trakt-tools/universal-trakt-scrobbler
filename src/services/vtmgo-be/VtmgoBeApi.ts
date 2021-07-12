@@ -1,5 +1,5 @@
 import { VtmgoBeService } from '@/vtmgo-be/VtmgoBeService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 
 class _VtmgoBeApi extends ServiceApi {
 	constructor() {

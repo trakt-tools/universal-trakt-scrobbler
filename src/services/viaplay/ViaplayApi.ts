@@ -1,5 +1,5 @@
 import { ViaplayService } from '@/viaplay/ViaplayService';
-import { ServiceApi } from '@api/ServiceApi';
+import { ServiceApi } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';

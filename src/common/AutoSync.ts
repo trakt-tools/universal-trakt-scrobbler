@@ -1,5 +1,5 @@
-import { getServiceApi, ServiceApi } from '@api/ServiceApi';
-import { TraktSync } from '@api/TraktSync';
+import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
+import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage, ServiceValue } from '@common/BrowserStorage';
 import { Item } from '@models/Item';
 import '@services-apis';

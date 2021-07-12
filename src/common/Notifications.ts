@@ -1,4 +1,4 @@
-import { TraktScrobble } from '@api/TraktScrobble';
+import { TraktScrobble } from '@apis/TraktScrobble';
 import { BrowserStorage } from '@common/BrowserStorage';
 import {
 	EventDispatcher,

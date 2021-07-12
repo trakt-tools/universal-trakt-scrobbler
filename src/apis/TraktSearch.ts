@@ -1,4 +1,4 @@
-import { TraktApi } from '@api/TraktApi';
+import { TraktApi } from '@apis/TraktApi';
 import { CorrectItem } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';

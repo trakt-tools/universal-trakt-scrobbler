@@ -1,5 +1,5 @@
-import { TmdbApi } from '@api/TmdbApi';
-import { WrongItemApi } from '@api/WrongItemApi';
+import { TmdbApi } from '@apis/TmdbApi';
+import { WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, ScrobbleStartData, ScrobblingItemUpdateData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
