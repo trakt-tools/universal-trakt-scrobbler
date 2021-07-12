@@ -1,12 +1,22 @@
 import { TraktSearch } from '@api/TraktSearch';
 import { TraktSync } from '@api/TraktSync';
-import { getSyncStore, registerApi } from '@common';
 import { BrowserStorage, CorrectItem } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
+import { getSyncStore } from '@common/SyncStore';
 import { Item } from '@models/Item';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
+
+const apis: Record<string, Api> = {};
+
+export const registerApi = (id: string, api: Api) => {
+	apis[id] = api;
+};
+
+export const getApi = (id: string) => {
+	return apis[id];
+};
 
 export abstract class Api {
 	readonly id: string;

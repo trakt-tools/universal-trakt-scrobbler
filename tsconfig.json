@@ -19,7 +19,6 @@
 			"@images/*": ["./src/assets/images/*"],
 			"@styles/*": ["./src/assets/styles/*"],
 			"@assets": ["./src/assets/assets"],
-			"@common": ["./src/streaming-services/common/common"],
 			"@common/*": ["./src/common/*", "./src/streaming-services/common/*"],
 			"@components/*": [
 				"./src/components/*",

@@ -1,7 +1,7 @@
 import { TraktSync } from '@api/TraktSync';
-import { getApi, getSyncStore } from '@common';
-import { Api } from '@common/Api';
+import { Api, getApi } from '@common/Api';
 import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
+import { getSyncStore } from '@common/SyncStore';
 import { Item } from '@models/Item';
 import '@streaming-services-apis';
 

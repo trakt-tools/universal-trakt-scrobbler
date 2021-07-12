@@ -1,4 +1,3 @@
-import { getServicePages } from '@common';
 import { EventDispatcher } from '@common/Events';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
@@ -12,6 +11,8 @@ import { AutoSyncPage } from '@pages/AutoSyncPage';
 import { AboutPage } from '@pages/HistoryAboutPage';
 import { HomePage } from '@pages/HistoryHomePage';
 import { LoginPage } from '@pages/HistoryLoginPage';
+import { SyncPage } from '@pages/SyncPage';
+import { streamingServices } from '@streaming-services';
 import '@streaming-services-apis';
 import { createHashHistory } from 'history';
 import * as React from 'react';
@@ -62,9 +63,17 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{getServicePages().map((service) => (
-							<Route key={service.id} path={service.path} render={service.pageBuilder} />
-						))}
+						{Object.values(streamingServices)
+							.filter((service) => service.hasSync)
+							.map((service) => (
+								<Route
+									key={service.id}
+									path={`/${service.id}`}
+									render={LoginWrapper.wrap(() => (
+										<SyncPage serviceId={service.id} />
+									))}
+								/>
+							))}
 						<Route
 							path="/auto-sync"
 							render={LoginWrapper.wrap(() => (

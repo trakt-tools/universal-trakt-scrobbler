@@ -1,5 +1,5 @@
-import { getSyncStore } from '@common';
 import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import { getSyncStore } from '@common/SyncStore';
 import { Item } from '@models/Item';
 import { SyncPage } from '@pages/SyncPage';
 import * as React from 'react';

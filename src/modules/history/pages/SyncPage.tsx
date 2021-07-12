@@ -1,8 +1,7 @@
 import { TmdbApi } from '@api/TmdbApi';
 import { TraktSync } from '@api/TraktSync';
 import { WrongItemApi } from '@api/WrongItemApi';
-import { getApi, getSyncStore } from '@common';
-import { Api } from '@common/Api';
+import { Api, getApi } from '@common/Api';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import {
@@ -15,6 +14,7 @@ import {
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { RequestException } from '@common/Requests';
+import { getSyncStore } from '@common/SyncStore';
 import { HistoryActions } from '@components/HistoryActions';
 import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';

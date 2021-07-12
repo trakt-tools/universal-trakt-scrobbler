@@ -1,15 +1,15 @@
-import { getServicePages, StreamingServicePage } from '@common';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
+import { StreamingService, streamingServices } from '@streaming-services';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
-	const [services, setServices] = useState([] as StreamingServicePage[]);
+	const [services, setServices] = useState([] as StreamingService[]);
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -18,13 +18,9 @@ export const HomePage: React.FC = () => {
 	useEffect(() => {
 		const checkEnabledServices = () => {
 			const serviceOptions = BrowserStorage.options.streamingServices;
-			const enabledServices = [];
-			const servicePages = getServicePages();
-			for (const service of servicePages) {
-				if (service.hasSync && serviceOptions[service.id].sync) {
-					enabledServices.push(service);
-				}
-			}
+			const enabledServices = Object.values(streamingServices).filter(
+				(service) => service.hasSync && serviceOptions[service.id].sync
+			);
 			setServices(enabledServices);
 		};
 
@@ -42,7 +38,7 @@ export const HomePage: React.FC = () => {
 								key={service.id}
 								button={true}
 								divider={true}
-								onClick={() => onRouteClick(service.path)}
+								onClick={() => onRouteClick(`/${service.id}`)}
 							>
 								<ListItemText primary={service.name} />
 							</ListItem>
