@@ -5,7 +5,6 @@ import * as path from 'path';
 import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
-import VirtualModulesPlugin = require('webpack-virtual-modules');
 import configJson = require('./config.json');
 import packageJson = require('./package.json');
 
@@ -75,13 +74,11 @@ const plugins = {
 };
 
 const services: Record<string, ServiceValues> = {};
+const serviceEntries: Record<string, string[]> = {};
 const serviceImports: string[] = [];
 const apiImports: string[] = [];
-let virtualModules: VirtualModulesPlugin;
 
 const loadServices = () => {
-	const modules: Record<string, string> = {};
-
 	const servicesDir = path.resolve(BASE_PATH, 'src', 'services');
 	const serviceIds = fs.readdirSync(servicesDir).filter((fileName) => !fileName.endsWith('.ts'));
 	for (const serviceId of serviceIds) {
@@ -105,18 +102,13 @@ const loadServices = () => {
 		) as ServiceValues;
 		services[service.id] = service;
 
+		if (service.hasScrobbler) {
+			serviceEntries[`./chrome/js/${serviceId}`] = [`./src/services/${serviceId}/${serviceId}.ts`];
+			serviceEntries[`./firefox/js/${serviceId}`] = [`./src/services/${serviceId}/${serviceId}.ts`];
+		}
 		serviceImports.push(`import '@/${serviceId}/${serviceKey}Service';`);
 		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
-
-		modules[path.resolve(serviceDir, `${serviceId}.ts`)] = `
-			import { init } from '@service';
-			import '@/${serviceId}/${serviceKey}Parser';
-
-			void init('${serviceId}');
-		`;
 	}
-
-	virtualModules = new VirtualModulesPlugin(modules);
 };
 
 const getWebpackConfig = (env: Environment) => {
@@ -129,15 +121,6 @@ const getWebpackConfig = (env: Environment) => {
 		mode = 'development';
 	}
 	const config = configJson[mode];
-	const serviceEntries = Object.fromEntries(
-		Object.values(services)
-			.filter((service) => service.hasScrobbler)
-			.map((service) => [
-				[`./chrome/js/${service.id}`, [`./src/services/${service.id}/${service.id}.ts`]],
-				[`./firefox/js/${service.id}`, [`./src/services/${service.id}/${service.id}.ts`]],
-			])
-			.flat()
-	) as Record<string, string[]>;
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
@@ -228,7 +211,6 @@ const getWebpackConfig = (env: Environment) => {
 		plugins: [
 			new plugins.clean(),
 			new plugins.progressBar(),
-			virtualModules,
 			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(config))]),
 		],
 		resolve: {
