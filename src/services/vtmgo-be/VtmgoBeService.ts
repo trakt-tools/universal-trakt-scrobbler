@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const VtmgoBeService: StreamingService = {
+export const VtmgoBeService: Service = {
 	id: 'vtmgo-be',
 	name: 'VTMGo BE',
 	homePage: 'https://www.vtm.be/vtmgo',

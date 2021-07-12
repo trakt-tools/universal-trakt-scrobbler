@@ -1,5 +1,5 @@
 {
-	"exclude": ["./node_modules", "./build", "./create-streaming-service"],
+	"exclude": ["./node_modules", "./build"],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,
@@ -38,9 +38,9 @@
 			"@options/*": ["./src/modules/options/*"],
 			"@popup": ["./src/modules/popup/popup"],
 			"@popup/*": ["./src/modules/popup/*"],
-			"@streaming-services": ["./src/streaming-services/streaming-services"],
-			"@streaming-services-apis": ["./src/streaming-services/apis"],
-			"@/*": ["./src/streaming-services/*", "./src/*"]
+			"@services": ["./src/services/services"],
+			"@services-apis": ["./src/services/apis"],
+			"@/*": ["./src/services/*", "./src/*"]
 		}
 	}
 }

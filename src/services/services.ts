@@ -1,4 +1,4 @@
-export interface StreamingService {
+export interface Service {
 	id: string;
 	name: string;
 	homePage: string;
@@ -8,6 +8,6 @@ export interface StreamingService {
 	hasAutoSync: boolean;
 }
 
-export const streamingServices: Record<string, StreamingService> = {
+export const services: Record<string, Service> = {
 	// This will be automatically filled by Webpack during build
 };

@@ -73,9 +73,9 @@ class _ScriptInjector {
 					this.injectedScriptIds.add(id);
 				}
 
-				const listener = (event: Event) => {
+				const listener = (listenerEvent: Event) => {
 					window.removeEventListener(`uts-on-${id}-received`, listener);
-					const value = (event as CustomEvent<T | null>).detail;
+					const value = (listenerEvent as CustomEvent<T | null>).detail;
 					resolve(value);
 				};
 				window.addEventListener(`uts-on-${id}-received`, listener, false);

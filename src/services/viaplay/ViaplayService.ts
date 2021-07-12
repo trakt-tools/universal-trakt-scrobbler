@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const ViaplayService: StreamingService = {
+export const ViaplayService: Service = {
 	id: 'viaplay',
 	name: 'Viaplay',
 	homePage: 'https://viaplay.com/',

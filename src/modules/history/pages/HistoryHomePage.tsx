@@ -2,14 +2,14 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
-import { StreamingService, streamingServices } from '@streaming-services';
+import { Service, services } from '@services';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
-	const [services, setServices] = useState([] as StreamingService[]);
+	const [currentServices, setServices] = useState([] as Service[]);
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -17,8 +17,8 @@ export const HomePage: React.FC = () => {
 
 	useEffect(() => {
 		const checkEnabledServices = () => {
-			const serviceOptions = BrowserStorage.options.streamingServices;
-			const enabledServices = Object.values(streamingServices).filter(
+			const serviceOptions = BrowserStorage.options.services;
+			const enabledServices = Object.values(services).filter(
 				(service) => service.hasSync && serviceOptions[service.id].sync
 			);
 			setServices(enabledServices);
@@ -29,11 +29,11 @@ export const HomePage: React.FC = () => {
 
 	return (
 		<HistoryInfo>
-			{services.length > 0 ? (
+			{currentServices.length > 0 ? (
 				<>
-					<Typography variant="h6">{I18N.translate('selectStreamingService')}</Typography>
+					<Typography variant="h6">{I18N.translate('selectService')}</Typography>
 					<List>
-						{services.map((service) => (
+						{currentServices.map((service) => (
 							<ListItem
 								key={service.id}
 								button={true}
@@ -46,7 +46,7 @@ export const HomePage: React.FC = () => {
 					</List>
 				</>
 			) : (
-				<Typography variant="body1">{I18N.translate('noStreamingServices')}</Typography>
+				<Typography variant="body1">{I18N.translate('noServices')}</Typography>
 			)}
 		</HistoryInfo>
 	);

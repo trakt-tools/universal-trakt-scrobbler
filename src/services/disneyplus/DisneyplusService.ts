@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const DisneyplusService: StreamingService = {
+export const DisneyplusService: Service = {
 	id: 'disneyplus',
 	name: 'DisneyPlus',
 	homePage: 'https://www.disneyplus.com/',

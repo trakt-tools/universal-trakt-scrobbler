@@ -1,12 +1,12 @@
 import { getServiceApi, ServiceApi } from '@api/ServiceApi';
 import { TraktSync } from '@api/TraktSync';
-import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
+import { BrowserStorage, ServiceValue } from '@common/BrowserStorage';
 import { Item } from '@models/Item';
+import '@services-apis';
 import { getSyncStore } from '@stores/SyncStore';
-import '@streaming-services-apis';
 
 class _AutoSync {
-	async sync(serviceEntries: [string, StreamingServiceValue][], now: number) {
+	async sync(serviceEntries: [string, ServiceValue][], now: number) {
 		let { syncCache } = await BrowserStorage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
@@ -52,14 +52,13 @@ class _AutoSync {
 			}
 
 			BrowserStorage.addOption({
-				id: 'streamingServices',
+				id: 'services',
 				value: {
-					...BrowserStorage.options.streamingServices,
+					...BrowserStorage.options.services,
 					[serviceId]: {
-						...BrowserStorage.options.streamingServices[serviceId],
+						...BrowserStorage.options.services[serviceId],
 						lastSync: now,
-						lastSyncId:
-							items[0]?.id ?? BrowserStorage.options.streamingServices[serviceId].lastSyncId,
+						lastSyncId: items[0]?.id ?? BrowserStorage.options.services[serviceId].lastSyncId,
 					},
 				},
 			});

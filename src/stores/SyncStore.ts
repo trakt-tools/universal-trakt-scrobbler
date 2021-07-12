@@ -1,5 +1,5 @@
 import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, StreamingServiceHistoryChangeData } from '@common/Events';
+import { EventDispatcher, ServiceHistoryChangeData } from '@common/Events';
 import { Item } from '@models/Item';
 
 export interface SyncStoreData {
@@ -48,23 +48,25 @@ export class SyncStore {
 	}
 
 	startListeners(): void {
-		EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
+		EventDispatcher.subscribe('SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
 		EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
 	}
 
 	stopListeners(): void {
-		EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
+		EventDispatcher.unsubscribe('SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
 		EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
 	}
 
-	onHistoryChange = (data: StreamingServiceHistoryChangeData) => {
+	onHistoryChange = (data: ServiceHistoryChangeData) => {
 		if (typeof data.index === 'undefined') {
 			return;
 		}
 		const item = this.data.items[data.index];
 		if (item) {
 			item.isSelected = data.checked;
-			this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
+			this.data.selectedItems = this.data.visibleItems.filter(
+				(visibleItem) => visibleItem.isSelected
+			);
 		}
 		void this.dispatchEvent(false);
 	};

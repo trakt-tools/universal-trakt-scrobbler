@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const StreamzBeService: StreamingService = {
+export const StreamzBeService: Service = {
 	id: 'streamz-be',
 	name: 'Streamz BE',
 	homePage: 'https://www.streamz.be/',

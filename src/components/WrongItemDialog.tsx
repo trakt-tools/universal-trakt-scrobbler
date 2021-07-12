@@ -21,7 +21,7 @@ import {
 	TextField,
 } from '@material-ui/core';
 import { CorrectionSuggestion, Item } from '@models/Item';
-import { streamingServices } from '@streaming-services';
+import { services } from '@services';
 import * as React from 'react';
 
 interface WrongItemDialogState {
@@ -87,7 +87,7 @@ export const WrongItemDialog: React.FC = () => {
 			let { correctItems } = await BrowserStorage.get('correctItems');
 			if (!correctItems) {
 				correctItems = Object.fromEntries(
-					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
+					Object.keys(services).map((serviceId) => [serviceId, {}])
 				);
 			}
 			if (!correctItems[dialog.item.serviceId]) {

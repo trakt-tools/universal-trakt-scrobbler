@@ -5,7 +5,7 @@ import { Box, Checkbox, Tooltip } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import { Item } from '@models/Item';
-import { streamingServices } from '@streaming-services';
+import { services } from '@services';
 import * as React from 'react';
 
 interface HistoryListItemProps {
@@ -17,7 +17,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 	const { item, serviceId } = props;
 
 	const onCheckboxChange = async () => {
-		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
+		await EventDispatcher.dispatch('SERVICE_HISTORY_CHANGE', null, {
 			index: item.index,
 			checked: !item.isSelected,
 		});
@@ -53,7 +53,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			)}
 			<HistoryListItemCard
 				item={item}
-				name={streamingServices[item.serviceId].name}
+				name={services[item.serviceId].name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 			/>
 			<Tooltip title={I18N.translate(statusMessageName)}>

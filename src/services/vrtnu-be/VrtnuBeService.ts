@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const VrtnuBeService: StreamingService = {
+export const VrtnuBeService: Service = {
 	id: 'vrtnu-be',
 	name: 'VRTNu BE',
 	homePage: 'https://www.vrt.be/vrtnu',

@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const GoplayBeService: StreamingService = {
+export const GoplayBeService: Service = {
 	id: 'goplay-be',
 	name: 'GoPlay BE',
 	homePage: 'https://www.goplay.be/',

@@ -12,8 +12,8 @@ import { AboutPage } from '@pages/HistoryAboutPage';
 import { HomePage } from '@pages/HistoryHomePage';
 import { LoginPage } from '@pages/HistoryLoginPage';
 import { SyncPage } from '@pages/SyncPage';
-import { streamingServices } from '@streaming-services';
-import '@streaming-services-apis';
+import { services } from '@services';
+import '@services-apis';
 import { createHashHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -63,7 +63,7 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{Object.values(streamingServices)
+						{Object.values(services)
 							.filter((service) => service.hasSync)
 							.map((service) => (
 								<Route

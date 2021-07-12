@@ -178,7 +178,7 @@ export abstract class ServiceApi {
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load history.', err);
-				await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, {
+				await EventDispatcher.dispatch('SERVICE_HISTORY_LOAD_ERROR', null, {
 					error: err as Error,
 				});
 			}

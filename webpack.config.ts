@@ -1,4 +1,4 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -74,15 +74,15 @@ const plugins = {
 	tsConfigPaths: TsconfigPathsPlugin,
 };
 
-const streamingServices: Record<string, StreamingService> = {};
+const services: Record<string, Service> = {};
 const apiImports: string[] = [];
 let virtualModules: VirtualModulesPlugin;
 
-const loadStreamingServices = async () => {
+const loadServices = async () => {
 	const modules: Record<string, string> = {};
 
-	const servicesPath = path.resolve(BASE_PATH, 'src', 'streaming-services');
-	const ignoreKeys = ['apis.ts', 'streaming-services.ts'];
+	const servicesPath = path.resolve(BASE_PATH, 'src', 'services');
+	const ignoreKeys = ['apis.ts', 'services.ts'];
 
 	const keys = fs.readdirSync(servicesPath);
 	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
@@ -96,10 +96,10 @@ const loadStreamingServices = async () => {
 		const service = (
 			(await import(path.resolve(servicePath, `${serviceKey}Service.ts`))) as Record<
 				string,
-				StreamingService
+				Service
 			>
 		)[`${serviceKey}Service`];
-		streamingServices[service.id] = service;
+		services[service.id] = service;
 
 		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
 		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
@@ -114,7 +114,7 @@ const loadStreamingServices = async () => {
 };
 
 const getWebpackConfig = async (env: Environment) => {
-	await loadStreamingServices();
+	await loadServices();
 
 	let mode: 'production' | 'development';
 	if (env.production) {
@@ -123,12 +123,12 @@ const getWebpackConfig = async (env: Environment) => {
 		mode = 'development';
 	}
 	const config = configJson[mode];
-	const streamingServiceEntries = Object.fromEntries(
-		Object.values(streamingServices)
+	const serviceEntries = Object.fromEntries(
+		Object.values(services)
 			.filter((service) => service.hasScrobbler)
 			.map((service) => [
-				[`./chrome/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
-				[`./firefox/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
+				[`./chrome/js/${service.id}`, [`./src/services/${service.id}/${service.id}.ts`]],
+				[`./firefox/js/${service.id}`, [`./src/services/${service.id}/${service.id}.ts`]],
 			])
 			.flat()
 	) as Record<string, string[]>;
@@ -145,7 +145,7 @@ const getWebpackConfig = async (env: Environment) => {
 			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
 			'./firefox/js/history': ['./src/modules/history/history.tsx'],
 			'./firefox/js/options': ['./src/modules/options/options.tsx'],
-			...streamingServiceEntries,
+			...serviceEntries,
 		},
 		mode,
 		module: {
@@ -171,11 +171,11 @@ const getWebpackConfig = async (env: Environment) => {
 					},
 				},
 				{
-					test: /streaming-services\.ts$/,
+					test: /services\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
 						search: '// This will be automatically filled by Webpack during build',
-						replace: JSON.stringify(streamingServices).slice(1, -1),
+						replace: JSON.stringify(services).slice(1, -1),
 					},
 				},
 				{
@@ -269,7 +269,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://api.rollbar.com/*',
 			'*://script.google.com/*',
 			'*://script.googleusercontent.com/*',
-			...Object.values(streamingServices)
+			...Object.values(services)
 				.map((service) => service.hostPatterns)
 				.flat(),
 		],

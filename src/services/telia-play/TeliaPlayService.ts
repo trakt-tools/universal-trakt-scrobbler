@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const TeliaPlayService: StreamingService = {
+export const TeliaPlayService: Service = {
 	id: 'telia-play',
 	name: 'Telia Play',
 	homePage: 'https://teliaplay.se/',

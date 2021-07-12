@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const HboGoService: StreamingService = {
+export const HboGoService: Service = {
 	id: 'hbo-go',
 	name: 'HBO Go',
 	homePage: 'https://www.hbogola.com/',

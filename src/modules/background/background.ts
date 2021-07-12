@@ -3,11 +3,7 @@ import { TraktScrobble } from '@api/TraktScrobble';
 import { WrongItemApi } from '@api/WrongItemApi';
 import { AutoSync } from '@common/AutoSync';
 import { BrowserAction } from '@common/BrowserAction';
-import {
-	BrowserStorage,
-	StorageValuesOptions,
-	StreamingServiceValue,
-} from '@common/BrowserStorage';
+import { BrowserStorage, ServiceValue, StorageValuesOptions } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { I18N } from '@common/I18N';
@@ -18,11 +14,11 @@ import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Item, SavedItem } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
-import { streamingServices } from '@streaming-services';
+import { services } from '@services';
 
 const injectedTabs = new Set();
-let streamingServiceEntries: [string, StreamingServiceValue][] = [];
-let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+let serviceEntries: [string, ServiceValue][] = [];
+let serviceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
 let isCheckingAutoSync = false;
 let autoSyncCheckTimeout: number | null = null;
 let scrobblingItem: SavedItem | null = null;
@@ -39,10 +35,9 @@ const init = async () => {
 		Notifications.startListeners();
 	}
 	browser.storage.onChanged.addListener(onStorageChanged);
-	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices);
-	const scrobblerEnabled = streamingServiceEntries.some(
-		([streamingServiceId, value]) =>
-			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+	serviceEntries = Object.entries(BrowserStorage.options.services);
+	const scrobblerEnabled = serviceEntries.some(
+		([serviceId, value]) => services[serviceId].hasScrobbler && value.scrobble
 	);
 	if (scrobblerEnabled) {
 		addTabListener(BrowserStorage.options);
@@ -66,10 +61,10 @@ const checkAutoSync = async () => {
 	}
 
 	const now = Math.trunc(Date.now() / 1e3);
-	const servicesToSync = streamingServiceEntries.filter(
-		([streamingServiceId, value]) =>
-			streamingServices[streamingServiceId].hasSync &&
-			streamingServices[streamingServiceId].hasAutoSync &&
+	const servicesToSync = serviceEntries.filter(
+		([serviceId, value]) =>
+			services[serviceId].hasSync &&
+			services[serviceId].hasAutoSync &&
 			value.sync &&
 			value.autoSync &&
 			value.autoSyncDays > 0 &&
@@ -108,12 +103,11 @@ const onStorageChanged = (
 	if (!newValue) {
 		return;
 	}
-	if (newValue.streamingServices) {
-		streamingServiceEntries = Object.entries(newValue.streamingServices);
+	if (newValue.services) {
+		serviceEntries = Object.entries(newValue.services);
 
-		const scrobblerEnabled = streamingServiceEntries.some(
-			([streamingServiceId, value]) =>
-				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+		const scrobblerEnabled = serviceEntries.some(
+			([serviceId, value]) => services[serviceId].hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addTabListener(newValue);
@@ -129,8 +123,8 @@ const onStorageChanged = (
 };
 
 const addTabListener = (options: StorageValuesOptions) => {
-	streamingServiceScripts = Object.values(streamingServices)
-		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
+	serviceScripts = Object.values(services)
+		.filter((service) => service.hasScrobbler && options.services[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
@@ -155,7 +149,7 @@ const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
 
 const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 	if (
-		!streamingServiceScripts ||
+		!serviceScripts ||
 		tab.status !== 'complete' ||
 		!tab.id ||
 		!tab.url ||
@@ -165,7 +159,7 @@ const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 	) {
 		return;
 	}
-	for (const { matches, js, run_at: runAt } of streamingServiceScripts) {
+	for (const { matches, js, run_at: runAt } of serviceScripts) {
 		if (!js || !runAt) {
 			continue;
 		}
@@ -191,7 +185,7 @@ const addWebRequestListener = () => {
 		types: ['xmlhttprequest'],
 		urls: [
 			'*://*.trakt.tv/*',
-			...Object.values(streamingServices)
+			...Object.values(services)
 				.map((service) => service.hostPatterns)
 				.flat(),
 		],

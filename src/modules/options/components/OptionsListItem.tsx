@@ -1,7 +1,7 @@
 import { BrowserStorage, Option, StorageValuesOptions } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { StreamingServiceOptions } from '@components/StreamingServiceOptions';
+import { ServiceOptions } from '@components/ServiceOptions';
 import {
 	Button,
 	ButtonGroup,
@@ -36,11 +36,11 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onSelectAllClick = async () => {
-		if (!BrowserStorage.isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
-			'STREAMING_SERVICE_OPTIONS_CHANGE',
+			'SERVICE_OPTIONS_CHANGE',
 			null,
 			Object.keys(option.value).map((id) => ({
 				id,
@@ -50,11 +50,11 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onSelectNoneClick = async () => {
-		if (!BrowserStorage.isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
-			'STREAMING_SERVICE_OPTIONS_CHANGE',
+			'SERVICE_OPTIONS_CHANGE',
 			null,
 			Object.keys(option.value).map((id) => ({
 				id,
@@ -64,11 +64,11 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 	};
 
 	const onToggleAllClick = async () => {
-		if (!BrowserStorage.isStreamingServiceOption(option)) {
+		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
 		await EventDispatcher.dispatch(
-			'STREAMING_SERVICE_OPTIONS_CHANGE',
+			'SERVICE_OPTIONS_CHANGE',
 			null,
 			Object.entries(option.value).map(([id, value]) => ({
 				id,
@@ -114,9 +114,7 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 				<ListItemText primary={option.name} secondary={option.description} />
 				<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
 			</ListItem>
-			{BrowserStorage.isStreamingServiceOption(option) && (
-				<StreamingServiceOptions options={option.value} />
-			)}
+			{BrowserStorage.isServiceOption(option) && <ServiceOptions options={option.value} />}
 		</>
 	);
 };

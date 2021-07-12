@@ -1,4 +1,4 @@
-import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
+import { BrowserStorage, ServiceValue } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -8,30 +8,28 @@ import BlockIcon from '@material-ui/icons/Block';
 import ClearIcon from '@material-ui/icons/Clear';
 import ErrorIcon from '@material-ui/icons/Error';
 import LaunchIcon from '@material-ui/icons/Launch';
-import { streamingServices } from '@streaming-services';
+import { services } from '@services';
 import * as moment from 'moment';
 import * as React from 'react';
 
-interface StreamingServiceOptionProps {
+interface ServiceOptionProps {
 	id: string;
-	value: StreamingServiceValue;
+	value: ServiceValue;
 }
 
-export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
-	props: StreamingServiceOptionProps
-) => {
+export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOptionProps) => {
 	const { id, value } = props;
 
 	const [autoSyncDays, setAutoSyncDays] = React.useState(value.autoSyncDays);
 
-	const service = streamingServices[id];
+	const service = services[id];
 
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
 	};
 
 	const onScrobbleChange = async () => {
-		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
 			{
 				id,
 				value: { scrobble: !value.scrobble },
@@ -40,7 +38,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	};
 
 	const onSyncChange = async () => {
-		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
 			{
 				id,
 				value: { sync: !value.sync },
@@ -49,7 +47,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	};
 
 	const onAutoSyncChange = async () => {
-		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
 			{
 				id,
 				value: { autoSync: !value.autoSync },
@@ -58,12 +56,12 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 	};
 
 	const onAutoSyncDaysChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		const autoSyncDays = parseInt(event.target.value);
-		setAutoSyncDays(autoSyncDays);
-		await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+		const newAutoSyncDays = parseInt(event.target.value);
+		setAutoSyncDays(newAutoSyncDays);
+		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
 			{
 				id,
-				value: { autoSyncDays },
+				value: { autoSyncDays: newAutoSyncDays },
 			},
 		]);
 	};
@@ -78,7 +76,7 @@ export const StreamingServiceOption: React.FC<StreamingServiceOptionProps> = (
 					syncCache.items = syncCache.items.filter((item) => item.serviceId !== id);
 					await BrowserStorage.set({ syncCache }, false);
 				}
-				await EventDispatcher.dispatch('STREAMING_SERVICE_OPTIONS_CHANGE', null, [
+				await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
 					{
 						id,
 						value: { lastSync: 0, lastSyncId: '' },

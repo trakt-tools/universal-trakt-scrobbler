@@ -58,6 +58,12 @@ const getJsOverride = () => {
 					],
 				},
 			],
+			'no-shadow': [
+				'error',
+				{
+					hoist: 'all',
+				},
+			],
 		},
 	};
 };
@@ -88,6 +94,8 @@ const getTsOverride = () => {
 	tsOverride.extends.splice(tsOverride.extends.length - 1, 0, ...extendsArr);
 	tsOverride.rules['@typescript-eslint/quotes'] = tsOverride.rules.quotes;
 	tsOverride.rules.quotes = 'off';
+	tsOverride.rules['@typescript-eslint/no-shadow'] = tsOverride.rules['no-shadow'];
+	tsOverride.rules['no-shadow'] = 'off';
 	tsOverride.rules['prefer-arrow/prefer-arrow-functions'] = 'error';
 
 	return tsOverride;

@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const NrkService: StreamingService = {
+export const NrkService: Service = {
 	id: 'nrk',
 	name: 'NRK',
 	homePage: 'https://tv.nrk.no/',

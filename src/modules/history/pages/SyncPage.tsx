@@ -19,8 +19,8 @@ import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
 import { UtsCenter } from '@components/UtsCenter';
 import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { services } from '@services';
 import { getSyncStore } from '@stores/SyncStore';
-import { streamingServices } from '@streaming-services';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -42,12 +42,12 @@ const lastSyncData = {} as LastSyncData;
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const { serviceId } = props;
 
-	const service = serviceId ? streamingServices[serviceId] : null;
+	const service = serviceId ? services[serviceId] : null;
 	const store = getSyncStore(serviceId);
 	const api = serviceId ? getServiceApi(serviceId) : null;
 
 	if (service && !lastSyncData[service.id]) {
-		const serviceOptions = BrowserStorage.options.streamingServices[service.id];
+		const serviceOptions = BrowserStorage.options.services[service.id];
 		lastSyncData[service.id] =
 			service.hasAutoSync && serviceOptions?.autoSync && serviceOptions.autoSyncDays > 0
 				? {
@@ -132,13 +132,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		await TraktSync.sync(selectedItems);
 		if (serviceId) {
 			const lastSync = selectedItems[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
-			if (lastSync > BrowserStorage.options.streamingServices[serviceId].lastSync) {
+			if (lastSync > BrowserStorage.options.services[serviceId].lastSync) {
 				BrowserStorage.addOption({
-					id: 'streamingServices',
+					id: 'services',
 					value: {
-						...BrowserStorage.options.streamingServices,
+						...BrowserStorage.options.services,
 						[serviceId]: {
-							...BrowserStorage.options.streamingServices[serviceId],
+							...BrowserStorage.options.services[serviceId],
 							lastSync,
 							lastSyncId: selectedItems[0].id,
 						},
@@ -196,7 +196,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
-			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.subscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
 			EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
@@ -207,7 +207,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
-			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.unsubscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.unsubscribe(
 				'MISSING_WATCHED_DATE_ADDED',

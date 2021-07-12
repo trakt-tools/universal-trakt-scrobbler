@@ -275,9 +275,8 @@ class _NrkApi extends ServiceApi {
 			year: programPage.moreInformation.productionYear,
 		};
 		if (type === 'show') {
-			const { title } = programPage.programInformation.titles;
-			const capturedEpisodeData = [...title.matchAll(/([0-9]+)[.] (.+)/g)];
-			let episodeTitle;
+			let { title: episodeTitle } = programPage.programInformation.titles;
+			const capturedEpisodeData = [...episodeTitle.matchAll(/([0-9]+)[.] (.+)/g)];
 			let extraInfo;
 			if (capturedEpisodeData.length) {
 				const epInfo = capturedEpisodeData[0];
@@ -286,8 +285,6 @@ class _NrkApi extends ServiceApi {
 					season: Number.parseInt(programPage._links.season.name),
 					episode: Number.parseInt(epInfo[1]),
 				};
-			} else {
-				episodeTitle = title;
 			}
 			return new Item({
 				...baseItem,

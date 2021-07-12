@@ -1,6 +1,6 @@
-import { StreamingService } from '@streaming-services';
+import { Service } from '@services';
 
-export const AmazonPrimeService: StreamingService = {
+export const AmazonPrimeService: Service = {
 	id: 'amazon-prime',
 	name: 'Amazon Prime',
 	homePage: 'https://www.primevideo.com/',

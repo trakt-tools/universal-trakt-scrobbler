@@ -333,11 +333,11 @@ class _NetflixApi extends ServiceApi {
 		const { type, title, year } = video;
 		if (video.type === 'show') {
 			let episodeInfo: NetflixMetadataShowEpisode | undefined;
-			const seasonInfo = video.seasons.find((season) =>
-				season.episodes.find((episode) => {
-					const isMatch = episode.id === video.currentEpisode;
+			const seasonInfo = video.seasons.find((currentSeason) =>
+				currentSeason.episodes.find((currentEpisode) => {
+					const isMatch = currentEpisode.id === video.currentEpisode;
 					if (isMatch) {
-						episodeInfo = episode;
+						episodeInfo = currentEpisode;
 					}
 					return isMatch;
 				})
