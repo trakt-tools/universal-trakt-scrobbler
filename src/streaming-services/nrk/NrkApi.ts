@@ -1,5 +1,5 @@
 import { NrkService } from '@/nrk/NrkService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Requests } from '@common/Requests';
 import { IItem, Item } from '@models/Item';
 import * as moment from 'moment';
@@ -117,7 +117,7 @@ export interface NrkSession {
 	};
 }
 
-class _NrkApi extends Api {
+class _NrkApi extends ServiceApi {
 	HOST_URL: string;
 	API_HOST_URL: string;
 	HISTORY_API_URL: string;

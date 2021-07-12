@@ -1,5 +1,5 @@
 import { NetflixService } from '@/netflix/NetflixService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
@@ -140,7 +140,7 @@ export type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & Netfli
 export type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem &
 	NetflixMetadataMovieItem;
 
-class _NetflixApi extends Api {
+class _NetflixApi extends ServiceApi {
 	HOST_URL: string;
 	API_URL: string;
 	ACTIVATE_URL: string;

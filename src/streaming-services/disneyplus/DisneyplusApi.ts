@@ -1,7 +1,7 @@
 import { DisneyplusService } from '@/disneyplus/DisneyplusService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 
-class _DisneyplusApi extends Api {
+class _DisneyplusApi extends ServiceApi {
 	constructor() {
 		super(DisneyplusService.id);
 	}

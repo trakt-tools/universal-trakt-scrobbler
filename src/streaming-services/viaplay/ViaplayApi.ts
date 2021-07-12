@@ -1,5 +1,5 @@
 import { ViaplayService } from '@/viaplay/ViaplayService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
@@ -83,7 +83,7 @@ export interface ViaplayProductUserInfo {
 	};
 }
 
-class _ViaplayApi extends Api {
+class _ViaplayApi extends ServiceApi {
 	INITIAL_URL = 'https://viaplay.com/';
 	HOST_URL = '';
 	API_BASE_URL = '';

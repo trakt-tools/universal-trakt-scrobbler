@@ -1,5 +1,5 @@
 import { TeliaPlayService } from '@/telia-play/TeliaPlayService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Requests } from '@common/Requests';
 import { Item } from '@models/Item';
 import * as moment from 'moment';
@@ -118,7 +118,7 @@ export interface TeliaWatchedItem {
 	hidden: boolean;
 }
 
-class _TeliaPlayApi extends Api {
+class _TeliaPlayApi extends ServiceApi {
 	OTTAPI_URL: string;
 	CONTINUE_WATCHING_API_URL: string;
 	MY_LIST_API_URL: string;

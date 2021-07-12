@@ -1,8 +1,8 @@
+import { getServiceApi, ServiceApi } from '@api/ServiceApi';
 import { TraktSync } from '@api/TraktSync';
-import { Api, getApi } from '@common/Api';
 import { BrowserStorage, StreamingServiceValue } from '@common/BrowserStorage';
-import { getSyncStore } from '@common/SyncStore';
 import { Item } from '@models/Item';
+import { getSyncStore } from '@stores/SyncStore';
 import '@streaming-services-apis';
 
 class _AutoSync {
@@ -19,7 +19,7 @@ class _AutoSync {
 			let items: Item[] = [];
 
 			try {
-				const api = getApi(serviceId);
+				const api = getServiceApi(serviceId);
 				const store = getSyncStore(serviceId);
 				store.resetData();
 
@@ -29,7 +29,7 @@ class _AutoSync {
 					(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
-					await Api.loadTraktHistory(items);
+					await ServiceApi.loadTraktHistory(items);
 
 					const foundItems = items.filter((item) => item.trakt);
 					const itemsToSync = foundItems.filter(

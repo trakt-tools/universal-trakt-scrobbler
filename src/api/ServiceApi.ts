@@ -4,21 +4,21 @@ import { BrowserStorage, CorrectItem } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
-import { getSyncStore } from '@common/SyncStore';
 import { Item } from '@models/Item';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
+import { getSyncStore } from '@stores/SyncStore';
 
-const apis: Record<string, Api> = {};
+const serviceApis: Record<string, ServiceApi> = {};
 
-export const registerApi = (id: string, api: Api) => {
-	apis[id] = api;
+export const registerServiceApi = (id: string, api: ServiceApi) => {
+	serviceApis[id] = api;
 };
 
-export const getApi = (id: string) => {
-	return apis[id];
+export const getServiceApi = (id: string) => {
+	return serviceApis[id];
 };
 
-export abstract class Api {
+export abstract class ServiceApi {
 	readonly id: string;
 	private leftoverHistoryItems: unknown[] = [];
 	hasReachedHistoryEnd = false;
@@ -26,7 +26,7 @@ export abstract class Api {
 	constructor(id: string) {
 		this.id = id;
 
-		registerApi(this.id, this);
+		registerServiceApi(this.id, this);
 	}
 
 	static async loadTraktHistory(items: Item[]) {
@@ -44,7 +44,11 @@ export abstract class Api {
 			const promises = [];
 			for (const item of missingItems) {
 				promises.push(
-					Api.loadTraktItemHistory(item, traktCache, correctItems?.[item.serviceId]?.[item.id])
+					ServiceApi.loadTraktItemHistory(
+						item,
+						traktCache,
+						correctItems?.[item.serviceId]?.[item.id]
+					)
 				);
 			}
 			await Promise.all(promises);
@@ -68,7 +72,7 @@ export abstract class Api {
 			return;
 		}
 		try {
-			const cacheId = Api.getTraktCacheId(item);
+			const cacheId = ServiceApi.getTraktCacheId(item);
 			const cacheItem = traktCache[cacheId];
 			item.trakt =
 				correctItem || !cacheItem
@@ -93,7 +97,7 @@ export abstract class Api {
 			}
 			const promises = [];
 			for (const item of items) {
-				promises.push(Api.updateTraktItemHistory(item, traktCache));
+				promises.push(ServiceApi.updateTraktItemHistory(item, traktCache));
 			}
 			await Promise.all(promises);
 			await BrowserStorage.set({ traktCache }, false);
@@ -114,7 +118,7 @@ export abstract class Api {
 		try {
 			item.trakt.watchedAt = undefined;
 			await TraktSync.loadHistory(item);
-			const cacheId = Api.getTraktCacheId(item);
+			const cacheId = ServiceApi.getTraktCacheId(item);
 			traktCache[cacheId] = TraktItem.save(item.trakt);
 		} catch (err) {
 			item.trakt.watchedAt = undefined;
@@ -123,10 +127,10 @@ export abstract class Api {
 
 	static getTraktCacheId(item: Item): string {
 		return item.type === 'show'
-			? `/shows/${Api.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
-					item.episode ?? Api.getTraktCacheStr(item.episodeTitle ?? '0')
+			? `/shows/${ServiceApi.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
+					item.episode ?? ServiceApi.getTraktCacheStr(item.episodeTitle ?? '0')
 			  }`
-			: `/movies/${Api.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
+			: `/movies/${ServiceApi.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
 	}
 
 	static getTraktCacheStr(title: string): string {

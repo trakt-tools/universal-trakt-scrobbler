@@ -1,7 +1,7 @@
 import { VtmgoBeService } from '@/vtmgo-be/VtmgoBeService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 
-class _VtmgoBeApi extends Api {
+class _VtmgoBeApi extends ServiceApi {
 	constructor() {
 		super(VtmgoBeService.id);
 	}

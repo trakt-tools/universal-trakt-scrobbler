@@ -1,5 +1,5 @@
 import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
@@ -50,7 +50,7 @@ export interface AmazonPrimeNextItemResponse {
 	};
 }
 
-class _AmazonPrimeApi extends Api {
+class _AmazonPrimeApi extends ServiceApi {
 	API_URL = 'https://atv-ps.primevideo.com';
 	SETTINGS_URL = 'https://www.primevideo.com/settings';
 	ITEM_URL = '';

@@ -1,7 +1,7 @@
+import { getServiceApi, ServiceApi } from '@api/ServiceApi';
 import { TmdbApi } from '@api/TmdbApi';
 import { TraktSync } from '@api/TraktSync';
 import { WrongItemApi } from '@api/WrongItemApi';
-import { Api, getApi } from '@common/Api';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import {
@@ -14,12 +14,12 @@ import {
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { RequestException } from '@common/Requests';
-import { getSyncStore } from '@common/SyncStore';
 import { HistoryActions } from '@components/HistoryActions';
 import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
 import { UtsCenter } from '@components/UtsCenter';
 import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { getSyncStore } from '@stores/SyncStore';
 import { streamingServices } from '@streaming-services';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
@@ -44,7 +44,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	const service = serviceId ? streamingServices[serviceId] : null;
 	const store = getSyncStore(serviceId);
-	const api = serviceId ? getApi(serviceId) : null;
+	const api = serviceId ? getServiceApi(serviceId) : null;
 
 	if (service && !lastSyncData[service.id]) {
 		const serviceOptions = BrowserStorage.options.streamingServices[service.id];
@@ -258,7 +258,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!traktCache) {
 				traktCache = {};
 			}
-			await Api.loadTraktItemHistory(data.item, traktCache, {
+			await ServiceApi.loadTraktItemHistory(data.item, traktCache, {
 				type: data.type,
 				traktId: data.traktId,
 				url: data.url,
@@ -315,7 +315,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				.then(async () => {
 					setSyncOptionsChanged({});
 					if (serviceId && data.id.startsWith('addWithReleaseDate')) {
-						Api.updateTraktHistory(store.data.visibleItems)
+						ServiceApi.updateTraktHistory(store.data.visibleItems)
 							.then(() => void store.updateVisibleItems(false))
 							.catch((err) => {
 								// Do nothing
@@ -383,7 +383,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				return;
 			}
 			try {
-				await Api.loadTraktHistory(store.data.visibleItems);
+				await ServiceApi.loadTraktHistory(store.data.visibleItems);
 				await Promise.all([
 					WrongItemApi.loadSuggestions(store.data.visibleItems),
 					TmdbApi.loadImages(store.data.visibleItems),

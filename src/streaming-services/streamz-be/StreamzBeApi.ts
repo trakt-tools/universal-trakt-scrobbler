@@ -1,7 +1,7 @@
 import { StreamzBeService } from '@/streamz-be/StreamzBeService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 
-class _StreamzBeApi extends Api {
+class _StreamzBeApi extends ServiceApi {
 	constructor() {
 		super(StreamzBeService.id);
 	}

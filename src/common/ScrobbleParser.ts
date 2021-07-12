@@ -1,4 +1,4 @@
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Item, SavedItem } from '@models/Item';
 
@@ -36,14 +36,14 @@ export const getScrobbleParser = (id: string) => {
 };
 
 export abstract class ScrobbleParser {
-	readonly api: Api;
+	readonly api: ServiceApi;
 	readonly options: Readonly<ScrobbleParserOptions>;
 	protected item: Item | null = null;
 	protected videoPlayer: HTMLVideoElement | null = null;
 	private currentTime = 0.0;
 	private progress = 0.0;
 
-	constructor(api: Api, options: Partial<ScrobbleParserOptions> = {}) {
+	constructor(api: ServiceApi, options: Partial<ScrobbleParserOptions> = {}) {
 		this.api = api;
 		this.options = Object.freeze({
 			...this.getDefaultOptions(),

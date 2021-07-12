@@ -1,7 +1,7 @@
 import { GoplayBeService } from '@/goplay-be/GoplayBeService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 
-class _GoplayBeApi extends Api {
+class _GoplayBeApi extends ServiceApi {
 	constructor() {
 		super(GoplayBeService.id);
 	}

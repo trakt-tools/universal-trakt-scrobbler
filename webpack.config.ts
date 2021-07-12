@@ -82,13 +82,7 @@ const loadStreamingServices = async () => {
 	const modules: Record<string, string> = {};
 
 	const servicesPath = path.resolve(BASE_PATH, 'src', 'streaming-services');
-	const ignoreKeys = [
-		'common',
-		'scrobbler-template',
-		'sync-template',
-		'apis.ts',
-		'streaming-services.ts',
-	];
+	const ignoreKeys = ['apis.ts', 'streaming-services.ts'];
 
 	const keys = fs.readdirSync(servicesPath);
 	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
@@ -109,7 +103,7 @@ const loadStreamingServices = async () => {
 
 		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
 		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
-			import { init } from '@common/content';
+			import { init } from '@service';
 			import '@/${serviceId}/${serviceKey}Events';
 
 			void init('${serviceId}');

@@ -19,7 +19,7 @@
 			"@images/*": ["./src/assets/images/*"],
 			"@styles/*": ["./src/assets/styles/*"],
 			"@assets": ["./src/assets/assets"],
-			"@common/*": ["./src/common/*", "./src/streaming-services/common/*"],
+			"@common/*": ["./src/common/*"],
 			"@components/*": [
 				"./src/components/*",
 				"./src/modules/history/components/*",
@@ -28,7 +28,9 @@
 			],
 			"@models/*": ["./src/models/*"],
 			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],
+			"@stores/*": ["./src/stores/*"],
 			"@background": ["./src/modules/background/background"],
+			"@service": ["./src/modules/content/service/service"],
 			"@trakt": ["./src/modules/content/trakt/trakt"],
 			"@history": ["./src/modules/history/history"],
 			"@history/*": ["./src/modules/history/*"],

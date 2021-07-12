@@ -1,5 +1,5 @@
 import { HboGoService } from '@/hbo-go/HboGoService';
-import { Api } from '@common/Api';
+import { ServiceApi } from '@api/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
@@ -93,7 +93,7 @@ export interface HboGoMetadataMovieItem extends HboGoHistoryItem {
 	CreditRollStart: number;
 }
 
-class _HboGoApi extends Api {
+class _HboGoApi extends ServiceApi {
 	HOST_URL = 'https://hbogola.com/';
 	ACCOUNT_URL = `${this.HOST_URL}settings/account`;
 	API_URL = 'https://globalapi.hbogola.com/v7.0';
