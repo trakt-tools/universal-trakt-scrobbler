@@ -177,6 +177,15 @@ const getWebpackConfig = (env: Environment) => {
 					},
 				},
 				{
+					test: /\.html$/,
+					loader: 'file-loader',
+					options: {
+						name: '[name].[ext]',
+						outputPath: './html/',
+						publicPath: '../html/',
+					},
+				},
+				{
 					test: /\.(jpg|png)$/,
 					loader: 'file-loader',
 					options: {
@@ -318,13 +327,14 @@ const runFinalSteps = (config: Config) => {
 	const foldersToCopy = [
 		{ from: './src/_locales', to: './build/chrome/_locales' },
 		{ from: './build/fonts', to: './build/chrome/fonts' },
-		{ from: './src/html', to: './build/chrome/html' },
+		{ from: './build/html', to: './build/chrome/html' },
 		{ from: './build/images', to: './build/chrome/images' },
 		{ from: './src/_locales', to: './build/firefox/_locales' },
 		{ from: './build/fonts', to: './build/firefox/fonts' },
-		{ from: './src/html', to: './build/firefox/html' },
+		{ from: './build/html', to: './build/firefox/html' },
 		{ from: './build/images', to: './build/firefox/images' },
 	];
+
 	for (const folderToCopy of foldersToCopy) {
 		fs.copySync(folderToCopy.from, folderToCopy.to);
 	}

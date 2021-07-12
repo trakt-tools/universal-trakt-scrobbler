@@ -2,6 +2,7 @@ import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { ThemeWrapper } from '@components/ThemeWrapper';
+import '@history/history.html';
 import '@history/history.scss';
 import { HistoryApp } from '@history/HistoryApp';
 import * as React from 'react';

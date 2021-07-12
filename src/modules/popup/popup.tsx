@@ -2,6 +2,7 @@ import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { ThemeWrapper } from '@components/ThemeWrapper';
+import '@popup/popup.html';
 import '@popup/popup.scss';
 import { PopupApp } from '@popup/PopupApp';
 import * as React from 'react';

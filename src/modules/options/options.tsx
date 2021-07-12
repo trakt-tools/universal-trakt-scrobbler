@@ -1,6 +1,7 @@
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { ThemeWrapper } from '@components/ThemeWrapper';
+import '@options/options.html';
 import '@options/options.scss';
 import { OptionsApp } from '@options/OptionsApp';
 import * as React from 'react';
