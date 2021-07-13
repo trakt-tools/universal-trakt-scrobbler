@@ -1,3 +1,4 @@
+import { ServiceApi } from '@api/ServiceApi';
 import { TraktScrobble } from '@api/TraktScrobble';
 import { TraktSearch } from '@api/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
@@ -24,6 +25,7 @@ export const getScrobbleController = (id: string) => {
 };
 
 export class ScrobbleController {
+	readonly api: ServiceApi;
 	readonly parser: ScrobbleParser;
 	private hasSearchedItem = false;
 	private reachedScrobbleThreshold = false;
@@ -32,6 +34,7 @@ export class ScrobbleController {
 
 	constructor(parser: ScrobbleParser) {
 		this.parser = parser;
+		this.api = this.parser.api;
 	}
 
 	startListeners() {

@@ -1,4 +1,6 @@
+import { ServiceApi } from '@api/ServiceApi';
 import { EventDispatcher } from '@common/Events';
+import { getScrobbleController, ScrobbleController } from '@common/ScrobbleController';
 import { ScrobbleParser } from '@common/ScrobbleParser';
 
 export interface ScrobbleEventsOptions {
@@ -12,11 +14,11 @@ export interface ScrobbleEventsOptions {
 
 const scrobbleEvents = new Map<string, ScrobbleEvents>();
 
-export const registerScrobbleEvents = (id: string, events: ScrobbleEvents) => {
-	scrobbleEvents.set(id, events);
-};
-
 export const getScrobbleEvents = (id: string) => {
+	if (!scrobbleEvents.has(id)) {
+		const controller = getScrobbleController(id);
+		scrobbleEvents.set(id, new ScrobbleEvents(controller));
+	}
 	const events = scrobbleEvents.get(id);
 	if (!events) {
 		throw new Error(`Scrobble events not registered for ${id}`);
@@ -24,8 +26,10 @@ export const getScrobbleEvents = (id: string) => {
 	return events;
 };
 
-export abstract class ScrobbleEvents {
+export class ScrobbleEvents {
+	readonly api: ServiceApi;
 	readonly parser: ScrobbleParser;
+	readonly controller: ScrobbleController;
 	readonly options: Readonly<ScrobbleEventsOptions>;
 	protected changeListenerId: number | null = null;
 	protected url = '';
@@ -33,14 +37,14 @@ export abstract class ScrobbleEvents {
 	protected isPaused = true;
 	protected progress = 0.0;
 
-	constructor(parser: ScrobbleParser, options: Partial<ScrobbleEventsOptions> = {}) {
-		this.parser = parser;
+	constructor(controller: ScrobbleController, options: Partial<ScrobbleEventsOptions> = {}) {
+		this.controller = controller;
+		this.parser = this.controller.parser;
+		this.api = this.parser.api;
 		this.options = Object.freeze({
 			...this.getDefaultOptions(),
 			...options,
 		});
-
-		registerScrobbleEvents(this.parser.api.id, this);
 	}
 
 	protected getDefaultOptions(): ScrobbleEventsOptions {

@@ -110,7 +110,7 @@ const loadServices = () => {
 
 		modules[path.resolve(serviceDir, `${serviceId}.ts`)] = `
 			import { init } from '@service';
-			import '@/${serviceId}/${serviceKey}Events';
+			import '@/${serviceId}/${serviceKey}Parser';
 
 			void init('${serviceId}');
 		`;
