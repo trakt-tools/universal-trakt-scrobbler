@@ -3,6 +3,7 @@ import * as archiver from 'archiver';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
+import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
 import * as webpack from 'webpack';
 import { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
@@ -24,18 +25,6 @@ interface Config {
 	chromeExtensionKey?: string;
 	firefoxExtensionId?: string;
 }
-
-type Manifest = Omit<
-	browser.runtime.Manifest,
-	'background' | 'languages' | 'optional_permissions' | 'permissions'
-> & {
-	background?: {
-		scripts: string[];
-		persistent: boolean;
-	};
-	optional_permissions?: string[];
-	permissions?: string[];
-};
 
 const BASE_PATH = process.cwd();
 const loaders = {
@@ -223,7 +212,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 };
 
 const getManifest = (config: Config, browserName: string): string => {
-	const manifest: Manifest = {
+	const manifest: WebExtManifest.WebExtensionManifest & { key?: string } = {
 		manifest_version: 2,
 		name: 'Universal Trakt Scrobbler',
 		version: packageJson.version,
@@ -233,12 +222,12 @@ const getManifest = (config: Config, browserName: string): string => {
 			128: 'images/uts-icon-128.png',
 		},
 		background: {
-			scripts: ['browser-polyfill.js', 'background.js'],
+			scripts: ['background.js'],
 			persistent: true,
 		},
 		content_scripts: [
 			{
-				js: ['browser-polyfill.js', 'trakt.js'],
+				js: ['trakt.js'],
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
@@ -290,10 +279,6 @@ const getManifest = (config: Config, browserName: string): string => {
 };
 
 const runFinalSteps = async (env: Environment, config: Config) => {
-	fs.copyFileSync(
-		'./node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-		'./build/output/browser-polyfill.js'
-	);
 	fs.copySync('./src/_locales', './build/output/_locales');
 
 	const browsers = ['chrome', 'firefox'];

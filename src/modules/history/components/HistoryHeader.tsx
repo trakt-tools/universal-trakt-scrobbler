@@ -9,6 +9,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { History } from 'history';
 import * as React from 'react';
+import { browser } from 'webextension-polyfill-ts';
 
 interface HistoryHeaderProps {
 	history: History;

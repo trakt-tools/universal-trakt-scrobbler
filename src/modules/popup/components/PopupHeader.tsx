@@ -13,6 +13,7 @@ import SyncIcon from '@material-ui/icons/Sync';
 import { History } from 'history';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { browser } from 'webextension-polyfill-ts';
 
 interface IPopupHeader {
 	history: History;

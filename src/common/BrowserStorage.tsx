@@ -9,6 +9,11 @@ import { getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
 import '@services';
 import * as React from 'react';
+import {
+	browser,
+	Manifest as WebExtManifest,
+	Storage as WebExtStorage,
+} from 'webextension-polyfill-ts';
 
 export type StorageValues = StorageValuesV3;
 export type StorageValuesOptions = StorageValuesOptionsV3;
@@ -128,7 +133,7 @@ export type BaseOption<K extends keyof StorageValuesOptions> = {
 	description: React.ReactElement | string;
 	value: StorageValuesOptions[K];
 	origins: string[];
-	permissions: browser.permissions.Permission[];
+	permissions: WebExtManifest.OptionalPermission[];
 	doShow: boolean;
 };
 
@@ -332,10 +337,7 @@ class _BrowserStorage {
 		browser.storage.onChanged.removeListener(this.onStorageChanged);
 	}
 
-	onStorageChanged = (
-		changes: browser.storage.ChangeDict,
-		areaName: browser.storage.StorageName
-	) => {
+	onStorageChanged = (changes: Record<string, WebExtStorage.StorageChange>, areaName: string) => {
 		if (areaName !== 'local') {
 			return;
 		}
@@ -363,8 +365,8 @@ class _BrowserStorage {
 
 	async sync(): Promise<void> {
 		if (this.isSyncAvailable) {
-			const values = await browser.storage.sync.get();
-			for (const key of Object.keys(values)) {
+			const values = (await browser.storage.sync.get()) as StorageValues;
+			for (const key of Object.keys(values) as (keyof StorageValues)[]) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
 		}

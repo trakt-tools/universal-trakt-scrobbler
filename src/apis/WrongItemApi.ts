@@ -2,6 +2,7 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { CorrectionSuggestion, Item } from '@models/Item';
+import { browser } from 'webextension-polyfill-ts';
 
 class _WrongItemApi {
 	URL =

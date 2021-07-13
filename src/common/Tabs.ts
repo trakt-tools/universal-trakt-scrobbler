@@ -1,6 +1,7 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
+import { browser, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
 
 export interface TabProperties {
 	active?: boolean;
@@ -16,7 +17,7 @@ class _Tabs {
 	/**
 	 * @param url The URL to open.
 	 */
-	async open(url: string, extraProperties: TabProperties = {}): Promise<browser.tabs.Tab | null> {
+	async open(url: string, extraProperties: TabProperties = {}): Promise<WebExtTabs.Tab | null> {
 		if (Shared.pageType === 'content') {
 			return Messaging.toBackground({
 				action: 'open-tab',

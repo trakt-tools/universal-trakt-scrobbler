@@ -16,6 +16,7 @@ import { CircularProgress, Container } from '@material-ui/core';
 import { getService } from '@models/Service';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { browser } from 'webextension-polyfill-ts';
 
 export const OptionsApp: React.FC = () => {
 	const [content, setContent] = useState({

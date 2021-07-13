@@ -11,6 +11,7 @@ import LaunchIcon from '@material-ui/icons/Launch';
 import { getService } from '@models/Service';
 import * as moment from 'moment';
 import * as React from 'react';
+import { browser } from 'webextension-polyfill-ts';
 
 interface ServiceOptionProps {
 	id: string;

@@ -9,7 +9,6 @@
 		"sourceMap": true,
 		"target": "ES2020",
 		"strict": true,
-		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"baseUrl": "./",

@@ -4,6 +4,7 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
+import { browser } from 'webextension-polyfill-ts';
 
 export type TraktManualAuth = {
 	callback?: PromiseResolve<TraktAuthDetails>;

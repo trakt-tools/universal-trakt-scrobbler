@@ -21,10 +21,17 @@ import '@images/uts-icon-selected-38.png';
 import { Item, SavedItem } from '@models/Item';
 import { getService, getServices } from '@models/Service';
 import { TraktItem } from '@models/TraktItem';
+import {
+	browser,
+	Manifest as WebExtManifest,
+	Storage as WebExtStorage,
+	Tabs as WebExtTabs,
+	WebRequest as WebExtWebRequest,
+} from 'webextension-polyfill-ts';
 
 const injectedTabs = new Set();
 let serviceEntries: [string, ServiceValue][] = [];
-let serviceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+let serviceScripts: WebExtManifest.ContentScript[] | null = null;
 let isCheckingAutoSync = false;
 let autoSyncCheckTimeout: number | null = null;
 let scrobblingItem: SavedItem | null = null;
@@ -96,8 +103,8 @@ const checkAutoSync = async () => {
 };
 
 const onStorageChanged = (
-	changes: browser.storage.ChangeDict,
-	areaName: browser.storage.StorageName
+	changes: Record<string, WebExtStorage.StorageChange>,
+	areaName: string
 ) => {
 	if (areaName !== 'local') {
 		return;
@@ -135,7 +142,7 @@ const addTabListener = (options: StorageValuesOptions) => {
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
 			),
-			js: ['browser-polyfill.js', `${service.id}.js`],
+			js: [`${service.id}.js`],
 			run_at: 'document_idle',
 		}));
 	if (!browser.tabs.onUpdated.hasListener(onTabUpdated)) {
@@ -149,11 +156,11 @@ const removeTabListener = () => {
 	}
 };
 
-const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
+const onTabUpdated = (_: unknown, __: unknown, tab: WebExtTabs.Tab) => {
 	void injectScript(tab);
 };
 
-const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
+const injectScript = async (tab: Partial<WebExtTabs.Tab>) => {
 	if (
 		!serviceScripts ||
 		tab.status !== 'complete' ||
@@ -187,7 +194,7 @@ const addWebRequestListener = () => {
 	) {
 		return;
 	}
-	const filters: browser.webRequest.RequestFilter = {
+	const filters: WebExtWebRequest.RequestFilter = {
 		types: ['xmlhttprequest'],
 		urls: [
 			'*://*.trakt.tv/*',
@@ -215,7 +222,7 @@ const removeWebRequestListener = () => {
 /**
  * Makes sure cookies are set for requests.
  */
-const onBeforeSendHeaders = ({ requestHeaders }: browser.webRequest.BlockingResponse) => {
+const onBeforeSendHeaders = ({ requestHeaders }: WebExtWebRequest.BlockingResponse) => {
 	if (!requestHeaders) {
 		return;
 	}

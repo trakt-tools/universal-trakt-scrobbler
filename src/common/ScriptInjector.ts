@@ -1,6 +1,7 @@
 import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
+import { browser, Runtime as WebExtRuntime } from 'webextension-polyfill-ts';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;
@@ -20,7 +21,7 @@ class _ScriptInjector {
 		browser.runtime.onConnect.removeListener(this.onConnect);
 	}
 
-	private onConnect = (port: browser.runtime.Port) => {
+	private onConnect = (port: WebExtRuntime.Port) => {
 		port.onMessage.addListener((message: unknown) => {
 			const { serviceId, key, url, fnStr } = message as ScriptInjectorMessage;
 			this.inject(serviceId, key, url, fnStr)
@@ -112,10 +113,6 @@ class _ScriptInjector {
 			return null;
 		}
 
-		await browser.tabs.executeScript(tab.id, {
-			file: 'browser-polyfill.js',
-			runAt: 'document_end',
-		});
 		await browser.tabs.executeScript(tab.id, {
 			file: `${serviceId}.js`,
 			runAt: 'document_end',

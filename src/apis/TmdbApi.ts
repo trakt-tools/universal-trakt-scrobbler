@@ -4,6 +4,7 @@ import { Messaging } from '@common/Messaging';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
+import { browser } from 'webextension-polyfill-ts';
 
 export interface TmdbConfigResponse {
 	images?: {

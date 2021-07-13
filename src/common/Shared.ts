@@ -1,4 +1,5 @@
 import { History } from 'history';
+import { browser } from 'webextension-polyfill-ts';
 
 interface SharedValues {
 	browser: BrowserName;

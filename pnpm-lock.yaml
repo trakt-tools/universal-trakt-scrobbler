@@ -59,8 +59,7 @@ specifiers:
   ts-node: ^10.0.0
   tsconfig-paths-webpack-plugin: ^3.5.1
   typescript: ^4.3.2
-  web-ext-types: ^3.2.1
-  webextension-polyfill: ^0.8.0
+  webextension-polyfill-ts: ^0.26.0
   webpack: ^5.39.0
   webpack-cli: ^4.7.2
 
@@ -79,7 +78,7 @@ dependencies:
   react-dom: 17.0.2_react@17.0.2
   react-router-dom: 5.2.0_react@17.0.2
   rollbar: 2.22.0
-  webextension-polyfill: 0.8.0
+  webextension-polyfill-ts: 0.26.0
 
 devDependencies:
   '@babel/core': 7.14.6
@@ -126,7 +125,6 @@ devDependencies:
   ts-node: 10.0.0_e3fb3700f8b176f300f1b7e599dc9c29
   tsconfig-paths-webpack-plugin: 3.5.1
   typescript: 4.3.2
-  web-ext-types: 3.2.1
   webpack: 5.39.0_webpack-cli@4.7.2
   webpack-cli: 4.7.2_webpack@5.39.0
 
@@ -8311,12 +8309,14 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /web-ext-types/3.2.1:
+  /webextension-polyfill-ts/0.26.0:
     resolution:
       {
-        integrity: sha512-oQZYDU3W8X867h8Jmt3129kRVKklz70db40Y6OzoTTuzOJpF/dB2KULJUf0txVPyUUXuyzV8GmT3nVvRHoG+Ew==,
+        integrity: sha512-XEFL+aYVEsm/d4RajVwP75g56c/w2aSHnPwgtUv8/nCzbLNSzRQIix6aj1xqFkA5yr7OIDkk3OD/QTnPp8ThYA==,
       }
-    dev: true
+    dependencies:
+      webextension-polyfill: 0.8.0
+    dev: false
 
   /webextension-polyfill/0.8.0:
     resolution:

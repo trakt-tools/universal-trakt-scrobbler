@@ -4,6 +4,7 @@ import { EventDispatcher, RequestsCancelData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import axios, { AxiosResponse, CancelTokenSource, Method } from 'axios';
+import { browser } from 'webextension-polyfill-ts';
 
 export type RequestException = {
 	request: RequestDetails;

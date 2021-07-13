@@ -106,7 +106,6 @@ module.exports = {
 		browser: true,
 		es2020: true,
 		node: true,
-		webextensions: true,
 	},
 	rules: {},
 	overrides: [getTranslationsOverride(), getJsOverride(), getTsOverride()],

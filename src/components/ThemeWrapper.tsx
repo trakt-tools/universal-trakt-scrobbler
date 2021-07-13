@@ -2,6 +2,7 @@ import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
 import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
+import { browser, Storage as WebExtStorage } from 'webextension-polyfill-ts';
 
 interface ThemeWrapperProps {
 	children: React.ReactNode;
@@ -56,8 +57,8 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 		};
 
 		const onStorageChanged = (
-			changes: browser.storage.ChangeDict,
-			areaName: browser.storage.StorageName
+			changes: Record<string, WebExtStorage.StorageChange>,
+			areaName: string
 		) => {
 			if (areaName !== 'local') {
 				return;
