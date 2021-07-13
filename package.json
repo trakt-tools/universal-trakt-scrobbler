@@ -63,7 +63,7 @@
 		"@babel/runtime": "^7.14.6",
 		"@octokit/rest": "^18.6.0",
 		"@rafaelgomesxyz/eslint-plugin-i18n-json": "^3.2.0",
-		"@trakt-tools/cli": "^0.1.0",
+		"@trakt-tools/cli": "^0.3.2",
 		"@types/archiver": "^5.1.1",
 		"@types/fs-extra": "^9.0.11",
 		"@types/history": "^4.7.8",
