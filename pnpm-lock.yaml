@@ -34,6 +34,7 @@ specifiers:
   babel-loader: ^8.2.2
   babel-preset-minify: ^0.5.1
   clean-webpack-plugin: ^4.0.0-alpha.0
+  cross-env: ^7.0.3
   css-loader: ^5.2.6
   eslint: ^7.28.0
   eslint-config-prettier: ^8.3.0
@@ -114,6 +115,7 @@ devDependencies:
   babel-loader: 8.2.2_593b05396b57c997aa86cb2e38f3d430
   babel-preset-minify: 0.5.1
   clean-webpack-plugin: 4.0.0-alpha.0_webpack@5.39.0
+  cross-env: 7.0.3
   css-loader: 5.2.6_webpack@5.39.0
   eslint: 7.28.0
   eslint-config-prettier: 8.3.0_eslint@7.28.0
@@ -4380,6 +4382,17 @@ packages:
       {
         integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==,
       }
+    dev: true
+
+  /cross-env/7.0.3:
+    resolution:
+      {
+        integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==,
+      }
+    engines: { node: '>=10.14', npm: '>=6', yarn: '>=1' }
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
     dev: true
 
   /cross-spawn/6.0.5:

@@ -1,5 +1,4 @@
 build/*
 create-streaming-service/*
 !.eslintrc.js
-!.eslintrc.typed.js
 !.lintstagedrc.js
