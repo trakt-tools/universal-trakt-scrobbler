@@ -16,8 +16,6 @@
 		"paths": {
 			"@locales/*": ["./src/_locales/*"],
 			"@apis/*": ["./src/apis/*"],
-			"@images/*": ["./src/assets/images/*"],
-			"@styles/*": ["./src/assets/styles/*"],
 			"@assets": ["./src/assets/assets"],
 			"@common/*": ["./src/common/*"],
 			"@components/*": [
@@ -26,9 +24,11 @@
 				"./src/modules/options/components/*",
 				"./src/modules/popup/components/*"
 			],
+			"@images/*": ["./src/images/*"],
 			"@models/*": ["./src/models/*"],
 			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],
 			"@stores/*": ["./src/stores/*"],
+			"@styles/*": ["./src/styles/*"],
 			"@background": ["./src/modules/background/background"],
 			"@service": ["./src/modules/content/service/service"],
 			"@trakt": ["./src/modules/content/trakt/trakt"],
