@@ -1,4 +1,3 @@
-import '@assets';
 import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';

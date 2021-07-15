@@ -1,4 +1,3 @@
-import '@assets';
 import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';

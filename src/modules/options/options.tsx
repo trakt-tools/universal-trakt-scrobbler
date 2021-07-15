@@ -1,4 +1,3 @@
-import '@assets';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { ThemeWrapper } from '@components/ThemeWrapper';

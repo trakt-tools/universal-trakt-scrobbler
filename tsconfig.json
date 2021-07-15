@@ -16,7 +16,6 @@
 		"paths": {
 			"@locales/*": ["./src/_locales/*"],
 			"@apis/*": ["./src/apis/*"],
-			"@assets": ["./src/assets/assets"],
 			"@common/*": ["./src/common/*"],
 			"@components/*": [
 				"./src/components/*",
