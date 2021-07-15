@@ -270,11 +270,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			default_title: 'Universal Trakt Scrobbler',
 		},
 		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
-		web_accessible_resources: [
-			'images/uts-icon-38.png',
-			'images/uts-icon-selected-38.png',
-			'images/svg/*.svg',
-		],
+		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
 	};
 	switch (browserName) {
 		case 'chrome': {
