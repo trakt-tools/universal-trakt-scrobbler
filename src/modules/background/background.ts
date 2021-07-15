@@ -135,7 +135,7 @@ const addTabListener = (options: StorageValuesOptions) => {
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
 			),
-			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
+			js: ['browser-polyfill.js', `${service.id}.js`],
 			run_at: 'document_idle',
 		}));
 	if (!browser.tabs.onUpdated.hasListener(onTabUpdated)) {

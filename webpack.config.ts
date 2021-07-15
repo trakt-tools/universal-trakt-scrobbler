@@ -1,10 +1,10 @@
 import { ServiceValues } from '@models/Service';
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import * as archiver from 'archiver';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
+import { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
 import packageJson = require('./package.json');
 
@@ -55,20 +55,19 @@ const loaders = {
 };
 
 class RunAfterBuildPlugin {
-	callback: () => void;
+	callback: () => Promise<void>;
 
-	constructor(callback: () => void) {
+	constructor(callback: () => Promise<void>) {
 		this.callback = callback;
 	}
 
 	apply = (compiler: webpack.Compiler) => {
-		compiler.hooks.afterEmit.tap('RunAfterBuild', this.callback);
+		compiler.hooks.afterEmit.tapPromise('RunAfterBuild', this.callback);
 	};
 }
 
 const plugins = {
-	clean: CleanWebpackPlugin,
-	progressBar: ProgressBarWebpackPlugin,
+	progress: ProgressPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
 	tsConfigPaths: TsconfigPathsPlugin,
 };
@@ -103,15 +102,14 @@ const loadServices = () => {
 		services[service.id] = service;
 
 		if (service.hasScrobbler) {
-			serviceEntries[`./chrome/js/${serviceId}`] = [`./src/services/${serviceId}/${serviceId}.ts`];
-			serviceEntries[`./firefox/js/${serviceId}`] = [`./src/services/${serviceId}/${serviceId}.ts`];
+			serviceEntries[serviceId] = [`./src/services/${serviceId}/${serviceId}.ts`];
 		}
 		serviceImports.push(`import '@/${serviceId}/${serviceKey}Service';`);
 		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
 	}
 };
 
-const getWebpackConfig = (env: Environment) => {
+const getWebpackConfig = (env: Environment): webpack.Configuration => {
 	loadServices();
 
 	let mode: 'production' | 'development';
@@ -124,16 +122,11 @@ const getWebpackConfig = (env: Environment) => {
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
-			'./chrome/js/background': ['./src/modules/background/background.ts'],
-			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
-			'./chrome/js/popup': ['./src/modules/popup/popup.tsx'],
-			'./chrome/js/history': ['./src/modules/history/history.tsx'],
-			'./chrome/js/options': ['./src/modules/options/options.tsx'],
-			'./firefox/js/background': ['./src/modules/background/background.ts'],
-			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
-			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
-			'./firefox/js/history': ['./src/modules/history/history.tsx'],
-			'./firefox/js/options': ['./src/modules/options/options.tsx'],
+			background: ['./src/modules/background/background.ts'],
+			trakt: ['./src/modules/content/trakt/trakt.ts'],
+			popup: ['./src/modules/popup/popup.tsx'],
+			history: ['./src/modules/history/history.tsx'],
+			options: ['./src/modules/options/options.tsx'],
 			...serviceEntries,
 		},
 		mode,
@@ -168,30 +161,24 @@ const getWebpackConfig = (env: Environment) => {
 					},
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: './fonts',
-						publicPath: '../fonts/',
+					test: /\.woff2?$/,
+					type: 'asset/resource',
+					generator: {
+						filename: 'fonts/[name][ext]',
 					},
 				},
 				{
 					test: /\.html$/,
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: './html/',
-						publicPath: '../html/',
+					type: 'asset/resource',
+					generator: {
+						filename: '[name][ext]',
 					},
 				},
 				{
 					test: /\.(jpg|png)$/,
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: './images/',
-						publicPath: '../images/',
+					type: 'asset/resource',
+					generator: {
+						filename: 'images/[name][ext]',
 					},
 				},
 				{
@@ -215,12 +202,12 @@ const getWebpackConfig = (env: Environment) => {
 		},
 		output: {
 			filename: '[name].js',
-			path: path.resolve(BASE_PATH, 'build'),
+			path: path.resolve(BASE_PATH, 'build', 'output'),
+			clean: true,
 		},
 		plugins: [
-			new plugins.clean(),
-			new plugins.progressBar(),
-			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(config))]),
+			new plugins.progress(),
+			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env, config))]),
 		],
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
@@ -246,12 +233,12 @@ const getManifest = (config: Config, browserName: string): string => {
 			128: 'images/uts-icon-128.png',
 		},
 		background: {
-			scripts: ['js/lib/browser-polyfill.js', 'js/background.js'],
+			scripts: ['browser-polyfill.js', 'background.js'],
 			persistent: true,
 		},
 		content_scripts: [
 			{
-				js: ['js/lib/browser-polyfill.js', 'js/trakt.js'],
+				js: ['browser-polyfill.js', 'trakt.js'],
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
@@ -275,7 +262,7 @@ const getManifest = (config: Config, browserName: string): string => {
 				19: 'images/uts-icon-19.png',
 				38: 'images/uts-icon-38.png',
 			},
-			default_popup: 'html/popup.html',
+			default_popup: 'popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
 		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
@@ -302,55 +289,32 @@ const getManifest = (config: Config, browserName: string): string => {
 	return JSON.stringify(manifest, null, 2);
 };
 
-const runFinalSteps = (config: Config) => {
-	if (!fs.existsSync('./build/chrome/js/lib')) {
-		fs.mkdirSync('./build/chrome/js/lib');
-	}
-	if (!fs.existsSync('./build/firefox/js/lib')) {
-		fs.mkdirSync('./build/firefox/js/lib');
-	}
-	const filesToCopy = [
-		{
-			from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-			to: './build/chrome/js/lib/browser-polyfill.js',
-			flatten: true,
-		},
-		{
-			from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-			to: './build/firefox/js/lib/browser-polyfill.js',
-			flatten: true,
-		},
-	];
-	for (const fileToCopy of filesToCopy) {
-		fs.copyFileSync(fileToCopy.from, fileToCopy.to);
-	}
-	const foldersToCopy = [
-		{ from: './src/_locales', to: './build/chrome/_locales' },
-		{ from: './build/fonts', to: './build/chrome/fonts' },
-		{ from: './build/html', to: './build/chrome/html' },
-		{ from: './build/images', to: './build/chrome/images' },
-		{ from: './src/_locales', to: './build/firefox/_locales' },
-		{ from: './build/fonts', to: './build/firefox/fonts' },
-		{ from: './build/html', to: './build/firefox/html' },
-		{ from: './build/images', to: './build/firefox/images' },
-	];
+const runFinalSteps = async (env: Environment, config: Config) => {
+	fs.copyFileSync(
+		'./node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+		'./build/output/browser-polyfill.js'
+	);
+	fs.copySync('./src/_locales', './build/output/_locales');
 
-	for (const folderToCopy of foldersToCopy) {
-		fs.copySync(folderToCopy.from, folderToCopy.to);
+	const browsers = ['chrome', 'firefox'];
+	for (const browser of browsers) {
+		fs.copySync('./build/output', `./build/${browser}`);
+		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(config, browser));
+
+		if (env.production) {
+			const archive = archiver('zip', { zlib: { level: 9 } });
+			await new Promise((resolve, reject) => {
+				archive
+					.pipe(fs.createWriteStream(path.resolve(BASE_PATH, 'dist', `${browser}.zip`)))
+					.on('finish', () => resolve(null))
+					.on('error', (err) => reject(err));
+				archive.directory(path.resolve(BASE_PATH, `./build/${browser}`), false);
+				void archive.finalize();
+			});
+		}
 	}
-	const filesToCreate = [
-		{
-			data: getManifest(config, 'chrome'),
-			path: './build/chrome/manifest.json',
-		},
-		{
-			data: getManifest(config, 'firefox'),
-			path: './build/firefox/manifest.json',
-		},
-	];
-	for (const fileToCreate of filesToCreate) {
-		fs.writeFileSync(fileToCreate.path, fileToCreate.data);
-	}
+
+	fs.rmSync('./build/output', { recursive: true });
 };
 
 export default getWebpackConfig;

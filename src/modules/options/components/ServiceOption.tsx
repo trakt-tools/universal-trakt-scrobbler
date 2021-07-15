@@ -112,7 +112,7 @@ export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOption
 										disabled={!value.sync}
 										size="small"
 										onClick={() =>
-											onLinkClick(browser.runtime.getURL(`html/history.html#${service.path}`))
+											onLinkClick(browser.runtime.getURL(`history.html#${service.path}`))
 										}
 									>
 										<LaunchIcon fontSize="small" />

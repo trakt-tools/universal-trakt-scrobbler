@@ -53,7 +53,7 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 							</Button>
 							<Button
 								color="inherit"
-								onClick={() => onLinkClick(browser.runtime.getURL('/html/options.html'))}
+								onClick={() => onLinkClick(browser.runtime.getURL('options.html'))}
 								startIcon={<SettingsIcon />}
 							>
 								{I18N.translate('options')}

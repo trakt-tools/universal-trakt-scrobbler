@@ -113,11 +113,11 @@ class _ScriptInjector {
 		}
 
 		await browser.tabs.executeScript(tab.id, {
-			file: '/js/lib/browser-polyfill.js',
+			file: 'browser-polyfill.js',
 			runAt: 'document_end',
 		});
 		await browser.tabs.executeScript(tab.id, {
-			file: `/js/${serviceId}.js`,
+			file: `${serviceId}.js`,
 			runAt: 'document_end',
 		});
 

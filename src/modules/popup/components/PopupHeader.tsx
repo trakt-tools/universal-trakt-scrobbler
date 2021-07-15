@@ -71,7 +71,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 							<Tooltip title={I18N.translate('history')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
+									onClick={() => onLinkClick(browser.runtime.getURL('history.html'))}
 								>
 									<HistoryIcon />
 								</IconButton>
@@ -79,7 +79,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 							<Tooltip title={I18N.translate('options')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
+									onClick={() => onLinkClick(browser.runtime.getURL('options.html'))}
 								>
 									<SettingsIcon />
 								</IconButton>
@@ -92,9 +92,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 								>
 									<IconButton
 										color="inherit"
-										onClick={() =>
-											onLinkClick(browser.runtime.getURL('html/history.html#/auto-sync'))
-										}
+										onClick={() => onLinkClick(browser.runtime.getURL('history.html#/auto-sync'))}
 									>
 										<SyncIcon color={syncButton.hasError ? 'secondary' : 'inherit'} />
 									</IconButton>
