@@ -83,7 +83,7 @@ class _TmdbApi {
 		}
 		const cache = await Messaging.toBackground({
 			action: 'get-cache',
-			key: 'tmdbImages',
+			key: 'imageUrls',
 		});
 		let imageUrl = cache[item.id.toString()];
 		if (imageUrl) {
@@ -102,7 +102,7 @@ class _TmdbApi {
 					cache[item.id.toString()] = imageUrl;
 					await Messaging.toBackground({
 						action: 'set-cache',
-						key: 'tmdbImages',
+						key: 'imageUrls',
 						value: cache,
 					});
 					return imageUrl;
@@ -145,7 +145,7 @@ class _TmdbApi {
 		try {
 			const cache = await Messaging.toBackground({
 				action: 'get-cache',
-				key: 'tmdbImages',
+				key: 'imageUrls',
 			});
 			const itemsToFetch = [];
 			for (const item of missingItems) {
@@ -190,7 +190,7 @@ class _TmdbApi {
 				}
 				await Messaging.toBackground({
 					action: 'set-cache',
-					key: 'tmdbImages',
+					key: 'imageUrls',
 					value: cache,
 				});
 			}
@@ -217,7 +217,7 @@ class _TmdbApi {
 		try {
 			const cache = await Messaging.toBackground({
 				action: 'get-cache',
-				key: 'tmdbImages',
+				key: 'imageUrls',
 			});
 			imageUrl = cache[itemCopy.trakt.id.toString()];
 			if (typeof imageUrl === 'undefined') {
@@ -247,7 +247,7 @@ class _TmdbApi {
 				cache[itemCopy.trakt.id.toString()] = imageUrl;
 				await Messaging.toBackground({
 					action: 'set-cache',
-					key: 'tmdbImages',
+					key: 'imageUrls',
 					value: cache,
 				});
 			}

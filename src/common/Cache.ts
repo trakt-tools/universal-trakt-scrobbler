@@ -2,19 +2,19 @@ import { Suggestion } from '@apis/WrongItemApi';
 
 export interface CacheValues {
 	suggestions: Partial<Record<string, Record<string, Suggestion[] | undefined>>>;
-	tmdbImages: Record<string, string>;
+	imageUrls: Record<string, string>;
 }
 
 class _Cache {
 	private timers: Record<keyof CacheValues, number | null> = {
 		suggestions: null,
-		tmdbImages: null,
+		imageUrls: null,
 	};
 
 	/** In seconds. */
 	private expiries: Record<keyof CacheValues, number> = {
 		suggestions: 360,
-		tmdbImages: 360,
+		imageUrls: 360,
 	};
 
 	readonly values: CacheValues;
@@ -27,7 +27,7 @@ class _Cache {
 	private getInitialValues(): CacheValues {
 		return {
 			suggestions: {},
-			tmdbImages: {},
+			imageUrls: {},
 		};
 	}
 
