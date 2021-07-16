@@ -44,13 +44,10 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 							<Typography variant="caption">
 								{I18N.translate('isThisWrong')}{' '}
 								{BrowserStorage.options.sendReceiveSuggestions ? (
-									typeof item.correctionSuggestions === 'undefined' ? (
+									typeof item.suggestions === 'undefined' ? (
 										<>({I18N.translate('loadingSuggestions')}...)</>
-									) : item.correctionSuggestions && item.correctionSuggestions.length > 0 ? (
-										<>
-											({I18N.translate('suggestions', item.correctionSuggestions.length.toString())}
-											)
-										</>
+									) : item.suggestions && item.suggestions.length > 0 ? (
+										<>({I18N.translate('suggestions', item.suggestions.length.toString())})</>
 									) : null
 								) : null}
 							</Typography>

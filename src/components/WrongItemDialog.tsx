@@ -1,3 +1,4 @@
+import { Suggestion } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '@common/Events';
@@ -20,7 +21,7 @@ import {
 	ListItemText,
 	TextField,
 } from '@material-ui/core';
-import { CorrectionSuggestion, Item } from '@models/Item';
+import { Item } from '@models/Item';
 import { getServices } from '@models/Service';
 import * as React from 'react';
 
@@ -51,12 +52,12 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
-	const onUseButtonClick = (correctionSuggestion: CorrectionSuggestion): void => {
+	const onUseButtonClick = (suggestion: Suggestion): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
-			type: correctionSuggestion.type,
-			traktId: correctionSuggestion.traktId,
-			url: correctionSuggestion.url,
+			type: suggestion.type,
+			traktId: suggestion.traktId,
+			url: suggestion.url,
 		}));
 	};
 
@@ -216,25 +217,18 @@ export const WrongItemDialog: React.FC = () => {
 									: 'Unknown'
 							)}
 						</DialogContentText>
-						{dialog.item?.correctionSuggestions && dialog.item.correctionSuggestions.length > 0 && (
+						{dialog.item?.suggestions && dialog.item.suggestions.length > 0 && (
 							<>
 								<Divider />
 								<DialogContentText className="wrong-item-dialog-suggestions-title">
 									{I18N.translate('wrongItemDialogContentSuggestions')}
 								</DialogContentText>
 								<List>
-									{dialog.item.correctionSuggestions.map((correctionSuggestion, index) => (
-										<ListItem
-											key={index}
-											button
-											onClick={() => onUseButtonClick(correctionSuggestion)}
-										>
+									{dialog.item.suggestions.map((suggestion, index) => (
+										<ListItem key={index} button onClick={() => onUseButtonClick(suggestion)}>
 											<ListItemText
-												primary={correctionSuggestion.url}
-												secondary={I18N.translate(
-													'suggestedBy',
-													correctionSuggestion.count.toString()
-												)}
+												primary={suggestion.url}
+												secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 											/>
 										</ListItem>
 									))}

@@ -1,21 +1,19 @@
-import { CorrectionSuggestion } from '@models/Item';
+import { Suggestion } from '@apis/WrongItemApi';
 
 export interface CacheValues {
-	correctionSuggestions: Partial<
-		Record<string, Record<string, CorrectionSuggestion[] | undefined>>
-	>;
+	suggestions: Partial<Record<string, Record<string, Suggestion[] | undefined>>>;
 	tmdbImages: Record<string, string>;
 }
 
 class _Cache {
 	private timers: Record<keyof CacheValues, number | null> = {
-		correctionSuggestions: null,
+		suggestions: null,
 		tmdbImages: null,
 	};
 
 	/** In seconds. */
 	private expiries: Record<keyof CacheValues, number> = {
-		correctionSuggestions: 360,
+		suggestions: 360,
 		tmdbImages: 360,
 	};
 
@@ -28,7 +26,7 @@ class _Cache {
 
 	private getInitialValues(): CacheValues {
 		return {
-			correctionSuggestions: {},
+			suggestions: {},
 			tmdbImages: {},
 		};
 	}

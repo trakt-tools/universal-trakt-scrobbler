@@ -1,15 +1,22 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
-import { CorrectionSuggestion, Item } from '@models/Item';
+import { Item } from '@models/Item';
 import { browser } from 'webextension-polyfill-ts';
+
+export interface Suggestion {
+	type: 'episode' | 'movie';
+	traktId?: number;
+	url: string;
+	count: number;
+}
 
 class _WrongItemApi {
 	URL =
 		'https://script.google.com/macros/s/AKfycbyRy2Xf9mqeR3mqN77VYxzr8wSyYOxcFBgyMwQQduZo37eW0TDTyPSkwc_52SNMRi4X/exec';
 
 	async loadSuggestions(items: Item[]): Promise<void> {
-		const missingItems = items.filter((item) => typeof item.correctionSuggestions === 'undefined');
+		const missingItems = items.filter((item) => typeof item.suggestions === 'undefined');
 		if (
 			missingItems.length === 0 ||
 			!BrowserStorage.options.sendReceiveSuggestions ||
@@ -22,7 +29,7 @@ class _WrongItemApi {
 		try {
 			const cache = await Messaging.toBackground({
 				action: 'get-cache',
-				key: 'correctionSuggestions',
+				key: 'suggestions',
 			});
 			const servicesToFetch: Partial<Record<string, Item[]>> = {};
 			for (const item of missingItems) {
@@ -33,7 +40,7 @@ class _WrongItemApi {
 				}
 				const suggestions = serviceSuggestions[item.id];
 				if (suggestions) {
-					item.correctionSuggestions = suggestions;
+					item.suggestions = suggestions;
 				} else {
 					let serviceToFetch = servicesToFetch[item.serviceId];
 					if (!serviceToFetch) {
@@ -57,7 +64,7 @@ class _WrongItemApi {
 							.map((item) => encodeURIComponent(item.id))
 							.join(',')}`,
 					});
-					const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
+					const json = JSON.parse(response) as Record<string, Suggestion[] | undefined>;
 					const serviceSuggestions = cache[serviceId];
 					if (serviceSuggestions) {
 						for (const item of itemsToFetch) {
@@ -81,25 +88,25 @@ class _WrongItemApi {
 				if (serviceSuggestions && !serviceSuggestions[item.id]) {
 					serviceSuggestions[item.id] = [];
 				}
-				item.correctionSuggestions = serviceSuggestions?.[item.id];
+				item.suggestions = serviceSuggestions?.[item.id];
 			}
 			await Messaging.toBackground({
 				action: 'set-cache',
-				key: 'correctionSuggestions',
+				key: 'suggestions',
 				value: cache,
 			});
 		} catch (err) {
 			// Do nothing
 		}
 		for (const item of missingItems) {
-			item.correctionSuggestions = item.correctionSuggestions ?? null;
+			item.suggestions = item.suggestions ?? null;
 		}
 	}
 
 	async loadItemSuggestions(item: Item): Promise<Item> {
 		const itemCopy = new Item(item);
 		if (
-			typeof itemCopy.correctionSuggestions !== 'undefined' ||
+			typeof itemCopy.suggestions !== 'undefined' ||
 			!BrowserStorage.options.sendReceiveSuggestions ||
 			!(await browser.permissions.contains({
 				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
@@ -111,7 +118,7 @@ class _WrongItemApi {
 		try {
 			const cache = await Messaging.toBackground({
 				action: 'get-cache',
-				key: 'correctionSuggestions',
+				key: 'suggestions',
 			});
 			let serviceSuggestions = cache[itemCopy.serviceId];
 			if (!serviceSuggestions) {
@@ -127,7 +134,7 @@ class _WrongItemApi {
 							itemCopy.serviceId
 						)}&ids=${encodeURIComponent(itemCopy.id)}`,
 					});
-					const json = JSON.parse(response) as Record<string, CorrectionSuggestion[] | undefined>;
+					const json = JSON.parse(response) as Record<string, Suggestion[] | undefined>;
 					serviceSuggestions[itemCopy.id] = json[itemCopy.id]?.sort((a, b) => {
 						if (a.count > b.count) {
 							return -1;
@@ -146,14 +153,14 @@ class _WrongItemApi {
 				suggestions = serviceSuggestions[itemCopy.id];
 				await Messaging.toBackground({
 					action: 'set-cache',
-					key: 'correctionSuggestions',
+					key: 'suggestions',
 					value: cache,
 				});
 			}
 		} catch (err) {
 			// Do nothing
 		}
-		itemCopy.correctionSuggestions = suggestions ?? null;
+		itemCopy.suggestions = suggestions ?? null;
 		return itemCopy;
 	}
 

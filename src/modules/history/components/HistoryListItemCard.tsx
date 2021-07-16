@@ -1,3 +1,4 @@
+import { Suggestion } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -13,14 +14,14 @@ import {
 	Tooltip,
 	Typography,
 } from '@material-ui/core';
-import { CorrectionSuggestion, Item } from '@models/Item';
+import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
 import * as React from 'react';
 
 interface HistoryListItemCardProps {
 	item?: Item | TraktItem | null;
 	name: string;
-	correctionSuggestions?: CorrectionSuggestion[] | null;
+	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
 	openWrongItemDialog?: () => Promise<void>;
@@ -29,14 +30,8 @@ interface HistoryListItemCardProps {
 export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
-	const {
-		item,
-		name,
-		correctionSuggestions,
-		imageUrl,
-		openMissingWatchedDateDialog,
-		openWrongItemDialog,
-	} = props;
+	const { item, name, suggestions, imageUrl, openMissingWatchedDateDialog, openWrongItemDialog } =
+		props;
 
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
@@ -88,12 +83,10 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
 										{BrowserStorage.options.sendReceiveSuggestions ? (
-											typeof correctionSuggestions === 'undefined' ? (
+											typeof suggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
-											) : correctionSuggestions && correctionSuggestions.length > 0 ? (
-												<>
-													({I18N.translate('suggestions', correctionSuggestions.length.toString())})
-												</>
+											) : suggestions && suggestions.length > 0 ? (
+												<>({I18N.translate('suggestions', suggestions.length.toString())})</>
 											) : null
 										) : null}
 									</Typography>

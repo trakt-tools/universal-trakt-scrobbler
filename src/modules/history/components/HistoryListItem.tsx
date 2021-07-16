@@ -64,7 +64,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			<HistoryListItemCard
 				item={item.trakt}
 				name="Trakt"
-				correctionSuggestions={item.correctionSuggestions}
+				suggestions={item.suggestions}
 				imageUrl={item.imageUrl}
 				openWrongItemDialog={openWrongItemDialog}
 			/>

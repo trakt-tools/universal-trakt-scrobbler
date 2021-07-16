@@ -297,7 +297,7 @@ Messaging.messageHandlers = {
 
 	'show-notification': (message) => Notifications.show(message.title, message.message),
 
-	'save-correction-suggestion': (message) => {
+	'save-suggestion': (message) => {
 		const item = Item.load(message.item);
 		return WrongItemApi.saveSuggestion(item, message.url);
 	},

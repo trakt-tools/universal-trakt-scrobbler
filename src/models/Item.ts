@@ -1,3 +1,4 @@
+import { Suggestion } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 import * as moment from 'moment';
@@ -21,14 +22,14 @@ export interface IItem extends ItemBase {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
-	correctionSuggestions?: CorrectionSuggestion[] | null;
+	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
 }
 
 export interface SavedItem extends ItemBase {
 	watchedAt?: number;
 	trakt?: Omit<SavedTraktItem, ''> | null;
-	correctionSuggestions?: Omit<CorrectionSuggestion, ''>[] | null;
+	suggestions?: Omit<Suggestion, ''>[] | null;
 	imageUrl?: string | null;
 }
 
@@ -42,13 +43,6 @@ export interface ItemBase {
 	episode?: number;
 	episodeTitle?: string;
 	progress?: number;
-}
-
-export interface CorrectionSuggestion {
-	type: 'episode' | 'movie';
-	traktId?: number;
-	url: string;
-	count: number;
 }
 
 //TODO this should be refactored or split into show and movie. Inheritance could be used to get the similarities.
@@ -66,7 +60,7 @@ export class Item implements IItem {
 	trakt?: TraktItem | null;
 	isSelected?: boolean;
 	index?: number;
-	correctionSuggestions?: CorrectionSuggestion[] | null;
+	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
 
 	constructor(options: IItem) {
@@ -84,7 +78,7 @@ export class Item implements IItem {
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
 		this.isSelected = options.isSelected;
 		this.index = options.index;
-		this.correctionSuggestions = options.correctionSuggestions;
+		this.suggestions = options.suggestions;
 		this.imageUrl = options.imageUrl;
 		this.id = options.id || this.generateId();
 	}
@@ -102,7 +96,7 @@ export class Item implements IItem {
 			watchedAt: item.watchedAt?.unix(),
 			progress: item.progress,
 			trakt: item.trakt && TraktItem.save(item.trakt),
-			correctionSuggestions: item.correctionSuggestions,
+			suggestions: item.suggestions,
 			imageUrl: item.imageUrl,
 		};
 	}

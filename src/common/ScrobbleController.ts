@@ -168,7 +168,7 @@ export class ScrobbleController {
 		await this.startScrobble();
 		try {
 			await Messaging.toBackground({
-				action: 'save-correction-suggestion',
+				action: 'save-suggestion',
 				item: Item.save(item),
 				url: data.url,
 			});

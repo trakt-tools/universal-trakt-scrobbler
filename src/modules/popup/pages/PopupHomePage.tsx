@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => {
 				scrobblingItem: data.item
 					? Item.load({
 							...data.item,
-							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
 					  })
 					: null,
@@ -89,7 +89,7 @@ export const HomePage: React.FC = () => {
 				scrobblingItem: data.scrobblingItem
 					? Item.load({
 							...data.scrobblingItem,
-							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
 					  })
 					: null,
@@ -105,7 +105,7 @@ export const HomePage: React.FC = () => {
 			if (
 				!content.scrobblingItem ||
 				(BrowserStorage.options.sendReceiveSuggestions &&
-					typeof content.scrobblingItem.correctionSuggestions !== 'undefined') ||
+					typeof content.scrobblingItem.suggestions !== 'undefined') ||
 				typeof content.scrobblingItem.imageUrl !== 'undefined'
 			) {
 				return;
