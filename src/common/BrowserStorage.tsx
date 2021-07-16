@@ -1,6 +1,6 @@
 import { HboGoApiParams } from '@/hbo-go/HboGoApi';
+import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
-import { Suggestion } from '@apis/WrongItemApi';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';

@@ -21,7 +21,7 @@ export interface SuggestionsDatabaseResponse {
 	result: Partial<Record<string, Suggestion[]>>;
 }
 
-class _WrongItemApi {
+class _CorrectionApi {
 	readonly DATABASE_URL = `${Shared.DATABASE_URL}/correction`;
 	readonly SUGGESTIONS_DATABASE_URL = `${this.DATABASE_URL}/suggestions`;
 
@@ -133,4 +133,4 @@ class _WrongItemApi {
 	}
 }
 
-export const WrongItemApi = new _WrongItemApi();
+export const CorrectionApi = new _CorrectionApi();

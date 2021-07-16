@@ -32,8 +32,8 @@ export interface EventData {
 	SNACKBAR_SHOW: SnackbarShowData;
 	MISSING_WATCHED_DATE_DIALOG_SHOW: MissingWatchedDateDialogShowData;
 	MISSING_WATCHED_DATE_ADDED: MissingWatchedDateAddedData;
-	WRONG_ITEM_DIALOG_SHOW: WrongItemDialogShowData;
-	WRONG_ITEM_CORRECTED: WrongItemCorrectedData;
+	CORRECTION_DIALOG_SHOW: CorrectionDialogShowData;
+	ITEM_CORRECTED: ItemCorrectedData;
 	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
 	SYNC_STORE_UPDATE: SyncStoreUpdateData;
 	SERVICE_HISTORY_LOAD_ERROR: ErrorData;
@@ -115,12 +115,12 @@ export interface MissingWatchedDateAddedData {
 	items: Item[];
 }
 
-export interface WrongItemDialogShowData {
+export interface CorrectionDialogShowData {
 	serviceId: string | null;
 	item?: Item;
 }
 
-export interface WrongItemCorrectedData {
+export interface ItemCorrectedData {
 	oldItem: Item;
 	newItem: Item;
 }

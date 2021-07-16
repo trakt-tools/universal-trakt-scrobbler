@@ -1,5 +1,5 @@
+import { CorrectionApi } from '@apis/CorrectionApi';
 import { TmdbApi } from '@apis/TmdbApi';
-import { WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, ScrobbleStartData, ScrobblingItemUpdateData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
@@ -112,7 +112,7 @@ export const HomePage: React.FC = () => {
 			}
 			let newItem = content.scrobblingItem;
 			if (BrowserStorage.options.sendReceiveSuggestions) {
-				[newItem] = await WrongItemApi.loadSuggestions([newItem]);
+				[newItem] = await CorrectionApi.loadSuggestions([newItem]);
 			}
 			newItem = await TmdbApi.loadItemImage(newItem);
 			setContent((prevContent) => ({

@@ -114,11 +114,11 @@
 		"description": "This is the verb, as in 'to correct'.",
 		"message": "Korriger"
 	},
-	"correctWrongItem": {
-		"message": "Korriger feilaktig element"
+	"correctItem": {
+		"message": "Korriger element"
 	},
-	"correctWrongItemFailed": {
-		"message": "Fikk ikke til å korrigere feilaktig element."
+	"correctItemFailed": {
+		"message": "Fikk ikke til å korrigere element."
 	},
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
@@ -403,7 +403,7 @@
 	"watched": {
 		"message": "Dato sett"
 	},
-	"wrongItemDialogContent": {
+	"correctionDialogContent": {
 		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
 		"placeholders": {
 			"title": {
@@ -411,7 +411,7 @@
 			}
 		}
 	},
-	"wrongItemDialogContentWithSuggestions": {
+	"correctionDialogContentWithSuggestions": {
 		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
 		"placeholders": {
 			"title": {
@@ -419,10 +419,10 @@
 			}
 		}
 	},
-	"wrongItemDialogInvalidUrlLabel": {
+	"invalidTraktUrl": {
 		"message": "Lim inn en gyldig URL til Trakt!"
 	},
-	"wrongItemDialogSyncedWarning": {
+	"correctionDialogSyncedWarning": {
 		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"yes": {

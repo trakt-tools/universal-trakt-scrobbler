@@ -114,11 +114,11 @@
 		"description": "This is the verb, as in 'to correct'.",
 		"message": "Corrigir"
 	},
-	"correctWrongItem": {
-		"message": "Corrigir item errado"
+	"correctItem": {
+		"message": "Corrigir item"
 	},
-	"correctWrongItemFailed": {
-		"message": "Ocorreu um erro ao corrigir o item errado."
+	"correctItemFailed": {
+		"message": "Ocorreu um erro ao corrigir o item."
 	},
 	"couldNotScrobble": {
 		"message": "Não foi possível realizar o scrobble."
@@ -403,7 +403,7 @@
 	"watched": {
 		"message": "Assistido Em"
 	},
-	"wrongItemDialogContent": {
+	"correctionDialogContent": {
 		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo.",
 		"placeholders": {
 			"title": {
@@ -411,7 +411,7 @@
 			}
 		}
 	},
-	"wrongItemDialogContentWithSuggestions": {
+	"correctionDialogContentWithSuggestions": {
 		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo ou use uma das sugestões.",
 		"placeholders": {
 			"title": {
@@ -419,10 +419,10 @@
 			}
 		}
 	},
-	"wrongItemDialogInvalidUrlLabel": {
+	"invalidTraktUrl": {
 		"message": "Por favor, digite uma URL do Trakt válida!"
 	},
-	"wrongItemDialogSyncedWarning": {
+	"correctionDialogSyncedWarning": {
 		"message": "ATENÇÃO: Você está corrigindo um item que já foi sincronizado. Se você prosseguir, o item previamente sincronizado será removido do seu histórico no Trakt."
 	},
 	"yes": {

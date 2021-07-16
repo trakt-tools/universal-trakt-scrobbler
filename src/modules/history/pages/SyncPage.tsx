@@ -1,16 +1,16 @@
+import { CorrectionApi } from '@apis/CorrectionApi';
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TmdbApi } from '@apis/TmdbApi';
 import { TraktSync } from '@apis/TraktSync';
-import { WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import {
 	EventDispatcher,
 	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
+	ItemCorrectedData,
 	MissingWatchedDateAddedData,
 	SyncStoreUpdateData,
-	WrongItemCorrectedData,
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryActions } from '@components/HistoryActions';
@@ -198,7 +198,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			EventDispatcher.subscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
-			EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
+			EventDispatcher.subscribe('ITEM_CORRECTED', serviceId, onItemCorrected);
 			EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.subscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.startListeners();
@@ -213,7 +213,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				serviceId,
 				onMissingWatchedDateAdded
 			);
-			EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
+			EventDispatcher.unsubscribe('ITEM_CORRECTED', serviceId, onItemCorrected);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
 			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
 			store.stopListeners();
@@ -244,7 +244,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			});
 		};
 
-		const onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+		const onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
 			try {
 				if (data.oldItem.trakt?.syncId) {
 					await TraktSync.removeHistory(data.oldItem);
@@ -366,7 +366,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 			try {
 				await ServiceApi.loadTraktHistory(store.data.visibleItems);
-				const newItems = await WrongItemApi.loadSuggestions(store.data.visibleItems);
+				const newItems = await CorrectionApi.loadSuggestions(store.data.visibleItems);
 				await TmdbApi.loadImages(newItems);
 				await store.replaceItems(newItems, false);
 			} catch (err) {

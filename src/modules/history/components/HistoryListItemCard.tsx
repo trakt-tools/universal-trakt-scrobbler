@@ -1,4 +1,4 @@
-import { Suggestion } from '@apis/WrongItemApi';
+import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -24,13 +24,13 @@ interface HistoryListItemCardProps {
 	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
 	openMissingWatchedDateDialog?: () => Promise<void>;
-	openWrongItemDialog?: () => Promise<void>;
+	openCorrectionDialog?: () => Promise<void>;
 }
 
 export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 	props: HistoryListItemCardProps
 ) => {
-	const { item, name, suggestions, imageUrl, openMissingWatchedDateDialog, openWrongItemDialog } =
+	const { item, name, suggestions, imageUrl, openMissingWatchedDateDialog, openCorrectionDialog } =
 		props;
 
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
@@ -80,8 +80,8 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 									{watchedAtComponent}
 								</>
 							)}
-							{openWrongItemDialog && (
-								<Button color="secondary" onClick={openWrongItemDialog}>
+							{openCorrectionDialog && (
+								<Button color="secondary" onClick={openCorrectionDialog}>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
 										{BrowserStorage.options.sendReceiveSuggestions ? (

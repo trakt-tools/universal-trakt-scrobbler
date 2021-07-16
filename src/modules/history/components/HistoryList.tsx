@@ -1,6 +1,6 @@
+import { CorrectionDialog } from '@components/CorrectionDialog';
 import { HistoryListItem } from '@components/HistoryListItem';
 import { MissingWatchedDateDialog } from '@components/MissingWatchedDateDialog';
-import { WrongItemDialog } from '@components/WrongItemDialog';
 import { List } from '@material-ui/core';
 import { Item } from '@models/Item';
 import * as React from 'react';
@@ -21,7 +21,7 @@ export const HistoryList: React.FC<HistoryListProps> = (props: HistoryListProps)
 				))}
 			</List>
 			<MissingWatchedDateDialog />
-			<WrongItemDialog />
+			<CorrectionDialog />
 		</>
 	);
 };

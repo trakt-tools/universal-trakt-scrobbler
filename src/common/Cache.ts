@@ -1,4 +1,4 @@
-import { Suggestion } from '@apis/WrongItemApi';
+import { Suggestion } from '@apis/CorrectionApi';
 
 export interface CacheValues {
 	suggestions: Partial<Record<string, Suggestion[] | null>>;

@@ -2,7 +2,7 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '@common/Events';
+import { EventDispatcher, ItemCorrectedData, ScrobbleProgressData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Shared } from '@common/Shared';
@@ -40,7 +40,7 @@ export class ScrobbleController {
 		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, this.onProgress);
-		EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+		EventDispatcher.subscribe('ITEM_CORRECTED', null, this.onItemCorrected);
 	}
 
 	stopListeners() {
@@ -48,7 +48,7 @@ export class ScrobbleController {
 		EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.unsubscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.unsubscribe('SCROBBLE_PROGRESS', null, this.onProgress);
-		EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+		EventDispatcher.unsubscribe('ITEM_CORRECTED', null, this.onItemCorrected);
 	}
 
 	private onStart = (): Promise<void> => {
@@ -152,7 +152,7 @@ export class ScrobbleController {
 		}
 	}
 
-	private onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+	private onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
 		const item = this.parser.getItem();
 		if (!item) {
 			return;

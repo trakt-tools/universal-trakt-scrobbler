@@ -30,7 +30,7 @@ export interface MessageRequests {
 	'get-scrobbling-info': GetScrobblingInfoMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
-	'wrong-item-corrected': WrongItemCorrectedMessage;
+	'item-corrected': ItemCorrectedMessage;
 	'check-auto-sync': CheckAutoSyncMessage;
 }
 
@@ -63,7 +63,7 @@ export interface ReturnTypes<GetCacheKey extends keyof CacheValues = keyof Cache
 	};
 	'send-request': string;
 	'show-notification': void;
-	'wrong-item-corrected': void;
+	'item-corrected': void;
 	'check-auto-sync': void;
 }
 
@@ -159,8 +159,8 @@ export interface GetScrobblingInfoMessage {
 	action: 'get-scrobbling-info';
 }
 
-export interface WrongItemCorrectedMessage {
-	action: 'wrong-item-corrected';
+export interface ItemCorrectedMessage {
+	action: 'item-corrected';
 	oldItem: SavedItem;
 	newItem: SavedItem;
 }

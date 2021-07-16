@@ -1,10 +1,10 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { CorrectionDialog } from '@components/CorrectionDialog';
 import { PopupInfo } from '@components/PopupInfo';
 import { TmdbImage } from '@components/TmdbImage';
 import { UtsSnackbar } from '@components/UtsSnackbar';
-import { WrongItemDialog } from '@components/WrongItemDialog';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@material-ui/core';
 import PauseIcon from '@material-ui/icons/Pause';
 import { Item } from '@models/Item';
@@ -17,8 +17,8 @@ export interface IPopupWatching {
 }
 
 export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
-	const openWrongItemDialog = async () => {
-		await EventDispatcher.dispatch('WRONG_ITEM_DIALOG_SHOW', null, {
+	const openCorrectionDialog = async () => {
+		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			serviceId: item.serviceId,
 			item,
 		});
@@ -40,7 +40,7 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 						) : (
 							<Typography variant="h6">{item.trakt?.title}</Typography>
 						)}
-						<Button color="secondary" onClick={openWrongItemDialog}>
+						<Button color="secondary" onClick={openCorrectionDialog}>
 							<Typography variant="caption">
 								{I18N.translate('isThisWrong')}{' '}
 								{BrowserStorage.options.sendReceiveSuggestions ? (
@@ -73,7 +73,7 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 					</Box>
 				</>
 			)}
-			<WrongItemDialog />
+			<CorrectionDialog />
 			<UtsSnackbar />
 		</>
 	);

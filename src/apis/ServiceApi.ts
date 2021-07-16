@@ -1,6 +1,6 @@
+import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
-import { Suggestion } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';

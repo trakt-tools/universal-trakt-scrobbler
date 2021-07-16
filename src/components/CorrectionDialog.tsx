@@ -1,8 +1,8 @@
+import { CorrectionApi, Suggestion } from '@apis/CorrectionApi';
 import { ExactItemDetails, TraktSearch } from '@apis/TraktSearch';
-import { Suggestion, WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
-import { EventDispatcher, WrongItemDialogShowData } from '@common/Events';
+import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
@@ -27,7 +27,7 @@ import {
 import { Item } from '@models/Item';
 import * as React from 'react';
 
-interface WrongItemDialogState {
+interface CorrectionDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
 	serviceId: string | null;
@@ -35,8 +35,8 @@ interface WrongItemDialogState {
 	url: string;
 }
 
-export const WrongItemDialog: React.FC = () => {
-	const [dialog, setDialog] = React.useState<WrongItemDialogState>({
+export const CorrectionDialog: React.FC = () => {
+	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
 		serviceId: null,
@@ -106,8 +106,8 @@ export const WrongItemDialog: React.FC = () => {
 			}
 			corrections[databaseId] = suggestion;
 			await BrowserStorage.set({ corrections }, true);
-			await WrongItemApi.saveSuggestion(newItem, suggestion);
-			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
+			await CorrectionApi.saveSuggestion(newItem, suggestion);
+			await EventDispatcher.dispatch('ITEM_CORRECTED', dialog.serviceId, {
 				oldItem,
 				newItem,
 			});
@@ -116,7 +116,7 @@ export const WrongItemDialog: React.FC = () => {
 				if (scrobblingInfo.tabId) {
 					await Messaging.toContent(
 						{
-							action: 'wrong-item-corrected',
+							action: 'item-corrected',
 							oldItem: Item.save(oldItem),
 							newItem: Item.save(newItem),
 						},
@@ -128,7 +128,7 @@ export const WrongItemDialog: React.FC = () => {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to correct item.', err);
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'correctWrongItemFailed',
+					messageName: 'correctItemFailed',
 					severity: 'error',
 				});
 			}
@@ -159,14 +159,14 @@ export const WrongItemDialog: React.FC = () => {
 
 	React.useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('WRONG_ITEM_DIALOG_SHOW', null, openDialog);
+			EventDispatcher.subscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('WRONG_ITEM_DIALOG_SHOW', null, openDialog);
+			EventDispatcher.unsubscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
 
-		const openDialog = (data: WrongItemDialogShowData) => {
+		const openDialog = (data: CorrectionDialogShowData) => {
 			setDialog({
 				isOpen: true,
 				isLoading: false,
@@ -182,16 +182,16 @@ export const WrongItemDialog: React.FC = () => {
 	const [urlLabel, urlError] =
 		!dialog.url || isValidUrl(dialog.url)
 			? ['URL', false]
-			: [I18N.translate('wrongItemDialogInvalidUrlLabel'), true];
+			: [I18N.translate('invalidTraktUrl'), true];
 
 	return (
 		<Dialog
-			classes={{ paper: 'wrong-item-dialog' }}
+			classes={{ paper: 'correction-dialog' }}
 			open={dialog.isOpen}
-			aria-labelledby="wrong-item-dialog-title"
+			aria-labelledby="correction-dialog-title"
 			onClose={closeDialog}
 		>
-			<DialogTitle id="wrong-item-dialog-title">{I18N.translate('correctWrongItem')}</DialogTitle>
+			<DialogTitle id="correction-dialog-title">{I18N.translate('correctItem')}</DialogTitle>
 			{dialog.isLoading ? (
 				<UtsCenter>
 					<CircularProgress />
@@ -201,14 +201,14 @@ export const WrongItemDialog: React.FC = () => {
 					<DialogContent>
 						{dialog.item?.trakt?.watchedAt && (
 							<DialogContentText color="error">
-								{I18N.translate('wrongItemDialogSyncedWarning')}
+								{I18N.translate('correctionDialogSyncedWarning')}
 							</DialogContentText>
 						)}
 						<DialogContentText>
 							{I18N.translate(
 								dialog.item?.suggestions && dialog.item.suggestions.length > 0
-									? 'wrongItemDialogContentWithSuggestions'
-									: 'wrongItemDialogContent',
+									? 'correctionDialogContentWithSuggestions'
+									: 'correctionDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
 											dialog.item.type === 'show'
@@ -223,7 +223,7 @@ export const WrongItemDialog: React.FC = () => {
 						{dialog.item?.suggestions && dialog.item.suggestions.length > 0 && (
 							<>
 								<Divider />
-								<DialogContentText className="wrong-item-dialog-suggestions-title">
+								<DialogContentText className="correction-dialog-suggestions-title">
 									{I18N.translate('suggestions')}:
 								</DialogContentText>
 								<List>
@@ -232,7 +232,7 @@ export const WrongItemDialog: React.FC = () => {
 											<ListItemText
 												primary={
 													<Link
-														href={WrongItemApi.getSuggestionUrl(suggestion)}
+														href={CorrectionApi.getSuggestionUrl(suggestion)}
 														target="_blank"
 														rel="noopener"
 													>
@@ -258,7 +258,7 @@ export const WrongItemDialog: React.FC = () => {
 						)}
 						<TextField
 							type="string"
-							id="wrong-item-dialog-url"
+							id="correction-dialog-url"
 							label={urlLabel}
 							error={urlError}
 							placeholder="https://trakt.tv/shows/dark/seasons/1/episodes/1"

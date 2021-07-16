@@ -1,4 +1,4 @@
-import { Suggestion } from '@apis/WrongItemApi';
+import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 import * as moment from 'moment';

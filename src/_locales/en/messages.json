@@ -114,11 +114,11 @@
 		"description": "This is the verb, as in 'to correct'.",
 		"message": "Correct"
 	},
-	"correctWrongItem": {
-		"message": "Correct wrong item"
+	"correctItem": {
+		"message": "Correct item"
 	},
-	"correctWrongItemFailed": {
-		"message": "Failed to correct wrong item."
+	"correctItemFailed": {
+		"message": "Failed to correct item."
 	},
 	"couldNotScrobble": {
 		"message": "Could not scrobble."
@@ -403,7 +403,7 @@
 	"watched": {
 		"message": "Watched On"
 	},
-	"wrongItemDialogContent": {
+	"correctionDialogContent": {
 		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
 		"placeholders": {
 			"title": {
@@ -411,7 +411,7 @@
 			}
 		}
 	},
-	"wrongItemDialogContentWithSuggestions": {
+	"correctionDialogContentWithSuggestions": {
 		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
 		"placeholders": {
 			"title": {
@@ -419,10 +419,10 @@
 			}
 		}
 	},
-	"wrongItemDialogInvalidUrlLabel": {
+	"invalidTraktUrl": {
 		"message": "Please enter a valid Trakt URL!"
 	},
-	"wrongItemDialogSyncedWarning": {
+	"correctionDialogSyncedWarning": {
 		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
 	},
 	"yes": {
