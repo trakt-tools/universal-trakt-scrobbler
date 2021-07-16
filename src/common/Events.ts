@@ -121,10 +121,8 @@ export interface WrongItemDialogShowData {
 }
 
 export interface WrongItemCorrectedData {
-	item: Item;
-	type: 'episode' | 'movie';
-	traktId?: number;
-	url: string;
+	oldItem: Item;
+	newItem: Item;
 }
 
 export interface HistoryOptionsChangeData {

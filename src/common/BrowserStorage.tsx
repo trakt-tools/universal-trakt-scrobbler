@@ -1,9 +1,9 @@
 import { HboGoApiParams } from '@/hbo-go/HboGoApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
+import { Suggestion } from '@apis/WrongItemApi';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
-import { Link } from '@material-ui/core';
 import { SavedItem } from '@models/Item';
 import { getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
@@ -15,9 +15,21 @@ import {
 	Storage as WebExtStorage,
 } from 'webextension-polyfill-ts';
 
-export type StorageValues = StorageValuesV3;
+export type StorageValues = StorageValuesV4;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
+
+export type StorageValuesV4 = {
+	version?: number;
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptionsV3;
+	syncOptions?: StorageValuesSyncOptionsV2;
+	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
+	syncCache?: SyncCacheValue;
+	corrections?: Partial<Record<string, Suggestion>>;
+	scrobblingItem?: Omit<SavedItem, ''>;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+};
 
 export type StorageValuesV3 = {
 	version?: number;
@@ -164,7 +176,7 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 };
 
 class _BrowserStorage {
-	currentVersion = 3;
+	currentVersion = 4;
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as Options;
@@ -252,6 +264,12 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 4) {
+			console.log('Upgrading to v4...');
+
+			await BrowserStorage.remove(['correctItems'] as unknown as (keyof StorageValues)[], true);
+		}
+
 		await BrowserStorage.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -262,6 +280,12 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 3) {
+			console.log('Downgrading to v3...');
+
+			await BrowserStorage.remove(['corrections'] as unknown as (keyof StorageValues)[], true);
+		}
+
 		if (version > 2) {
 			console.log('Downgrading to v2...');
 
@@ -461,21 +485,9 @@ class _BrowserStorage {
 				type: 'switch',
 				id: 'sendReceiveSuggestions',
 				name: '',
-				description: (
-					<>
-						{I18N.translate('sendReceiveSuggestionsDescription')}
-						<br />
-						<Link
-							href="https://docs.google.com/spreadsheets/d/1V3m_eMYTJSREehtxz3SeNqFLJlWWIx7Bm0Dp-1WMvnk/edit?usp=sharing"
-							target="_blank"
-							rel="noreferrer"
-						>
-							Google Sheet
-						</Link>
-					</>
-				),
+				description: '',
 				value: false,
-				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
+				origins: [],
 				permissions: [],
 				doShow: true,
 			},

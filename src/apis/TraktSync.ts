@@ -63,6 +63,8 @@ class _TraktSync extends TraktApi {
 		if (historyItemMatch) {
 			item.trakt.syncId = historyItemMatch.id;
 			item.trakt.watchedAt = historyItemMatch.watched_at;
+		} else {
+			item.trakt.watchedAt = null;
 		}
 	}
 

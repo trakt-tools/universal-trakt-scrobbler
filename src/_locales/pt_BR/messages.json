@@ -203,6 +203,9 @@
 	"loadTraktHistoryError": {
 		"message": "Ocorreu um erro ao carregar o histórico do Trakt."
 	},
+	"loadingHistory": {
+		"message": "Carregando histórico"
+	},
 	"loadingSuggestions": {
 		"message": "Carregando sugestões"
 	},
@@ -330,7 +333,7 @@
 		"message": "Selecione um serviço de streaming para sincronizar:"
 	},
 	"sendReceiveSuggestionsDescription": {
-		"message": "Com essa opção ativada, sempre que você atualizar um item errado, a correção será enviada para uma base de dados armazenada no Google Sheets para que outros usuários possam receber sugestões de correção. Essa opção também é necessária para receber essas sugestões de correção."
+		"message": "Com essa opção ativada, sempre que você atualizar um item errado, a correção será enviada para uma base de dados armazenada na Google Cloud para que outros usuários possam receber sugestões de correção. Essa opção também é necessária para receber essas sugestões de correção."
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Enviar / receber sugestões de correção."
@@ -365,12 +368,7 @@
 		}
 	},
 	"suggestions": {
-		"message": "$SUGGESTIONS$ sugestões",
-		"placeholders": {
-			"suggestions": {
-				"content": "$1"
-			}
-		}
+		"message": "Sugestões"
 	},
 	"sync": {
 		"message": "Sincronizar"
@@ -413,8 +411,13 @@
 			}
 		}
 	},
-	"wrongItemDialogContentSuggestions": {
-		"message": "Sugestões para correção (clique para usar):"
+	"wrongItemDialogContentWithSuggestions": {
+		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo ou use uma das sugestões.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Por favor, digite uma URL do Trakt válida!"

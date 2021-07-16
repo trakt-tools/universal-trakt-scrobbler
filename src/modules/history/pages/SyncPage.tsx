@@ -13,7 +13,6 @@ import {
 	WrongItemCorrectedData,
 } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestException } from '@common/Requests';
 import { HistoryActions } from '@components/HistoryActions';
 import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
@@ -247,35 +246,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		const onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
 			try {
-				if (data.item.trakt?.syncId) {
-					await TraktSync.removeHistory(data.item);
+				if (data.oldItem.trakt?.syncId) {
+					await TraktSync.removeHistory(data.oldItem);
 				}
 			} catch (err) {
 				// Do nothing
 			}
-			const storage = await BrowserStorage.get('traktCache');
-			let { traktCache } = storage;
-			if (!traktCache) {
-				traktCache = {};
-			}
-			await ServiceApi.loadTraktItemHistory(data.item, traktCache, {
-				type: data.type,
-				traktId: data.traktId,
-				url: data.url,
-			});
-			try {
-				await WrongItemApi.saveSuggestion(data.item, data.url);
-			} catch (err) {
-				if (!(err as RequestException).canceled) {
-					Errors.error('Failed to save suggestion.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'saveSuggestionFailed',
-						severity: 'error',
-					});
-				}
-			}
-			await BrowserStorage.set({ traktCache }, false);
-			await store.dispatchEvent(true);
+			await store.replaceItems([data.newItem], true);
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {
@@ -315,7 +292,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				.then(async () => {
 					setSyncOptionsChanged({});
 					if (serviceId && data.id.startsWith('addWithReleaseDate')) {
-						ServiceApi.updateTraktHistory(store.data.visibleItems)
+						for (const item of store.data.visibleItems) {
+							if (item.trakt) {
+								delete item.trakt.watchedAt;
+							}
+						}
+						ServiceApi.loadTraktHistory(store.data.visibleItems)
 							.then(() => void store.updateVisibleItems(false))
 							.catch((err) => {
 								// Do nothing
@@ -384,11 +366,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 			try {
 				await ServiceApi.loadTraktHistory(store.data.visibleItems);
-				await Promise.all([
-					WrongItemApi.loadSuggestions(store.data.visibleItems),
-					TmdbApi.loadImages(store.data.visibleItems),
-				]);
-				await store.updateVisibleItems(false);
+				const newItems = await WrongItemApi.loadSuggestions(store.data.visibleItems);
+				await TmdbApi.loadImages(newItems);
+				await store.replaceItems(newItems, false);
 			} catch (err) {
 				// Do nothing
 			}

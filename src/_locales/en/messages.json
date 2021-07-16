@@ -203,6 +203,9 @@
 	"loadTraktHistoryError": {
 		"message": "Failed to load Trakt history."
 	},
+	"loadingHistory": {
+		"message": "Loading history"
+	},
 	"loadingSuggestions": {
 		"message": "Loading suggestions"
 	},
@@ -330,7 +333,7 @@
 		"message": "Select a streaming service to sync from:"
 	},
 	"sendReceiveSuggestionsDescription": {
-		"message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Sheets database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
+		"message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Cloud database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / receive correction suggestions."
@@ -365,12 +368,7 @@
 		}
 	},
 	"suggestions": {
-		"message": "$SUGGESTIONS$ suggestions",
-		"placeholders": {
-			"suggestions": {
-				"content": "$1"
-			}
-		}
+		"message": "Suggestions"
 	},
 	"sync": {
 		"message": "Sync"
@@ -413,8 +411,13 @@
 			}
 		}
 	},
-	"wrongItemDialogContentSuggestions": {
-		"message": "Correction suggestions (click to use):"
+	"wrongItemDialogContentWithSuggestions": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Please enter a valid Trakt URL!"

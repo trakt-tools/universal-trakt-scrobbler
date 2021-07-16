@@ -1,7 +1,7 @@
 import { Suggestion } from '@apis/WrongItemApi';
 
 export interface CacheValues {
-	suggestions: Partial<Record<string, Record<string, Suggestion[] | undefined>>>;
+	suggestions: Partial<Record<string, Suggestion[] | null>>;
 	imageUrls: Record<string, string>;
 }
 

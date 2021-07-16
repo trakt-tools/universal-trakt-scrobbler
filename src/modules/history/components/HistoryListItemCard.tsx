@@ -35,7 +35,9 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
-		watchedAt ? (
+		item instanceof TraktItem && typeof watchedAt === 'undefined' ? (
+			<Typography variant="overline">{I18N.translate('loadingHistory')}...</Typography>
+		) : watchedAt ? (
 			<Typography variant="overline">
 				{`${I18N.translate('watched')} ${watchedAt.format(Shared.dateFormat)}`}
 			</Typography>
@@ -86,7 +88,9 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 											typeof suggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
 											) : suggestions && suggestions.length > 0 ? (
-												<>({I18N.translate('suggestions', suggestions.length.toString())})</>
+												<>
+													({I18N.translate('suggestions')}: {suggestions.length.toString()})
+												</>
 											) : null
 										) : null}
 									</Typography>

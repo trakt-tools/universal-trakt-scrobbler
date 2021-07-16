@@ -164,4 +164,18 @@ export class Item implements IItem {
 		}
 		return this.watchedAt;
 	}
+
+	/**
+	 * Returns the ID used to uniquely identify the item in the database.
+	 */
+	getDatabaseId() {
+		return `${this.serviceId}_${this.id}`;
+	}
+
+	/**
+	 * Clones the item for immutability.
+	 */
+	clone() {
+		return new Item(this);
+	}
 }

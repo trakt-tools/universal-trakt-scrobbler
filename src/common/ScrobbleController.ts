@@ -2,10 +2,8 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
 import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
@@ -78,10 +76,11 @@ export class ScrobbleController {
 		this.progress = 0.0;
 		if (!item.trakt && !this.hasSearchedItem) {
 			this.hasSearchedItem = true;
-			const storage = await BrowserStorage.get(['correctItems']);
-			const { correctItems } = storage;
-			const correctItem = correctItems?.[item.serviceId]?.[item.id];
-			item.trakt = await TraktSearch.find(item, correctItem);
+			const storage = await BrowserStorage.get(['corrections']);
+			const { corrections } = storage;
+			const databaseId = item.getDatabaseId();
+			const correction = corrections?.[databaseId];
+			item.trakt = await TraktSearch.find(item, correction);
 		}
 		if (!item.trakt) {
 			return;
@@ -160,26 +159,7 @@ export class ScrobbleController {
 		}
 		await this.updateProgress(0.0);
 		await this.stopScrobble();
-		item.trakt = await TraktSearch.find(item, {
-			type: data.type,
-			traktId: data.traktId,
-			url: data.url,
-		});
+		item.trakt = data.newItem.trakt;
 		await this.startScrobble();
-		try {
-			await Messaging.toBackground({
-				action: 'save-suggestion',
-				item: Item.save(item),
-				url: data.url,
-			});
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to save suggestion.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'saveSuggestionFailed',
-					severity: 'error',
-				});
-			}
-		}
 	};
 }

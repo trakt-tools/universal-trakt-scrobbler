@@ -151,6 +151,23 @@ export class SyncStore {
 		return this;
 	}
 
+	/**
+	 * Replaces items for immutability.
+	 *
+	 * **Be careful when using this method because it relies on the item indexes being the same.**
+	 */
+	replaceItems(newItems: Item[], visibleItemsChanged: boolean) {
+		for (const newItem of newItems) {
+			if (typeof newItem.index === 'undefined') {
+				continue;
+			}
+
+			this.data.items[newItem.index] = newItem;
+		}
+
+		return this.updateVisibleItems(visibleItemsChanged);
+	}
+
 	update(data?: Partial<SyncStoreData>): Promise<void> {
 		if (data) {
 			this.setData(data);

@@ -2,6 +2,8 @@ import { History } from 'history';
 import { browser } from 'webextension-polyfill-ts';
 
 interface SharedValues {
+	DATABASE_URL: string;
+
 	browser: BrowserName;
 	pageType: PageType;
 	tabId: number | null;
@@ -26,6 +28,8 @@ const browserPrefix = browser
 	: 'unknown';
 
 export const Shared: SharedValues = {
+	DATABASE_URL: 'https://uts.rafaelgomes.xyz/api',
+
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',
 	tabId: null,

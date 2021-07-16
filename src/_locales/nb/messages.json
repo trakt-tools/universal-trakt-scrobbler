@@ -203,6 +203,9 @@
 	"loadTraktHistoryError": {
 		"message": "Klarte ikke å laste inn Trakt historikken."
 	},
+	"loadingHistory": {
+		"message": "Loading history"
+	},
 	"loadingSuggestions": {
 		"message": "Laster inn forslag"
 	},
@@ -330,7 +333,7 @@
 		"message": "Velg en strømmetjeneste å synkronisere fra:"
 	},
 	"sendReceiveSuggestionsDescription": {
-		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Sheets-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
+		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Cloud-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
@@ -365,12 +368,7 @@
 		}
 	},
 	"suggestions": {
-		"message": "$SUGGESTIONS$ forslag",
-		"placeholders": {
-			"suggestions": {
-				"content": "$1"
-			}
-		}
+		"message": "Forslag"
 	},
 	"sync": {
 		"message": "Synkroniser historikk"
@@ -413,8 +411,13 @@
 			}
 		}
 	},
-	"wrongItemDialogContentSuggestions": {
-		"message": "Korrigeringsforslag (trykk for å bruke):"
+	"wrongItemDialogContentWithSuggestions": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
 	},
 	"wrongItemDialogInvalidUrlLabel": {
 		"message": "Lim inn en gyldig URL til Trakt!"

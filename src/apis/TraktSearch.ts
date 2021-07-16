@@ -1,5 +1,4 @@
 import { TraktApi } from '@apis/TraktApi';
-import { CorrectItem } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
@@ -54,17 +53,26 @@ export interface TraktSearchMovieItemMovie {
 	released: string;
 }
 
+export type ExactItemDetails =
+	| {
+			type: 'episode' | 'movie';
+			id: number;
+	  }
+	| {
+			url: string;
+	  };
+
 class _TraktSearch extends TraktApi {
 	constructor() {
 		super();
 	}
 
-	async find(item: Item, correctItem?: CorrectItem): Promise<TraktItem | undefined> {
+	async find(item: Item, exactItemDetails?: ExactItemDetails): Promise<TraktItem | undefined> {
 		let traktItem: TraktItem | undefined;
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
-			if (correctItem) {
-				searchItem = await this.findItemFromIdOrUrl(correctItem);
+			if (exactItemDetails) {
+				searchItem = await this.findExactItem(exactItemDetails);
 			} else if (item.type === 'show') {
 				searchItem = await this.findEpisode(item);
 			} else {
@@ -119,12 +127,13 @@ class _TraktSearch extends TraktApi {
 		return traktItem;
 	}
 
-	async findItemFromIdOrUrl(
-		correctItem: CorrectItem
+	async findExactItem(
+		details: ExactItemDetails
 	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> {
-		const url = correctItem.traktId
-			? `/search/trakt/${correctItem.traktId}?type=${correctItem.type}&extended=full`
-			: `${correctItem.url}?extended=full`;
+		const url =
+			'id' in details
+				? `/search/trakt/${details.id.toString()}?type=${details.type}&extended=full`
+				: `${details.url}?extended=full`;
 		const searchItemResponse = await Requests.send({
 			url: `${this.API_URL}${url}`,
 			method: 'GET',

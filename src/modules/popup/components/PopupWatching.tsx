@@ -47,7 +47,9 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 									typeof item.suggestions === 'undefined' ? (
 										<>({I18N.translate('loadingSuggestions')}...)</>
 									) : item.suggestions && item.suggestions.length > 0 ? (
-										<>({I18N.translate('suggestions', item.suggestions.length.toString())})</>
+										<>
+											({I18N.translate('suggestions')}: {item.suggestions.length.toString()})
+										</>
 									) : null
 								) : null}
 							</Typography>

@@ -1,4 +1,5 @@
-import { Suggestion } from '@apis/WrongItemApi';
+import { ExactItemDetails, TraktSearch } from '@apis/TraktSearch';
+import { Suggestion, WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { EventDispatcher, WrongItemDialogShowData } from '@common/Events';
@@ -16,13 +17,14 @@ import {
 	DialogContentText,
 	DialogTitle,
 	Divider,
+	Link,
 	List,
 	ListItem,
+	ListItemSecondaryAction,
 	ListItemText,
 	TextField,
 } from '@material-ui/core';
 import { Item } from '@models/Item';
-import { getServices } from '@models/Service';
 import * as React from 'react';
 
 interface WrongItemDialogState {
@@ -30,8 +32,6 @@ interface WrongItemDialogState {
 	isLoading: boolean;
 	serviceId: string | null;
 	item?: Item;
-	type: 'episode' | 'movie';
-	traktId?: number;
 	url: string;
 }
 
@@ -40,8 +40,6 @@ export const WrongItemDialog: React.FC = () => {
 		isOpen: false,
 		isLoading: false,
 		serviceId: null,
-		type: 'episode',
-		traktId: 0,
 		url: '',
 	});
 
@@ -49,15 +47,6 @@ export const WrongItemDialog: React.FC = () => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			isOpen: false,
-		}));
-	};
-
-	const onUseButtonClick = (suggestion: Suggestion): void => {
-		setDialog((prevDialog) => ({
-			...prevDialog,
-			type: suggestion.type,
-			traktId: suggestion.traktId,
-			url: suggestion.url,
 		}));
 	};
 
@@ -72,7 +61,7 @@ export const WrongItemDialog: React.FC = () => {
 		}));
 	};
 
-	const onCorrectButtonClick = async (): Promise<void> => {
+	const onCorrectButtonClick = async (suggestion?: Suggestion): Promise<void> => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			isLoading: true,
@@ -81,41 +70,55 @@ export const WrongItemDialog: React.FC = () => {
 			if (!dialog.item) {
 				throw new Error('Missing item');
 			}
-			if (!isValidUrl(dialog.url)) {
-				throw new Error('Invalid URL');
+			const oldItem = dialog.item;
+			let exactItemDetails: ExactItemDetails;
+			if (suggestion) {
+				exactItemDetails = {
+					type: suggestion.type,
+					id: suggestion.id,
+				};
+			} else {
+				if (!isValidUrl(dialog.url)) {
+					throw new Error('Invalid URL');
+				}
+				const url = cleanUrl(dialog.url);
+				exactItemDetails = { url };
 			}
-			const url = cleanUrl(dialog.url);
-			let { correctItems } = await BrowserStorage.get('correctItems');
-			if (!correctItems) {
-				correctItems = Object.fromEntries(getServices().map((service) => [service.id, {}]));
+			const newItem = oldItem.clone();
+			delete newItem.trakt;
+			delete newItem.imageUrl;
+			newItem.trakt = await TraktSearch.find(newItem, exactItemDetails);
+			if (!newItem.trakt) {
+				throw new Error('Failed to find item');
 			}
-			if (!correctItems[dialog.item.serviceId]) {
-				correctItems[dialog.item.serviceId] = {};
-			}
-			const serviceCorrectItems = correctItems[dialog.item.serviceId];
-			if (serviceCorrectItems) {
-				serviceCorrectItems[dialog.item.id] = {
-					type: dialog.type,
-					traktId: dialog.traktId,
-					url,
+			if (!suggestion) {
+				suggestion = {
+					type: newItem.trakt.type === 'show' ? 'episode' : 'movie',
+					id: newItem.trakt.id,
+					title: newItem.trakt.title,
+					count: 1,
 				};
 			}
-			await BrowserStorage.set({ correctItems }, true);
-			const data = {
-				item: dialog.item,
-				type: dialog.type,
-				traktId: dialog.traktId,
-				url,
-			};
-			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, data);
+			const databaseId = newItem.getDatabaseId();
+			let { corrections } = await BrowserStorage.get('corrections');
+			if (!corrections) {
+				corrections = {};
+			}
+			corrections[databaseId] = suggestion;
+			await BrowserStorage.set({ corrections }, true);
+			await WrongItemApi.saveSuggestion(newItem, suggestion);
+			await EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', dialog.serviceId, {
+				oldItem,
+				newItem,
+			});
 			if (Shared.pageType === 'popup') {
 				const scrobblingInfo = await Messaging.toBackground({ action: 'get-scrobbling-info' });
 				if (scrobblingInfo.tabId) {
 					await Messaging.toContent(
 						{
 							action: 'wrong-item-corrected',
-							...data,
-							item: Item.save(data.item),
+							oldItem: Item.save(oldItem),
+							newItem: Item.save(newItem),
 						},
 						scrobblingInfo.tabId
 					);
@@ -168,8 +171,6 @@ export const WrongItemDialog: React.FC = () => {
 				isOpen: true,
 				isLoading: false,
 				...data,
-				type: 'episode',
-				traktId: 0,
 				url: '',
 			});
 		};
@@ -205,7 +206,9 @@ export const WrongItemDialog: React.FC = () => {
 						)}
 						<DialogContentText>
 							{I18N.translate(
-								'wrongItemDialogContent',
+								dialog.item?.suggestions && dialog.item.suggestions.length > 0
+									? 'wrongItemDialogContentWithSuggestions'
+									: 'wrongItemDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
 											dialog.item.type === 'show'
@@ -221,15 +224,32 @@ export const WrongItemDialog: React.FC = () => {
 							<>
 								<Divider />
 								<DialogContentText className="wrong-item-dialog-suggestions-title">
-									{I18N.translate('wrongItemDialogContentSuggestions')}
+									{I18N.translate('suggestions')}:
 								</DialogContentText>
 								<List>
 									{dialog.item.suggestions.map((suggestion, index) => (
-										<ListItem key={index} button onClick={() => onUseButtonClick(suggestion)}>
+										<ListItem key={index}>
 											<ListItemText
-												primary={suggestion.url}
+												primary={
+													<Link
+														href={WrongItemApi.getSuggestionUrl(suggestion)}
+														target="_blank"
+														rel="noopener"
+													>
+														{suggestion.title}
+													</Link>
+												}
 												secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 											/>
+											<ListItemSecondaryAction>
+												<Button
+													color="primary"
+													variant="contained"
+													onClick={() => onCorrectButtonClick(suggestion)}
+												>
+													{I18N.translate('use')}
+												</Button>
+											</ListItemSecondaryAction>
 										</ListItem>
 									))}
 								</List>
@@ -257,7 +277,7 @@ export const WrongItemDialog: React.FC = () => {
 							color="primary"
 							disabled={!dialog.url || urlError}
 							variant="contained"
-							onClick={onCorrectButtonClick}
+							onClick={() => onCorrectButtonClick()}
 						>
 							{I18N.translate('correct')}
 						</Button>
