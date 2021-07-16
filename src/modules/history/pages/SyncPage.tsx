@@ -366,8 +366,9 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			}
 			try {
 				await ServiceApi.loadTraktHistory(store.data.visibleItems);
-				const newItems = await CorrectionApi.loadSuggestions(store.data.visibleItems);
-				await TmdbApi.loadImages(newItems);
+				let newItems;
+				newItems = await CorrectionApi.loadSuggestions(store.data.visibleItems);
+				newItems = await TmdbApi.loadImages(newItems);
 				await store.replaceItems(newItems, false);
 			} catch (err) {
 				// Do nothing

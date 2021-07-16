@@ -114,7 +114,7 @@ export const HomePage: React.FC = () => {
 			if (BrowserStorage.options.sendReceiveSuggestions) {
 				[newItem] = await CorrectionApi.loadSuggestions([newItem]);
 			}
-			newItem = await TmdbApi.loadItemImage(newItem);
+			[newItem] = await TmdbApi.loadImages([newItem]);
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: newItem,

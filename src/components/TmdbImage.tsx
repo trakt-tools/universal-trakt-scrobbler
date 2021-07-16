@@ -11,7 +11,7 @@ export const TmdbImage: React.FC<TmdbImageProps> = ({ imageUrl }: TmdbImageProps
 		<Box>
 			<Box
 				className="tmdb-image"
-				style={{ backgroundImage: `url(${imageUrl ?? TmdbApi.PLACEHOLDER_IMAGE})` }}
+				style={{ backgroundImage: `url(${imageUrl || TmdbApi.PLACEHOLDER_IMAGE})` }}
 			/>
 			<Box className="tmdb-image-overlay" />
 		</Box>

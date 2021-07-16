@@ -2,7 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 
 export interface CacheValues {
 	suggestions: Partial<Record<string, Suggestion[] | null>>;
-	imageUrls: Record<string, string>;
+	imageUrls: Partial<Record<string, string | null>>;
 }
 
 class _Cache {

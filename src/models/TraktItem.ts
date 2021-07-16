@@ -85,4 +85,18 @@ export class TraktItem implements ITraktItem {
 		};
 		return new TraktItem(options);
 	}
+
+	/**
+	 * Returns the ID used to uniquely identify the item in the database.
+	 */
+	getDatabaseId() {
+		return `${this.type === 'show' ? 'episode' : 'movie'}_${this.id.toString()}`;
+	}
+
+	/**
+	 * Clones the item for immutability.
+	 */
+	clone() {
+		return new TraktItem(this);
+	}
 }
