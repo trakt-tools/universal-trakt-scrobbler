@@ -1,14 +1,14 @@
-import { Color } from '@material-ui/lab';
-import { TraktSearchItem } from '../api/TraktSearch';
-import { Item, SavedItem } from '../models/Item';
-import { TraktItem } from '../models/TraktItem';
+import { TraktSearchItem } from '@apis/TraktSearch';
 import {
+	ServiceValue,
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
-	StreamingServiceValue,
-} from './BrowserStorage';
-import { Errors } from './Errors';
-import { RequestException } from './Requests';
+} from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { RequestException } from '@common/Requests';
+import { Color } from '@material-ui/lab';
+import { Item, SavedItem } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 
 export interface EventData {
 	LOGIN_SUCCESS: LoginSuccessData;
@@ -26,7 +26,7 @@ export interface EventData {
 	SEARCH_SUCCESS: SearchSuccessData;
 	SEARCH_ERROR: SearchErrorData;
 	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
-	STREAMING_SERVICE_OPTIONS_CHANGE: StreamingServiceOptionsChangeData;
+	SERVICE_OPTIONS_CHANGE: ServiceOptionsChangeData;
 	OPTIONS_CLEAR: SuccessData;
 	DIALOG_SHOW: DialogShowData;
 	SNACKBAR_SHOW: SnackbarShowData;
@@ -36,8 +36,8 @@ export interface EventData {
 	WRONG_ITEM_CORRECTED: WrongItemCorrectedData;
 	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
 	SYNC_STORE_UPDATE: SyncStoreUpdateData;
-	STREAMING_SERVICE_HISTORY_LOAD_ERROR: ErrorData;
-	STREAMING_SERVICE_HISTORY_CHANGE: StreamingServiceHistoryChangeData;
+	SERVICE_HISTORY_LOAD_ERROR: ErrorData;
+	SERVICE_HISTORY_CHANGE: ServiceHistoryChangeData;
 	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
@@ -88,9 +88,9 @@ export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
 	value: StorageValuesOptions[K];
 }
 
-export type StreamingServiceOptionsChangeData = {
+export type ServiceOptionsChangeData = {
 	id: string;
-	value: Partial<StreamingServiceValue>;
+	value: Partial<ServiceValue>;
 }[];
 
 export interface DialogShowData {
@@ -136,7 +136,7 @@ export interface SyncStoreUpdateData {
 	visibleItemsChanged: boolean;
 }
 
-export interface StreamingServiceHistoryChangeData {
+export interface ServiceHistoryChangeData {
 	index?: number;
 	checked: boolean;
 }

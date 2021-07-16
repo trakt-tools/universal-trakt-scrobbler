@@ -1,11 +1,7 @@
+import { BrowserStorage, StorageValuesSyncOptions, SyncOption } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
 import { FormControlLabel, Switch, TextField } from '@material-ui/core';
 import * as React from 'react';
-import {
-	BrowserStorage,
-	StorageValuesSyncOptions,
-	SyncOption,
-} from '../../../common/BrowserStorage';
-import { EventDispatcher } from '../../../common/Events';
 
 interface HistoryOptionsListItemProps {
 	option: SyncOption<keyof StorageValuesSyncOptions>;

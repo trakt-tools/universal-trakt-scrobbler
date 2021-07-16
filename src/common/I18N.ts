@@ -1,3 +1,5 @@
+import { browser } from 'webextension-polyfill-ts';
+
 class _I18N {
 	translate(name: MessageName, substitutions?: string | string[]): string {
 		return browser.i18n.getMessage(name, substitutions);

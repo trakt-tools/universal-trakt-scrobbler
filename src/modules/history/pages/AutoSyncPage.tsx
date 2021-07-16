@@ -1,9 +1,9 @@
+import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import { Item } from '@models/Item';
+import { SyncPage } from '@pages/SyncPage';
+import { getSyncStore } from '@stores/SyncStore';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { BrowserStorage, StorageValues } from '../../../common/BrowserStorage';
-import { Item } from '../../../models/Item';
-import { getSyncStore } from '../../../streaming-services/common/common';
-import { SyncPage } from './SyncPage';
 
 export const AutoSyncPage: React.FC = () => {
 	const [syncCache, setSyncCache] = useState<StorageValues['syncCache'] | null>(null);

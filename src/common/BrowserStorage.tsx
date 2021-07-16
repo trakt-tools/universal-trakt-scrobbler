@@ -1,17 +1,35 @@
+import { HboGoApiParams } from '@/hbo-go/HboGoApi';
+import { TraktAuthDetails } from '@apis/TraktAuth';
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Link } from '@material-ui/core';
+import { SavedItem } from '@models/Item';
+import { getServices } from '@models/Service';
+import { SavedTraktItem } from '@models/TraktItem';
+import '@services';
 import * as React from 'react';
-import { TraktAuthDetails } from '../api/TraktAuth';
-import { SavedItem } from '../models/Item';
-import { SavedTraktItem } from '../models/TraktItem';
-import { HboGoApiParams } from '../streaming-services/hbo-go/HboGoApi';
-import { streamingServices } from '../streaming-services/streaming-services';
-import { EventDispatcher } from './Events';
-import { I18N } from './I18N';
-import { Shared } from './Shared';
+import {
+	browser,
+	Manifest as WebExtManifest,
+	Storage as WebExtStorage,
+} from 'webextension-polyfill-ts';
 
-export type StorageValues = StorageValuesV2;
-export type StorageValuesOptions = StorageValuesOptionsV2;
+export type StorageValues = StorageValuesV3;
+export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
+
+export type StorageValuesV3 = {
+	version?: number;
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptionsV3;
+	syncOptions?: StorageValuesSyncOptionsV2;
+	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
+	syncCache?: SyncCacheValue;
+	correctItems?: Partial<Record<string, Record<string, CorrectItem>>>;
+	scrobblingItem?: Omit<SavedItem, ''>;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+};
 
 export type StorageValuesV2 = {
 	version?: number;
@@ -37,8 +55,17 @@ export type StorageValuesV1 = {
 	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
+export type StorageValuesOptionsV3 = {
+	services: Record<string, ServiceValue>;
+	showNotifications: boolean;
+	sendReceiveSuggestions: boolean;
+	theme: ThemeValue;
+	allowRollbar: boolean;
+	grantCookies: boolean;
+};
+
 export type StorageValuesOptionsV2 = {
-	streamingServices: Record<string, StreamingServiceValue>;
+	streamingServices: Record<string, ServiceValue>;
 	showNotifications: boolean;
 	sendReceiveSuggestions: boolean;
 	theme: ThemeValue;
@@ -55,7 +82,7 @@ export type StorageValuesOptionsV1 = {
 	grantCookies: boolean;
 };
 
-export type StreamingServiceValue = {
+export type ServiceValue = {
 	scrobble: boolean;
 	sync: boolean;
 	autoSync: boolean;
@@ -106,7 +133,7 @@ export type BaseOption<K extends keyof StorageValuesOptions> = {
 	description: React.ReactElement | string;
 	value: StorageValuesOptions[K];
 	origins: string[];
-	permissions: browser.permissions.Permission[];
+	permissions: WebExtManifest.OptionalPermission[];
 	doShow: boolean;
 };
 
@@ -137,7 +164,7 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 };
 
 class _BrowserStorage {
-	currentVersion = 2;
+	currentVersion = 3;
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as Options;
@@ -209,6 +236,22 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 3) {
+			console.log('Upgrading to v3...');
+
+			const values = await BrowserStorage.get('options');
+
+			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
+			const optionsV3 = values.options as Partial<StorageValuesOptionsV3> | undefined;
+			if (optionsV2 && optionsV3) {
+				optionsV3.services = optionsV2.streamingServices;
+
+				delete optionsV2.streamingServices;
+
+				await BrowserStorage.set({ options: optionsV3 as unknown as StorageValuesOptions }, true);
+			}
+		}
+
 		await BrowserStorage.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -219,6 +262,22 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 2) {
+			console.log('Downgrading to v2...');
+
+			const values = await BrowserStorage.get('options');
+
+			const optionsV2 = values.options as Partial<StorageValuesOptionsV2> | undefined;
+			const optionsV3 = values.options as Partial<StorageValuesOptionsV3> | undefined;
+			if (optionsV2 && optionsV3) {
+				optionsV2.streamingServices = optionsV3.services;
+
+				delete optionsV3.services;
+
+				await BrowserStorage.set({ options: optionsV2 as unknown as StorageValuesOptions }, true);
+			}
+		}
+
 		if (version > 1) {
 			console.log('Downgrading to v1...');
 
@@ -278,10 +337,7 @@ class _BrowserStorage {
 		browser.storage.onChanged.removeListener(this.onStorageChanged);
 	}
 
-	onStorageChanged = (
-		changes: browser.storage.ChangeDict,
-		areaName: browser.storage.StorageName
-	) => {
+	onStorageChanged = (changes: Record<string, WebExtStorage.StorageChange>, areaName: string) => {
 		if (areaName !== 'local') {
 			return;
 		}
@@ -309,8 +365,8 @@ class _BrowserStorage {
 
 	async sync(): Promise<void> {
 		if (this.isSyncAvailable) {
-			const values = await browser.storage.sync.get();
-			for (const key of Object.keys(values)) {
+			const values = (await browser.storage.sync.get()) as StorageValues;
+			for (const key of Object.keys(values) as (keyof StorageValues)[]) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
 		}
@@ -369,14 +425,14 @@ class _BrowserStorage {
 
 	async loadOptions(): Promise<void> {
 		this.optionsDetails = {
-			streamingServices: {
+			services: {
 				type: 'list',
-				id: 'streamingServices',
+				id: 'services',
 				name: '',
 				description: '',
 				value: Object.fromEntries(
-					Object.keys(streamingServices).map((serviceId) => [
-						serviceId,
+					getServices().map((service) => [
+						service.id,
 						{
 							scrobble: false,
 							sync: false,
@@ -470,12 +526,12 @@ class _BrowserStorage {
 			}
 			option.value =
 				typeof this.options[option.id] !== 'undefined' ? this.options[option.id] : option.value;
-			if (option.id === 'streamingServices') {
+			if (option.id === 'services') {
 				const missingServices = Object.fromEntries(
-					Object.keys(streamingServices)
-						.filter((serviceId) => !(serviceId in option.value))
-						.map((serviceId) => [
-							serviceId,
+					getServices()
+						.filter((service) => !(service.id in option.value))
+						.map((service) => [
+							service.id,
 							{
 								scrobble: false,
 								sync: false,
@@ -504,17 +560,17 @@ class _BrowserStorage {
 
 	addOption<K extends keyof StorageValuesOptions>(option: Partial<Option<K>>) {
 		if (typeof option.id !== 'undefined' && typeof option.value !== 'undefined') {
-			if (BrowserStorage.isStreamingServiceOption(option)) {
+			if (BrowserStorage.isServiceOption(option)) {
 				for (const [id, value] of Object.entries(option.value)) {
-					if (!this.options.streamingServices) {
-						this.options.streamingServices = {};
+					if (!this.options.services) {
+						this.options.services = {};
 					}
-					this.options.streamingServices[id] = {
-						...(this.options.streamingServices?.[id] ?? {}),
+					this.options.services[id] = {
+						...(this.options.services?.[id] ?? {}),
 						...value,
 					};
-					this.optionsDetails.streamingServices.value[id] = {
-						...this.optionsDetails.streamingServices.value[id],
+					this.optionsDetails.services.value[id] = {
+						...this.optionsDetails.services.value[id],
 						...value,
 					};
 				}
@@ -525,10 +581,10 @@ class _BrowserStorage {
 		}
 	}
 
-	isStreamingServiceOption(
+	isServiceOption(
 		option: Partial<Option<keyof StorageValuesOptions>>
-	): option is Option<'streamingServices'> {
-		return option.id === 'streamingServices';
+	): option is Option<'services'> {
+		return option.id === 'services';
 	}
 
 	async loadSyncOptions(): Promise<void> {

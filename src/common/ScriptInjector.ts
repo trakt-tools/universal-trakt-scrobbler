@@ -1,6 +1,7 @@
-import { BrowserStorage, StorageValues } from './BrowserStorage';
-import { Shared } from './Shared';
-import { Tabs } from './Tabs';
+import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
+import { browser, Runtime as WebExtRuntime } from 'webextension-polyfill-ts';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;
@@ -20,7 +21,7 @@ class _ScriptInjector {
 		browser.runtime.onConnect.removeListener(this.onConnect);
 	}
 
-	private onConnect = (port: browser.runtime.Port) => {
+	private onConnect = (port: WebExtRuntime.Port) => {
 		port.onMessage.addListener((message: unknown) => {
 			const { serviceId, key, url, fnStr } = message as ScriptInjectorMessage;
 			this.inject(serviceId, key, url, fnStr)
@@ -73,9 +74,9 @@ class _ScriptInjector {
 					this.injectedScriptIds.add(id);
 				}
 
-				const listener = (event: Event) => {
+				const listener = (listenerEvent: Event) => {
 					window.removeEventListener(`uts-on-${id}-received`, listener);
-					const value = (event as CustomEvent<T | null>).detail;
+					const value = (listenerEvent as CustomEvent<T | null>).detail;
 					resolve(value);
 				};
 				window.addEventListener(`uts-on-${id}-received`, listener, false);
@@ -113,11 +114,7 @@ class _ScriptInjector {
 		}
 
 		await browser.tabs.executeScript(tab.id, {
-			file: '/js/lib/browser-polyfill.js',
-			runAt: 'document_end',
-		});
-		await browser.tabs.executeScript(tab.id, {
-			file: `/js/${serviceId}.js`,
+			file: `${serviceId}.js`,
 			runAt: 'document_end',
 		});
 

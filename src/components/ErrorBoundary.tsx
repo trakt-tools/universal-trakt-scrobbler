@@ -1,5 +1,5 @@
+import { Errors } from '@common/Errors';
 import * as React from 'react';
-import { Errors } from '../common/Errors';
 
 interface ErrorBoundaryProps {
 	children: React.ReactNode;

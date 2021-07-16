@@ -1,0 +1,44 @@
+@import '@styles/fonts.scss';
+
+*:focus {
+	outline: none;
+}
+
+body {
+	margin: 0;
+}
+
+.button-group-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.button-group {
+	align-self: center;
+}
+
+.container--center-horizontal {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	height: 100%;
+}
+
+.container--center-vertical {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+}
+
+.container--left-right,
+.container--left-right--center {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.container--left-right--center {
+	align-items: center;
+}

@@ -1,12 +1,9 @@
-import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { TmdbApi } from '../../../api/TmdbApi';
-import { TraktSync } from '../../../api/TraktSync';
-import { WrongItemApi } from '../../../api/WrongItemApi';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { Errors } from '../../../common/Errors';
+import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
+import { TmdbApi } from '@apis/TmdbApi';
+import { TraktSync } from '@apis/TraktSync';
+import { WrongItemApi } from '@apis/WrongItemApi';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import {
 	EventDispatcher,
 	HistoryOptionsChangeData,
@@ -14,16 +11,19 @@ import {
 	MissingWatchedDateAddedData,
 	SyncStoreUpdateData,
 	WrongItemCorrectedData,
-} from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { RequestException } from '../../../common/Requests';
-import { UtsCenter } from '../../../components/UtsCenter';
-import { Api } from '../../../streaming-services/common/Api';
-import { getApi, getSyncStore } from '../../../streaming-services/common/common';
-import { streamingServices } from '../../../streaming-services/streaming-services';
-import { HistoryActions } from '../components/HistoryActions';
-import { HistoryList } from '../components/HistoryList';
-import { HistoryOptionsList } from '../components/HistoryOptionsList';
+} from '@common/Events';
+import { I18N } from '@common/I18N';
+import { RequestException } from '@common/Requests';
+import { HistoryActions } from '@components/HistoryActions';
+import { HistoryList } from '@components/HistoryList';
+import { HistoryOptionsList } from '@components/HistoryOptionsList';
+import { UtsCenter } from '@components/UtsCenter';
+import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { getService } from '@models/Service';
+import { getSyncStore } from '@stores/SyncStore';
+import * as PropTypes from 'prop-types';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 interface PageProps {
 	serviceId: string | null;
@@ -42,12 +42,12 @@ const lastSyncData = {} as LastSyncData;
 export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	const { serviceId } = props;
 
-	const service = serviceId ? streamingServices[serviceId] : null;
+	const service = serviceId ? getService(serviceId) : null;
 	const store = getSyncStore(serviceId);
-	const api = serviceId ? getApi(serviceId) : null;
+	const api = serviceId ? getServiceApi(serviceId) : null;
 
 	if (service && !lastSyncData[service.id]) {
-		const serviceOptions = BrowserStorage.options.streamingServices[service.id];
+		const serviceOptions = BrowserStorage.options.services[service.id];
 		lastSyncData[service.id] =
 			service.hasAutoSync && serviceOptions?.autoSync && serviceOptions.autoSyncDays > 0
 				? {
@@ -132,13 +132,13 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		await TraktSync.sync(selectedItems);
 		if (serviceId) {
 			const lastSync = selectedItems[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
-			if (lastSync > BrowserStorage.options.streamingServices[serviceId].lastSync) {
+			if (lastSync > BrowserStorage.options.services[serviceId].lastSync) {
 				BrowserStorage.addOption({
-					id: 'streamingServices',
+					id: 'services',
 					value: {
-						...BrowserStorage.options.streamingServices,
+						...BrowserStorage.options.services,
 						[serviceId]: {
-							...BrowserStorage.options.streamingServices[serviceId],
+							...BrowserStorage.options.services[serviceId],
 							lastSync,
 							lastSyncId: selectedItems[0].id,
 						},
@@ -196,7 +196,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
-			EventDispatcher.subscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.subscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', serviceId, onMissingWatchedDateAdded);
 			EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', serviceId, onWrongItemCorrected);
@@ -207,7 +207,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe('SYNC_STORE_UPDATE', null, onStoreUpdate);
-			EventDispatcher.unsubscribe('STREAMING_SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			EventDispatcher.unsubscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
 			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
 			EventDispatcher.unsubscribe(
 				'MISSING_WATCHED_DATE_ADDED',
@@ -258,7 +258,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 			if (!traktCache) {
 				traktCache = {};
 			}
-			await Api.loadTraktItemHistory(data.item, traktCache, {
+			await ServiceApi.loadTraktItemHistory(data.item, traktCache, {
 				type: data.type,
 				traktId: data.traktId,
 				url: data.url,
@@ -315,7 +315,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				.then(async () => {
 					setSyncOptionsChanged({});
 					if (serviceId && data.id.startsWith('addWithReleaseDate')) {
-						Api.updateTraktHistory(store.data.visibleItems)
+						ServiceApi.updateTraktHistory(store.data.visibleItems)
 							.then(() => void store.updateVisibleItems(false))
 							.catch((err) => {
 								// Do nothing
@@ -383,7 +383,7 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				return;
 			}
 			try {
-				await Api.loadTraktHistory(store.data.visibleItems);
+				await ServiceApi.loadTraktHistory(store.data.visibleItems);
 				await Promise.all([
 					WrongItemApi.loadSuggestions(store.data.visibleItems),
 					TmdbApi.loadImages(store.data.visibleItems),

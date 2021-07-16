@@ -1,4 +1,6 @@
-@import '../../assets/styles/common.scss';
+@import '@styles/common.scss';
+@import '@styles/components.scss';
+@import '@styles/layout.scss';
 
 .popup-container {
 	height: 200px;
@@ -30,7 +32,7 @@
 
 .popup-container--overlay-image {
 	@extend %full-view;
-	background-image: url('../../assets/images/background.jpg');
+	background-image: url('@images/background.jpg');
 	filter: blur(1px) grayscale(0.5);
 }
 

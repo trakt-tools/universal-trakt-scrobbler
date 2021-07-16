@@ -1,3 +1,8 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { I18N } from '@common/I18N';
+import { Session } from '@common/Session';
+import { Tabs } from '@common/Tabs';
+import { UtsLeftRight } from '@components/UtsLeftRight';
 import { AppBar, IconButton, Toolbar, Tooltip } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HistoryIcon from '@material-ui/icons/History';
@@ -8,11 +13,7 @@ import SyncIcon from '@material-ui/icons/Sync';
 import { History } from 'history';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { I18N } from '../../../common/I18N';
-import { Session } from '../../../common/Session';
-import { Tabs } from '../../../common/Tabs';
-import { UtsLeftRight } from '../../../components/UtsLeftRight';
+import { browser } from 'webextension-polyfill-ts';
 
 interface IPopupHeader {
 	history: History;
@@ -71,7 +72,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 							<Tooltip title={I18N.translate('history')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('html/history.html'))}
+									onClick={() => onLinkClick(browser.runtime.getURL('history.html'))}
 								>
 									<HistoryIcon />
 								</IconButton>
@@ -79,7 +80,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 							<Tooltip title={I18N.translate('options')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('html/options.html'))}
+									onClick={() => onLinkClick(browser.runtime.getURL('options.html'))}
 								>
 									<SettingsIcon />
 								</IconButton>
@@ -92,9 +93,7 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 								>
 									<IconButton
 										color="inherit"
-										onClick={() =>
-											onLinkClick(browser.runtime.getURL('html/history.html#/auto-sync'))
-										}
+										onClick={() => onLinkClick(browser.runtime.getURL('history.html#/auto-sync'))}
 									>
 										<SyncIcon color={syncButton.hasError ? 'secondary' : 'inherit'} />
 									</IconButton>

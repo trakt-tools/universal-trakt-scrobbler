@@ -1,12 +1,13 @@
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { ServiceValues } from '@models/Service';
+import * as archiver from 'archiver';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as ProgressBarWebpackPlugin from 'progress-bar-webpack-plugin';
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
+import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
 import * as webpack from 'webpack';
-import VirtualModulesPlugin = require('webpack-virtual-modules');
-import { StreamingService } from './src/streaming-services/streaming-services';
-import * as configJson from './config.json';
-import * as packageJson from './package.json';
+import { ProgressPlugin } from 'webpack';
+import configJson = require('./config.json');
+import packageJson = require('./package.json');
 
 interface Environment {
 	development: boolean;
@@ -24,18 +25,6 @@ interface Config {
 	chromeExtensionKey?: string;
 	firefoxExtensionId?: string;
 }
-
-type Manifest = Omit<
-	browser.runtime.Manifest,
-	'background' | 'languages' | 'optional_permissions' | 'permissions'
-> & {
-	background?: {
-		scripts: string[];
-		persistent: boolean;
-	};
-	optional_permissions?: string[];
-	permissions?: string[];
-};
 
 const BASE_PATH = process.cwd();
 const loaders = {
@@ -55,70 +44,62 @@ const loaders = {
 };
 
 class RunAfterBuildPlugin {
-	callback: () => void;
+	callback: () => Promise<void>;
 
-	constructor(callback: () => void) {
+	constructor(callback: () => Promise<void>) {
 		this.callback = callback;
 	}
 
 	apply = (compiler: webpack.Compiler) => {
-		compiler.hooks.afterEmit.tap('RunAfterBuild', this.callback);
+		compiler.hooks.afterEmit.tapPromise('RunAfterBuild', this.callback);
 	};
 }
 
 const plugins = {
-	clean: CleanWebpackPlugin,
-	progressBar: ProgressBarWebpackPlugin,
+	progress: ProgressPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
+	tsConfigPaths: TsconfigPathsPlugin,
 };
 
-const streamingServices: Record<string, StreamingService> = {};
+const services: Record<string, ServiceValues> = {};
+const serviceEntries: Record<string, string[]> = {};
+const serviceImports: string[] = [];
 const apiImports: string[] = [];
-let virtualModules: VirtualModulesPlugin;
 
-const loadStreamingServices = async () => {
-	const modules: Record<string, string> = {};
-
-	const servicesPath = path.resolve(BASE_PATH, 'src', 'streaming-services');
-	const ignoreKeys = [
-		'common',
-		'scrobbler-template',
-		'sync-template',
-		'apis.ts',
-		'streaming-services.ts',
-	];
-
-	const keys = fs.readdirSync(servicesPath);
-	const serviceIds = keys.filter((key) => !ignoreKeys.includes(key));
+const loadServices = () => {
+	const servicesDir = path.resolve(BASE_PATH, 'src', 'services');
+	const serviceIds = fs.readdirSync(servicesDir).filter((fileName) => !fileName.endsWith('.ts'));
 	for (const serviceId of serviceIds) {
 		const serviceKey = serviceId
 			.split('-')
 			.map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
 			.join('');
-		const servicePath = path.resolve(servicesPath, serviceId);
+		const serviceDir = path.resolve(servicesDir, serviceId);
+		const servicePath = path.resolve(serviceDir, `${serviceKey}Service.ts`);
+		const serviceFile = fs.readFileSync(servicePath, 'utf-8');
+		const serviceMatches = /Service\(([\S\s]+?)\)/m.exec(serviceFile);
+		if (!serviceMatches) {
+			throw new Error(`No service matches for ${serviceId}`);
+		}
+		const service = JSON.parse(
+			serviceMatches[1]
+				.replace(/\r?\n|\r|\t/g, '')
+				.replace(/([{,])(\w+?):/g, '$1"$2":')
+				.replace(/'/g, '"')
+				.replace(/,([\]}])/g, '$1')
+		) as ServiceValues;
+		services[service.id] = service;
 
-		const service = (
-			(await import(path.resolve(servicePath, `${serviceKey}Service.ts`))) as Record<
-				string,
-				StreamingService
-			>
-		)[`${serviceKey}Service`];
-		streamingServices[service.id] = service;
-
-		apiImports.push(`import './${serviceId}/${serviceKey}Api';`);
-		modules[path.resolve(servicePath, `${serviceId}.ts`)] = `
-			import { init } from '../common/content';
-			import './${serviceKey}Events';
-
-			void init('${serviceId}');
-		`;
+		if (service.hasScrobbler) {
+			serviceEntries[serviceId] = [`./src/services/${serviceId}/${serviceId}.ts`];
+		}
+		serviceImports.push(`import '@/${serviceId}/${serviceKey}Service';`);
+		apiImports.push(`import '@/${serviceId}/${serviceKey}Api';`);
 	}
-
-	virtualModules = new VirtualModulesPlugin(modules);
 };
 
-const getWebpackConfig = async (env: Environment) => {
-	await loadStreamingServices();
+const getWebpackConfig = (env: Environment): webpack.Configuration => {
+	loadServices();
 
 	let mode: 'production' | 'development';
 	if (env.production) {
@@ -127,29 +108,15 @@ const getWebpackConfig = async (env: Environment) => {
 		mode = 'development';
 	}
 	const config = configJson[mode];
-	const streamingServiceEntries = Object.fromEntries(
-		Object.values(streamingServices)
-			.filter((service) => service.hasScrobbler)
-			.map((service) => [
-				[`./chrome/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
-				[`./firefox/js/${service.id}`, [`./src/streaming-services/${service.id}/${service.id}.ts`]],
-			])
-			.flat()
-	) as Record<string, string[]>;
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
-			'./chrome/js/background': ['./src/modules/background/background.ts'],
-			'./chrome/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
-			'./chrome/js/popup': ['./src/modules/popup/popup.tsx'],
-			'./chrome/js/history': ['./src/modules/history/history.tsx'],
-			'./chrome/js/options': ['./src/modules/options/options.tsx'],
-			'./firefox/js/background': ['./src/modules/background/background.ts'],
-			'./firefox/js/trakt': ['./src/modules/content/trakt/trakt.ts'],
-			'./firefox/js/popup': ['./src/modules/popup/popup.tsx'],
-			'./firefox/js/history': ['./src/modules/history/history.tsx'],
-			'./firefox/js/options': ['./src/modules/options/options.tsx'],
-			...streamingServiceEntries,
+			background: ['./src/modules/background/background.ts'],
+			trakt: ['./src/modules/content/trakt/trakt.ts'],
+			popup: ['./src/modules/popup/popup.tsx'],
+			history: ['./src/modules/history/history.tsx'],
+			options: ['./src/modules/options/options.tsx'],
+			...serviceEntries,
 		},
 		mode,
 		module: {
@@ -170,34 +137,37 @@ const getWebpackConfig = async (env: Environment) => {
 					test: /apis\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
-						search: '// This will be automatically filled by Webpack during build',
+						search: '// @import-services-apis',
 						replace: apiImports.join('\n'),
 					},
 				},
 				{
-					test: /streaming-services\.ts$/,
+					test: /services\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
-						search: '// This will be automatically filled by Webpack during build',
-						replace: JSON.stringify(streamingServices).slice(1, -1),
+						search: '// @import-services',
+						replace: serviceImports.join('\n'),
 					},
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: './fonts',
-						publicPath: '../fonts/',
+					test: /\.woff2?$/,
+					type: 'asset/resource',
+					generator: {
+						filename: 'fonts/[name][ext]',
+					},
+				},
+				{
+					test: /\.html$/,
+					type: 'asset/resource',
+					generator: {
+						filename: '[name][ext]',
 					},
 				},
 				{
 					test: /\.(jpg|png)$/,
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: './images/',
-						publicPath: '../images/',
+					type: 'asset/resource',
+					generator: {
+						filename: 'images/[name][ext]',
 					},
 				},
 				{
@@ -221,16 +191,16 @@ const getWebpackConfig = async (env: Environment) => {
 		},
 		output: {
 			filename: '[name].js',
-			path: path.resolve(BASE_PATH, 'build'),
+			path: path.resolve(BASE_PATH, 'build', 'output'),
+			clean: true,
 		},
 		plugins: [
-			new plugins.clean(),
-			new plugins.progressBar(),
-			virtualModules,
-			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(config))]),
+			new plugins.progress(),
+			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env, config))]),
 		],
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
+			plugins: [new plugins.tsConfigPaths()],
 		},
 		watch: !!(env.development && env.watch),
 		watchOptions: {
@@ -242,7 +212,7 @@ const getWebpackConfig = async (env: Environment) => {
 };
 
 const getManifest = (config: Config, browserName: string): string => {
-	const manifest: Manifest = {
+	const manifest: WebExtManifest.WebExtensionManifest & { key?: string } = {
 		manifest_version: 2,
 		name: 'Universal Trakt Scrobbler',
 		version: packageJson.version,
@@ -252,12 +222,12 @@ const getManifest = (config: Config, browserName: string): string => {
 			128: 'images/uts-icon-128.png',
 		},
 		background: {
-			scripts: ['js/lib/browser-polyfill.js', 'js/background.js'],
+			scripts: ['background.js'],
 			persistent: true,
 		},
 		content_scripts: [
 			{
-				js: ['js/lib/browser-polyfill.js', 'js/trakt.js'],
+				js: ['trakt.js'],
 				matches: ['*://*.trakt.tv/apps*'],
 				run_at: 'document_start',
 			},
@@ -272,7 +242,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://api.rollbar.com/*',
 			'*://script.google.com/*',
 			'*://script.googleusercontent.com/*',
-			...Object.values(streamingServices)
+			...Object.values(services)
 				.map((service) => service.hostPatterns)
 				.flat(),
 		],
@@ -281,15 +251,11 @@ const getManifest = (config: Config, browserName: string): string => {
 				19: 'images/uts-icon-19.png',
 				38: 'images/uts-icon-38.png',
 			},
-			default_popup: 'html/popup.html',
+			default_popup: 'popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
 		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
-		web_accessible_resources: [
-			'images/uts-icon-38.png',
-			'images/uts-icon-selected-38.png',
-			'images/svg/*.svg',
-		],
+		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
 	};
 	switch (browserName) {
 		case 'chrome': {
@@ -312,54 +278,28 @@ const getManifest = (config: Config, browserName: string): string => {
 	return JSON.stringify(manifest, null, 2);
 };
 
-const runFinalSteps = (config: Config) => {
-	if (!fs.existsSync('./build/chrome/js/lib')) {
-		fs.mkdirSync('./build/chrome/js/lib');
+const runFinalSteps = async (env: Environment, config: Config) => {
+	fs.copySync('./src/_locales', './build/output/_locales');
+
+	const browsers = ['chrome', 'firefox'];
+	for (const browser of browsers) {
+		fs.copySync('./build/output', `./build/${browser}`);
+		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(config, browser));
+
+		if (env.production) {
+			const archive = archiver('zip', { zlib: { level: 9 } });
+			await new Promise((resolve, reject) => {
+				archive
+					.pipe(fs.createWriteStream(path.resolve(BASE_PATH, 'dist', `${browser}.zip`)))
+					.on('finish', () => resolve(null))
+					.on('error', (err) => reject(err));
+				archive.directory(path.resolve(BASE_PATH, `./build/${browser}`), false);
+				void archive.finalize();
+			});
+		}
 	}
-	if (!fs.existsSync('./build/firefox/js/lib')) {
-		fs.mkdirSync('./build/firefox/js/lib');
-	}
-	const filesToCopy = [
-		{
-			from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-			to: './build/chrome/js/lib/browser-polyfill.js',
-			flatten: true,
-		},
-		{
-			from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-			to: './build/firefox/js/lib/browser-polyfill.js',
-			flatten: true,
-		},
-	];
-	for (const fileToCopy of filesToCopy) {
-		fs.copyFileSync(fileToCopy.from, fileToCopy.to);
-	}
-	const foldersToCopy = [
-		{ from: './src/_locales', to: './build/chrome/_locales' },
-		{ from: './build/fonts', to: './build/chrome/fonts' },
-		{ from: './src/html', to: './build/chrome/html' },
-		{ from: './build/images', to: './build/chrome/images' },
-		{ from: './src/_locales', to: './build/firefox/_locales' },
-		{ from: './build/fonts', to: './build/firefox/fonts' },
-		{ from: './src/html', to: './build/firefox/html' },
-		{ from: './build/images', to: './build/firefox/images' },
-	];
-	for (const folderToCopy of foldersToCopy) {
-		fs.copySync(folderToCopy.from, folderToCopy.to);
-	}
-	const filesToCreate = [
-		{
-			data: getManifest(config, 'chrome'),
-			path: './build/chrome/manifest.json',
-		},
-		{
-			data: getManifest(config, 'firefox'),
-			path: './build/firefox/manifest.json',
-		},
-	];
-	for (const fileToCreate of filesToCreate) {
-		fs.writeFileSync(fileToCreate.path, fileToCreate.data);
-	}
+
+	fs.rmSync('./build/output', { recursive: true });
 };
 
 export default getWebpackConfig;

@@ -1,7 +1,7 @@
-import { Errors } from './Errors';
-import { EventDispatcher } from './Events';
-import { Messaging } from './Messaging';
-import { RequestException } from './Requests';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { RequestException } from '@common/Requests';
 
 class _Session {
 	isLoggedIn: boolean;

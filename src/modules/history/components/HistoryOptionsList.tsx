@@ -1,3 +1,6 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { I18N } from '@common/I18N';
+import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
 import {
 	Box,
 	Button,
@@ -8,11 +11,8 @@ import {
 	Toolbar,
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
+import { SyncStore } from '@stores/SyncStore';
 import * as React from 'react';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { I18N } from '../../../common/I18N';
-import { SyncStore } from '../../../streaming-services/common/SyncStore';
-import { HistoryOptionsListItem } from './HistoryOptionsListItem';
 
 interface HistoryOptionsListProps {
 	store: SyncStore;

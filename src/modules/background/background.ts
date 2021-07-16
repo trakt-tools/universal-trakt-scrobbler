@@ -1,28 +1,37 @@
-import { TraktAuth } from '../../api/TraktAuth';
-import { TraktScrobble } from '../../api/TraktScrobble';
-import { WrongItemApi } from '../../api/WrongItemApi';
-import { BrowserAction } from '../../common/BrowserAction';
+import { TraktAuth } from '@apis/TraktAuth';
+import { TraktScrobble } from '@apis/TraktScrobble';
+import { WrongItemApi } from '@apis/WrongItemApi';
+import { AutoSync } from '@common/AutoSync';
+import { BrowserAction } from '@common/BrowserAction';
+import { BrowserStorage, ServiceValue, StorageValuesOptions } from '@common/BrowserStorage';
+import { Cache } from '@common/Cache';
+import { Errors } from '@common/Errors';
+import { I18N } from '@common/I18N';
+import { Messaging } from '@common/Messaging';
+import { Notifications } from '@common/Notifications';
+import { Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
+import '@images/uts-icon-128.png';
+import '@images/uts-icon-16.png';
+import '@images/uts-icon-19.png';
+import '@images/uts-icon-38.png';
+import '@images/uts-icon-selected-19.png';
+import '@images/uts-icon-selected-38.png';
+import { Item, SavedItem } from '@models/Item';
+import { getService, getServices } from '@models/Service';
+import { TraktItem } from '@models/TraktItem';
 import {
-	BrowserStorage,
-	StorageValuesOptions,
-	StreamingServiceValue,
-} from '../../common/BrowserStorage';
-import { Cache } from '../../common/Cache';
-import { Errors } from '../../common/Errors';
-import { I18N } from '../../common/I18N';
-import { Messaging } from '../../common/Messaging';
-import { Notifications } from '../../common/Notifications';
-import { Requests } from '../../common/Requests';
-import { Shared } from '../../common/Shared';
-import { Tabs } from '../../common/Tabs';
-import { Item, SavedItem } from '../../models/Item';
-import { TraktItem } from '../../models/TraktItem';
-import { AutoSync } from '../../streaming-services/common/AutoSync';
-import { streamingServices } from '../../streaming-services/streaming-services';
+	browser,
+	Manifest as WebExtManifest,
+	Storage as WebExtStorage,
+	Tabs as WebExtTabs,
+	WebRequest as WebExtWebRequest,
+} from 'webextension-polyfill-ts';
 
 const injectedTabs = new Set();
-let streamingServiceEntries: [string, StreamingServiceValue][] = [];
-let streamingServiceScripts: browser.runtime.Manifest['content_scripts'] | null = null;
+let serviceEntries: [string, ServiceValue][] = [];
+let serviceScripts: WebExtManifest.ContentScript[] | null = null;
 let isCheckingAutoSync = false;
 let autoSyncCheckTimeout: number | null = null;
 let scrobblingItem: SavedItem | null = null;
@@ -39,10 +48,9 @@ const init = async () => {
 		Notifications.startListeners();
 	}
 	browser.storage.onChanged.addListener(onStorageChanged);
-	streamingServiceEntries = Object.entries(BrowserStorage.options.streamingServices);
-	const scrobblerEnabled = streamingServiceEntries.some(
-		([streamingServiceId, value]) =>
-			streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+	serviceEntries = Object.entries(BrowserStorage.options.services);
+	const scrobblerEnabled = serviceEntries.some(
+		([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 	);
 	if (scrobblerEnabled) {
 		addTabListener(BrowserStorage.options);
@@ -66,10 +74,10 @@ const checkAutoSync = async () => {
 	}
 
 	const now = Math.trunc(Date.now() / 1e3);
-	const servicesToSync = streamingServiceEntries.filter(
-		([streamingServiceId, value]) =>
-			streamingServices[streamingServiceId].hasSync &&
-			streamingServices[streamingServiceId].hasAutoSync &&
+	const servicesToSync = serviceEntries.filter(
+		([serviceId, value]) =>
+			getService(serviceId).hasSync &&
+			getService(serviceId).hasAutoSync &&
 			value.sync &&
 			value.autoSync &&
 			value.autoSyncDays > 0 &&
@@ -95,8 +103,8 @@ const checkAutoSync = async () => {
 };
 
 const onStorageChanged = (
-	changes: browser.storage.ChangeDict,
-	areaName: browser.storage.StorageName
+	changes: Record<string, WebExtStorage.StorageChange>,
+	areaName: string
 ) => {
 	if (areaName !== 'local') {
 		return;
@@ -108,12 +116,11 @@ const onStorageChanged = (
 	if (!newValue) {
 		return;
 	}
-	if (newValue.streamingServices) {
-		streamingServiceEntries = Object.entries(newValue.streamingServices);
+	if (newValue.services) {
+		serviceEntries = Object.entries(newValue.services);
 
-		const scrobblerEnabled = streamingServiceEntries.some(
-			([streamingServiceId, value]) =>
-				streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+		const scrobblerEnabled = serviceEntries.some(
+			([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 		);
 		if (scrobblerEnabled) {
 			addTabListener(newValue);
@@ -129,13 +136,13 @@ const onStorageChanged = (
 };
 
 const addTabListener = (options: StorageValuesOptions) => {
-	streamingServiceScripts = Object.values(streamingServices)
-		.filter((service) => service.hasScrobbler && options.streamingServices[service.id].scrobble)
+	serviceScripts = getServices()
+		.filter((service) => service.hasScrobbler && options.services[service.id].scrobble)
 		.map((service) => ({
 			matches: service.hostPatterns.map((hostPattern) =>
 				hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
 			),
-			js: ['js/lib/browser-polyfill.js', `js/${service.id}.js`],
+			js: [`${service.id}.js`],
 			run_at: 'document_idle',
 		}));
 	if (!browser.tabs.onUpdated.hasListener(onTabUpdated)) {
@@ -149,13 +156,13 @@ const removeTabListener = () => {
 	}
 };
 
-const onTabUpdated = (_: unknown, __: unknown, tab: browser.tabs.Tab) => {
+const onTabUpdated = (_: unknown, __: unknown, tab: WebExtTabs.Tab) => {
 	void injectScript(tab);
 };
 
-const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
+const injectScript = async (tab: Partial<WebExtTabs.Tab>) => {
 	if (
-		!streamingServiceScripts ||
+		!serviceScripts ||
 		tab.status !== 'complete' ||
 		!tab.id ||
 		!tab.url ||
@@ -165,7 +172,7 @@ const injectScript = async (tab: Partial<browser.tabs.Tab>) => {
 	) {
 		return;
 	}
-	for (const { matches, js, run_at: runAt } of streamingServiceScripts) {
+	for (const { matches, js, run_at: runAt } of serviceScripts) {
 		if (!js || !runAt) {
 			continue;
 		}
@@ -187,11 +194,11 @@ const addWebRequestListener = () => {
 	) {
 		return;
 	}
-	const filters: browser.webRequest.RequestFilter = {
+	const filters: WebExtWebRequest.RequestFilter = {
 		types: ['xmlhttprequest'],
 		urls: [
 			'*://*.trakt.tv/*',
-			...Object.values(streamingServices)
+			...getServices()
 				.map((service) => service.hostPatterns)
 				.flat(),
 		],
@@ -215,7 +222,7 @@ const removeWebRequestListener = () => {
 /**
  * Makes sure cookies are set for requests.
  */
-const onBeforeSendHeaders = ({ requestHeaders }: browser.webRequest.BlockingResponse) => {
+const onBeforeSendHeaders = ({ requestHeaders }: WebExtWebRequest.BlockingResponse) => {
 	if (!requestHeaders) {
 		return;
 	}

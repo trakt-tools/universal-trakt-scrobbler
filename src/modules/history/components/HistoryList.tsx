@@ -1,9 +1,9 @@
+import { HistoryListItem } from '@components/HistoryListItem';
+import { MissingWatchedDateDialog } from '@components/MissingWatchedDateDialog';
+import { WrongItemDialog } from '@components/WrongItemDialog';
 import { List } from '@material-ui/core';
+import { Item } from '@models/Item';
 import * as React from 'react';
-import { MissingWatchedDateDialog } from '../../../components/MissingWatchedDateDialog';
-import { WrongItemDialog } from '../../../components/WrongItemDialog';
-import { Item } from '../../../models/Item';
-import { HistoryListItem } from './HistoryListItem';
 
 interface HistoryListProps {
 	items: Item[];

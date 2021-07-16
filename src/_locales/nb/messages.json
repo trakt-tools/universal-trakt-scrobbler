@@ -246,7 +246,7 @@
 	"no": {
 		"message": "Nei"
 	},
-	"noStreamingServices": {
+	"noServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
 	},
 	"notAvailable": {
@@ -326,7 +326,7 @@
 	"selectNone": {
 		"message": "Ingen"
 	},
-	"selectStreamingService": {
+	"selectService": {
 		"message": "Velg en strømmetjeneste å synkronisere fra:"
 	},
 	"sendReceiveSuggestionsDescription": {
@@ -350,10 +350,10 @@
 	"showNotificationsName": {
 		"message": "Vis nettleservarsler"
 	},
-	"streamingServicesDescription": {
+	"servicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
-	"streamingServicesName": {
+	"servicesName": {
 		"message": "Strømmetjenester"
 	},
 	"suggestedBy": {

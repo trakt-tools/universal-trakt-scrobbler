@@ -1,7 +1,7 @@
+import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
 import * as React from 'react';
 import { Redirect } from 'react-router-dom';
-import { Session } from '../common/Session';
-import { Shared } from '../common/Shared';
 
 class _LoginWrapper {
 	wrap(componentBuilder: () => React.ReactNode): () => React.ReactNode {

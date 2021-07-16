@@ -1,29 +1,22 @@
+import { TraktSettings } from '@apis/TraktSettings';
+import { BrowserStorage, ServiceValue, StorageValuesOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher, OptionsChangeData, ServiceOptionsChangeData } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
+import { ErrorBoundary } from '@components/ErrorBoundary';
+import { OptionsActions } from '@components/OptionsActions';
+import { OptionsHeader } from '@components/OptionsHeader';
+import { OptionsList } from '@components/OptionsList';
+import { UtsCenter } from '@components/UtsCenter';
+import { UtsDialog } from '@components/UtsDialog';
+import { UtsSnackbar } from '@components/UtsSnackbar';
 import { CircularProgress, Container } from '@material-ui/core';
+import { getService } from '@models/Service';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { TraktSettings } from '../../api/TraktSettings';
-import {
-	BrowserStorage,
-	StorageValuesOptions,
-	StreamingServiceValue,
-} from '../../common/BrowserStorage';
-import { Errors } from '../../common/Errors';
-import {
-	EventDispatcher,
-	OptionsChangeData,
-	StreamingServiceOptionsChangeData,
-} from '../../common/Events';
-import { Messaging } from '../../common/Messaging';
-import { Session } from '../../common/Session';
-import { Shared } from '../../common/Shared';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { UtsCenter } from '../../components/UtsCenter';
-import { UtsDialog } from '../../components/UtsDialog';
-import { UtsSnackbar } from '../../components/UtsSnackbar';
-import { streamingServices } from '../../streaming-services/streaming-services';
-import { OptionsActions } from './components/OptionsActions';
-import { OptionsHeader } from './components/OptionsHeader';
-import { OptionsList } from './components/OptionsList';
+import { browser } from 'webextension-polyfill-ts';
 
 export const OptionsApp: React.FC = () => {
 	const [content, setContent] = useState({
@@ -35,22 +28,14 @@ export const OptionsApp: React.FC = () => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('OPTIONS_CLEAR', null, resetOptions);
 			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionChange);
-			EventDispatcher.subscribe(
-				'STREAMING_SERVICE_OPTIONS_CHANGE',
-				null,
-				onStreamingServiceOptionChange
-			);
+			EventDispatcher.subscribe('SERVICE_OPTIONS_CHANGE', null, onServiceOptionChange);
 			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe('OPTIONS_CLEAR', null, resetOptions);
 			EventDispatcher.unsubscribe('OPTIONS_CHANGE', null, onOptionChange);
-			EventDispatcher.unsubscribe(
-				'STREAMING_SERVICE_OPTIONS_CHANGE',
-				null,
-				onStreamingServiceOptionChange
-			);
+			EventDispatcher.unsubscribe('SERVICE_OPTIONS_CHANGE', null, onServiceOptionChange);
 			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
@@ -96,17 +81,17 @@ export const OptionsApp: React.FC = () => {
 			}
 		};
 
-		const onStreamingServiceOptionChange = (data: StreamingServiceOptionsChangeData) => {
-			const streamingServiceValues = {} as Record<string, StreamingServiceValue>;
-			for (const [id, value] of Object.entries(BrowserStorage.options.streamingServices)) {
-				streamingServiceValues[id] = { ...value };
+		const onServiceOptionChange = (data: ServiceOptionsChangeData) => {
+			const serviceValues = {} as Record<string, ServiceValue>;
+			for (const [id, value] of Object.entries(BrowserStorage.options.services)) {
+				serviceValues[id] = { ...value };
 			}
 			const originsToAdd = [];
 			const originsToRemove = [];
 			for (const { id, value: partialValue } of data) {
-				const service = streamingServices[id];
+				const service = getService(id);
 				const value = {
-					...streamingServiceValues[id],
+					...serviceValues[id],
 					...partialValue,
 				};
 				if (value.scrobble && !service.hasScrobbler) {
@@ -123,11 +108,10 @@ export const OptionsApp: React.FC = () => {
 				} else {
 					originsToRemove.push(...service.hostPatterns);
 				}
-				streamingServiceValues[id] = value;
+				serviceValues[id] = value;
 			}
-			const scrobblerEnabled = Object.entries(streamingServiceValues).some(
-				([streamingServiceId, value]) =>
-					streamingServices[streamingServiceId].hasScrobbler && value.scrobble
+			const scrobblerEnabled = Object.entries(serviceValues).some(
+				([serviceId, value]) => getService(serviceId).hasScrobbler && value.scrobble
 			);
 			const permissionPromises: Promise<boolean>[] = [];
 			if (originsToAdd.length > 0) {
@@ -153,8 +137,8 @@ export const OptionsApp: React.FC = () => {
 				.then(async (isSuccessArr) => {
 					if (isSuccessArr.every((isSuccess) => isSuccess)) {
 						await saveOption({
-							id: 'streamingServices',
-							value: streamingServiceValues,
+							id: 'services',
+							value: serviceValues,
 						});
 						if (
 							data.some(

@@ -1,11 +1,11 @@
+import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
+import { ThemeWrapper } from '@components/ThemeWrapper';
+import '@options/options.html';
+import '@options/options.scss';
+import { OptionsApp } from '@options/OptionsApp';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import '../../assets/assets';
-import { Messaging } from '../../common/Messaging';
-import { Shared } from '../../common/Shared';
-import { ThemeWrapper } from '../../components/ThemeWrapper';
-import './options.scss';
-import { OptionsApp } from './OptionsApp';
 
 const init = () => {
 	Shared.pageType = 'popup';

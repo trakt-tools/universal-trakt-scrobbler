@@ -1,5 +1,5 @@
 {
-	"exclude": ["./node_modules", "./build", "./create-streaming-service"],
+	"exclude": ["./node_modules", "./build"],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,
@@ -9,8 +9,36 @@
 		"sourceMap": true,
 		"target": "ES2020",
 		"strict": true,
-		"typeRoots": ["./node_modules/@types", "./node_modules/web-ext-types"],
 		"resolveJsonModule": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"baseUrl": "./",
+		"paths": {
+			"@locales/*": ["./src/_locales/*"],
+			"@apis/*": ["./src/apis/*"],
+			"@common/*": ["./src/common/*"],
+			"@components/*": [
+				"./src/components/*",
+				"./src/modules/history/components/*",
+				"./src/modules/options/components/*",
+				"./src/modules/popup/components/*"
+			],
+			"@images/*": ["./src/images/*"],
+			"@models/*": ["./src/models/*"],
+			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],
+			"@stores/*": ["./src/stores/*"],
+			"@styles/*": ["./src/styles/*"],
+			"@background": ["./src/modules/background/background"],
+			"@service": ["./src/modules/content/service/service"],
+			"@trakt": ["./src/modules/content/trakt/trakt"],
+			"@history": ["./src/modules/history/history"],
+			"@history/*": ["./src/modules/history/*"],
+			"@options": ["./src/modules/options/options"],
+			"@options/*": ["./src/modules/options/*"],
+			"@popup": ["./src/modules/popup/popup"],
+			"@popup/*": ["./src/modules/popup/*"],
+			"@services": ["./src/services/services"],
+			"@services-apis": ["./src/services/apis"],
+			"@/*": ["./src/services/*", "./src/*"]
+		}
 	}
 }

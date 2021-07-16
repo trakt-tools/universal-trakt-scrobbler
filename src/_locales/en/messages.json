@@ -246,7 +246,7 @@
 	"no": {
 		"message": "No"
 	},
-	"noStreamingServices": {
+	"noServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
 	},
 	"notAvailable": {
@@ -326,7 +326,7 @@
 	"selectNone": {
 		"message": "None"
 	},
-	"selectStreamingService": {
+	"selectService": {
 		"message": "Select a streaming service to sync from:"
 	},
 	"sendReceiveSuggestionsDescription": {
@@ -350,10 +350,10 @@
 	"showNotificationsName": {
 		"message": "Show browser notifications."
 	},
-	"streamingServicesDescription": {
+	"servicesDescription": {
 		"message": "Choose which streaming services to enable."
 	},
-	"streamingServicesName": {
+	"servicesName": {
 		"message": "Streaming services"
 	},
 	"suggestedBy": {

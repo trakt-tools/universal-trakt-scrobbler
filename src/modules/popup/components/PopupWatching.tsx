@@ -1,15 +1,15 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { PopupInfo } from '@components/PopupInfo';
+import { TmdbImage } from '@components/TmdbImage';
+import { UtsSnackbar } from '@components/UtsSnackbar';
+import { WrongItemDialog } from '@components/WrongItemDialog';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@material-ui/core';
 import PauseIcon from '@material-ui/icons/Pause';
+import { Item } from '@models/Item';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
-import { BrowserStorage } from '../../../common/BrowserStorage';
-import { EventDispatcher } from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { TmdbImage } from '../../../components/TmdbImage';
-import { UtsSnackbar } from '../../../components/UtsSnackbar';
-import { WrongItemDialog } from '../../../components/WrongItemDialog';
-import { Item } from '../../../models/Item';
-import { PopupInfo } from './PopupInfo';
 
 export interface IPopupWatching {
 	item: Item;

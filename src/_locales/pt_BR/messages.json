@@ -246,7 +246,7 @@
 	"no": {
 		"message": "Não"
 	},
-	"noStreamingServices": {
+	"noServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
 	},
 	"notAvailable": {
@@ -326,7 +326,7 @@
 	"selectNone": {
 		"message": "Nenhum"
 	},
-	"selectStreamingService": {
+	"selectService": {
 		"message": "Selecione um serviço de streaming para sincronizar:"
 	},
 	"sendReceiveSuggestionsDescription": {
@@ -350,10 +350,10 @@
 	"showNotificationsName": {
 		"message": "Mostrar notificações no navegador."
 	},
-	"streamingServicesDescription": {
+	"servicesDescription": {
 		"message": "Escolha quais serviços de streaming deseja ativar."
 	},
-	"streamingServicesName": {
+	"servicesName": {
 		"message": "Serviços de streaming"
 	},
 	"suggestedBy": {

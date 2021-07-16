@@ -1,6 +1,7 @@
-import { EventDispatcher } from './Events';
-import { Messaging } from './Messaging';
-import { Shared } from './Shared';
+import { EventDispatcher } from '@common/Events';
+import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
+import { browser } from 'webextension-polyfill-ts';
 
 export interface BrowserActionRotating {
 	image: HTMLImageElement | null;
@@ -29,7 +30,7 @@ class _BrowserAction {
 
 	async setTitle(title = 'Universal Trakt Scrobbler'): Promise<void> {
 		if (Shared.pageType === 'background') {
-			browser.browserAction.setTitle({ title });
+			await browser.browserAction.setTitle({ title });
 		} else {
 			await Messaging.toBackground({ action: 'set-title', title });
 		}

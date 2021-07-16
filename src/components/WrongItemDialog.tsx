@@ -1,3 +1,11 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher, WrongItemDialogShowData } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Messaging } from '@common/Messaging';
+import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { UtsCenter } from '@components/UtsCenter';
 import {
 	Button,
 	CircularProgress,
@@ -12,17 +20,9 @@ import {
 	ListItemText,
 	TextField,
 } from '@material-ui/core';
+import { CorrectionSuggestion, Item } from '@models/Item';
+import { getServices } from '@models/Service';
 import * as React from 'react';
-import { BrowserStorage } from '../common/BrowserStorage';
-import { Errors } from '../common/Errors';
-import { EventDispatcher, WrongItemDialogShowData } from '../common/Events';
-import { I18N } from '../common/I18N';
-import { Messaging } from '../common/Messaging';
-import { RequestException } from '../common/Requests';
-import { Shared } from '../common/Shared';
-import { CorrectionSuggestion, Item } from '../models/Item';
-import { streamingServices } from '../streaming-services/streaming-services';
-import { UtsCenter } from './UtsCenter';
 
 interface WrongItemDialogState {
 	isOpen: boolean;
@@ -86,9 +86,7 @@ export const WrongItemDialog: React.FC = () => {
 			const url = cleanUrl(dialog.url);
 			let { correctItems } = await BrowserStorage.get('correctItems');
 			if (!correctItems) {
-				correctItems = Object.fromEntries(
-					Object.keys(streamingServices).map((serviceId) => [serviceId, {}])
-				);
+				correctItems = Object.fromEntries(getServices().map((service) => [service.id, {}]));
 			}
 			if (!correctItems[dialog.item.serviceId]) {
 				correctItems[dialog.item.serviceId] = {};

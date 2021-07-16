@@ -1,22 +1,23 @@
+import { EventDispatcher } from '@common/Events';
+import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
+import { ErrorBoundary } from '@components/ErrorBoundary';
+import { HistoryHeader } from '@components/HistoryHeader';
+import { LoginWrapper } from '@components/LoginWrapper';
+import { UtsDialog } from '@components/UtsDialog';
+import { UtsSnackbar } from '@components/UtsSnackbar';
 import { Container } from '@material-ui/core';
+import { getServices } from '@models/Service';
+import { AutoSyncPage } from '@pages/AutoSyncPage';
+import { AboutPage } from '@pages/HistoryAboutPage';
+import { HomePage } from '@pages/HistoryHomePage';
+import { LoginPage } from '@pages/HistoryLoginPage';
+import { SyncPage } from '@pages/SyncPage';
+import '@services-apis';
 import { createHashHistory } from 'history';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
-import { EventDispatcher } from '../../common/Events';
-import { Session } from '../../common/Session';
-import { Shared } from '../../common/Shared';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { LoginWrapper } from '../../components/LoginWrapper';
-import { UtsDialog } from '../../components/UtsDialog';
-import { UtsSnackbar } from '../../components/UtsSnackbar';
-import '../../streaming-services/apis';
-import { getServicePages } from '../../streaming-services/common/common';
-import { HistoryHeader } from './components/HistoryHeader';
-import { AboutPage } from './pages/AboutPage';
-import { AutoSyncPage } from './pages/AutoSyncPage';
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
 
 const history = createHashHistory();
 Shared.history = history;
@@ -62,9 +63,17 @@ export const HistoryApp: React.FC = () => {
 							))}
 						/>
 						<Route path="/about" render={() => <AboutPage />} />
-						{getServicePages().map((service) => (
-							<Route key={service.id} path={service.path} render={service.pageBuilder} />
-						))}
+						{getServices()
+							.filter((service) => service.hasSync)
+							.map((service) => (
+								<Route
+									key={service.id}
+									path={service.path}
+									render={LoginWrapper.wrap(() => (
+										<SyncPage serviceId={service.id} />
+									))}
+								/>
+							))}
 						<Route
 							path="/auto-sync"
 							render={LoginWrapper.wrap(() => (

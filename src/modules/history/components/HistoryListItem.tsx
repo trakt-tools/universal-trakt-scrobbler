@@ -1,12 +1,12 @@
+import { EventDispatcher } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { HistoryListItemCard } from '@components/HistoryListItemCard';
 import { Box, Checkbox, Tooltip } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
+import { Item } from '@models/Item';
+import { getService } from '@models/Service';
 import * as React from 'react';
-import { EventDispatcher } from '../../../common/Events';
-import { I18N } from '../../../common/I18N';
-import { Item } from '../../../models/Item';
-import { streamingServices } from '../../../streaming-services/streaming-services';
-import { HistoryListItemCard } from './HistoryListItemCard';
 
 interface HistoryListItemProps {
 	item: Item;
@@ -17,7 +17,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 	const { item, serviceId } = props;
 
 	const onCheckboxChange = async () => {
-		await EventDispatcher.dispatch('STREAMING_SERVICE_HISTORY_CHANGE', null, {
+		await EventDispatcher.dispatch('SERVICE_HISTORY_CHANGE', null, {
 			index: item.index,
 			checked: !item.isSelected,
 		});
@@ -53,7 +53,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			)}
 			<HistoryListItemCard
 				item={item}
-				name={streamingServices[item.serviceId].name}
+				name={getService(item.serviceId).name}
 				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 			/>
 			<Tooltip title={I18N.translate(statusMessageName)}>

@@ -1,10 +1,11 @@
-import { TraktAuthDetails } from '../api/TraktAuth';
-import { SavedItem } from '../models/Item';
-import { CacheValues } from './Cache';
-import { Errors } from './Errors';
-import { RequestDetails } from './Requests';
-import { Shared } from './Shared';
-import { TabProperties } from './Tabs';
+import { TraktAuthDetails } from '@apis/TraktAuth';
+import { CacheValues } from '@common/Cache';
+import { Errors } from '@common/Errors';
+import { RequestDetails } from '@common/Requests';
+import { Shared } from '@common/Shared';
+import { TabProperties } from '@common/Tabs';
+import { SavedItem } from '@models/Item';
+import { browser, Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
 
 export type MessageRequest = MessageRequests[keyof MessageRequests];
 
@@ -39,7 +40,7 @@ export type ReturnType<T extends MessageRequest> = T extends GetCacheMessage
 	: ReturnTypes[T['action']];
 
 export interface ReturnTypes<GetCacheKey extends keyof CacheValues = keyof CacheValues> {
-	'open-tab': browser.tabs.Tab | null;
+	'open-tab': WebExtTabs.Tab | null;
 	'get-tab-id': number | null;
 	'check-login': TraktAuthDetails | null;
 	'finish-login': void;
@@ -189,7 +190,7 @@ class _Messaging {
 		) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
 	} = {};
 
-	ports = new Map<number, browser.runtime.Port>();
+	ports = new Map<number, WebExtRuntime.Port>();
 
 	startListeners() {
 		if (Shared.pageType === 'content') {
@@ -197,14 +198,14 @@ class _Messaging {
 		} else if (Shared.pageType === 'background') {
 			browser.runtime.onConnect.addListener(this.onConnect);
 		}
-		browser.runtime.onMessage.addListener(this.onMessage as browser.runtime.onMessageEvent);
+		browser.runtime.onMessage.addListener(this.onMessage);
 	}
 
 	stoptListeners() {
-		browser.runtime.onMessage.removeListener(this.onMessage as browser.runtime.onMessageEvent);
+		browser.runtime.onMessage.removeListener(this.onMessage);
 	}
 
-	private onConnect = (port: browser.runtime.Port) => {
+	private onConnect = (port: WebExtRuntime.Port) => {
 		const tabId = port.sender?.tab?.id;
 		if (!tabId) {
 			return;
@@ -219,22 +220,21 @@ class _Messaging {
 		});
 	};
 
-	onPortDisconnected: ((port: browser.runtime.Port, tabId: number) => Promisable<void>) | null =
-		null;
+	onPortDisconnected: ((port: WebExtRuntime.Port, tabId: number) => Promisable<void>) | null = null;
 
 	private onMessage = <T extends MessageRequest>(
 		message: T,
-		sender: browser.runtime.MessageSender
-	): Promise<ReturnType<T>> | boolean => {
+		sender: WebExtRuntime.MessageSender
+	): Promise<ReturnType<T>> | void => {
 		const messageHandler = this.messageHandlers[message.action];
 		if (typeof messageHandler === 'undefined') {
-			return false;
+			return;
 		}
 		const executingAction = messageHandler(message as never, sender.tab?.id ?? null) as
 			| Promisable<ReturnType<T>>
 			| undefined;
 		if (typeof executingAction === 'undefined') {
-			return false;
+			return;
 		}
 		return Promise.resolve(executingAction).catch((err: Error) => {
 			Errors.log('Failed to execute action.', err);
