@@ -65,14 +65,14 @@
 	"clearSyncCache": {
 		"message": "Clear Sync Cache"
 	},
-	"clearTraktCache": {
-		"message": "Clear Trakt Cache"
+	"clearCaches": {
+		"message": "Clear Caches"
 	},
-	"clearTraktCacheFailed": {
-		"message": "Failed to clear Trakt cache."
+	"clearCachesFailed": {
+		"message": "Failed to clear caches."
 	},
-	"clearTraktCacheSuccess": {
-		"message": "Trakt cache cleared."
+	"clearCachesSuccess": {
+		"message": "Caches cleared."
 	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
@@ -101,11 +101,11 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Clear sync cache?"
 	},
-	"confirmClearTraktCacheMessage": {
-		"message": "All of the items you have corrected will be reset."
+	"confirmClearCachesMessage": {
+		"message": "All of the caches will be cleared, except for the sync cache."
 	},
-	"confirmClearTraktCacheTitle": {
-		"message": "Clear Trakt cache?"
+	"confirmClearCachesTitle": {
+		"message": "Clear caches?"
 	},
 	"continueLoading": {
 		"message": "Continue Loading"

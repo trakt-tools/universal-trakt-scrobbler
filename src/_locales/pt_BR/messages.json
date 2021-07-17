@@ -65,14 +65,14 @@
 	"clearSyncCache": {
 		"message": "Limpar Cache de Sincronização"
 	},
-	"clearTraktCache": {
-		"message": "Limpar Cache do Trakt"
+	"clearCaches": {
+		"message": "Limpar Caches"
 	},
-	"clearTraktCacheFailed": {
-		"message": "Ocorreu um erro ao limpar o cache do Trakt."
+	"clearCachesFailed": {
+		"message": "Ocorreu um erro ao limpar os caches."
 	},
-	"clearTraktCacheSuccess": {
-		"message": "Cache do Trakt limpado."
+	"clearCachesSuccess": {
+		"message": "Caches limpados."
 	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
@@ -101,11 +101,11 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Limpar o cache de sincronização?"
 	},
-	"confirmClearTraktCacheMessage": {
-		"message": "Todos os itens que você corrigiu serão resetados."
+	"confirmClearCachesMessage": {
+		"message": "Todos os caches serão limpados, exceto pelo cache de sincronização."
 	},
-	"confirmClearTraktCacheTitle": {
-		"message": "Limar o cache do Trakt?"
+	"confirmClearCachesTitle": {
+		"message": "Limar os caches?"
 	},
 	"continueLoading": {
 		"message": "Continuar Carregando"

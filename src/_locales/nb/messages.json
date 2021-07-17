@@ -65,14 +65,14 @@
 	"clearSyncCache": {
 		"message": "Fjern synkroniseringscache"
 	},
-	"clearTraktCache": {
-		"message": "Fjern Trakt-cache"
+	"clearCaches": {
+		"message": "Fjern caches"
 	},
-	"clearTraktCacheFailed": {
-		"message": "Klarte ikke å fjerne Trakt cache."
+	"clearCachesFailed": {
+		"message": "Klarte ikke å fjerne caches."
 	},
-	"clearTraktCacheSuccess": {
-		"message": "Trakt cache er fjernet."
+	"clearCachesSuccess": {
+		"message": "Caches er fjernet."
 	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
@@ -101,11 +101,11 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Fjerne synkroniseringscachen?"
 	},
-	"confirmClearTraktCacheMessage": {
-		"message": "Alt rettelser du har gjort blir tilbakestilt."
+	"confirmClearCachesMessage": {
+		"message": "All of the caches will be cleared, except for the sync cache."
 	},
-	"confirmClearTraktCacheTitle": {
-		"message": "Fjerne Trakt cache?"
+	"confirmClearCachesTitle": {
+		"message": "Fjerne caches?"
 	},
 	"continueLoading": {
 		"message": "Fortsett innlasting"

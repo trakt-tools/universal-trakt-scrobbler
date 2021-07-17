@@ -68,6 +68,10 @@ class _Cache {
 	private isChecking = false;
 	private checkTimeout: number | null = null;
 
+	readonly storageKeys = Object.keys(this.ttl).map(
+		(key) => `${key}Cache`
+	) as (keyof CacheStorageValues)[];
+
 	timestamp = 0;
 
 	async check() {
