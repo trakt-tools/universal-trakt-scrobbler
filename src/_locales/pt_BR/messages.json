@@ -50,6 +50,15 @@
 	"cannotSyncMissingWatchedDate": {
 		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
+	"clearCaches": {
+		"message": "Limpar Caches"
+	},
+	"clearCachesFailed": {
+		"message": "Ocorreu um erro ao limpar os caches."
+	},
+	"clearCachesSuccess": {
+		"message": "Caches limpados."
+	},
 	"clearLastSync": {
 		"message": "Limpar Data da Última Sincronização"
 	},
@@ -65,18 +74,15 @@
 	"clearSyncCache": {
 		"message": "Limpar Cache de Sincronização"
 	},
-	"clearCaches": {
-		"message": "Limpar Caches"
-	},
-	"clearCachesFailed": {
-		"message": "Ocorreu um erro ao limpar os caches."
-	},
-	"clearCachesSuccess": {
-		"message": "Caches limpados."
-	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Fechar"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Todos os caches serão limpados, exceto pelo cache de sincronização."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Limar os caches?"
 	},
 	"confirmClearLastSyncMessage": {
 		"message": "Você terá que sincronizar manualmente na página de histórico do serviço de streaming novamente para reativar a sincronização automática."
@@ -101,12 +107,6 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Limpar o cache de sincronização?"
 	},
-	"confirmClearCachesMessage": {
-		"message": "Todos os caches serão limpados, exceto pelo cache de sincronização."
-	},
-	"confirmClearCachesTitle": {
-		"message": "Limar os caches?"
-	},
 	"continueLoading": {
 		"message": "Continuar Carregando"
 	},
@@ -119,6 +119,25 @@
 	},
 	"correctItemFailed": {
 		"message": "Ocorreu um erro ao corrigir o item."
+	},
+	"correctionDialogContent": {
+		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo ou use uma das sugestões.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "ATENÇÃO: Você está corrigindo um item que já foi sincronizado. Se você prosseguir, o item previamente sincronizado será removido do seu histórico no Trakt."
 	},
 	"couldNotScrobble": {
 		"message": "Não foi possível realizar o scrobble."
@@ -178,6 +197,9 @@
 	},
 	"home": {
 		"message": "Início"
+	},
+	"invalidTraktUrl": {
+		"message": "Por favor, digite uma URL do Trakt válida!"
 	},
 	"isThisWrong": {
 		"message": "Isso está errado?"
@@ -347,17 +369,17 @@
 	"serviceSync": {
 		"message": "Sincronização"
 	},
-	"showNotificationsDescription": {
-		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
-	},
-	"showNotificationsName": {
-		"message": "Mostrar notificações no navegador."
-	},
 	"servicesDescription": {
 		"message": "Escolha quais serviços de streaming deseja ativar."
 	},
 	"servicesName": {
 		"message": "Serviços de streaming"
+	},
+	"showNotificationsDescription": {
+		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
+	},
+	"showNotificationsName": {
+		"message": "Mostrar notificações no navegador."
 	},
 	"suggestedBy": {
 		"message": "Sugerido por $COUNT$ usuários",
@@ -402,28 +424,6 @@
 	},
 	"watched": {
 		"message": "Assistido Em"
-	},
-	"correctionDialogContent": {
-		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"correctionDialogContentWithSuggestions": {
-		"message": "Digite a URL do Trakt correta para $TITLE$ no campo abaixo ou use uma das sugestões.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"invalidTraktUrl": {
-		"message": "Por favor, digite uma URL do Trakt válida!"
-	},
-	"correctionDialogSyncedWarning": {
-		"message": "ATENÇÃO: Você está corrigindo um item que já foi sincronizado. Se você prosseguir, o item previamente sincronizado será removido do seu histórico no Trakt."
 	},
 	"yes": {
 		"message": "Sim"

@@ -50,6 +50,15 @@
 	"cannotSyncMissingWatchedDate": {
 		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
+	"clearCaches": {
+		"message": "Clear Caches"
+	},
+	"clearCachesFailed": {
+		"message": "Failed to clear caches."
+	},
+	"clearCachesSuccess": {
+		"message": "Caches cleared."
+	},
 	"clearLastSync": {
 		"message": "Clear Last Sync Date"
 	},
@@ -65,18 +74,15 @@
 	"clearSyncCache": {
 		"message": "Clear Sync Cache"
 	},
-	"clearCaches": {
-		"message": "Clear Caches"
-	},
-	"clearCachesFailed": {
-		"message": "Failed to clear caches."
-	},
-	"clearCachesSuccess": {
-		"message": "Caches cleared."
-	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Close"
+	},
+	"confirmClearCachesMessage": {
+		"message": "All of the caches will be cleared, except for the sync cache."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Clear caches?"
 	},
 	"confirmClearLastSyncMessage": {
 		"message": "You'll need to sync manually in the history page of the streaming service again to reactivate the automatic sync."
@@ -101,12 +107,6 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Clear sync cache?"
 	},
-	"confirmClearCachesMessage": {
-		"message": "All of the caches will be cleared, except for the sync cache."
-	},
-	"confirmClearCachesTitle": {
-		"message": "Clear caches?"
-	},
 	"continueLoading": {
 		"message": "Continue Loading"
 	},
@@ -119,6 +119,25 @@
 	},
 	"correctItemFailed": {
 		"message": "Failed to correct item."
+	},
+	"correctionDialogContent": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
 	},
 	"couldNotScrobble": {
 		"message": "Could not scrobble."
@@ -178,6 +197,9 @@
 	},
 	"home": {
 		"message": "Home"
+	},
+	"invalidTraktUrl": {
+		"message": "Please enter a valid Trakt URL!"
 	},
 	"isThisWrong": {
 		"message": "Is this wrong?"
@@ -347,17 +369,17 @@
 	"serviceSync": {
 		"message": "Sync"
 	},
-	"showNotificationsDescription": {
-		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
-	},
-	"showNotificationsName": {
-		"message": "Show browser notifications."
-	},
 	"servicesDescription": {
 		"message": "Choose which streaming services to enable."
 	},
 	"servicesName": {
 		"message": "Streaming services"
+	},
+	"showNotificationsDescription": {
+		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
+	},
+	"showNotificationsName": {
+		"message": "Show browser notifications."
 	},
 	"suggestedBy": {
 		"message": "Suggested by $COUNT$ users",
@@ -402,28 +424,6 @@
 	},
 	"watched": {
 		"message": "Watched On"
-	},
-	"correctionDialogContent": {
-		"message": "Enter the correct Trakt URL for $TITLE$ in the field below.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"correctionDialogContentWithSuggestions": {
-		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"invalidTraktUrl": {
-		"message": "Please enter a valid Trakt URL!"
-	},
-	"correctionDialogSyncedWarning": {
-		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
 	},
 	"yes": {
 		"message": "Yes"

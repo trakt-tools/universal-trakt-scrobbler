@@ -50,6 +50,15 @@
 	"cannotSyncMissingWatchedDate": {
 		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
+	"clearCaches": {
+		"message": "Fjern caches"
+	},
+	"clearCachesFailed": {
+		"message": "Klarte ikke å fjerne caches."
+	},
+	"clearCachesSuccess": {
+		"message": "Caches er fjernet."
+	},
 	"clearLastSync": {
 		"message": "Fjern siste synkroniseringsdato"
 	},
@@ -65,18 +74,15 @@
 	"clearSyncCache": {
 		"message": "Fjern synkroniseringscache"
 	},
-	"clearCaches": {
-		"message": "Fjern caches"
-	},
-	"clearCachesFailed": {
-		"message": "Klarte ikke å fjerne caches."
-	},
-	"clearCachesSuccess": {
-		"message": "Caches er fjernet."
-	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Lukk"
+	},
+	"confirmClearCachesMessage": {
+		"message": "All of the caches will be cleared, except for the sync cache."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Fjerne caches?"
 	},
 	"confirmClearLastSyncMessage": {
 		"message": "Du er nødt til å synkronisere på nytt manuelt på historikksiden til strømmetjenesten om du ønsker å reaktivere automatisk synkronisering."
@@ -101,12 +107,6 @@
 	"confirmClearSyncCacheTitle": {
 		"message": "Fjerne synkroniseringscachen?"
 	},
-	"confirmClearCachesMessage": {
-		"message": "All of the caches will be cleared, except for the sync cache."
-	},
-	"confirmClearCachesTitle": {
-		"message": "Fjerne caches?"
-	},
 	"continueLoading": {
 		"message": "Fortsett innlasting"
 	},
@@ -119,6 +119,25 @@
 	},
 	"correctItemFailed": {
 		"message": "Fikk ikke til å korrigere element."
+	},
+	"correctionDialogContent": {
+		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Skriv inn riktig Trakt URL til $TITLE$ i feltet nedenfor, eller bruk en av forslagene.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
@@ -178,6 +197,9 @@
 	},
 	"home": {
 		"message": "Hjem"
+	},
+	"invalidTraktUrl": {
+		"message": "Lim inn en gyldig URL til Trakt!"
 	},
 	"isThisWrong": {
 		"message": "Er dette feil?"
@@ -347,17 +369,17 @@
 	"serviceSync": {
 		"message": "Historikk-synkronisering"
 	},
-	"showNotificationsDescription": {
-		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
-	},
-	"showNotificationsName": {
-		"message": "Vis nettleservarsler"
-	},
 	"servicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
 	"servicesName": {
 		"message": "Strømmetjenester"
+	},
+	"showNotificationsDescription": {
+		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
+	},
+	"showNotificationsName": {
+		"message": "Vis nettleservarsler"
 	},
 	"suggestedBy": {
 		"message": "Foreslått av $COUNT$ brukere",
@@ -402,28 +424,6 @@
 	},
 	"watched": {
 		"message": "Dato sett"
-	},
-	"correctionDialogContent": {
-		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"correctionDialogContentWithSuggestions": {
-		"message": "Skriv inn riktig Trakt URL til $TITLE$ i feltet nedenfor, eller bruk en av forslagene.",
-		"placeholders": {
-			"title": {
-				"content": "$1"
-			}
-		}
-	},
-	"invalidTraktUrl": {
-		"message": "Lim inn en gyldig URL til Trakt!"
-	},
-	"correctionDialogSyncedWarning": {
-		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"yes": {
 		"message": "Ja"
