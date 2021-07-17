@@ -1,6 +1,7 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { TmdbApiConfig } from '@apis/TmdbApi';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { SavedTraktItem } from '@models/TraktItem';
 
 export type CacheItems<T extends (keyof CacheValues)[]> = {
 	[K in T[number]]: CacheItem<K>;
@@ -14,6 +15,7 @@ export interface CacheSubValues {
 	imageUrls: string | null;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
+	trakt: SavedTraktItem;
 }
 
 export type Cacheable<T = unknown> = {
@@ -31,7 +33,7 @@ export type CacheKeysToStorageKeys = {
 	[K in keyof CacheValues]: `${K}Cache`;
 };
 
-class CacheItem<K extends keyof CacheValues> {
+export class CacheItem<K extends keyof CacheValues> {
 	readonly cache: CacheValues[K];
 
 	constructor(cache: CacheValues[K]) {
@@ -60,6 +62,7 @@ class _Cache {
 		imageUrls: 24 * 60 * 60,
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
+		trakt: 24 * 60 * 60,
 	};
 
 	private isChecking = false;

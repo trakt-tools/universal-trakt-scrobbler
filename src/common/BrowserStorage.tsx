@@ -25,7 +25,6 @@ export type StorageValuesV5 = {
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV3;
 	syncOptions?: StorageValuesSyncOptionsV2;
-	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
 	corrections?: Partial<Record<string, Suggestion>>;
 	scrobblingItem?: Omit<SavedItem, ''>;
@@ -283,6 +282,12 @@ class _BrowserStorage {
 			await BrowserStorage.remove(['correctItems'] as unknown as (keyof StorageValues)[], true);
 		}
 
+		if (version < 5) {
+			console.log('Upgrading to v5...');
+
+			await BrowserStorage.remove(['traktCache'] as unknown as (keyof StorageValues)[], true);
+		}
+
 		await BrowserStorage.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -301,6 +306,7 @@ class _BrowserStorage {
 					'imageUrlsCache',
 					'suggestionsCache',
 					'tmdbApiConfigsCache',
+					'traktCache',
 				] as unknown as (keyof StorageValues)[],
 				true
 			);
