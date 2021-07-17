@@ -204,7 +204,7 @@
 		"message": "Klarte ikke å laste inn Trakt historikken."
 	},
 	"loadingHistory": {
-		"message": "Loading history"
+		"message": "Laster inn historikk"
 	},
 	"loadingSuggestions": {
 		"message": "Laster inn forslag"
@@ -412,7 +412,7 @@
 		}
 	},
 	"correctionDialogContentWithSuggestions": {
-		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
+		"message": "Skriv inn riktig Trakt URL til $TITLE$ i feltet nedenfor, eller bruk en av forslagene.",
 		"placeholders": {
 			"title": {
 				"content": "$1"
