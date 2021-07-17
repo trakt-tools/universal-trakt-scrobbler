@@ -1,5 +1,6 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { TmdbApiConfig } from '@apis/TmdbApi';
+import { TraktSettingsResponse } from '@apis/TraktSettings';
 import { TraktHistoryItem } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem } from '@models/TraktItem';
@@ -19,6 +20,7 @@ export interface CacheSubValues {
 	tmdbApiConfigs: TmdbApiConfig | null;
 	traktHistoryItems: TraktHistoryItem[];
 	traktItems: SavedTraktItem;
+	traktSettings: TraktSettingsResponse;
 	urlsToTraktItems: string;
 }
 
@@ -69,6 +71,7 @@ class _Cache {
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
 		traktHistoryItems: 45 * 60,
 		traktItems: 24 * 60 * 60,
+		traktSettings: 24 * 60 * 60,
 		urlsToTraktItems: 24 * 60 * 60,
 	};
 

@@ -1,4 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
+import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 
 export interface TraktSettingsResponse {
@@ -19,11 +20,17 @@ class _TraktSettings extends TraktApi {
 	async getTimeAndDateFormat() {
 		let dateFormat = 'ddd ';
 		try {
-			const responseText = await Requests.send({
-				url: this.SETTINGS_URL,
-				method: 'GET',
-			});
-			const settings = JSON.parse(responseText) as TraktSettingsResponse;
+			const cache = await Cache.get('traktSettings');
+			let settings = cache.get('default');
+			if (!settings) {
+				const responseText = await Requests.send({
+					url: this.SETTINGS_URL,
+					method: 'GET',
+				});
+				settings = JSON.parse(responseText) as TraktSettingsResponse;
+				cache.set('default', settings);
+				await Cache.set({ traktSettings: cache });
+			}
 			switch (settings.account.date_format) {
 				case 'dmy':
 					dateFormat += 'D MMM YYYY';
