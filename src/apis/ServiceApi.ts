@@ -51,13 +51,11 @@ export abstract class ServiceApi {
 				'urlsToTraktItems',
 			]);
 			const { corrections } = await BrowserStorage.get('corrections');
-			const promises = [];
 			for (const item of missingItems) {
 				const databaseId = item.getDatabaseId();
 				const correction = corrections?.[databaseId];
-				promises.push(ServiceApi.loadTraktItemHistory(item, caches, correction));
+				await ServiceApi.loadTraktItemHistory(item, caches, correction);
 			}
-			await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {

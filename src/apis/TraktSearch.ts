@@ -89,9 +89,9 @@ class _TraktSearch extends TraktApi {
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
 			if (exactItemDetails) {
-				searchItem = await this.findExactItem(exactItemDetails);
+				searchItem = await this.findExactItem(exactItemDetails, caches);
 			} else if (item.type === 'show') {
-				searchItem = await this.findEpisode(item);
+				searchItem = await this.findEpisode(item, caches);
 			} else {
 				searchItem = (await this.findItem(item)) as TraktSearchMovieItem;
 			}
@@ -157,7 +157,8 @@ class _TraktSearch extends TraktApi {
 	}
 
 	async findExactItem(
-		details: ExactItemDetails
+		details: ExactItemDetails,
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
 	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> {
 		const url =
 			'id' in details
@@ -174,12 +175,9 @@ class _TraktSearch extends TraktApi {
 		if (Array.isArray(searchItem)) {
 			return searchItem[0];
 		} else if ('season' in searchItem) {
-			const showResponse = await Requests.send({
-				url: `${this.API_URL}${url.replace(/\/seasons\/.*/, '')}`,
-				method: 'GET',
-			});
-			const show = JSON.parse(showResponse) as TraktSearchShowItemShow;
-			return { episode: searchItem, show };
+			const showUrl = url.replace(/\/seasons\/.*/, '');
+			const show = await this.findShow(showUrl, caches);
+			return { episode: searchItem, show: show.show };
 		} else {
 			return { movie: searchItem };
 		}
@@ -221,9 +219,56 @@ class _TraktSearch extends TraktApi {
 		return searchItem;
 	}
 
-	async findEpisode(item: Item): Promise<TraktSearchEpisodeItem> {
+	async findShow(
+		itemOrUrl: Item | string,
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
+	): Promise<TraktSearchShowItem> {
+		const showUrl =
+			itemOrUrl instanceof Item
+				? `${itemOrUrl.type}?query=${encodeURIComponent(itemOrUrl.title)}`
+				: itemOrUrl;
+		let traktDatabaseId = caches.urlsToTraktItems.get(showUrl);
+		let cacheItem = traktDatabaseId ? caches.traktItems.get(traktDatabaseId) : null;
+		if (!cacheItem) {
+			let show;
+			if (itemOrUrl instanceof Item) {
+				show = ((await this.findItem(itemOrUrl)) as TraktSearchShowItem).show;
+			} else {
+				const showResponse = await Requests.send({
+					url: `${this.API_URL}${showUrl}`,
+					method: 'GET',
+				});
+				show = JSON.parse(showResponse) as TraktSearchShowItemShow;
+			}
+			cacheItem = {
+				type: 'show',
+				id: show.ids.trakt,
+				tmdbId: show.ids.tmdb,
+				title: show.title,
+				year: show.year,
+			};
+			traktDatabaseId = `show_${cacheItem.id.toString()}`;
+			caches.traktItems.set(traktDatabaseId, cacheItem);
+			caches.urlsToTraktItems.set(showUrl, traktDatabaseId);
+		}
+		return {
+			show: {
+				ids: {
+					trakt: cacheItem.id,
+					tmdb: cacheItem.tmdbId,
+				},
+				title: cacheItem.title,
+				year: cacheItem.year,
+			},
+		};
+	}
+
+	async findEpisode(
+		item: Item,
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
+	): Promise<TraktSearchEpisodeItem> {
 		let episodeItem: TraktEpisodeItem;
-		const showItem = (await this.findItem(item)) as TraktSearchShowItem;
+		const showItem = await this.findShow(item, caches);
 		const responseText = await Requests.send({
 			url: this.getEpisodeUrl(item, showItem.show.ids.trakt),
 			method: 'GET',
