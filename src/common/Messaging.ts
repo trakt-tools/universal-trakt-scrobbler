@@ -30,8 +30,7 @@ export interface MessageRequests {
 	'get-scrobbling-info': GetScrobblingInfoMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
-	'wrong-item-corrected': WrongItemCorrectedMessage;
-	'save-correction-suggestion': SaveCorrectionSuggestionMessage;
+	'item-corrected': ItemCorrectedMessage;
 	'check-auto-sync': CheckAutoSyncMessage;
 }
 
@@ -64,8 +63,7 @@ export interface ReturnTypes<GetCacheKey extends keyof CacheValues = keyof Cache
 	};
 	'send-request': string;
 	'show-notification': void;
-	'wrong-item-corrected': void;
-	'save-correction-suggestion': void;
+	'item-corrected': void;
 	'check-auto-sync': void;
 }
 
@@ -161,18 +159,10 @@ export interface GetScrobblingInfoMessage {
 	action: 'get-scrobbling-info';
 }
 
-export interface WrongItemCorrectedMessage {
-	action: 'wrong-item-corrected';
-	item: SavedItem;
-	type: 'episode' | 'movie';
-	traktId?: number;
-	url: string;
-}
-
-export interface SaveCorrectionSuggestionMessage {
-	action: 'save-correction-suggestion';
-	item: SavedItem;
-	url: string;
+export interface ItemCorrectedMessage {
+	action: 'item-corrected';
+	oldItem: SavedItem;
+	newItem: SavedItem;
 }
 
 export interface CheckAutoSyncMessage {

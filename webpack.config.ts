@@ -240,8 +240,6 @@ const getManifest = (config: Config, browserName: string): string => {
 			'webRequest',
 			'webRequestBlocking',
 			'*://api.rollbar.com/*',
-			'*://script.google.com/*',
-			'*://script.googleusercontent.com/*',
 			...Object.values(services)
 				.map((service) => service.hostPatterns)
 				.flat(),
@@ -254,7 +252,14 @@ const getManifest = (config: Config, browserName: string): string => {
 			default_popup: 'popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
-		permissions: ['identity', 'storage', 'unlimitedStorage', '*://*.trakt.tv/*'],
+		permissions: [
+			'identity',
+			'storage',
+			'unlimitedStorage',
+			'*://*.trakt.tv/*',
+			'*://*.themoviedb.org/*',
+			'*://*.uts.rafaelgomes.xyz/*',
+		],
 		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
 	};
 	switch (browserName) {

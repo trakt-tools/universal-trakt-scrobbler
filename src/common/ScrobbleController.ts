@@ -2,10 +2,8 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
-import { EventDispatcher, ScrobbleProgressData, WrongItemCorrectedData } from '@common/Events';
+import { EventDispatcher, ItemCorrectedData, ScrobbleProgressData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
@@ -42,7 +40,7 @@ export class ScrobbleController {
 		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, this.onProgress);
-		EventDispatcher.subscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+		EventDispatcher.subscribe('ITEM_CORRECTED', null, this.onItemCorrected);
 	}
 
 	stopListeners() {
@@ -50,7 +48,7 @@ export class ScrobbleController {
 		EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, this.onPause);
 		EventDispatcher.unsubscribe('SCROBBLE_STOP', null, this.onStop);
 		EventDispatcher.unsubscribe('SCROBBLE_PROGRESS', null, this.onProgress);
-		EventDispatcher.unsubscribe('WRONG_ITEM_CORRECTED', null, this.onWrongItemCorrected);
+		EventDispatcher.unsubscribe('ITEM_CORRECTED', null, this.onItemCorrected);
 	}
 
 	private onStart = (): Promise<void> => {
@@ -78,10 +76,11 @@ export class ScrobbleController {
 		this.progress = 0.0;
 		if (!item.trakt && !this.hasSearchedItem) {
 			this.hasSearchedItem = true;
-			const storage = await BrowserStorage.get(['correctItems']);
-			const { correctItems } = storage;
-			const correctItem = correctItems?.[item.serviceId]?.[item.id];
-			item.trakt = await TraktSearch.find(item, correctItem);
+			const storage = await BrowserStorage.get(['corrections']);
+			const { corrections } = storage;
+			const databaseId = item.getDatabaseId();
+			const correction = corrections?.[databaseId];
+			item.trakt = await TraktSearch.find(item, correction);
 		}
 		if (!item.trakt) {
 			return;
@@ -153,33 +152,14 @@ export class ScrobbleController {
 		}
 	}
 
-	private onWrongItemCorrected = async (data: WrongItemCorrectedData): Promise<void> => {
+	private onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
 		const item = this.parser.getItem();
 		if (!item) {
 			return;
 		}
 		await this.updateProgress(0.0);
 		await this.stopScrobble();
-		item.trakt = await TraktSearch.find(item, {
-			type: data.type,
-			traktId: data.traktId,
-			url: data.url,
-		});
+		item.trakt = data.newItem.trakt;
 		await this.startScrobble();
-		try {
-			await Messaging.toBackground({
-				action: 'save-correction-suggestion',
-				item: Item.save(item),
-				url: data.url,
-			});
-		} catch (err) {
-			if (!(err as RequestException).canceled) {
-				Errors.error('Failed to save suggestion.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-					messageName: 'saveSuggestionFailed',
-					severity: 'error',
-				});
-			}
-		}
 	};
 }

@@ -1,6 +1,5 @@
 import { TraktAuth } from '@apis/TraktAuth';
 import { TraktScrobble } from '@apis/TraktScrobble';
-import { WrongItemApi } from '@apis/WrongItemApi';
 import { AutoSync } from '@common/AutoSync';
 import { BrowserAction } from '@common/BrowserAction';
 import { BrowserStorage, ServiceValue, StorageValuesOptions } from '@common/BrowserStorage';
@@ -18,7 +17,7 @@ import '@images/uts-icon-19.png';
 import '@images/uts-icon-38.png';
 import '@images/uts-icon-selected-19.png';
 import '@images/uts-icon-selected-38.png';
-import { Item, SavedItem } from '@models/Item';
+import { SavedItem } from '@models/Item';
 import { getService, getServices } from '@models/Service';
 import { TraktItem } from '@models/TraktItem';
 import {
@@ -296,11 +295,6 @@ Messaging.messageHandlers = {
 	}),
 
 	'show-notification': (message) => Notifications.show(message.title, message.message),
-
-	'save-correction-suggestion': (message) => {
-		const item = Item.load(message.item);
-		return WrongItemApi.saveSuggestion(item, message.url);
-	},
 
 	'check-auto-sync': () => checkAutoSync(),
 };

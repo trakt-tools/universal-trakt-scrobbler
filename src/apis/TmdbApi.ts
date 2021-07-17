@@ -2,9 +2,9 @@ import { secrets } from '@/secrets';
 import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { RequestException, Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
-import { browser } from 'webextension-polyfill-ts';
 
 export interface TmdbConfigResponse {
 	images?: {
@@ -14,60 +14,54 @@ export interface TmdbConfigResponse {
 	};
 }
 
-export type TmdbImageResponse = TmdbMovieImageResponse | TmdbShowImageResponse;
-
-export interface TmdbMovieImageResponse {
-	posters: {
-		file_path: string;
+export interface TmdbImageResponse {
+	posters?: {
+		file_path?: string;
+	}[];
+	stills?: {
+		file_path?: string;
 	}[];
 }
 
-export interface TmdbShowImageResponse {
-	stills: {
-		file_path: string;
-	}[];
-}
-
-export interface TmdbErrorResponse {
-	status_nessage: string;
-	status_code: number;
+export interface ImagesDatabaseResponse {
+	result: Partial<Record<string, string>>;
 }
 
 export interface TmdbApiConfig {
-	host: string;
-	width: {
-		movie: string;
+	baseUrl: string;
+	sizes: {
 		show: string;
+		movie: string;
 	};
 }
 
 class _TmdbApi {
-	API_VERSION = '3';
-	API_URL = `https://api.themoviedb.org/${this.API_VERSION}`;
-	CONFIGURATION_URL = `${this.API_URL}/configuration`;
-	DATABASE_URL =
-		'https://script.google.com/macros/s/AKfycbwicnLLG7ieloWYmKuVMGJUmxf7HAleg9ZRUMrGw4mQ6kXKwV6poeiHnaJT550DjKNA/exec';
-	PLACEHOLDER_IMAGE =
+	readonly API_VERSION = '3';
+	readonly API_URL = `https://api.themoviedb.org/${this.API_VERSION}`;
+	readonly CONFIGURATION_URL = `${this.API_URL}/configuration`;
+	readonly DATABASE_URL = `${Shared.DATABASE_URL}/tmdb`;
+	readonly IMAGES_DATABASE_URL = `${this.DATABASE_URL}/images`;
+	readonly PLACEHOLDER_IMAGE =
 		'https://trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png';
 
-	config: TmdbApiConfig | undefined;
+	private config: TmdbApiConfig | undefined;
 
-	async activate(): Promise<void> {
+	private async activate(): Promise<void> {
 		const responseText = await Requests.send({
 			url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as TmdbConfigResponse;
 		this.config = {
-			host: responseJson.images?.secure_base_url ?? '',
-			width: {
-				movie: responseJson.images?.poster_sizes?.[3] ?? '',
+			baseUrl: responseJson.images?.secure_base_url ?? '',
+			sizes: {
 				show: responseJson.images?.still_sizes?.[2] ?? '',
+				movie: responseJson.images?.poster_sizes?.[3] ?? '',
 			},
 		};
 	}
 
-	async findImage(item?: TraktItem | null): Promise<string | null> {
+	private async findImage(item?: TraktItem | null): Promise<string | null> {
 		if (!this.config) {
 			try {
 				await this.activate();
@@ -83,10 +77,11 @@ class _TmdbApi {
 		}
 		const cache = await Messaging.toBackground({
 			action: 'get-cache',
-			key: 'tmdbImages',
+			key: 'imageUrls',
 		});
-		let imageUrl = cache[item.id.toString()];
-		if (imageUrl) {
+		const databaseId = item.getDatabaseId();
+		let imageUrl = cache[databaseId];
+		if (typeof imageUrl !== 'undefined') {
 			return imageUrl;
 		}
 		try {
@@ -94,19 +89,17 @@ class _TmdbApi {
 				url: this.getItemUrl(item),
 				method: 'GET',
 			});
-			const responseJson = JSON.parse(responseText) as TmdbImageResponse | TmdbErrorResponse;
-			if (!('status_code' in responseJson)) {
-				const image = 'stills' in responseJson ? responseJson.stills[0] : responseJson.posters[0];
-				if (image) {
-					imageUrl = `${this.config.host}${this.config.width[item.type]}${image.file_path}`;
-					cache[item.id.toString()] = imageUrl;
-					await Messaging.toBackground({
-						action: 'set-cache',
-						key: 'tmdbImages',
-						value: cache,
-					});
-					return imageUrl;
-				}
+			const responseJson = JSON.parse(responseText) as TmdbImageResponse;
+			const image = responseJson?.stills?.[0] || responseJson?.posters?.[0];
+			if (image?.file_path) {
+				imageUrl = `${this.config.baseUrl}${this.config.sizes[item.type]}${image.file_path}`;
+				cache[databaseId] = imageUrl;
+				await Messaging.toBackground({
+					action: 'set-cache',
+					key: 'imageUrls',
+					value: cache,
+				});
+				return imageUrl;
 			}
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
@@ -116,7 +109,7 @@ class _TmdbApi {
 		return null;
 	}
 
-	getItemUrl(item: TraktItem): string {
+	private getItemUrl(item: TraktItem): string {
 		let type = '';
 		let path = '';
 		if (item.type === 'show') {
@@ -132,27 +125,29 @@ class _TmdbApi {
 		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
 	}
 
-	async loadImages(items: Item[]): Promise<void> {
-		const missingItems = items.filter((item) => typeof item.imageUrl === 'undefined');
-		if (
-			missingItems.length === 0 ||
-			!(await browser.permissions.contains({
-				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
-			}))
-		) {
-			return;
+	/**
+	 * Loads images for items from the database.
+	 *
+	 * If all images have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
+	 */
+	async loadImages(items: Item[]): Promise<Item[]> {
+		const hasLoadedImages = !items.some((item) => typeof item.imageUrl === 'undefined');
+		if (hasLoadedImages) {
+			return items;
 		}
+		const newItems = items.map((item) => item.clone());
+		const cache = await Messaging.toBackground({
+			action: 'get-cache',
+			key: 'imageUrls',
+		});
 		try {
-			const cache = await Messaging.toBackground({
-				action: 'get-cache',
-				key: 'tmdbImages',
-			});
-			const itemsToFetch = [];
-			for (const item of missingItems) {
-				if (!item.trakt) {
+			const itemsToFetch: Item[] = [];
+			for (const item of newItems) {
+				if (!item.trakt || typeof item.imageUrl !== 'undefined') {
 					continue;
 				}
-				const imageUrl = cache[item.trakt.id.toString()];
+				const databaseId = item.trakt.getDatabaseId();
+				const imageUrl = cache[databaseId];
 				if (typeof imageUrl !== 'undefined') {
 					item.imageUrl = imageUrl;
 				} else {
@@ -163,19 +158,19 @@ class _TmdbApi {
 				let json;
 				try {
 					const response = await Requests.send({
-						method: 'POST',
-						url: this.DATABASE_URL,
+						method: 'PUT',
+						url: this.IMAGES_DATABASE_URL,
 						body: {
 							items: itemsToFetch.map((item) => ({
+								type: item.trakt?.type === 'show' ? 'episode' : 'movie',
 								id: item.trakt?.id,
 								tmdbId: item.trakt?.tmdbId,
-								type: item.trakt?.type,
 								season: item.trakt?.season,
 								episode: item.trakt?.episode,
 							})),
 						},
 					});
-					json = JSON.parse(response) as Record<string, string | null>;
+					json = JSON.parse(response) as ImagesDatabaseResponse;
 				} catch (err) {
 					// Do nothing
 				}
@@ -183,79 +178,28 @@ class _TmdbApi {
 					if (!item.trakt) {
 						continue;
 					}
-					const imageUrl =
-						(json ? json[item.trakt.id.toString()] : await this.findImage(item.trakt)) ?? '';
-					item.imageUrl = imageUrl;
-					cache[item.trakt.id.toString()] = imageUrl;
+					const databaseId = item.trakt.getDatabaseId();
+					item.imageUrl = json?.result[databaseId] || (await this.findImage(item.trakt));
 				}
-				await Messaging.toBackground({
-					action: 'set-cache',
-					key: 'tmdbImages',
-					value: cache,
-				});
 			}
 		} catch (err) {
 			// Do nothing
 		}
-		for (const item of missingItems) {
-			item.imageUrl = item.imageUrl || this.PLACEHOLDER_IMAGE;
-		}
-	}
-
-	async loadItemImage(item: Item): Promise<Item> {
-		const itemCopy = new Item(item);
-		if (
-			typeof itemCopy.imageUrl !== 'undefined' ||
-			!itemCopy.trakt ||
-			!(await browser.permissions.contains({
-				origins: ['*://script.google.com/*', '*://script.googleusercontent.com/*'],
-			}))
-		) {
-			return itemCopy;
-		}
-		let imageUrl;
-		try {
-			const cache = await Messaging.toBackground({
-				action: 'get-cache',
-				key: 'tmdbImages',
-			});
-			imageUrl = cache[itemCopy.trakt.id.toString()];
-			if (typeof imageUrl === 'undefined') {
-				let json;
-				try {
-					const response = await Requests.send({
-						method: 'POST',
-						url: this.DATABASE_URL,
-						body: {
-							items: [
-								{
-									id: itemCopy.trakt.id,
-									tmdbId: itemCopy.trakt.tmdbId,
-									type: itemCopy.trakt.type,
-									season: itemCopy.trakt.season,
-									episode: itemCopy.trakt.episode,
-								},
-							],
-						},
-					});
-					json = JSON.parse(response) as Record<string, string | null>;
-				} catch (err) {
-					// Do nothing
-				}
-				imageUrl =
-					(json ? json[itemCopy.trakt.id.toString()] : await this.findImage(itemCopy.trakt)) ?? '';
-				cache[itemCopy.trakt.id.toString()] = imageUrl;
-				await Messaging.toBackground({
-					action: 'set-cache',
-					key: 'tmdbImages',
-					value: cache,
-				});
+		// Set all undefined images to `null` so that we don't try to load them again
+		for (const item of newItems) {
+			if (!item.trakt) {
+				continue;
 			}
-		} catch (err) {
-			// Do nothing
+			const databaseId = item.trakt.getDatabaseId();
+			item.imageUrl = item.imageUrl || null;
+			cache[databaseId] = item.imageUrl;
 		}
-		itemCopy.imageUrl = imageUrl || this.PLACEHOLDER_IMAGE;
-		return itemCopy;
+		await Messaging.toBackground({
+			action: 'set-cache',
+			key: 'imageUrls',
+			value: cache,
+		});
+		return newItems;
 	}
 }
 

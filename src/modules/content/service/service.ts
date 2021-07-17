@@ -29,12 +29,10 @@ export const init = async (serviceId: string) => {
 };
 
 Messaging.messageHandlers = {
-	'wrong-item-corrected': (message) => {
-		return EventDispatcher.dispatch('WRONG_ITEM_CORRECTED', null, {
-			item: Item.load(message.item),
-			type: message.type,
-			traktId: message.traktId,
-			url: message.url,
+	'item-corrected': (message) => {
+		return EventDispatcher.dispatch('ITEM_CORRECTED', null, {
+			oldItem: Item.load(message.oldItem),
+			newItem: Item.load(message.newItem),
 		});
 	},
 };

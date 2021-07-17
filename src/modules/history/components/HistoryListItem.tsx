@@ -30,8 +30,8 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 		});
 	};
 
-	const openWrongItemDialog = async () => {
-		await EventDispatcher.dispatch('WRONG_ITEM_DIALOG_SHOW', null, {
+	const openCorrectionDialog = async () => {
+		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			serviceId,
 			item,
 		});
@@ -64,9 +64,9 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = (props: HistoryLi
 			<HistoryListItemCard
 				item={item.trakt}
 				name="Trakt"
-				correctionSuggestions={item.correctionSuggestions}
+				suggestions={item.suggestions}
 				imageUrl={item.imageUrl}
-				openWrongItemDialog={openWrongItemDialog}
+				openCorrectionDialog={openCorrectionDialog}
 			/>
 		</Box>
 	);

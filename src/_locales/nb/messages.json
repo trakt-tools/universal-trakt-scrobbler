@@ -114,11 +114,11 @@
 		"description": "This is the verb, as in 'to correct'.",
 		"message": "Korriger"
 	},
-	"correctWrongItem": {
-		"message": "Korriger feilaktig element"
+	"correctItem": {
+		"message": "Korriger element"
 	},
-	"correctWrongItemFailed": {
-		"message": "Fikk ikke til å korrigere feilaktig element."
+	"correctItemFailed": {
+		"message": "Fikk ikke til å korrigere element."
 	},
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
@@ -202,6 +202,9 @@
 	},
 	"loadTraktHistoryError": {
 		"message": "Klarte ikke å laste inn Trakt historikken."
+	},
+	"loadingHistory": {
+		"message": "Laster inn historikk"
 	},
 	"loadingSuggestions": {
 		"message": "Laster inn forslag"
@@ -330,7 +333,7 @@
 		"message": "Velg en strømmetjeneste å synkronisere fra:"
 	},
 	"sendReceiveSuggestionsDescription": {
-		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Sheets-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
+		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Cloud-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
 	},
 	"sendReceiveSuggestionsName": {
 		"message": "Send / motta forslag til rettelser."
@@ -365,12 +368,7 @@
 		}
 	},
 	"suggestions": {
-		"message": "$SUGGESTIONS$ forslag",
-		"placeholders": {
-			"suggestions": {
-				"content": "$1"
-			}
-		}
+		"message": "Forslag"
 	},
 	"sync": {
 		"message": "Synkroniser historikk"
@@ -405,7 +403,7 @@
 	"watched": {
 		"message": "Dato sett"
 	},
-	"wrongItemDialogContent": {
+	"correctionDialogContent": {
 		"message": "Sett inn korrekt URL til Trakt-elementet for $TITLE$ i feltet nedenfor.",
 		"placeholders": {
 			"title": {
@@ -413,13 +411,18 @@
 			}
 		}
 	},
-	"wrongItemDialogContentSuggestions": {
-		"message": "Korrigeringsforslag (trykk for å bruke):"
+	"correctionDialogContentWithSuggestions": {
+		"message": "Skriv inn riktig Trakt URL til $TITLE$ i feltet nedenfor, eller bruk en av forslagene.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
 	},
-	"wrongItemDialogInvalidUrlLabel": {
+	"invalidTraktUrl": {
 		"message": "Lim inn en gyldig URL til Trakt!"
 	},
-	"wrongItemDialogSyncedWarning": {
+	"correctionDialogSyncedWarning": {
 		"message": "ADVARSEL: Du retter nå et element som allerede har blitt synkronisert. Dersom du fortsetter blir den tidligere synkroniserte elementet fjernet fra Trakt-historikken din."
 	},
 	"yes": {

@@ -1,5 +1,5 @@
+import { CorrectionApi } from '@apis/CorrectionApi';
 import { TmdbApi } from '@apis/TmdbApi';
-import { WrongItemApi } from '@apis/WrongItemApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, ScrobbleStartData, ScrobblingItemUpdateData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => {
 				scrobblingItem: data.item
 					? Item.load({
 							...data.item,
-							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
 					  })
 					: null,
@@ -89,7 +89,7 @@ export const HomePage: React.FC = () => {
 				scrobblingItem: data.scrobblingItem
 					? Item.load({
 							...data.scrobblingItem,
-							correctionSuggestions: prevContent.scrobblingItem?.correctionSuggestions,
+							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
 					  })
 					: null,
@@ -105,16 +105,16 @@ export const HomePage: React.FC = () => {
 			if (
 				!content.scrobblingItem ||
 				(BrowserStorage.options.sendReceiveSuggestions &&
-					typeof content.scrobblingItem.correctionSuggestions !== 'undefined') ||
+					typeof content.scrobblingItem.suggestions !== 'undefined') ||
 				typeof content.scrobblingItem.imageUrl !== 'undefined'
 			) {
 				return;
 			}
 			let newItem = content.scrobblingItem;
 			if (BrowserStorage.options.sendReceiveSuggestions) {
-				newItem = await WrongItemApi.loadItemSuggestions(newItem);
+				[newItem] = await CorrectionApi.loadSuggestions([newItem]);
 			}
-			newItem = await TmdbApi.loadItemImage(newItem);
+			[newItem] = await TmdbApi.loadImages([newItem]);
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: newItem,

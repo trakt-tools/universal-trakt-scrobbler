@@ -1,7 +1,7 @@
 @import '@styles/common.scss';
 
 .missing-watched-date-dialog,
-.wrong-item-dialog {
+.correction-dialog {
 	min-height: 150px;
 	min-width: 300px;
 }
@@ -17,6 +17,6 @@
 	background-color: rgba(0, 0, 0, 0.5);
 }
 
-.wrong-item-dialog-suggestions-title {
+.correction-dialog-suggestions-title {
 	margin-top: 8px;
 }
