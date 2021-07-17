@@ -7,7 +7,6 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
 import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
@@ -45,7 +44,12 @@ export abstract class ServiceApi {
 			return;
 		}
 		try {
-			const caches = await Cache.get(['trakt', 'traktHistoryItems']);
+			const caches = await Cache.get([
+				'itemsToTraktItems',
+				'traktItems',
+				'traktHistoryItems',
+				'urlsToTraktItems',
+			]);
 			const { corrections } = await BrowserStorage.get('corrections');
 			const promises = [];
 			for (const item of missingItems) {
@@ -67,25 +71,17 @@ export abstract class ServiceApi {
 
 	static async loadTraktItemHistory(
 		item: Item,
-		caches: CacheItems<['trakt', 'traktHistoryItems']>,
+		caches: CacheItems<
+			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
+		>,
 		correction?: Suggestion
 	) {
 		try {
-			const databaseId = item.getDatabaseId();
 			if (!item.trakt) {
-				const cacheItem = caches.trakt.get(databaseId);
-				item.trakt =
-					correction || !cacheItem
-						? await TraktSearch.find(item, correction)
-						: TraktItem.load(cacheItem);
+				item.trakt = await TraktSearch.find(item, caches, correction);
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
 				await TraktSync.loadHistory(item, caches.traktHistoryItems);
-				caches.trakt.set(databaseId, {
-					...TraktItem.save(item.trakt),
-					syncId: undefined,
-					watchedAt: undefined,
-				});
 			}
 		} catch (err) {
 			if (item.trakt) {

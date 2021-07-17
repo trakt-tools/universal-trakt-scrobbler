@@ -304,10 +304,12 @@ class _BrowserStorage {
 			await BrowserStorage.remove(
 				[
 					'imageUrlsCache',
+					'itemsToTraktItemsCache',
 					'suggestionsCache',
 					'tmdbApiConfigsCache',
-					'traktCache',
 					'traktHistoryItemsCache',
+					'traktItemsCache',
+					'urlsToTraktItemsCache',
 				] as unknown as (keyof StorageValues)[],
 				true
 			);

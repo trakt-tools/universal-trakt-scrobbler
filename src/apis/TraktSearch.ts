@@ -1,4 +1,6 @@
+import { CorrectionApi } from '@apis/CorrectionApi';
 import { TraktApi } from '@apis/TraktApi';
+import { CacheItems } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
@@ -67,8 +69,23 @@ class _TraktSearch extends TraktApi {
 		super();
 	}
 
-	async find(item: Item, exactItemDetails?: ExactItemDetails): Promise<TraktItem | undefined> {
+	async find(
+		item: Item,
+		caches: CacheItems<['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']>,
+		exactItemDetails?: ExactItemDetails
+	): Promise<TraktItem | undefined> {
 		let traktItem: TraktItem | undefined;
+		const databaseId = item.getDatabaseId();
+		let traktDatabaseId = exactItemDetails
+			? 'id' in exactItemDetails
+				? CorrectionApi.getSuggestionDatabaseId(exactItemDetails)
+				: caches.urlsToTraktItems.get(exactItemDetails.url)
+			: caches.itemsToTraktItems.get(databaseId);
+		const cacheItem = traktDatabaseId ? caches.traktItems.get(traktDatabaseId) : null;
+		if (cacheItem) {
+			traktItem = TraktItem.load(cacheItem);
+			return traktItem;
+		}
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
 			if (exactItemDetails) {
@@ -123,6 +140,18 @@ class _TraktSearch extends TraktApi {
 		} catch (err) {
 			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as RequestException });
 			throw err;
+		}
+		if (traktItem) {
+			traktDatabaseId = traktItem.getDatabaseId();
+			caches.itemsToTraktItems.set(databaseId, traktDatabaseId);
+			caches.traktItems.set(traktDatabaseId, {
+				...TraktItem.save(traktItem),
+				syncId: undefined,
+				watchedAt: undefined,
+			});
+			if (exactItemDetails && 'url' in exactItemDetails) {
+				caches.urlsToTraktItems.set(exactItemDetails.url, traktDatabaseId);
+			}
 		}
 		return traktItem;
 	}

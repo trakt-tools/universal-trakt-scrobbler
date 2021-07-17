@@ -14,10 +14,12 @@ export type CacheValues = {
 
 export interface CacheSubValues {
 	imageUrls: string | null;
+	itemsToTraktItems: string;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
-	trakt: SavedTraktItem;
 	traktHistoryItems: TraktHistoryItem[];
+	traktItems: SavedTraktItem;
+	urlsToTraktItems: string;
 }
 
 export type Cacheable<T = unknown> = {
@@ -62,10 +64,12 @@ class _Cache {
 	 */
 	private ttl: Record<keyof CacheValues, number> = {
 		imageUrls: 24 * 60 * 60,
+		itemsToTraktItems: 24 * 60 * 60,
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
-		trakt: 24 * 60 * 60,
 		traktHistoryItems: 45 * 60,
+		traktItems: 24 * 60 * 60,
+		urlsToTraktItems: 24 * 60 * 60,
 	};
 
 	private isChecking = false;

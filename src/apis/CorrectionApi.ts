@@ -26,6 +26,13 @@ class _CorrectionApi {
 	readonly SUGGESTIONS_DATABASE_URL = `${this.DATABASE_URL}/suggestions`;
 
 	/**
+	 * Returns the database ID for a suggestion.
+	 */
+	getSuggestionDatabaseId(suggestion: Pick<Suggestion, 'type' | 'id'>) {
+		return `${suggestion.type}_${suggestion.id.toString()}`;
+	}
+
+	/**
 	 * Returns a Trakt URL for a suggestion.
 	 */
 	getSuggestionUrl(suggestion: Suggestion) {

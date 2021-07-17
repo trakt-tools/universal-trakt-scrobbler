@@ -2,6 +2,7 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Cache } from '@common/Cache';
 import { EventDispatcher, ItemCorrectedData, ScrobbleProgressData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
@@ -76,11 +77,12 @@ export class ScrobbleController {
 		this.progress = 0.0;
 		if (!item.trakt && !this.hasSearchedItem) {
 			this.hasSearchedItem = true;
-			const storage = await BrowserStorage.get(['corrections']);
-			const { corrections } = storage;
+			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
+			const { corrections } = await BrowserStorage.get(['corrections']);
 			const databaseId = item.getDatabaseId();
 			const correction = corrections?.[databaseId];
-			item.trakt = await TraktSearch.find(item, correction);
+			item.trakt = await TraktSearch.find(item, caches, correction);
+			await Cache.set(caches);
 		}
 		if (!item.trakt) {
 			return;
