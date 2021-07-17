@@ -297,7 +297,11 @@ class _BrowserStorage {
 			console.log('Downgrading to v4...');
 
 			await BrowserStorage.remove(
-				['imageUrlsCache', 'suggestionsCache'] as unknown as (keyof StorageValues)[],
+				[
+					'imageUrlsCache',
+					'suggestionsCache',
+					'tmdbApiConfigsCache',
+				] as unknown as (keyof StorageValues)[],
 				true
 			);
 		}

@@ -1,4 +1,5 @@
 import { Suggestion } from '@apis/CorrectionApi';
+import { TmdbApiConfig } from '@apis/TmdbApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 
 export type CacheItems<T extends (keyof CacheValues)[]> = {
@@ -12,6 +13,7 @@ export type CacheValues = {
 export interface CacheSubValues {
 	imageUrls: string | null;
 	suggestions: Suggestion[] | null;
+	tmdbApiConfigs: TmdbApiConfig | null;
 }
 
 export type Cacheable<T = unknown> = {
@@ -57,6 +59,7 @@ class _Cache {
 	private ttl: Record<keyof CacheValues, number> = {
 		imageUrls: 24 * 60 * 60,
 		suggestions: 60 * 60,
+		tmdbApiConfigs: 7 * 24 * 60 * 60,
 	};
 
 	private isChecking = false;

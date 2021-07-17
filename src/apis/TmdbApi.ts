@@ -6,6 +6,14 @@ import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
 
+export interface TmdbApiConfig {
+	baseUrl: string;
+	sizes: {
+		show: string;
+		movie: string;
+	};
+}
+
 export interface TmdbConfigResponse {
 	images?: {
 		secure_base_url?: string;
@@ -27,14 +35,9 @@ export interface ImagesDatabaseResponse {
 	result: Partial<Record<string, string>>;
 }
 
-export interface TmdbApiConfig {
-	baseUrl: string;
-	sizes: {
-		show: string;
-		movie: string;
-	};
-}
-
+/**
+ * @see https://developers.themoviedb.org/3/getting-started/introduction
+ */
 class _TmdbApi {
 	readonly API_VERSION = '3';
 	readonly API_URL = `https://api.themoviedb.org/${this.API_VERSION}`;
@@ -44,33 +47,48 @@ class _TmdbApi {
 	readonly PLACEHOLDER_IMAGE =
 		'https://trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png';
 
-	private config: TmdbApiConfig | undefined;
+	private config?: TmdbApiConfig | null;
 
 	private async activate(): Promise<void> {
-		const responseText = await Requests.send({
-			url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
-			method: 'GET',
-		});
-		const responseJson = JSON.parse(responseText) as TmdbConfigResponse;
-		this.config = {
-			baseUrl: responseJson.images?.secure_base_url ?? '',
-			sizes: {
-				show: responseJson.images?.still_sizes?.[2] ?? '',
-				movie: responseJson.images?.poster_sizes?.[3] ?? '',
-			},
-		};
+		const cache = await Cache.get('tmdbApiConfigs');
+		const config = cache.get('default');
+		if (typeof config !== 'undefined') {
+			this.config = config;
+			return;
+		}
+		try {
+			const responseText = await Requests.send({
+				url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
+				method: 'GET',
+			});
+			const responseJson = JSON.parse(responseText) as TmdbConfigResponse;
+			const { images } = responseJson;
+			const baseUrl = images?.secure_base_url;
+			const showSize = images?.still_sizes?.[2]; // This should be 300px
+			const movieSize = images?.poster_sizes?.[3]; // This should be 342px (closest to 300px)
+			if (!baseUrl || !showSize || !movieSize) {
+				throw new Error('Missing config');
+			}
+			this.config = {
+				baseUrl,
+				sizes: {
+					show: showSize,
+					movie: movieSize,
+				},
+			};
+			cache.set('default', this.config);
+			await Cache.set({ tmdbApiConfigs: cache });
+		} catch (err) {
+			if (!(err as RequestException).canceled) {
+				Errors.warning('Failed to get TMDB config.', err);
+			}
+			this.config = null;
+		}
 	}
 
 	private async findImage(item?: TraktItem | null): Promise<string | null> {
-		if (!this.config) {
-			try {
-				await this.activate();
-			} catch (err) {
-				if (!(err as RequestException).canceled) {
-					Errors.warning('Failed to get TMDB config.', err);
-				}
-				return null;
-			}
+		if (typeof this.config === 'undefined') {
+			await this.activate();
 		}
 		if (!this.config || !item?.tmdbId) {
 			return null;
