@@ -18,14 +18,15 @@ import {
 	DialogTitle,
 	Divider,
 	Link,
-	List,
 	ListItem,
 	ListItemSecondaryAction,
 	ListItemText,
 	TextField,
 } from '@material-ui/core';
 import { Item } from '@models/Item';
+import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface CorrectionDialogState {
 	isOpen: boolean;
@@ -34,6 +35,46 @@ interface CorrectionDialogState {
 	item?: Item;
 	url: string;
 }
+
+interface SuggestionListItemData {
+	suggestions: Suggestion[];
+	onCorrectButtonClick: (suggestion: Suggestion) => void;
+}
+
+const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemData>> = ({
+	index,
+	data,
+	style,
+}) => {
+	const suggestion = data.suggestions[index];
+	return (
+		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
+			<ListItemText
+				primary={
+					<Link href={CorrectionApi.getSuggestionUrl(suggestion)} target="_blank" rel="noopener">
+						{suggestion.title}
+					</Link>
+				}
+				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
+			/>
+			<ListItemSecondaryAction>
+				<Button
+					color="primary"
+					variant="contained"
+					onClick={() => data.onCorrectButtonClick(suggestion)}
+				>
+					{I18N.translate('use')}
+				</Button>
+			</ListItemSecondaryAction>
+		</ListItem>
+	);
+};
+
+SuggestionListItem.propTypes = {
+	index: PropTypes.number.isRequired,
+	data: PropTypes.any.isRequired,
+	style: PropTypes.any.isRequired,
+};
 
 export const CorrectionDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
@@ -226,33 +267,18 @@ export const CorrectionDialog: React.FC = () => {
 								<DialogContentText className="correction-dialog-suggestions-title">
 									{I18N.translate('suggestions')}:
 								</DialogContentText>
-								<List>
-									{dialog.item.suggestions.map((suggestion, index) => (
-										<ListItem key={index}>
-											<ListItemText
-												primary={
-													<Link
-														href={CorrectionApi.getSuggestionUrl(suggestion)}
-														target="_blank"
-														rel="noopener"
-													>
-														{suggestion.title}
-													</Link>
-												}
-												secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
-											/>
-											<ListItemSecondaryAction>
-												<Button
-													color="primary"
-													variant="contained"
-													onClick={() => onCorrectButtonClick(suggestion)}
-												>
-													{I18N.translate('use')}
-												</Button>
-											</ListItemSecondaryAction>
-										</ListItem>
-									))}
-								</List>
+								<FixedSizeList
+									height={72 * 3} // Show a maximum of 3 items at all times
+									itemCount={dialog.item.suggestions.length}
+									itemData={{
+										suggestions: dialog.item.suggestions,
+										onCorrectButtonClick,
+									}}
+									itemSize={72}
+									width="100%"
+								>
+									{SuggestionListItem}
+								</FixedSizeList>
 								<Divider />
 							</>
 						)}
