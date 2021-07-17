@@ -1,6 +1,7 @@
 import { HboGoApiParams } from '@/hbo-go/HboGoApi';
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
+import { CacheStorageValues } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -15,9 +16,21 @@ import {
 	Storage as WebExtStorage,
 } from 'webextension-polyfill-ts';
 
-export type StorageValues = StorageValuesV4;
+export type StorageValues = StorageValuesV5;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
+
+export type StorageValuesV5 = {
+	version?: number;
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptionsV3;
+	syncOptions?: StorageValuesSyncOptionsV2;
+	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
+	syncCache?: SyncCacheValue;
+	corrections?: Partial<Record<string, Suggestion>>;
+	scrobblingItem?: Omit<SavedItem, ''>;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+} & CacheStorageValues;
 
 export type StorageValuesV4 = {
 	version?: number;
@@ -176,7 +189,7 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 };
 
 class _BrowserStorage {
-	currentVersion = 4;
+	currentVersion = 5;
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as Options;
@@ -280,6 +293,15 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 4) {
+			console.log('Downgrading to v4...');
+
+			await BrowserStorage.remove(
+				['imageUrlsCache', 'suggestionsCache'] as unknown as (keyof StorageValues)[],
+				true
+			);
+		}
+
 		if (version > 3) {
 			console.log('Downgrading to v3...');
 

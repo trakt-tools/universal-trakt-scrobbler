@@ -1,6 +1,6 @@
 import { secrets } from '@/secrets';
+import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
-import { Messaging } from '@common/Messaging';
 import { RequestException, Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
@@ -75,12 +75,9 @@ class _TmdbApi {
 		if (!this.config || !item?.tmdbId) {
 			return null;
 		}
-		const cache = await Messaging.toBackground({
-			action: 'get-cache',
-			key: 'imageUrls',
-		});
+		const cache = await Cache.get('imageUrls');
 		const databaseId = item.getDatabaseId();
-		let imageUrl = cache[databaseId];
+		let imageUrl = cache.get(databaseId);
 		if (typeof imageUrl !== 'undefined') {
 			return imageUrl;
 		}
@@ -93,12 +90,8 @@ class _TmdbApi {
 			const image = responseJson?.stills?.[0] || responseJson?.posters?.[0];
 			if (image?.file_path) {
 				imageUrl = `${this.config.baseUrl}${this.config.sizes[item.type]}${image.file_path}`;
-				cache[databaseId] = imageUrl;
-				await Messaging.toBackground({
-					action: 'set-cache',
-					key: 'imageUrls',
-					value: cache,
-				});
+				cache.set(databaseId, imageUrl);
+				await Cache.set({ imageUrls: cache });
 				return imageUrl;
 			}
 		} catch (err) {
@@ -136,10 +129,7 @@ class _TmdbApi {
 			return items;
 		}
 		const newItems = items.map((item) => item.clone());
-		const cache = await Messaging.toBackground({
-			action: 'get-cache',
-			key: 'imageUrls',
-		});
+		const cache = await Cache.get('imageUrls');
 		try {
 			const itemsToFetch: Item[] = [];
 			for (const item of newItems) {
@@ -147,7 +137,7 @@ class _TmdbApi {
 					continue;
 				}
 				const databaseId = item.trakt.getDatabaseId();
-				const imageUrl = cache[databaseId];
+				const imageUrl = cache.get(databaseId);
 				if (typeof imageUrl !== 'undefined') {
 					item.imageUrl = imageUrl;
 				} else {
@@ -192,13 +182,9 @@ class _TmdbApi {
 			}
 			const databaseId = item.trakt.getDatabaseId();
 			item.imageUrl = item.imageUrl || null;
-			cache[databaseId] = item.imageUrl;
+			cache.set(databaseId, item.imageUrl);
 		}
-		await Messaging.toBackground({
-			action: 'set-cache',
-			key: 'imageUrls',
-			value: cache,
-		});
+		await Cache.set({ imageUrls: cache });
 		return newItems;
 	}
 }

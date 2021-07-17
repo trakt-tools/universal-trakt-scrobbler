@@ -1,5 +1,5 @@
 import { BrowserStorage } from '@common/BrowserStorage';
-import { Messaging } from '@common/Messaging';
+import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
@@ -46,10 +46,7 @@ class _CorrectionApi {
 			return items;
 		}
 		const newItems = items.map((item) => item.clone());
-		const cache = await Messaging.toBackground({
-			action: 'get-cache',
-			key: 'suggestions',
-		});
+		const cache = await Cache.get('suggestions');
 		try {
 			const itemsToFetch: Item[] = [];
 			for (const item of newItems) {
@@ -57,7 +54,7 @@ class _CorrectionApi {
 					continue;
 				}
 				const databaseId = item.getDatabaseId();
-				const suggestions = cache[databaseId];
+				const suggestions = cache.get(databaseId);
 				if (typeof suggestions !== 'undefined') {
 					item.suggestions = suggestions;
 				} else {
@@ -96,13 +93,9 @@ class _CorrectionApi {
 		for (const item of newItems) {
 			const databaseId = item.getDatabaseId();
 			item.suggestions = item.suggestions || null;
-			cache[databaseId] = item.suggestions;
+			cache.set(databaseId, item.suggestions);
 		}
-		await Messaging.toBackground({
-			action: 'set-cache',
-			key: 'suggestions',
-			value: cache,
-		});
+		await Cache.set({ suggestions: cache });
 		return newItems;
 	}
 
