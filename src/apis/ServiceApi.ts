@@ -2,7 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
-import { Cache, CacheItem, CacheValues } from '@common/Cache';
+import { Cache, CacheItems } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
@@ -45,16 +45,16 @@ export abstract class ServiceApi {
 			return;
 		}
 		try {
-			const traktCache = await Cache.get('trakt');
+			const caches = await Cache.get(['trakt', 'traktHistoryItems']);
 			const { corrections } = await BrowserStorage.get('corrections');
 			const promises = [];
 			for (const item of missingItems) {
 				const databaseId = item.getDatabaseId();
 				const correction = corrections?.[databaseId];
-				promises.push(ServiceApi.loadTraktItemHistory(item, traktCache, correction));
+				promises.push(ServiceApi.loadTraktItemHistory(item, caches, correction));
 			}
 			await Promise.all(promises);
-			await Cache.set({ trakt: traktCache });
+			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Trakt history.', err);
@@ -67,21 +67,21 @@ export abstract class ServiceApi {
 
 	static async loadTraktItemHistory(
 		item: Item,
-		traktCache: CacheItem<'trakt'>,
+		caches: CacheItems<['trakt', 'traktHistoryItems']>,
 		correction?: Suggestion
 	) {
 		try {
 			const databaseId = item.getDatabaseId();
 			if (!item.trakt) {
-				const cacheItem = traktCache.get(databaseId);
+				const cacheItem = caches.trakt.get(databaseId);
 				item.trakt =
 					correction || !cacheItem
 						? await TraktSearch.find(item, correction)
 						: TraktItem.load(cacheItem);
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
-				await TraktSync.loadHistory(item);
-				traktCache.set(databaseId, {
+				await TraktSync.loadHistory(item, caches.traktHistoryItems);
+				caches.trakt.set(databaseId, {
 					...TraktItem.save(item.trakt),
 					syncId: undefined,
 					watchedAt: undefined,

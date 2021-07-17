@@ -307,6 +307,7 @@ class _BrowserStorage {
 					'suggestionsCache',
 					'tmdbApiConfigsCache',
 					'traktCache',
+					'traktHistoryItemsCache',
 				] as unknown as (keyof StorageValues)[],
 				true
 			);

@@ -1,5 +1,6 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { TmdbApiConfig } from '@apis/TmdbApi';
+import { TraktHistoryItem } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem } from '@models/TraktItem';
 
@@ -16,6 +17,7 @@ export interface CacheSubValues {
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
 	trakt: SavedTraktItem;
+	traktHistoryItems: TraktHistoryItem[];
 }
 
 export type Cacheable<T = unknown> = {
@@ -63,6 +65,7 @@ class _Cache {
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
 		trakt: 24 * 60 * 60,
+		traktHistoryItems: 45 * 60,
 	};
 
 	private isChecking = false;
