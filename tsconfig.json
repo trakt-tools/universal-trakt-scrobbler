@@ -39,6 +39,7 @@
 			"@services": ["./src/services/services"],
 			"@services-apis": ["./src/services/apis"],
 			"@/*": ["./src/services/*", "./src/*"]
-		}
+		},
+		"esModuleInterop": true
 	}
 }

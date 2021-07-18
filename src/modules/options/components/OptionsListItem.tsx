@@ -12,7 +12,7 @@ import {
 	Select,
 	Switch,
 } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 interface OptionsListItemProps {
 	option: Option<keyof StorageValuesOptions>;

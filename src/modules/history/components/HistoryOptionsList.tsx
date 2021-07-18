@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { SyncStore } from '@stores/SyncStore';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryOptionsListProps {
 	store: SyncStore;

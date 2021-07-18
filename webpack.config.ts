@@ -1,10 +1,10 @@
 import { ServiceValues } from '@models/Service';
-import * as archiver from 'archiver';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import archiver from 'archiver';
+import fs from 'fs-extra';
+import path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
-import * as webpack from 'webpack';
+import webpack from 'webpack';
 import { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
 import packageJson = require('./package.json');

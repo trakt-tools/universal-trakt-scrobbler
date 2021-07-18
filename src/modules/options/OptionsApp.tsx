@@ -14,8 +14,7 @@ import { UtsDialog } from '@components/UtsDialog';
 import { UtsSnackbar } from '@components/UtsSnackbar';
 import { CircularProgress, Container } from '@material-ui/core';
 import { getService } from '@models/Service';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
 export const OptionsApp: React.FC = () => {

@@ -5,8 +5,8 @@ import { ThemeWrapper } from '@components/ThemeWrapper';
 import '@popup/popup.html';
 import '@popup/popup.scss';
 import { PopupApp } from '@popup/PopupApp';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const init = () => {
 	Shared.pageType = 'popup';

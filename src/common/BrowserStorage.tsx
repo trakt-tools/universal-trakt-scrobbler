@@ -9,7 +9,7 @@ import { SavedItem } from '@models/Item';
 import { getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
 import '@services';
-import * as React from 'react';
+import React from 'react';
 import {
 	browser,
 	Manifest as WebExtManifest,

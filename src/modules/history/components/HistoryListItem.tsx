@@ -6,7 +6,7 @@ import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import { Item } from '@models/Item';
 import { getService } from '@models/Service';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryListItemProps {
 	item: Item;

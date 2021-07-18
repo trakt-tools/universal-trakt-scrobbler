@@ -1,7 +1,7 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
-import * as moment from 'moment';
+import moment from 'moment';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {

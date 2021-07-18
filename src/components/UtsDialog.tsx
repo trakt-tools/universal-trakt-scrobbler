@@ -8,8 +8,7 @@ import {
 	DialogContentText,
 	DialogTitle,
 } from '@material-ui/core';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;

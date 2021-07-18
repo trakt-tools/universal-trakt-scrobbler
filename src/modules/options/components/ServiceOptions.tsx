@@ -2,7 +2,7 @@ import { ServiceValue } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { ServiceOption } from '@components/ServiceOption';
 import { Grid, ListItem, Typography } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 interface ServiceOptionsProps {
 	options: Record<string, ServiceValue>;

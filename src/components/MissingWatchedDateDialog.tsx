@@ -18,8 +18,8 @@ import {
 } from '@material-ui/core';
 import { KeyboardDateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Item } from '@models/Item';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;

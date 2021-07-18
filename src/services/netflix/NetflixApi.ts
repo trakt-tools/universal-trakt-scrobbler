@@ -4,7 +4,7 @@ import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Item } from '@models/Item';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface NetflixGlobalObject {
 	appContext: {

@@ -25,8 +25,8 @@ import {
 	TextField,
 } from '@material-ui/core';
 import { Item } from '@models/Item';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface CorrectionDialogState {

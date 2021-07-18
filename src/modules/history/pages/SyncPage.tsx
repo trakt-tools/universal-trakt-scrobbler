@@ -20,9 +20,8 @@ import { UtsCenter } from '@components/UtsCenter';
 import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
 import { getService } from '@models/Service';
 import { getSyncStore } from '@stores/SyncStore';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 
 interface PageProps {
 	serviceId: string | null;

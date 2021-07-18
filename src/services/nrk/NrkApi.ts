@@ -2,7 +2,7 @@ import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { IItem, Item } from '@models/Item';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;

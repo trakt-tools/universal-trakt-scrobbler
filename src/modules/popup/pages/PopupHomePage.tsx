@@ -8,8 +8,7 @@ import { PopupWatching } from '@components/PopupWatching';
 import { UtsCenter } from '@components/UtsCenter';
 import { CircularProgress } from '@material-ui/core';
 import { Item } from '@models/Item';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface IPopupHomeContent {
 	isLoading: boolean;

@@ -1,6 +1,6 @@
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
-import * as React from 'react';
+import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 class _LoginWrapper {

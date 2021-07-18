@@ -11,8 +11,8 @@ import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SyncIcon from '@material-ui/icons/Sync';
 import { History } from 'history';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
 interface IPopupHeader {

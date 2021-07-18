@@ -1,7 +1,7 @@
 import { I18N } from '@common/I18N';
 import { Box, Button, Divider } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryActionsProps {
 	showNavigationButtons: boolean;

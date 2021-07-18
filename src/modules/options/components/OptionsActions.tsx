@@ -4,8 +4,7 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Box, Button, Divider } from '@material-ui/core';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');

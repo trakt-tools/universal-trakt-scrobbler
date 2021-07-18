@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryListItemCardProps {
 	item?: Item | TraktItem | null;

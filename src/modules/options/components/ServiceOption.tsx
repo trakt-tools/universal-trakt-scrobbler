@@ -9,8 +9,8 @@ import ClearIcon from '@material-ui/icons/Clear';
 import ErrorIcon from '@material-ui/icons/Error';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { getService } from '@models/Service';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
 interface ServiceOptionProps {

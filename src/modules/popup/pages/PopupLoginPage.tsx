@@ -6,8 +6,7 @@ import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
 import { Button, CircularProgress } from '@material-ui/core';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export const LoginPage: React.FC = () => {

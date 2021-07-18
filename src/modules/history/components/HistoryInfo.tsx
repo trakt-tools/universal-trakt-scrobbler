@@ -1,6 +1,6 @@
 import { UtsCenter } from '@components/UtsCenter';
 import { Box } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryInfoProps {
 	children?: React.ReactNode;

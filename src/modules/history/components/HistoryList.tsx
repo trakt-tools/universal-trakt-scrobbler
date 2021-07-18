@@ -3,7 +3,7 @@ import { HistoryListItem } from '@components/HistoryListItem';
 import { MissingWatchedDateDialog } from '@components/MissingWatchedDateDialog';
 import { List } from '@material-ui/core';
 import { Item } from '@models/Item';
-import * as React from 'react';
+import React from 'react';
 
 interface HistoryListProps {
 	items: Item[];

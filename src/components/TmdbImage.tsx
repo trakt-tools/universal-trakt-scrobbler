@@ -1,6 +1,6 @@
 import { TmdbApi } from '@apis/TmdbApi';
 import { Box } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 interface TmdbImageProps {
 	imageUrl?: string | null;

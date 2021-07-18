@@ -5,7 +5,7 @@ import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
 

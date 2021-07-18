@@ -4,8 +4,8 @@ import { ThemeWrapper } from '@components/ThemeWrapper';
 import '@options/options.html';
 import '@options/options.scss';
 import { OptionsApp } from '@options/OptionsApp';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const init = () => {
 	Shared.pageType = 'popup';

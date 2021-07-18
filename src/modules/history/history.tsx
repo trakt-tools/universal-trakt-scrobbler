@@ -5,8 +5,8 @@ import { ThemeWrapper } from '@components/ThemeWrapper';
 import '@history/history.html';
 import '@history/history.scss';
 import { HistoryApp } from '@history/HistoryApp';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const init = () => {
 	Shared.pageType = 'popup';

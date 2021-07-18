@@ -15,8 +15,7 @@ import { LoginPage } from '@pages/HistoryLoginPage';
 import { SyncPage } from '@pages/SyncPage';
 import '@services-apis';
 import { createHashHistory } from 'history';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 
 const history = createHashHistory();
