@@ -12,7 +12,7 @@ class _Session {
 
 	async checkLogin(): Promise<void> {
 		try {
-			const auth = await Messaging.toBackground({ action: 'check-login' });
+			const auth = await Messaging.toExtension({ action: 'check-login' });
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
 				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
@@ -27,7 +27,7 @@ class _Session {
 
 	async login(): Promise<void> {
 		try {
-			const auth = await Messaging.toBackground({ action: 'login' });
+			const auth = await Messaging.toExtension({ action: 'login' });
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
 				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
@@ -45,7 +45,7 @@ class _Session {
 
 	async logout(): Promise<void> {
 		try {
-			await Messaging.toBackground({ action: 'logout' });
+			await Messaging.toExtension({ action: 'logout' });
 			this.isLoggedIn = false;
 			await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
 		} catch (err) {
@@ -60,7 +60,7 @@ class _Session {
 	async finishLogin(): Promise<void> {
 		const redirectUrl = window.location.search;
 		if (redirectUrl.includes('code')) {
-			await Messaging.toBackground({ action: 'finish-login', redirectUrl });
+			await Messaging.toExtension({ action: 'finish-login', redirectUrl });
 		}
 	}
 }

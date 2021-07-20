@@ -25,6 +25,6 @@ const init = async () => {
 	);
 };
 
-Messaging.messageHandlers = {};
+Messaging.addHandlers({});
 
 void init();

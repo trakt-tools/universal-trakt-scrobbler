@@ -6,6 +6,7 @@ import { Cache } from '@common/Cache';
 import { EventDispatcher, ItemCorrectedData, StorageOptionsChangeData } from '@common/Events';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Item } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 
 const scrobbleControllers = new Map<string, ScrobbleController>();
 
@@ -137,13 +138,16 @@ export class ScrobbleController {
 	}
 
 	private onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
+		if (!data.newItem.trakt) {
+			return;
+		}
 		const item = this.parser.getItem();
 		if (!item) {
 			return;
 		}
 		await this.updateProgress(0.0);
 		await this.stopScrobble();
-		item.trakt = data.newItem.trakt;
+		item.trakt = TraktItem.load(data.newItem.trakt);
 		await this.startScrobble();
 	};
 }

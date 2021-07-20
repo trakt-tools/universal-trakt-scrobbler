@@ -5,9 +5,7 @@ import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
-import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
 import {
 	Button,
@@ -154,22 +152,9 @@ export const CorrectionDialog: React.FC = () => {
 			await BrowserStorage.set({ corrections }, true);
 			await CorrectionApi.saveSuggestion(newItem, suggestion);
 			await EventDispatcher.dispatch('ITEM_CORRECTED', dialog.serviceId, {
-				oldItem,
-				newItem,
+				oldItem: Item.save(oldItem),
+				newItem: Item.save(newItem),
 			});
-			if (Shared.pageType === 'popup') {
-				const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
-				if (scrobblingDetails?.tabId) {
-					await Messaging.toContent(
-						{
-							action: 'item-corrected',
-							oldItem: Item.save(oldItem),
-							newItem: Item.save(newItem),
-						},
-						scrobblingDetails.tabId
-					);
-				}
-			}
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to correct item.', err);

@@ -106,7 +106,7 @@ class _Notifications {
 				});
 			}
 		} else {
-			await Messaging.toBackground({ action: 'show-notification', title, message });
+			await Messaging.toExtension({ action: 'show-notification', title, message });
 		}
 	}
 }

@@ -114,10 +114,13 @@ class _TraktScrobble extends TraktApi {
 				method: 'POST',
 				body: data,
 			});
-			await EventDispatcher.dispatch('SCROBBLE_SUCCESS', null, { item, scrobbleType });
+			await EventDispatcher.dispatch('SCROBBLE_SUCCESS', null, {
+				item: TraktItem.save(item),
+				scrobbleType,
+			});
 		} catch (err) {
 			await EventDispatcher.dispatch('SCROBBLE_ERROR', null, {
-				item,
+				item: TraktItem.save(item),
 				scrobbleType,
 				error: err as RequestException,
 			});

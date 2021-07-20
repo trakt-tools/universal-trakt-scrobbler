@@ -1,14 +1,17 @@
 import { TraktSearchItem } from '@apis/TraktSearch';
 import {
+	BrowserStorage,
 	ScrobblingDetails,
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
 } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
+import { DispatchEventMessage, Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Color } from '@material-ui/lab';
-import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+import { Item, SavedItem } from '@models/Item';
+import { SavedTraktItem } from '@models/TraktItem';
 import { PartialDeep } from 'type-fest';
 
 export interface EventData {
@@ -57,7 +60,7 @@ export interface LoginSuccessData {
 }
 
 export interface ScrobbleSuccessData {
-	item?: TraktItem;
+	item?: SavedTraktItem;
 	scrobbleType: number;
 }
 
@@ -101,8 +104,8 @@ export interface CorrectionDialogShowData {
 }
 
 export interface ItemCorrectedData {
-	oldItem: Item;
-	newItem: Item;
+	oldItem: SavedItem;
+	newItem: SavedItem;
 }
 
 export interface SyncStoreUpdateData {
@@ -142,6 +145,23 @@ export type EventDispatcherListeners = Record<
 export type EventDispatcherListener<K extends Event> = (data: EventData[K]) => void | Promise<void>;
 
 class _EventDispatcher {
+	/**
+	 * Events that are dispatched to all extension pages and content pages.
+	 *
+	 * **Make sure that all data for global events can be serialized (for example, functions and class instances cannot be passed through global events).**
+	 */
+	GLOBAL_EVENTS: Event[] = [
+		'SCROBBLE_SUCCESS',
+		'SCROBBLE_ERROR',
+		'SCROBBLE_START',
+		'SCROBBLE_PAUSE',
+		'SCROBBLE_STOP',
+		'SCROBBLE_PROGRESS',
+		'SEARCH_ERROR',
+		'ITEM_CORRECTED',
+		'STORAGE_OPTIONS_CHANGE',
+	];
+
 	globalSpecifier = 'all';
 	listeners: EventDispatcherListeners;
 
@@ -187,8 +207,38 @@ class _EventDispatcher {
 	async dispatch<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
-		data: EventData[K]
+		data: EventData[K],
+		isExternal = false
 	): Promise<void> {
+		if (isExternal && eventType === 'STORAGE_OPTIONS_CHANGE') {
+			const { options, syncOptions } = data as StorageOptionsChangeData;
+			if (options) {
+				BrowserStorage.updateOptions(options);
+			}
+			if (syncOptions) {
+				BrowserStorage.updateSyncOptions(syncOptions);
+			}
+		}
+
+		// Dispatch the event to all other pages
+		if (!isExternal && this.GLOBAL_EVENTS.includes(eventType)) {
+			const message: DispatchEventMessage = {
+				action: 'dispatch-event',
+				eventType,
+				eventSpecifier,
+				data,
+			};
+			switch (Shared.pageType) {
+				case 'background':
+				case 'popup':
+					void Messaging.toAllContent(message);
+				// falls through
+				case 'content':
+					void Messaging.toExtension(message);
+					break;
+			}
+		}
+
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}

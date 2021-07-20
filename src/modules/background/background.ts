@@ -30,7 +30,7 @@ const init = async () => {
 	Messaging.init();
 };
 
-Messaging.messageHandlers = {
+Messaging.addHandlers({
 	'open-tab': (message) => Tabs.open(message.url, message.extraProperties),
 
 	'get-tab-id': (message, tabId) => tabId,
@@ -56,6 +56,8 @@ Messaging.messageHandlers = {
 	'set-static-icon': () => BrowserAction.setStaticIcon(),
 
 	'show-notification': (message) => Notifications.show(message.title, message.message),
-};
+
+	'send-to-all-content': (message) => Messaging.toAllContent(message.message),
+});
 
 void init();

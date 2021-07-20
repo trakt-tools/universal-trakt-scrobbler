@@ -19,7 +19,7 @@ class _Tabs {
 	 */
 	async open(url: string, extraProperties: TabProperties = {}): Promise<WebExtTabs.Tab | null> {
 		if (Shared.pageType === 'content') {
-			return Messaging.toBackground({
+			return Messaging.toExtension({
 				action: 'open-tab',
 				url,
 				extraProperties,

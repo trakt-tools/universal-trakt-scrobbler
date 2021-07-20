@@ -1,10 +1,9 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
+import { Event, EventData, EventDispatcher } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
-import { SavedItem } from '@models/Item';
 import { browser, Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
 
 export type MessageRequest = MessageRequests[keyof MessageRequests];
@@ -23,7 +22,8 @@ export interface MessageRequests {
 	'set-static-icon': SetStaticIconMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
-	'item-corrected': ItemCorrectedMessage;
+	'dispatch-event': DispatchEventMessage;
+	'send-to-all-content': SendToAllContentMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
@@ -42,7 +42,8 @@ export interface ReturnTypes {
 	'set-static-icon': void;
 	'send-request': string;
 	'show-notification': void;
-	'item-corrected': void;
+	'dispatch-event': void;
+	'send-to-all-content': void;
 }
 
 export interface OpenTabMessage {
@@ -104,22 +105,33 @@ export interface ShowNotificationMessage {
 	message: string;
 }
 
-export interface ItemCorrectedMessage {
-	action: 'item-corrected';
-	oldItem: SavedItem;
-	newItem: SavedItem;
+export interface DispatchEventMessage<T extends Event = Event> {
+	action: 'dispatch-event';
+	eventType: T;
+	eventSpecifier: string | null;
+	data: EventData[T];
 }
+
+export interface SendToAllContentMessage {
+	action: 'send-to-all-content';
+	message: Exclude<MessageRequest, SendToAllContentMessage>;
+}
+
+export type MessageHandlers = {
+	[K in keyof MessageRequests]?: (
+		message: MessageRequests[K],
+		tabId: number | null
+	) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
+};
 
 class _Messaging {
 	/**
 	 * Returning undefined from a message handler means that the response will not be sent back. This is useful for situations where a message is received in multiple places (background, popup, ...) but only one of them is responsible for responding, while the others simply receive the message and do something with it.
 	 */
-	messageHandlers: {
-		[K in keyof MessageRequests]?: (
-			message: MessageRequests[K],
-			tabId: number | null
-		) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
-	} = {};
+	private messageHandlers: MessageHandlers = {
+		'dispatch-event': (message) =>
+			EventDispatcher.dispatch(message.eventType, message.eventSpecifier, message.data, true),
+	};
 
 	ports = new Map<number, WebExtRuntime.Port>();
 
@@ -165,14 +177,45 @@ class _Messaging {
 		});
 	};
 
-	async toBackground<T extends MessageRequest>(message: T): Promise<ReturnType<T>> {
+	addHandlers(messageHandlers: MessageHandlers) {
+		this.messageHandlers = {
+			...this.messageHandlers,
+			...messageHandlers,
+		};
+	}
+
+	/**
+	 * Sends a message to all extension pages (so it will be sent to the background page, the popup page, the history page and the options page, if all of them are open).
+	 */
+	async toExtension<T extends MessageRequest>(message: T): Promise<ReturnType<T>> {
 		const response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
 		return response;
 	}
 
+	/**
+	 * Sends a message to a specific content page (for example, the page that is currently scrobbling).
+	 */
 	async toContent<T extends MessageRequest>(message: T, tabId: number): Promise<ReturnType<T>> {
 		const response = ((await browser.tabs.sendMessage(tabId, message)) ?? null) as ReturnType<T>;
 		return response;
+	}
+
+	/**
+	 * Sends a message to all content pages.
+	 */
+	async toAllContent<T extends Exclude<MessageRequest, SendToAllContentMessage>>(
+		message: T
+	): Promise<void> {
+		if (Shared.pageType !== 'background') {
+			return this.toExtension({
+				action: 'send-to-all-content',
+				message,
+			});
+		}
+
+		for (const tabId of this.ports.keys()) {
+			await this.toContent(message, tabId);
+		}
 	}
 }
 

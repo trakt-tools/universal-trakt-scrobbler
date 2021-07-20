@@ -222,7 +222,7 @@ class _BrowserStorage {
 
 	async init() {
 		if (Shared.pageType !== 'background') {
-			Shared.tabId = await Messaging.toBackground({ action: 'get-tab-id' });
+			Shared.tabId = await Messaging.toExtension({ action: 'get-tab-id' });
 		}
 		await this.sync();
 		await this.upgradeOrDowngrade();

@@ -17,6 +17,7 @@ import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
 import { UtsCenter } from '@components/UtsCenter';
 import { Box, Button, CircularProgress, Typography } from '@material-ui/core';
+import { Item } from '@models/Item';
 import { getService } from '@models/Service';
 import { getSyncStore } from '@stores/SyncStore';
 import PropTypes from 'prop-types';
@@ -242,12 +243,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		const onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
 			try {
 				if (data.oldItem.trakt?.syncId) {
-					await TraktSync.removeHistory(data.oldItem);
+					await TraktSync.removeHistory(Item.load(data.oldItem));
 				}
 			} catch (err) {
 				// Do nothing
 			}
-			await store.replaceItems([data.newItem], true);
+			await store.replaceItems([Item.load(data.newItem)], true);
 		};
 
 		const onMissingWatchedDateAdded = async (data: MissingWatchedDateAddedData): Promise<void> => {

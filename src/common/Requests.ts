@@ -109,7 +109,7 @@ class _Requests {
 		) {
 			responseText = await this.sendDirectly(request, tabId);
 		} else {
-			responseText = await Messaging.toBackground({ action: 'send-request', request });
+			responseText = await Messaging.toExtension({ action: 'send-request', request });
 		}
 		return responseText;
 	}
