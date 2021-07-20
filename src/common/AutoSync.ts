@@ -1,12 +1,80 @@
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage, ServiceValue } from '@common/BrowserStorage';
+import { BrowserAction } from '@common/BrowserAction';
+import { BrowserStorage, StorageValuesOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
+import { getServices, Service } from '@models/Service';
 import '@services-apis';
 import { getSyncStore } from '@stores/SyncStore';
+import { PartialDeep } from 'type-fest';
 
 class _AutoSync {
-	async sync(serviceEntries: [string, ServiceValue][], now: number) {
+	isChecking = false;
+	checkTimeoutId: number | null = null;
+
+	init() {
+		void this.check();
+		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+	}
+
+	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+		if (data.options?.services) {
+			const doCheck = Object.values(data.options.services).some(
+				(serviceValue) =>
+					serviceValue && ('autoSync' in serviceValue || 'autoSyncDays' in serviceValue)
+			);
+			if (doCheck) {
+				void this.check();
+			}
+		}
+	};
+
+	async check() {
+		if (this.isChecking) {
+			return;
+		}
+		this.isChecking = true;
+
+		if (this.checkTimeoutId !== null) {
+			window.clearTimeout(this.checkTimeoutId);
+		}
+
+		const now = Math.trunc(Date.now() / 1e3);
+		const servicesToSync = getServices().filter((service) => {
+			const value = BrowserStorage.options.services[service.id];
+			return (
+				service.hasSync &&
+				service.hasAutoSync &&
+				value.sync &&
+				value.autoSync &&
+				value.autoSyncDays > 0 &&
+				value.lastSync > 0 &&
+				now - value.lastSync >= value.autoSyncDays * 86400
+			);
+		});
+		if (servicesToSync.length > 0) {
+			try {
+				await BrowserAction.setRotatingIcon();
+				await BrowserAction.setTitle(I18N.translate('autoSyncing'));
+				await this.sync(servicesToSync, now);
+			} catch (err) {
+				Errors.error('Failed to automatically sync history.', err);
+			}
+			await BrowserAction.setTitle();
+			await BrowserAction.setStaticIcon();
+		}
+
+		// Check again every hour
+		this.checkTimeoutId = window.setTimeout(() => void this.check(), 3600000);
+
+		this.isChecking = false;
+	}
+
+	private async sync(services: Service[], now: number) {
 		let { syncCache } = await BrowserStorage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
@@ -14,13 +82,15 @@ class _AutoSync {
 				failed: false,
 			};
 		}
+		let partialOptions: PartialDeep<StorageValuesOptions> = {};
 
-		for (const [serviceId, serviceValue] of serviceEntries) {
+		for (const service of services) {
+			const serviceValue = BrowserStorage.options.services[service.id];
 			let items: Item[] = [];
 
 			try {
-				const api = getServiceApi(serviceId);
-				const store = getSyncStore(serviceId);
+				const api = getServiceApi(service.id);
+				const store = getSyncStore(service.id);
 				store.resetData();
 
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
@@ -51,21 +121,20 @@ class _AutoSync {
 				syncCache.failed = true;
 			}
 
-			BrowserStorage.addOption({
-				id: 'services',
-				value: {
-					...BrowserStorage.options.services,
-					[serviceId]: {
-						...BrowserStorage.options.services[serviceId],
-						lastSync: now,
-						lastSyncId: items[0]?.id ?? BrowserStorage.options.services[serviceId].lastSyncId,
-					},
+			const partialServiceValue = partialOptions.services?.[service.id] || {};
+			partialServiceValue.lastSync = now;
+			if (items[0]?.id) {
+				partialServiceValue.lastSyncId = items[0].id;
+			}
+			partialOptions = Utils.mergeObjs(partialOptions, {
+				services: {
+					[service.id]: partialServiceValue,
 				},
 			});
 			syncCache.items.unshift(...items.map((item) => Item.save(item)));
 		}
 
-		await BrowserStorage.saveOptions({});
+		await BrowserStorage.saveOptions(partialOptions);
 		await BrowserStorage.set({ syncCache }, false);
 	}
 }

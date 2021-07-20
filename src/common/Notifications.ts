@@ -5,6 +5,7 @@ import {
 	ScrobbleErrorData,
 	ScrobbleSuccessData,
 	SearchErrorData,
+	StorageOptionsChangeData,
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
@@ -14,6 +15,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 class _Notifications {
 	messageNames: Record<number, MessageName>;
+	private hasAddedListeners = false;
 
 	constructor() {
 		this.messageNames = {
@@ -23,10 +25,30 @@ class _Notifications {
 		};
 	}
 
-	startListeners() {
-		EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
-		EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
-		EventDispatcher.subscribe('SEARCH_ERROR', null, this.onSearchError);
+	init() {
+		this.checkListeners();
+		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+	}
+
+	private onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+		if (data.options && 'showNotifications' in data.options) {
+			this.checkListeners();
+		}
+	};
+
+	checkListeners() {
+		const { showNotifications } = BrowserStorage.options;
+		if (showNotifications && !this.hasAddedListeners) {
+			EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
+			EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
+			EventDispatcher.subscribe('SEARCH_ERROR', null, this.onSearchError);
+			this.hasAddedListeners = true;
+		} else if (!showNotifications && this.hasAddedListeners) {
+			EventDispatcher.unsubscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
+			EventDispatcher.unsubscribe('SCROBBLE_ERROR', null, this.onScrobble);
+			EventDispatcher.unsubscribe('SEARCH_ERROR', null, this.onSearchError);
+			this.hasAddedListeners = false;
+		}
 	}
 
 	onScrobble = async (data: ScrobbleSuccessData | ScrobbleErrorData): Promise<void> => {

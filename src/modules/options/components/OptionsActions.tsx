@@ -24,7 +24,6 @@ export const OptionsActions: React.FC = () => {
 						messageName: 'clearStorageSuccess',
 						severity: 'success',
 					});
-					await EventDispatcher.dispatch('OPTIONS_CLEAR', null, {});
 					await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
 					void updateCachesSize();
 				} catch (err) {

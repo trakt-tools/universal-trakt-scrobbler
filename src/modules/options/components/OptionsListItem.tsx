@@ -23,15 +23,13 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 
 	const onSwitchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
-			id: option.id,
-			value: event.target.checked,
+			[option.id]: event.target.checked,
 		});
 	};
 
 	const onSelectChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
 		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
-			id: option.id,
-			value: event.target.value as StorageValuesOptions[keyof StorageValuesOptions],
+			[option.id]: event.target.value as StorageValuesOptions[keyof StorageValuesOptions],
 		});
 	};
 
@@ -39,42 +37,51 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
-		await EventDispatcher.dispatch(
-			'SERVICE_OPTIONS_CHANGE',
-			null,
-			Object.keys(option.value).map((id) => ({
-				id,
-				value: { scrobble: true, sync: true },
-			}))
-		);
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: Object.fromEntries(
+				Object.keys(option.value).map((id) => [
+					id,
+					{
+						scrobble: true,
+						sync: true,
+					},
+				])
+			),
+		});
 	};
 
 	const onSelectNoneClick = async () => {
 		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
-		await EventDispatcher.dispatch(
-			'SERVICE_OPTIONS_CHANGE',
-			null,
-			Object.keys(option.value).map((id) => ({
-				id,
-				value: { scrobble: false, sync: false },
-			}))
-		);
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: Object.fromEntries(
+				Object.keys(option.value).map((id) => [
+					id,
+					{
+						scrobble: false,
+						sync: false,
+					},
+				])
+			),
+		});
 	};
 
 	const onToggleAllClick = async () => {
 		if (!BrowserStorage.isServiceOption(option)) {
 			return;
 		}
-		await EventDispatcher.dispatch(
-			'SERVICE_OPTIONS_CHANGE',
-			null,
-			Object.entries(option.value).map(([id, value]) => ({
-				id,
-				value: { scrobble: !value.scrobble, sync: !value.sync },
-			}))
-		);
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: Object.fromEntries(
+				Object.entries(option.value).map(([id, value]) => [
+					id,
+					{
+						scrobble: !value.scrobble,
+						sync: !value.sync,
+					},
+				])
+			),
+		});
 	};
 
 	let secondaryAction;

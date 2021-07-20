@@ -9,9 +9,8 @@ interface HistoryOptionsListItemProps {
 
 export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
 	const onSwitchChange = async (): Promise<void> => {
-		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
-			id: option.id,
-			value: !option.value,
+		await EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
+			[option.id]: !option.value,
 		});
 	};
 
@@ -24,9 +23,8 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 			value = Math.min(value, option.maxValue);
 		}
 
-		await EventDispatcher.dispatch('HISTORY_OPTIONS_CHANGE', null, {
-			id: option.id,
-			value,
+		await EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
+			[option.id]: value,
 		});
 	};
 

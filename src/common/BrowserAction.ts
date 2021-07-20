@@ -15,9 +15,10 @@ class _BrowserAction {
 	currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 	rotating: BrowserActionRotating | null = null;
 
-	startListeners() {
-		EventDispatcher.subscribe('SCROBBLE_ACTIVE', null, this.onScrobbleActive);
-		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.onScrobbleInactive);
+	init() {
+		EventDispatcher.subscribe('SCROBBLE_START', null, this.onScrobbleActive);
+		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onScrobbleInactive);
+		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onScrobbleInactive);
 	}
 
 	onScrobbleActive = () => {

@@ -158,15 +158,15 @@ export const CorrectionDialog: React.FC = () => {
 				newItem,
 			});
 			if (Shared.pageType === 'popup') {
-				const scrobblingInfo = await Messaging.toBackground({ action: 'get-scrobbling-info' });
-				if (scrobblingInfo.tabId) {
+				const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+				if (scrobblingDetails?.tabId) {
 					await Messaging.toContent(
 						{
 							action: 'item-corrected',
 							oldItem: Item.save(oldItem),
 							newItem: Item.save(newItem),
 						},
-						scrobblingInfo.tabId
+						scrobblingDetails.tabId
 					);
 				}
 			}

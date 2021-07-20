@@ -1,9 +1,6 @@
 import { TraktSettings } from '@apis/TraktSettings';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Messaging } from '@common/Messaging';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
@@ -51,11 +48,6 @@ export const LoginPage: React.FC = () => {
 
 	useEffect(() => {
 		const init = async () => {
-			Shared.tabId = await Messaging.toBackground({ action: 'get-tab-id' });
-			await BrowserStorage.init();
-			if (BrowserStorage.options.allowRollbar) {
-				Errors.startRollbar();
-			}
 			await Session.checkLogin();
 		};
 

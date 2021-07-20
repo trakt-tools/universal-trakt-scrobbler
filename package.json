@@ -52,6 +52,7 @@
 		"@material-ui/lab": "^4.0.0-alpha.58",
 		"@material-ui/pickers": "^3.3.10",
 		"axios": "^0.21.1",
+		"deepmerge": "^4.2.2",
 		"history": "^4.10.1",
 		"moment": "^2.29.1",
 		"prop-types": "^15.7.2",
@@ -60,6 +61,7 @@
 		"react-router-dom": "^5.2.0",
 		"react-window": "^1.8.6",
 		"rollbar": "^2.22.0",
+		"type-fest": "^1.2.2",
 		"webextension-polyfill-ts": "^0.26.0"
 	},
 	"devDependencies": {

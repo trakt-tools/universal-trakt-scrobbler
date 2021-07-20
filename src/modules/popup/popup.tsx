@@ -1,5 +1,7 @@
-import { EventDispatcher } from '@common/Events';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
+import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { ThemeWrapper } from '@components/ThemeWrapper';
 import '@popup/popup.html';
@@ -8,9 +10,12 @@ import { PopupApp } from '@popup/PopupApp';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const init = () => {
+const init = async () => {
 	Shared.pageType = 'popup';
-	Messaging.startListeners();
+	await BrowserStorage.init();
+	Errors.init();
+	Requests.init();
+	Messaging.init();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
 		<ThemeWrapper>
@@ -20,26 +25,6 @@ const init = () => {
 	);
 };
 
-Messaging.messageHandlers = {
-	'start-scrobble': (message) => {
-		void EventDispatcher.dispatch('SCROBBLE_START', null, {
-			item: message.item,
-		});
-	},
+Messaging.messageHandlers = {};
 
-	'pause-scrobble': () => {
-		void EventDispatcher.dispatch('SCROBBLE_PAUSE', null, {});
-	},
-
-	'stop-scrobble': () => {
-		void EventDispatcher.dispatch('SCROBBLE_STOP', null, {});
-	},
-
-	'update-scrobbling-item': (message) => {
-		void EventDispatcher.dispatch('SCROBBLING_ITEM_UPDATE', null, {
-			scrobblingItem: message.item,
-		});
-	},
-};
-
-init();
+void init();

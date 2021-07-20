@@ -30,41 +30,45 @@ export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOption
 	};
 
 	const onScrobbleChange = async () => {
-		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
-			{
-				id,
-				value: { scrobble: !value.scrobble },
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: {
+				[id]: {
+					scrobble: !value.scrobble,
+				},
 			},
-		]);
+		});
 	};
 
 	const onSyncChange = async () => {
-		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
-			{
-				id,
-				value: { sync: !value.sync },
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: {
+				[id]: {
+					sync: !value.sync,
+				},
 			},
-		]);
+		});
 	};
 
 	const onAutoSyncChange = async () => {
-		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
-			{
-				id,
-				value: { autoSync: !value.autoSync },
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: {
+				[id]: {
+					autoSync: !value.autoSync,
+				},
 			},
-		]);
+		});
 	};
 
 	const onAutoSyncDaysChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newAutoSyncDays = parseInt(event.target.value);
 		setAutoSyncDays(newAutoSyncDays);
-		await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
-			{
-				id,
-				value: { autoSyncDays: newAutoSyncDays },
+		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			services: {
+				[id]: {
+					autoSyncDays: newAutoSyncDays,
+				},
 			},
-		]);
+		});
 	};
 
 	const onClearLastSyncClick = async () => {
@@ -77,12 +81,14 @@ export const ServiceOption: React.FC<ServiceOptionProps> = (props: ServiceOption
 					syncCache.items = syncCache.items.filter((item) => item.serviceId !== id);
 					await BrowserStorage.set({ syncCache }, false);
 				}
-				await EventDispatcher.dispatch('SERVICE_OPTIONS_CHANGE', null, [
-					{
-						id,
-						value: { lastSync: 0, lastSyncId: '' },
+				await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+					services: {
+						[id]: {
+							lastSync: 0,
+							lastSyncId: '',
+						},
 					},
-				]);
+				});
 			},
 		});
 	};

@@ -1,5 +1,6 @@
 import { ServiceApi } from '@apis/ServiceApi';
-import { EventDispatcher } from '@common/Events';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { getScrobbleController, ScrobbleController } from '@common/ScrobbleController';
 import { ScrobbleParser } from '@common/ScrobbleParser';
 
@@ -36,6 +37,7 @@ export class ScrobbleEvents {
 	protected playbackStarted = false;
 	protected isPaused = true;
 	protected progress = 0.0;
+	private hasAddedListeners = false;
 
 	constructor(controller: ScrobbleController, options: Partial<ScrobbleEventsOptions> = {}) {
 		this.controller = controller;
@@ -57,17 +59,35 @@ export class ScrobbleEvents {
 		return window.location.href;
 	}
 
-	startListeners() {
-		void this.checkForChanges();
-		if (this.parser.onClick) {
-			document.addEventListener('click', this.parser.onClick, true);
-		}
+	init() {
+		this.checkListeners();
+		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
-	stopListeners() {
-		if (this.changeListenerId !== null) {
-			window.clearTimeout(this.changeListenerId);
-			this.changeListenerId = null;
+	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+		const serviceOption = data.options?.services?.[this.api.id];
+		if (serviceOption && 'scrobble' in serviceOption) {
+			this.checkListeners();
+		}
+	};
+
+	checkListeners() {
+		const { scrobble } = BrowserStorage.options.services[this.api.id];
+		if (scrobble && !this.hasAddedListeners) {
+			void this.checkForChanges();
+			if (this.parser.onClick) {
+				document.addEventListener('click', this.parser.onClick, true);
+			}
+			this.hasAddedListeners = true;
+		} else if (!scrobble && this.hasAddedListeners) {
+			if (this.changeListenerId !== null) {
+				window.clearTimeout(this.changeListenerId);
+				this.changeListenerId = null;
+			}
+			if (this.parser.onClick) {
+				document.removeEventListener('click', this.parser.onClick);
+			}
+			this.hasAddedListeners = false;
 		}
 	}
 
@@ -82,15 +102,15 @@ export class ScrobbleEvents {
 		if (playback) {
 			const newProgress = playback.progress;
 			if (this.progress !== newProgress) {
-				await this.updateProgress(newProgress);
+				await this.controller.updateProgress(newProgress);
 				this.progress = newProgress;
 			}
 
 			try {
 				if (playback.isPaused && !this.isPaused) {
-					await this.pause();
+					await this.controller.pauseScrobble();
 				} else if (!playback.isPaused && this.isPaused) {
-					await this.start();
+					await this.controller.startScrobble();
 				}
 			} catch (err) {
 				// Do nothing
@@ -98,7 +118,7 @@ export class ScrobbleEvents {
 			this.playbackStarted = true;
 			this.isPaused = playback.isPaused;
 		} else if (this.playbackStarted) {
-			await this.stop();
+			await this.controller.stopScrobble();
 			this.playbackStarted = false;
 			this.isPaused = true;
 			this.progress = 0.0;
@@ -116,7 +136,7 @@ export class ScrobbleEvents {
 		}
 
 		if (this.parser.options.watchingUrlRegex.test(oldUrl)) {
-			await this.stop();
+			await this.controller.stopScrobble();
 			this.playbackStarted = false;
 		}
 
@@ -126,26 +146,5 @@ export class ScrobbleEvents {
 
 		this.isPaused = true;
 		this.progress = 0.0;
-	}
-
-	protected async start(): Promise<void> {
-		await EventDispatcher.dispatch('SCROBBLE_START', null, {});
-		await EventDispatcher.dispatch('SCROBBLE_ACTIVE', null, {});
-	}
-
-	protected async pause(): Promise<void> {
-		await EventDispatcher.dispatch('SCROBBLE_PAUSE', null, {});
-		await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
-	}
-
-	protected async stop(): Promise<void> {
-		await EventDispatcher.dispatch('SCROBBLE_STOP', null, {});
-		if (!this.isPaused) {
-			await EventDispatcher.dispatch('SCROBBLE_INACTIVE', null, {});
-		}
-	}
-
-	protected async updateProgress(newProgress: number): Promise<void> {
-		await EventDispatcher.dispatch('SCROBBLE_PROGRESS', null, { progress: newProgress });
 	}
 }

@@ -35,6 +35,7 @@ specifiers:
   babel-preset-minify: ^0.5.1
   cross-env: ^7.0.3
   css-loader: ^5.2.6
+  deepmerge: ^4.2.2
   eslint: ^7.28.0
   eslint-config-prettier: ^8.3.0
   eslint-plugin-prefer-arrow: ^1.2.3
@@ -60,6 +61,7 @@ specifiers:
   style-loader: ^2.0.0
   ts-node: ^10.0.0
   tsconfig-paths-webpack-plugin: ^3.5.1
+  type-fest: ^1.2.2
   typescript: ^4.3.2
   webextension-polyfill-ts: ^0.26.0
   webpack: ^5.39.0
@@ -73,6 +75,7 @@ dependencies:
   '@material-ui/lab': 4.0.0-alpha.58_5e14cec25e1ceef8d08e6ab1e0c4cb05
   '@material-ui/pickers': 3.3.10_601c9bb7a0a7075d48d68db32c711737
   axios: 0.21.1
+  deepmerge: 4.2.2
   history: 4.10.1
   moment: 2.29.1
   prop-types: 15.7.2
@@ -81,6 +84,7 @@ dependencies:
   react-router-dom: 5.2.0_react@17.0.2
   react-window: 1.8.6_react-dom@17.0.2+react@17.0.2
   rollbar: 2.22.0
+  type-fest: 1.2.2
   webextension-polyfill-ts: 0.26.0
 
 devDependencies:
@@ -4033,6 +4037,14 @@ packages:
   /deep-is/0.1.3:
     resolution: { integrity: sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ= }
     dev: true
+
+  /deepmerge/4.2.2:
+    resolution:
+      {
+        integrity: sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==,
+      }
+    engines: { node: '>=0.10.0' }
+    dev: false
 
   /defaults/1.0.3:
     resolution: { integrity: sha1-xlYFHpgX2f8I7YgUd/P+QBnz730= }
@@ -8200,6 +8212,14 @@ packages:
       }
     engines: { node: '>=10' }
     dev: true
+
+  /type-fest/1.2.2:
+    resolution:
+      {
+        integrity: sha512-pfkPYCcuV0TJoo/jlsUeWNV8rk7uMU6ocnYNvca1Vu+pyKi8Rl8Zo2scPt9O72gCsXIm+dMxOOWuA3VFDSdzWA==,
+      }
+    engines: { node: '>=10' }
+    dev: false
 
   /typescript/4.3.2:
     resolution:

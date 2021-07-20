@@ -84,6 +84,10 @@ class _Cache {
 
 	timestamp = 0;
 
+	init() {
+		void this.check();
+	}
+
 	async check() {
 		if (this.isChecking) {
 			return;

@@ -1,8 +1,8 @@
 import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
-import { browser, Storage as WebExtStorage } from 'webextension-polyfill-ts';
 
 interface ThemeWrapperProps {
 	children: React.ReactNode;
@@ -22,19 +22,6 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 	const systemPalette = prefersLightMode ? 'light' : 'dark';
 
 	React.useEffect(() => {
-		const setTheme = () => {
-			const themeValue = BrowserStorage.options.theme;
-			const themePalette = themeValue === 'system' ? systemPalette : themeValue;
-			setThemeDetails({
-				value: themeValue,
-				palette: themePalette,
-			});
-		};
-
-		setTheme();
-	}, []);
-
-	React.useEffect(() => {
 		const updateSystemPalette = () => {
 			if (themeDetails.value === 'system' && themeDetails.palette !== systemPalette) {
 				setThemeDetails({
@@ -49,37 +36,35 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 
 	React.useEffect(() => {
 		const startListeners = () => {
-			browser.storage.onChanged.addListener(onStorageChanged);
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			browser.storage.onChanged.removeListener(onStorageChanged);
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
-		const onStorageChanged = (
-			changes: Record<string, WebExtStorage.StorageChange>,
-			areaName: string
-		) => {
-			if (areaName !== 'local') {
-				return;
+		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+			if (data.options && 'theme' in data.options) {
+				setTheme();
 			}
-			const { options } = changes;
-			if (options?.newValue) {
-				const { theme: themeValue } = options.newValue as { theme: ThemeValue };
-				setThemeDetails((prevThemeDetails) => {
-					if (prevThemeDetails.value === themeValue) {
-						return prevThemeDetails;
-					}
-					const themePalette = themeValue === 'system' ? systemPalette : themeValue;
-					return {
-						value: themeValue,
-						palette: themePalette,
-					};
-				});
-			}
+		};
+
+		const setTheme = () => {
+			const themeValue = BrowserStorage.options.theme;
+			setThemeDetails((prevThemeDetails) => {
+				if (prevThemeDetails.value === themeValue) {
+					return prevThemeDetails;
+				}
+				const themePalette = themeValue === 'system' ? systemPalette : themeValue;
+				return {
+					value: themeValue,
+					palette: themePalette,
+				};
+			});
 		};
 
 		startListeners();
+		setTheme();
 		return stopListeners;
 	}, []);
 

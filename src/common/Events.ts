@@ -1,14 +1,15 @@
 import { TraktSearchItem } from '@apis/TraktSearch';
 import {
-	ServiceValue,
+	ScrobblingDetails,
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
 } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { RequestException } from '@common/Requests';
 import { Color } from '@material-ui/lab';
-import { Item, SavedItem } from '@models/Item';
+import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
+import { PartialDeep } from 'type-fest';
 
 export interface EventData {
 	LOGIN_SUCCESS: LoginSuccessData;
@@ -17,24 +18,20 @@ export interface EventData {
 	LOGOUT_ERROR: ErrorData;
 	SCROBBLE_SUCCESS: ScrobbleSuccessData;
 	SCROBBLE_ERROR: ScrobbleErrorData;
-	SCROBBLE_ACTIVE: SuccessData;
-	SCROBBLE_INACTIVE: SuccessData;
-	SCROBBLE_START: ScrobbleStartData;
-	SCROBBLE_PAUSE: SuccessData;
-	SCROBBLE_STOP: SuccessData;
-	SCROBBLE_PROGRESS: ScrobbleProgressData;
+	SCROBBLE_START: ScrobblingDetails;
+	SCROBBLE_PAUSE: ScrobblingDetails;
+	SCROBBLE_STOP: ScrobblingDetails;
+	SCROBBLE_PROGRESS: ScrobblingDetails;
 	SEARCH_SUCCESS: SearchSuccessData;
 	SEARCH_ERROR: SearchErrorData;
-	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
-	SERVICE_OPTIONS_CHANGE: ServiceOptionsChangeData;
-	OPTIONS_CLEAR: SuccessData;
+	OPTIONS_CHANGE: PartialDeep<StorageValuesOptions>;
 	DIALOG_SHOW: DialogShowData;
 	SNACKBAR_SHOW: SnackbarShowData;
 	MISSING_WATCHED_DATE_DIALOG_SHOW: MissingWatchedDateDialogShowData;
 	MISSING_WATCHED_DATE_ADDED: MissingWatchedDateAddedData;
 	CORRECTION_DIALOG_SHOW: CorrectionDialogShowData;
 	ITEM_CORRECTED: ItemCorrectedData;
-	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
+	SYNC_OPTIONS_CHANGE: PartialDeep<StorageValuesSyncOptions>;
 	SYNC_STORE_UPDATE: SyncStoreUpdateData;
 	SERVICE_HISTORY_LOAD_ERROR: ErrorData;
 	SERVICE_HISTORY_CHANGE: ServiceHistoryChangeData;
@@ -42,8 +39,9 @@ export interface EventData {
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
-	STORAGE_OPTIONS_CHANGE: SuccessData;
-	SCROBBLING_ITEM_UPDATE: ScrobblingItemUpdateData;
+	STORAGE_OPTIONS_CHANGE: StorageOptionsChangeData;
+	STORAGE_OPTIONS_CLEAR: SuccessData;
+	CONTENT_SCRIPT_DISCONNECT: ContentScriptDisconnectData;
 }
 
 export type Event = keyof EventData;
@@ -67,14 +65,6 @@ export type ScrobbleErrorData = ScrobbleSuccessData & {
 	error: RequestException;
 };
 
-export interface ScrobbleStartData {
-	item?: SavedItem;
-}
-
-export interface ScrobbleProgressData {
-	progress: number;
-}
-
 export interface SearchSuccessData {
 	searchItem: TraktSearchItem;
 }
@@ -82,16 +72,6 @@ export interface SearchSuccessData {
 export interface SearchErrorData {
 	error: RequestException;
 }
-
-export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
-	id: K;
-	value: StorageValuesOptions[K];
-}
-
-export type ServiceOptionsChangeData = {
-	id: string;
-	value: Partial<ServiceValue>;
-}[];
 
 export interface DialogShowData {
 	title: string;
@@ -125,11 +105,6 @@ export interface ItemCorrectedData {
 	newItem: Item;
 }
 
-export interface HistoryOptionsChangeData {
-	id: keyof StorageValuesSyncOptions;
-	value: boolean | number;
-}
-
 export interface SyncStoreUpdateData {
 	visibleItemsChanged: boolean;
 }
@@ -150,8 +125,13 @@ export interface RequestsCancelData {
 	key: string;
 }
 
-export interface ScrobblingItemUpdateData {
-	scrobblingItem?: SavedItem;
+export interface StorageOptionsChangeData {
+	options?: PartialDeep<StorageValuesOptions>;
+	syncOptions?: PartialDeep<StorageValuesSyncOptions>;
+}
+
+export interface ContentScriptDisconnectData {
+	tabId: number;
 }
 
 export type EventDispatcherListeners = Record<

@@ -1,5 +1,6 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
@@ -20,15 +21,9 @@ export interface MessageRequests {
 	'set-inactive-icon': SetInactiveIconMessage;
 	'set-rotating-icon': SetRotatingIconMessage;
 	'set-static-icon': SetStaticIconMessage;
-	'start-scrobble': StartScrobbleMessage;
-	'pause-scrobble': PauseScrobbleMessage;
-	'stop-scrobble': StopScrobbleMessage;
-	'update-scrobbling-item': UpdateScrobblingItemMessage;
-	'get-scrobbling-info': GetScrobblingInfoMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
 	'item-corrected': ItemCorrectedMessage;
-	'check-auto-sync': CheckAutoSyncMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
@@ -45,19 +40,9 @@ export interface ReturnTypes {
 	'set-inactive-icon': void;
 	'set-rotating-icon': void;
 	'set-static-icon': void;
-	'start-scrobble': void;
-	'pause-scrobble': void;
-	'stop-scrobble': void;
-	'update-scrobbling-item': void;
-	'get-scrobbling-info': {
-		item: SavedItem | null;
-		tabId: number | null;
-		isPaused: boolean;
-	};
 	'send-request': string;
 	'show-notification': void;
 	'item-corrected': void;
-	'check-auto-sync': void;
 }
 
 export interface OpenTabMessage {
@@ -119,36 +104,10 @@ export interface ShowNotificationMessage {
 	message: string;
 }
 
-export interface StartScrobbleMessage {
-	action: 'start-scrobble';
-	item: SavedItem;
-}
-
-export interface PauseScrobbleMessage {
-	action: 'pause-scrobble';
-}
-
-export interface StopScrobbleMessage {
-	action: 'stop-scrobble';
-}
-
-export interface UpdateScrobblingItemMessage {
-	action: 'update-scrobbling-item';
-	item: SavedItem;
-}
-
-export interface GetScrobblingInfoMessage {
-	action: 'get-scrobbling-info';
-}
-
 export interface ItemCorrectedMessage {
 	action: 'item-corrected';
 	oldItem: SavedItem;
 	newItem: SavedItem;
-}
-
-export interface CheckAutoSyncMessage {
-	action: 'check-auto-sync';
 }
 
 class _Messaging {
@@ -164,17 +123,13 @@ class _Messaging {
 
 	ports = new Map<number, WebExtRuntime.Port>();
 
-	startListeners() {
-		if (Shared.pageType === 'content') {
-			browser.runtime.connect();
-		} else if (Shared.pageType === 'background') {
+	init() {
+		if (Shared.pageType === 'background') {
 			browser.runtime.onConnect.addListener(this.onConnect);
+		} else if (Shared.pageType === 'content') {
+			browser.runtime.connect();
 		}
 		browser.runtime.onMessage.addListener(this.onMessage);
-	}
-
-	stoptListeners() {
-		browser.runtime.onMessage.removeListener(this.onMessage);
 	}
 
 	private onConnect = (port: WebExtRuntime.Port) => {
@@ -186,13 +141,9 @@ class _Messaging {
 		this.ports.set(tabId, port);
 		port.onDisconnect.addListener(() => {
 			this.ports.delete(tabId);
-			if (this.onPortDisconnected) {
-				void this.onPortDisconnected(port, tabId);
-			}
+			void EventDispatcher.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
 		});
 	};
-
-	onPortDisconnected: ((port: WebExtRuntime.Port, tabId: number) => Promisable<void>) | null = null;
 
 	private onMessage = <T extends MessageRequest>(
 		message: T,

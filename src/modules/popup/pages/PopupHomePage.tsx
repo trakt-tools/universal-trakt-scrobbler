@@ -1,8 +1,7 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TmdbApi } from '@apis/TmdbApi';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, ScrobbleStartData, ScrobblingItemUpdateData } from '@common/Events';
-import { Messaging } from '@common/Messaging';
+import { BrowserStorage, ScrobblingDetails } from '@common/BrowserStorage';
+import { EventDispatcher } from '@common/Events';
 import { PopupNotWatching } from '@components/PopupNotWatching';
 import { PopupWatching } from '@components/PopupWatching';
 import { UtsCenter } from '@components/UtsCenter';
@@ -27,11 +26,11 @@ export const HomePage: React.FC = () => {
 
 	useEffect(() => {
 		const getScrobblingItem = async (): Promise<void> => {
-			const { item, isPaused } = await Messaging.toBackground({ action: 'get-scrobbling-info' });
+			const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
 			setContent({
 				isLoading: false,
-				scrobblingItem: item ? Item.load(item) : null,
-				isPaused,
+				scrobblingItem: scrobblingDetails?.item ? Item.load(scrobblingDetails.item) : null,
+				isPaused: scrobblingDetails?.isPaused ?? false,
 			});
 		};
 
@@ -43,17 +42,17 @@ export const HomePage: React.FC = () => {
 			EventDispatcher.subscribe('SCROBBLE_START', null, onScrobbleStart);
 			EventDispatcher.subscribe('SCROBBLE_PAUSE', null, onScrobblePause);
 			EventDispatcher.subscribe('SCROBBLE_STOP', null, onScrobbleStop);
-			EventDispatcher.subscribe('SCROBBLING_ITEM_UPDATE', null, onScrobblingItemUpdate);
+			EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
 		};
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe('SCROBBLE_START', null, onScrobbleStart);
 			EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, onScrobblePause);
 			EventDispatcher.unsubscribe('SCROBBLE_STOP', null, onScrobbleStop);
-			EventDispatcher.unsubscribe('SCROBBLING_ITEM_UPDATE', null, onScrobblingItemUpdate);
+			EventDispatcher.unsubscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
 		};
 
-		const onScrobbleStart = (data: ScrobbleStartData) => {
+		const onScrobbleStart = (data: ScrobblingDetails) => {
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: data.item
@@ -82,12 +81,12 @@ export const HomePage: React.FC = () => {
 			}));
 		};
 
-		const onScrobblingItemUpdate = (data: ScrobblingItemUpdateData) => {
+		const onScrobbleProgress = (data: ScrobblingDetails) => {
 			setContent((prevContent) => ({
 				...prevContent,
-				scrobblingItem: data.scrobblingItem
+				scrobblingItem: data.item
 					? Item.load({
-							...data.scrobblingItem,
+							...data.item,
 							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
 					  })

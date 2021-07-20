@@ -2,11 +2,10 @@ import { CorrectionApi } from '@apis/CorrectionApi';
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TmdbApi } from '@apis/TmdbApi';
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage } from '@common/BrowserStorage';
+import { BrowserStorage, StorageValuesSyncOptions } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import {
 	EventDispatcher,
-	HistoryOptionsChangeData,
 	HistorySyncSuccessData,
 	ItemCorrectedData,
 	MissingWatchedDateAddedData,
@@ -22,6 +21,7 @@ import { getService } from '@models/Service';
 import { getSyncStore } from '@stores/SyncStore';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import { PartialDeep } from 'type-fest';
 
 interface PageProps {
 	serviceId: string | null;
@@ -131,19 +131,15 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 		if (serviceId) {
 			const lastSync = selectedItems[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
 			if (lastSync > BrowserStorage.options.services[serviceId].lastSync) {
-				BrowserStorage.addOption({
-					id: 'services',
-					value: {
-						...BrowserStorage.options.services,
+				await BrowserStorage.saveOptions({
+					services: {
 						[serviceId]: {
-							...BrowserStorage.options.services[serviceId],
 							lastSync,
 							lastSyncId: selectedItems[0].id,
 						},
 					},
 				});
 			}
-			await BrowserStorage.saveOptions({});
 			setContent((prevContent) => ({
 				...prevContent,
 				isLoading: false,
@@ -279,18 +275,18 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('HISTORY_OPTIONS_CHANGE', null, onOptionsChange);
+			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('HISTORY_OPTIONS_CHANGE', null, onOptionsChange);
+			EventDispatcher.unsubscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
-		const onOptionsChange = (data: HistoryOptionsChangeData) => {
-			BrowserStorage.saveSyncOptions({ [data.id]: data.value })
+		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesSyncOptions>) => {
+			BrowserStorage.saveSyncOptions(partialOptions)
 				.then(async () => {
 					setSyncOptionsChanged({});
-					if (serviceId && data.id.startsWith('addWithReleaseDate')) {
+					if (serviceId && 'addWithReleaseDate' in partialOptions) {
 						for (const item of store.data.visibleItems) {
 							if (item.trakt) {
 								delete item.trakt.watchedAt;
@@ -301,8 +297,12 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 							.catch((err) => {
 								// Do nothing
 							});
-					} else if (serviceId && data.id === 'itemsPerLoad' && typeof data.value === 'number') {
-						checkItemsPerPage(data.value);
+					} else if (
+						serviceId &&
+						'itemsPerLoad' in partialOptions &&
+						typeof partialOptions.itemsPerLoad === 'number'
+					) {
+						checkItemsPerPage(partialOptions.itemsPerLoad);
 					} else {
 						void store.updateVisibleItems(false);
 					}
