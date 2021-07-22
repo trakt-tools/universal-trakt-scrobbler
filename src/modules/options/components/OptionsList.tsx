@@ -1,16 +1,64 @@
-import { BrowserStorage } from '@common/BrowserStorage';
+import { BrowserStorage, OptionsDetails, StorageValuesOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { OptionsListItem } from '@components/OptionsListItem';
+import { ServiceOptions } from '@components/ServiceOptions';
 import { List } from '@material-ui/core';
-import React from 'react';
+import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import { PartialDeep } from 'type-fest';
 
-export const OptionsList: React.FC = () => {
+interface OptionsListProps {
+	details: OptionsDetails;
+}
+
+export const OptionsList: React.FC<OptionsListProps> = ({ details }) => {
+	useEffect(() => {
+		const startListeners = () => {
+			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionsChange);
+		};
+
+		const stopListeners = () => {
+			EventDispatcher.unsubscribe('OPTIONS_CHANGE', null, onOptionsChange);
+		};
+
+		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesOptions>) => {
+			return BrowserStorage.saveOptions(partialOptions)
+				.then(async () => {
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveOptionSuccess',
+						severity: 'success',
+					});
+				})
+				.catch(async (err) => {
+					Errors.error('Failed to save option.', err);
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveOptionFailed',
+						severity: 'error',
+					});
+					throw err;
+				});
+		};
+
+		startListeners();
+		return stopListeners;
+	}, []);
+
 	return (
 		<List>
-			{Object.values(BrowserStorage.optionsDetails)
+			{Object.values(details)
 				.filter((option) => option.doShow)
-				.map((option) => (
-					<OptionsListItem key={option.id} option={option} />
-				))}
+				.map((option) =>
+					BrowserStorage.isOption(option, 'services', 'custom') ? (
+						<ServiceOptions key={option.id} option={option} />
+					) : (
+						<OptionsListItem key={option.id} option={option} />
+					)
+				)}
 		</List>
 	);
+};
+
+OptionsList.propTypes = {
+	details: PropTypes.any.isRequired,
 };

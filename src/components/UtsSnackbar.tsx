@@ -34,16 +34,20 @@ export const UtsSnackbar: React.FC = () => {
 		};
 
 		const showSnackbar = (data: SnackbarShowData) => {
+			const message = I18N.translate(data.messageName, data.messageArgs || []);
+			if (snackbar.isOpen && snackbar.message === message) {
+				return;
+			}
 			setSnackbar({
 				isOpen: true,
-				message: I18N.translate(data.messageName, data.messageArgs || []),
+				message,
 				severity: data.severity,
 			});
 		};
 
 		startListeners();
 		return stopListeners;
-	}, []);
+	}, [snackbar]);
 
 	return (
 		<Snackbar autoHideDuration={3000} onClose={closeSnackbar} open={snackbar.isOpen}>

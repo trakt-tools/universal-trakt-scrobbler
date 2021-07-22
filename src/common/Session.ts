@@ -1,7 +1,9 @@
+import { TraktAuth } from '@apis/TraktAuth';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
 
 class _Session {
 	isLoggedIn: boolean;
@@ -12,7 +14,7 @@ class _Session {
 
 	async checkLogin(): Promise<void> {
 		try {
-			const auth = await Messaging.toExtension({ action: 'check-login' });
+			const auth = await TraktAuth.validateToken();
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
 				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });

@@ -35,7 +35,7 @@ Messaging.addHandlers({
 
 	'get-tab-id': (message, tabId) => tabId,
 
-	'check-login': () => TraktAuth.validateToken(),
+	'validate-trakt-token': () => TraktAuth.validateToken(),
 
 	'finish-login': (message) => TraktAuth.finishManualAuth(message.redirectUrl),
 

@@ -11,7 +11,7 @@ export type MessageRequest = MessageRequests[keyof MessageRequests];
 export interface MessageRequests {
 	'open-tab': OpenTabMessage;
 	'get-tab-id': GetTabIdMessage;
-	'check-login': CheckLoginMessage;
+	'validate-trakt-token': ValidateTraktTokenMessage;
 	'finish-login': FinishLoginMessage;
 	login: LoginMessage;
 	logout: LogoutMessage;
@@ -31,7 +31,7 @@ export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
 export interface ReturnTypes {
 	'open-tab': WebExtTabs.Tab | null;
 	'get-tab-id': number | null;
-	'check-login': TraktAuthDetails | null;
+	'validate-trakt-token': TraktAuthDetails | null;
 	'finish-login': void;
 	login: TraktAuthDetails;
 	logout: void;
@@ -56,8 +56,8 @@ export interface GetTabIdMessage {
 	action: 'get-tab-id';
 }
 
-export interface CheckLoginMessage {
-	action: 'check-login';
+export interface ValidateTraktTokenMessage {
+	action: 'validate-trakt-token';
 }
 
 export interface FinishLoginMessage {

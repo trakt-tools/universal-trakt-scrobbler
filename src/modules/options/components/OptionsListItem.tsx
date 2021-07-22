@@ -1,115 +1,82 @@
-import { BrowserStorage, Option, StorageValuesOptions } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
+import { BrowserStorage, OptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { ServiceOptions } from '@components/ServiceOptions';
-import {
-	Button,
-	ButtonGroup,
-	ListItem,
-	ListItemSecondaryAction,
-	ListItemText,
-	MenuItem,
-	Select,
-	Switch,
-} from '@material-ui/core';
-import React from 'react';
+import { SelectOption } from '@components/SelectOption';
+import { SwitchOption } from '@components/SwitchOption';
+import { ListItem, ListItemSecondaryAction, ListItemText } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 
 interface OptionsListItemProps {
-	option: Option<keyof StorageValuesOptions>;
+	option: OptionDetails<StorageValuesOptions>;
 }
 
-export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsListItemProps) => {
-	const { option } = props;
+export const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
+	const [isDisabled, setDisabled] = useState(BrowserStorage.checkDisabledOption(option));
+	const [value, setValue] = useState(option.value);
 
-	const onSwitchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
-			[option.id]: event.target.checked,
+	const handleChange = (optionId: string, newValue: unknown) => {
+		void EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+			[optionId]: newValue,
 		});
 	};
 
-	const onSelectChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', option.id, {
-			[option.id]: event.target.value as StorageValuesOptions[keyof StorageValuesOptions],
-		});
-	};
+	useEffect(() => {
+		const startListeners = () => {
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
 
-	const onSelectAllClick = async () => {
-		if (!BrowserStorage.isServiceOption(option)) {
-			return;
-		}
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
-			services: Object.fromEntries(
-				Object.keys(option.value).map((id) => [
-					id,
-					{
-						scrobble: true,
-						sync: true,
-					},
-				])
-			),
-		});
-	};
+		const stopListeners = () => {
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
 
-	const onSelectNoneClick = async () => {
-		if (!BrowserStorage.isServiceOption(option)) {
-			return;
-		}
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
-			services: Object.fromEntries(
-				Object.keys(option.value).map((id) => [
-					id,
-					{
-						scrobble: false,
-						sync: false,
-					},
-				])
-			),
-		});
-	};
+		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+			if (!data.options) {
+				return;
+			}
 
-	const onToggleAllClick = async () => {
-		if (!BrowserStorage.isServiceOption(option)) {
-			return;
-		}
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
-			services: Object.fromEntries(
-				Object.entries(option.value).map(([id, value]) => [
-					id,
-					{
-						scrobble: !value.scrobble,
-						sync: !value.sync,
-					},
-				])
-			),
-		});
-	};
+			const newValue = data.options[option.id];
+			if (typeof newValue !== 'undefined') {
+				setValue(newValue as StorageValuesOptions[keyof StorageValuesOptions]);
+			} else if (option.dependencies) {
+				const hasDependenciesChanged = option.dependencies.some(
+					(dependency) => data.options && dependency in data.options
+				);
+				if (hasDependenciesChanged) {
+					setDisabled(BrowserStorage.checkDisabledOption(option));
+				}
+			}
+		};
+
+		startListeners();
+		return stopListeners;
+	}, []);
 
 	let secondaryAction;
 	switch (option.type) {
 		case 'switch':
 			secondaryAction = (
-				<Switch checked={!!option.value} color="primary" edge="end" onChange={onSwitchChange} />
+				<SwitchOption
+					id={option.id}
+					value={value as boolean}
+					isDisabled={isDisabled}
+					handleChange={handleChange}
+				/>
 			);
 			break;
 		case 'select':
 			secondaryAction = (
-				<Select value={option.value} onChange={onSelectChange}>
-					{Object.entries(option.selectItems).map(([key, name]) => (
-						<MenuItem key={key} value={key}>
-							{name}
-						</MenuItem>
-					))}
-				</Select>
+				<SelectOption
+					id={option.id}
+					value={value as string}
+					isDisabled={isDisabled}
+					choices={option.choices}
+					handleChange={handleChange}
+				/>
 			);
 			break;
-		case 'list':
-			secondaryAction = (
-				<ButtonGroup variant="contained">
-					<Button onClick={onSelectAllClick}>{I18N.translate('selectAll')}</Button>
-					<Button onClick={onSelectNoneClick}>{I18N.translate('selectNone')}</Button>
-					<Button onClick={onToggleAllClick}>{I18N.translate('toggleAll')}</Button>
-				</ButtonGroup>
-			);
+		default:
+			secondaryAction = null;
 			break;
 	}
 
@@ -118,10 +85,16 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = (props: OptionsLi
 			<ListItem
 				classes={{ root: 'options-list-item', secondaryAction: 'options-list-item--secondary' }}
 			>
-				<ListItemText primary={option.name} secondary={option.description} />
+				<ListItemText
+					primary={I18N.translate(option.id)}
+					secondary={I18N.translate(`${option.id}Description`)}
+				/>
 				<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
 			</ListItem>
-			{BrowserStorage.isServiceOption(option) && <ServiceOptions options={option.value} />}
 		</>
 	);
+};
+
+OptionsListItem.propTypes = {
+	option: PropTypes.any.isRequired,
 };

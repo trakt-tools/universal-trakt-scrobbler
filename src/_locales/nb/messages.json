@@ -20,11 +20,11 @@
 	"addWithReleaseDateName": {
 		"message": "Legg til med utgivelsesdato."
 	},
+	"allowRollbar": {
+		"message": "Tillat at feilinformasjon sendes til Rollbar."
+	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
-	},
-	"allowRollbarName": {
-		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
 	"appDescription": {
 		"message": "En universell sync-tjeneste for Trakt.tv."
@@ -169,11 +169,11 @@
 	"goToHistoryPage": {
 		"message": "Gå til historikksiden"
 	},
+	"grantCookies": {
+		"message": "Tillat «informasjonskapsler» slik at utvidelsen kan virke sammen med Firefox Containers."
+	},
 	"grantCookiesDescription": {
 		"message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
-	},
-	"grantCookiesName": {
-		"message": "Tillat «informasjonskapsler» slik at utvidelsen kan virke sammen med Firefox Containers."
 	},
 	"hideSyncedName": {
 		"message": "Skjul allerede synkroniserte elementer."
@@ -354,11 +354,11 @@
 	"selectService": {
 		"message": "Velg en strømmetjeneste å synkronisere fra:"
 	},
+	"sendReceiveSuggestions": {
+		"message": "Send / motta forslag til rettelser."
+	},
 	"sendReceiveSuggestionsDescription": {
 		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Cloud-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
-	},
-	"sendReceiveSuggestionsName": {
-		"message": "Send / motta forslag til rettelser."
 	},
 	"service": {
 		"message": "Strømmetjeneste"
@@ -369,17 +369,17 @@
 	"serviceSync": {
 		"message": "Historikk-synkronisering"
 	},
+	"services": {
+		"message": "Strømmetjenester"
+	},
 	"servicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
-	"servicesName": {
-		"message": "Strømmetjenester"
+	"showNotifications": {
+		"message": "Vis nettleservarsler"
 	},
 	"showNotificationsDescription": {
 		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
-	},
-	"showNotificationsName": {
-		"message": "Vis nettleservarsler"
 	},
 	"suggestedBy": {
 		"message": "Foreslått av $COUNT$ brukere",
@@ -398,20 +398,17 @@
 	"systemTheme": {
 		"message": "Bestemmes av operativsystemet"
 	},
+	"theme": {
+		"message": "Tema"
+	},
 	"themeDescription": {
 		"message": "Velg ønsket tema."
-	},
-	"themeName": {
-		"message": "Tema"
 	},
 	"toggleAll": {
 		"message": "Veksle"
 	},
 	"use": {
 		"message": "Bruk"
-	},
-	"use24ClockName": {
-		"message": "Bruk 24-timers klokke."
 	},
 	"useCurrentDate": {
 		"message": "Bruk dagens dato."

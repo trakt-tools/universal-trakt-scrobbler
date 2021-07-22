@@ -20,11 +20,11 @@
 	"addWithReleaseDateName": {
 		"message": "Add with release date."
 	},
+	"allowRollbar": {
+		"message": "Allow Rollbar to collect information about bugs."
+	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
-	},
-	"allowRollbarName": {
-		"message": "Allow Rollbar to collect information about bugs."
 	},
 	"appDescription": {
 		"message": "A universal sync for Trakt.tv."
@@ -169,11 +169,11 @@
 	"goToHistoryPage": {
 		"message": "Go to History Page"
 	},
+	"grantCookies": {
+		"message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
+	},
 	"grantCookiesDescription": {
 		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
-	},
-	"grantCookiesName": {
-		"message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
 	},
 	"hideSyncedName": {
 		"message": "Hide synced."
@@ -354,11 +354,11 @@
 	"selectService": {
 		"message": "Select a streaming service to sync from:"
 	},
+	"sendReceiveSuggestions": {
+		"message": "Send / receive correction suggestions."
+	},
 	"sendReceiveSuggestionsDescription": {
 		"message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Cloud database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
-	},
-	"sendReceiveSuggestionsName": {
-		"message": "Send / receive correction suggestions."
 	},
 	"service": {
 		"message": "Service"
@@ -369,17 +369,17 @@
 	"serviceSync": {
 		"message": "Sync"
 	},
+	"services": {
+		"message": "Streaming services"
+	},
 	"servicesDescription": {
 		"message": "Choose which streaming services to enable."
 	},
-	"servicesName": {
-		"message": "Streaming services"
+	"showNotifications": {
+		"message": "Show browser notifications."
 	},
 	"showNotificationsDescription": {
 		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
-	},
-	"showNotificationsName": {
-		"message": "Show browser notifications."
 	},
 	"suggestedBy": {
 		"message": "Suggested by $COUNT$ users",
@@ -398,20 +398,17 @@
 	"systemTheme": {
 		"message": "Use your system preference"
 	},
+	"theme": {
+		"message": "Theme"
+	},
 	"themeDescription": {
 		"message": "Choose what theme to use."
-	},
-	"themeName": {
-		"message": "Theme"
 	},
 	"toggleAll": {
 		"message": "Toggle"
 	},
 	"use": {
 		"message": "Use"
-	},
-	"use24ClockName": {
-		"message": "Use 24-hour clock."
 	},
 	"useCurrentDate": {
 		"message": "Use current date."

@@ -1,6 +1,7 @@
 import { secrets } from '@/secrets';
 import { TraktApi } from '@apis/TraktApi';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
@@ -153,6 +154,9 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async validateToken(): Promise<TraktAuthDetails | null> {
+		if (Shared.pageType !== 'background') {
+			return Messaging.toExtension({ action: 'validate-trakt-token' });
+		}
 		let auth: TraktAuthDetails | null = null;
 		const values = await BrowserStorage.get('auth');
 		if (values.auth) {

@@ -1,17 +1,18 @@
 import { HboGoApiParams } from '@/hbo-go/HboGoApi';
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
+import { TraktSettings } from '@apis/TraktSettings';
 import { CacheStorageValues } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
+import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { SavedItem } from '@models/Item';
 import { getService, getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
 import '@services';
-import React from 'react';
 import { PartialDeep } from 'type-fest';
 import { browser, Manifest as WebExtManifest } from 'webextension-polyfill-ts';
 
@@ -158,36 +159,73 @@ export type CorrectItem = {
 	url: string;
 };
 
-export type Options = {
-	[K in keyof StorageValuesOptions]: Option<K>;
+export type OptionsDetails = {
+	[K in keyof StorageValuesOptions]: OptionDetails<StorageValuesOptions, K>;
 };
 
-export type Option<K extends keyof StorageValuesOptions> =
-	| SwitchOption<K>
-	| SelectOption<K>
-	| ListOption<K>;
+export type OptionDetails<T, K extends keyof T = keyof T> =
+	| SelectOptionDetails<T, K>
+	| SwitchOptionDetails<T, K>
+	| TextFieldOptionDetails<T, K>
+	| NumericTextFieldOptionDetails<T, K>
+	| CustomOptionDetails<T, K>;
 
-export type BaseOption<K extends keyof StorageValuesOptions> = {
+export type OptionDetailsByType<
+	T,
+	U extends OptionDetails<T, K>['type'],
+	K extends keyof T = keyof T
+> = U extends 'select'
+	? SelectOptionDetails<T, K>
+	: U extends 'switch'
+	? SwitchOptionDetails<T, K>
+	: U extends 'text'
+	? TextFieldOptionDetails<T, K>
+	: U extends 'number'
+	? NumericTextFieldOptionDetails<T, K>
+	: U extends 'custom'
+	? CustomOptionDetails<T, K>
+	: OptionDetails<T, K>;
+
+export type BaseOptionDetails<T, K extends keyof T> = {
 	id: K;
-	name: string;
-	description: React.ReactElement | string;
-	value: StorageValuesOptions[K];
-	origins: string[];
-	permissions: WebExtManifest.OptionalPermission[];
+	value: T[K];
+	origins?: string[];
+	permissions?: WebExtManifest.OptionalPermission[];
+	dependencies?: (keyof T)[];
 	doShow: boolean;
 };
 
-export interface SwitchOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
-	type: 'switch';
-}
-
-export interface SelectOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
+export interface SelectOptionDetails<T, K extends keyof T>
+	extends Omit<BaseOptionDetails<T, K>, 'value'> {
 	type: 'select';
-	selectItems: Record<string, string>;
+	value: string;
+	choices: Record<string, string>;
 }
 
-export interface ListOption<K extends keyof StorageValuesOptions> extends BaseOption<K> {
-	type: 'list';
+export interface SwitchOptionDetails<T, K extends keyof T>
+	extends Omit<BaseOptionDetails<T, K>, 'value'> {
+	type: 'switch';
+	value: boolean;
+}
+
+export interface TextFieldOptionDetails<T, K extends keyof T>
+	extends Omit<BaseOptionDetails<T, K>, 'value'> {
+	type: 'text';
+	value: string;
+}
+
+export interface NumericTextFieldOptionDetails<T, K extends keyof T>
+	extends Omit<BaseOptionDetails<T, K>, 'value'> {
+	type: 'number';
+	value: number;
+	isFloat?: number;
+	minValue?: number;
+	maxValue?: number;
+	step?: number;
+}
+
+export interface CustomOptionDetails<T, K extends keyof T> extends BaseOptionDetails<T, K> {
+	type: 'custom';
 }
 
 export type SyncOptions = {
@@ -212,7 +250,7 @@ class _BrowserStorage {
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
-	optionsDetails = {} as Options;
+	optionsDetails = {} as OptionsDetails;
 	syncOptions = {} as StorageValuesSyncOptions;
 	syncOptionsDetails = {} as SyncOptions;
 
@@ -228,6 +266,10 @@ class _BrowserStorage {
 		await this.upgradeOrDowngrade();
 		await this.loadOptions();
 		await this.loadSyncOptions();
+		await Session.checkLogin();
+		if (Session.isLoggedIn) {
+			Shared.dateFormat = await TraktSettings.getTimeAndDateFormat();
+		}
 	}
 
 	async upgradeOrDowngrade() {
@@ -469,6 +511,7 @@ class _BrowserStorage {
 			await browser.storage.sync.clear();
 		}
 		await browser.storage.local.clear();
+		await this.set({ version: this.currentVersion }, true);
 		await this.reset();
 		void EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {
 			options: this.options,
@@ -505,10 +548,8 @@ class _BrowserStorage {
 	async loadOptions(): Promise<void> {
 		this.optionsDetails = {
 			services: {
-				type: 'list',
+				type: 'custom',
 				id: 'services',
-				name: '',
-				description: '',
 				value: Object.fromEntries(
 					getServices().map((service) => [
 						service.id,
@@ -522,62 +563,43 @@ class _BrowserStorage {
 						},
 					])
 				),
-				origins: [],
-				permissions: [],
 				doShow: true,
 			},
 			showNotifications: {
 				type: 'switch',
 				id: 'showNotifications',
-				name: '',
-				description: '',
 				value: false,
-				origins: [],
 				permissions: ['notifications'],
 				doShow: true,
 			},
 			sendReceiveSuggestions: {
 				type: 'switch',
 				id: 'sendReceiveSuggestions',
-				name: '',
-				description: '',
 				value: false,
-				origins: [],
-				permissions: [],
 				doShow: true,
 			},
 			theme: {
 				type: 'select',
 				id: 'theme',
-				name: '',
-				description: '',
-				selectItems: {
+				value: 'system',
+				choices: {
 					light: I18N.translate('lightTheme'),
 					dark: I18N.translate('darkTheme'),
 					system: I18N.translate('systemTheme'),
 				},
-				value: 'system',
-				origins: [],
-				permissions: [],
 				doShow: true,
 			},
 			allowRollbar: {
 				type: 'switch',
 				id: 'allowRollbar',
-				name: '',
-				description: '',
 				value: false,
 				origins: ['*://api.rollbar.com/*'],
-				permissions: [],
 				doShow: true,
 			},
 			grantCookies: {
 				type: 'switch',
 				id: 'grantCookies',
-				name: '',
-				description: '',
 				value: false,
-				origins: [],
 				permissions: ['cookies', 'webRequest', 'webRequestBlocking'],
 				doShow: Shared.browser === 'firefox',
 			},
@@ -587,13 +609,9 @@ class _BrowserStorage {
 			this.options = values.options;
 		}
 		for (const option of Object.values(this.optionsDetails)) {
-			option.name = I18N.translate(`${option.id}Name` as MessageName);
-			if (!option.description) {
-				option.description = I18N.translate(`${option.id}Description` as MessageName);
-			}
 			option.value =
 				typeof this.options[option.id] !== 'undefined' ? this.options[option.id] : option.value;
-			if (option.id === 'services') {
+			if (this.isOption(option, 'services', 'custom')) {
 				const missingServices = Object.fromEntries(
 					getServices()
 						.filter((service) => !(service.id in option.value))
@@ -712,10 +730,12 @@ class _BrowserStorage {
 		);
 	}
 
-	isServiceOption(
-		option: PartialDeep<Option<keyof StorageValuesOptions>>
-	): option is Option<'services'> {
-		return option.id === 'services';
+	isOption<T, U extends OptionDetails<T, K>['type'], K extends keyof T>(
+		option: OptionDetails<T>,
+		id: K,
+		type?: U
+	): option is OptionDetailsByType<T, U, K> {
+		return option.id === id && (!type || option.type === type);
 	}
 
 	async loadSyncOptions(): Promise<void> {
@@ -787,6 +807,12 @@ class _BrowserStorage {
 			this.syncOptionsDetails,
 			Object.fromEntries(Object.entries(this.syncOptions).map(([id, value]) => [id, { value }]))
 		);
+	}
+
+	checkDisabledOption(option: OptionDetails<StorageValuesOptions>) {
+		const isDisabled =
+			option.dependencies?.some((dependency) => !BrowserStorage.options[dependency]) ?? false;
+		return isDisabled;
 	}
 }
 
