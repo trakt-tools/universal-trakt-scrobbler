@@ -1,4 +1,6 @@
-import { BrowserStorage } from '@common/BrowserStorage';
+import { BrowserStorage, StorageValuesSyncOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
 import {
@@ -10,27 +12,49 @@ import {
 	InputLabel,
 	Toolbar,
 } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
 import { SyncStore } from '@stores/SyncStore';
-import React from 'react';
+import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import { PartialDeep } from 'type-fest';
 
 interface HistoryOptionsListProps {
 	store: SyncStore;
 }
 
-export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (
-	props: HistoryOptionsListProps
-) => {
-	const { store } = props;
-	const theme = useTheme();
+const _HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
+	useEffect(() => {
+		const startListeners = () => {
+			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+		};
+
+		const stopListeners = () => {
+			EventDispatcher.unsubscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+		};
+
+		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesSyncOptions>) => {
+			return BrowserStorage.saveSyncOptions(partialOptions)
+				.then(async () => {
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveOptionSuccess',
+						severity: 'success',
+					});
+				})
+				.catch(async (err) => {
+					Errors.error('Failed to save option.', err);
+					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+						messageName: 'saveOptionFailed',
+						severity: 'error',
+					});
+					throw err;
+				});
+		};
+
+		startListeners();
+		return stopListeners;
+	}, []);
 
 	return (
-		<Drawer
-			classes={{ paper: 'history-options-sidebar' }}
-			anchor="left"
-			variant="permanent"
-			style={{ zIndex: theme.zIndex.appBar - 1 }}
-		>
+		<Drawer classes={{ paper: 'history-options-sidebar' }} anchor="left" variant="permanent">
 			<Toolbar />
 			<FormGroup className="history-options-list-container">
 				{Object.values(BrowserStorage.syncOptionsDetails).map((option) => (
@@ -54,3 +78,9 @@ export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = (
 		</Drawer>
 	);
 };
+
+_HistoryOptionsList.propTypes = {
+	store: PropTypes.instanceOf(SyncStore).isRequired,
+};
+
+export const HistoryOptionsList = React.memo(_HistoryOptionsList);

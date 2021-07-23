@@ -3,6 +3,7 @@ import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
 import { UtsLeftRight } from '@components/UtsLeftRight';
 import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HomeIcon from '@material-ui/icons/Home';
 import InfoIcon from '@material-ui/icons/Info';
@@ -18,6 +19,7 @@ interface HistoryHeaderProps {
 
 export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
 	const { history, isLoggedIn } = props;
+	const theme = useTheme();
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -32,7 +34,11 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 	};
 
 	return (
-		<AppBar className="history-header" position="sticky">
+		<AppBar
+			className="history-header"
+			position="sticky"
+			style={{ zIndex: theme.zIndex.drawer + 1 }}
+		>
 			<Toolbar>
 				<UtsLeftRight
 					centerVertically={true}

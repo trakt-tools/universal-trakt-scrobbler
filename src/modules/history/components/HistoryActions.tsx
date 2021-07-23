@@ -34,7 +34,7 @@ export const HistoryActions: React.FC<HistoryActionsProps> = (props: HistoryActi
 	const theme = useTheme();
 
 	return (
-		<Box className="history-actions--container" style={{ zIndex: theme.zIndex.appBar }}>
+		<Box className="history-actions--container" style={{ zIndex: theme.zIndex.drawer + 1 }}>
 			<Divider />
 			<Box className="history-actions">
 				{showNavigationButtons && (

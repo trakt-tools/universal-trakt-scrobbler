@@ -163,6 +163,10 @@ export type OptionsDetails = {
 	[K in keyof StorageValuesOptions]: OptionDetails<StorageValuesOptions, K>;
 };
 
+export type SyncOptionsDetails = {
+	[K in keyof StorageValuesSyncOptions]: OptionDetails<StorageValuesSyncOptions, K>;
+};
+
 export type OptionDetails<T, K extends keyof T = keyof T> =
 	| SelectOptionDetails<T, K>
 	| SwitchOptionDetails<T, K>
@@ -228,19 +232,6 @@ export interface CustomOptionDetails<T, K extends keyof T> extends BaseOptionDet
 	type: 'custom';
 }
 
-export type SyncOptions = {
-	[K in keyof StorageValuesSyncOptions]: SyncOption<K>;
-};
-
-export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
-	id: K;
-	name: string;
-	value: StorageValuesSyncOptions[K];
-	minValue?: number;
-	maxValue?: number;
-	dependencies?: (keyof StorageValuesSyncOptions)[];
-};
-
 export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptions'>;
 
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
@@ -252,7 +243,7 @@ class _BrowserStorage {
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as OptionsDetails;
 	syncOptions = {} as StorageValuesSyncOptions;
-	syncOptionsDetails = {} as SyncOptions;
+	syncOptionsDetails = {} as SyncOptionsDetails;
 
 	constructor() {
 		this.isSyncAvailable = !!browser.storage.sync;
@@ -732,42 +723,47 @@ class _BrowserStorage {
 
 	isOption<T, U extends OptionDetails<T, K>['type'], K extends keyof T>(
 		option: OptionDetails<T>,
-		id: K,
-		type?: U
+		id: K | null,
+		type: U | null = null
 	): option is OptionDetailsByType<T, U, K> {
-		return option.id === id && (!type || option.type === type);
+		return (!id || option.id === id) && (!type || option.type === type);
 	}
 
 	async loadSyncOptions(): Promise<void> {
 		this.syncOptionsDetails = {
 			hideSynced: {
+				type: 'switch',
 				id: 'hideSynced',
-				name: '',
 				value: false,
+				doShow: true,
 			},
 			addWithReleaseDate: {
+				type: 'switch',
 				id: 'addWithReleaseDate',
-				name: '',
 				value: false,
+				doShow: true,
 			},
 			addWithReleaseDateMissing: {
+				type: 'switch',
 				id: 'addWithReleaseDateMissing',
-				name: '',
 				value: false,
 				dependencies: ['addWithReleaseDate'],
+				doShow: true,
 			},
 			itemsPerLoad: {
+				type: 'number',
 				id: 'itemsPerLoad',
-				name: '',
 				value: 10,
 				minValue: 1,
+				doShow: true,
 			},
 			minPercentageWatched: {
+				type: 'number',
 				id: 'minPercentageWatched',
-				name: '',
 				value: 75,
 				minValue: 0,
 				maxValue: 100,
+				doShow: true,
 			},
 		};
 		const values = await this.get('syncOptions');
@@ -775,12 +771,11 @@ class _BrowserStorage {
 			this.syncOptions = values.syncOptions;
 		}
 		for (const option of Object.values(this.syncOptionsDetails)) {
-			option.name = I18N.translate(`${option.id}Name` as MessageName);
 			option.value =
 				typeof this.syncOptions[option.id] !== 'undefined'
 					? this.syncOptions[option.id]
 					: option.value;
-			if (typeof option.value === 'number') {
+			if (this.isOption(option, null, 'number')) {
 				if (typeof option.minValue !== 'undefined') {
 					option.value = Math.max(option.value, option.minValue);
 				}
@@ -812,6 +807,12 @@ class _BrowserStorage {
 	checkDisabledOption(option: OptionDetails<StorageValuesOptions>) {
 		const isDisabled =
 			option.dependencies?.some((dependency) => !BrowserStorage.options[dependency]) ?? false;
+		return isDisabled;
+	}
+
+	checkSyncOptionDisabled(option: OptionDetails<StorageValuesSyncOptions>) {
+		const isDisabled =
+			option.dependencies?.some((dependency) => !BrowserStorage.syncOptions[dependency]) ?? false;
 		return isDisabled;
 	}
 }

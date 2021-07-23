@@ -14,11 +14,11 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Kunne ikke legge til manglende «sett dato»."
 	},
-	"addWithReleaseDateMissingName": {
-		"message": "Legg til utgivelsesdato kun for elementer som mangler «sett dato»."
-	},
-	"addWithReleaseDateName": {
+	"addWithReleaseDate": {
 		"message": "Legg til med utgivelsesdato."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Legg til utgivelsesdato kun for elementer som mangler «sett dato»."
 	},
 	"allowRollbar": {
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
@@ -175,7 +175,7 @@
 	"grantCookiesDescription": {
 		"message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
 	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Skjul allerede synkroniserte elementer."
 	},
 	"history": {
@@ -210,7 +210,7 @@
 	"itemSynced": {
 		"message": "Elementet er synkronisert"
 	},
-	"itemsPerLoadName": {
+	"itemsPerLoad": {
 		"message": "Antall elementer i hver innlasting."
 	},
 	"lastSync": {
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Logg ut"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Minimum prosent sett."
 	},
 	"missingWatchedDate": {

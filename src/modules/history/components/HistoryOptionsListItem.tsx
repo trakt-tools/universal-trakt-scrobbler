@@ -1,71 +1,84 @@
-import { BrowserStorage, StorageValuesSyncOptions, SyncOption } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
-import { FormControlLabel, Switch, TextField } from '@material-ui/core';
-import React from 'react';
+import { BrowserStorage, OptionDetails, StorageValuesSyncOptions } from '@common/BrowserStorage';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { I18N } from '@common/I18N';
+import { SwitchOption } from '@components/SwitchOption';
+import { NumericTextFieldOption } from '@components/TextFieldOption';
+import React, { useEffect, useState } from 'react';
 
 interface HistoryOptionsListItemProps {
-	option: SyncOption<keyof StorageValuesSyncOptions>;
+	option: OptionDetails<StorageValuesSyncOptions>;
 }
 
 export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
-	const onSwitchChange = async (): Promise<void> => {
-		await EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
-			[option.id]: !option.value,
+	const [isDisabled, setDisabled] = useState(BrowserStorage.checkSyncOptionDisabled(option));
+	const [value, setValue] = useState(option.value);
+
+	const handleChange = (optionId: string, newValue: unknown) => {
+		void EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
+			[optionId]: newValue,
 		});
 	};
 
-	const onNumberInputChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-		let value = parseInt(event.currentTarget.value || '0');
-		if (typeof option.minValue !== 'undefined') {
-			value = Math.max(value, option.minValue);
-		}
-		if (typeof option.maxValue !== 'undefined') {
-			value = Math.min(value, option.maxValue);
-		}
+	useEffect(() => {
+		const startListeners = () => {
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
 
-		await EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
-			[option.id]: value,
-		});
-	};
+		const stopListeners = () => {
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
 
-	const isDisabled = option.dependencies?.some(
-		(dependency) => !BrowserStorage.syncOptions[dependency]
-	);
+		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+			if (!data.syncOptions) {
+				return;
+			}
 
-	let component: React.ReactElement;
-	switch (typeof option.value) {
-		case 'boolean': {
+			const newValue = data.syncOptions[option.id];
+			if (typeof newValue !== 'undefined') {
+				setValue(newValue);
+			} else if (option.dependencies) {
+				const hasDependenciesChanged = option.dependencies.some(
+					(dependency) => data.syncOptions && dependency in data.syncOptions
+				);
+				if (hasDependenciesChanged) {
+					setDisabled(BrowserStorage.checkSyncOptionDisabled(option));
+				}
+			}
+		};
+
+		startListeners();
+		return stopListeners;
+	}, []);
+
+	let component;
+	switch (option.type) {
+		case 'switch':
 			component = (
-				<FormControlLabel
-					control={
-						<Switch
-							disabled={isDisabled}
-							checked={option.value}
-							color="primary"
-							onChange={onSwitchChange}
-						/>
-					}
-					label={option.name}
+				<SwitchOption
+					id={option.id}
+					label={I18N.translate(option.id)}
+					value={value as boolean}
+					isDisabled={isDisabled}
+					handleChange={handleChange}
 				/>
 			);
 			break;
-		}
-		case 'number': {
+		case 'number':
 			component = (
-				<TextField
-					disabled={isDisabled}
-					label={option.name}
-					onChange={onNumberInputChange}
-					type="number"
-					inputProps={{
-						min: typeof option.minValue !== 'undefined' ? option.minValue : undefined,
-						max: typeof option.maxValue !== 'undefined' ? option.maxValue : undefined,
-					}}
-					value={option.value}
+				<NumericTextFieldOption
+					id={option.id}
+					label={I18N.translate(option.id)}
+					value={value as number}
+					isDisabled={isDisabled}
+					minValue={option.minValue}
+					maxValue={option.maxValue}
+					handleChange={handleChange}
 				/>
 			);
 			break;
-		}
+		default:
+			component = null;
+			break;
 	}
 	return component;
 };

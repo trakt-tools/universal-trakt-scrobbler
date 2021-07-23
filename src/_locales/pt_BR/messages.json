@@ -14,11 +14,11 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
 	},
-	"addWithReleaseDateMissingName": {
-		"message": "Adicionar com data de lançamento apenas para itens que estão faltando com a data em que foram assistidos."
-	},
-	"addWithReleaseDateName": {
+	"addWithReleaseDate": {
 		"message": "Adicionar com data de lançamento."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Adicionar com data de lançamento apenas para itens que estão faltando com a data em que foram assistidos."
 	},
 	"allowRollbar": {
 		"message": "Permitir que o Rollbar colete informações sobre erros."
@@ -175,7 +175,7 @@
 	"grantCookiesDescription": {
 		"message": "Com essa opção ativada, a extensão funcionará com Firefox Containers, obtendo os cookies do atual container em que você está. Somente a ative se você usa Firefox Containers."
 	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Esconder itens sincronizados."
 	},
 	"history": {
@@ -210,7 +210,7 @@
 	"itemSynced": {
 		"message": "Item sincronizado"
 	},
-	"itemsPerLoadName": {
+	"itemsPerLoad": {
 		"message": "Itens por página."
 	},
 	"lastSync": {
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Sair"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Mínima porcentagem assistida."
 	},
 	"missingWatchedDate": {

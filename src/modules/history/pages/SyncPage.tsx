@@ -2,13 +2,13 @@ import { CorrectionApi } from '@apis/CorrectionApi';
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TmdbApi } from '@apis/TmdbApi';
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage, StorageValuesSyncOptions } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
+import { BrowserStorage } from '@common/BrowserStorage';
 import {
 	EventDispatcher,
 	HistorySyncSuccessData,
 	ItemCorrectedData,
 	MissingWatchedDateAddedData,
+	StorageOptionsChangeData,
 	SyncStoreUpdateData,
 } from '@common/Events';
 import { I18N } from '@common/I18N';
@@ -22,7 +22,6 @@ import { getService } from '@models/Service';
 import { getSyncStore } from '@stores/SyncStore';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { PartialDeep } from 'type-fest';
 
 interface PageProps {
 	serviceId: string | null;
@@ -59,7 +58,6 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 				  };
 	}
 
-	const [_, setSyncOptionsChanged] = useState({});
 	const [content, setContent] = useState({
 		isLoading: serviceId ? store.data.page === 0 : false,
 		itemsChanged: {},
@@ -276,49 +274,38 @@ export const SyncPage: React.FC<PageProps> = (props: PageProps) => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
-		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesSyncOptions>) => {
-			BrowserStorage.saveSyncOptions(partialOptions)
-				.then(async () => {
-					setSyncOptionsChanged({});
-					if (serviceId && 'addWithReleaseDate' in partialOptions) {
-						for (const item of store.data.visibleItems) {
-							if (item.trakt) {
-								delete item.trakt.watchedAt;
-							}
-						}
-						ServiceApi.loadTraktHistory(store.data.visibleItems)
-							.then(() => void store.updateVisibleItems(false))
-							.catch((err) => {
-								// Do nothing
-							});
-					} else if (
-						serviceId &&
-						'itemsPerLoad' in partialOptions &&
-						typeof partialOptions.itemsPerLoad === 'number'
-					) {
-						checkItemsPerPage(partialOptions.itemsPerLoad);
-					} else {
-						void store.updateVisibleItems(false);
+		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+			if (!data.syncOptions) {
+				return;
+			}
+
+			if (serviceId && 'addWithReleaseDate' in data.syncOptions) {
+				for (const item of store.data.visibleItems) {
+					if (item.trakt) {
+						delete item.trakt.watchedAt;
 					}
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'saveOptionSuccess',
-						severity: 'success',
+				}
+				ServiceApi.loadTraktHistory(store.data.visibleItems)
+					.then(() => void store.updateVisibleItems(false))
+					.catch((err) => {
+						// Do nothing
 					});
-				})
-				.catch(async (err) => {
-					Errors.error('Failed to save option.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'saveOptionFailed',
-						severity: 'error',
-					});
-				});
+			} else if (
+				serviceId &&
+				'itemsPerLoad' in data.syncOptions &&
+				typeof data.syncOptions.itemsPerLoad === 'number'
+			) {
+				checkItemsPerPage(data.syncOptions.itemsPerLoad);
+			} else {
+				void store.updateVisibleItems(false);
+			}
 		};
 
 		const checkItemsPerPage = (itemsPerPage: number) => {

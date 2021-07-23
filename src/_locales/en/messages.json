@@ -14,11 +14,11 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Failed to add missing watched date."
 	},
-	"addWithReleaseDateMissingName": {
-		"message": "Add with release date only for items that are missing the watched date."
-	},
-	"addWithReleaseDateName": {
+	"addWithReleaseDate": {
 		"message": "Add with release date."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Add with release date only for items that are missing the watched date."
 	},
 	"allowRollbar": {
 		"message": "Allow Rollbar to collect information about bugs."
@@ -175,7 +175,7 @@
 	"grantCookiesDescription": {
 		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
 	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Hide synced."
 	},
 	"history": {
@@ -210,7 +210,7 @@
 	"itemSynced": {
 		"message": "Item synced"
 	},
-	"itemsPerLoadName": {
+	"itemsPerLoad": {
 		"message": "Items per load."
 	},
 	"lastSync": {
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Logout"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Minimum percentage watched."
 	},
 	"missingWatchedDate": {
