@@ -51,13 +51,13 @@
 		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"clearCaches": {
-		"message": "Fjern mellomlagrde data"
+		"message": "Fjern mellomlagrede data"
 	},
 	"clearCachesFailed": {
 		"message": "Klarte ikke å fjerne mellomlagrede data."
 	},
 	"clearCachesSuccess": {
-		"message": "Mellomlagrde data er fjernet."
+		"message": "Mellomlagrede data er fjernet."
 	},
 	"clearLastSync": {
 		"message": "Fjern siste synkroniseringsdato"
@@ -105,7 +105,7 @@
 		"message": "Alle elementene på siden blir fjernet fra cache, og du vil ikke lengre kunne se over dem."
 	},
 	"confirmClearSyncCacheTitle": {
-		"message": "Fjerne synkroniseringscachen?"
+		"message": "Fjerne mellomlagring av synkroniseringsdata?"
 	},
 	"continueLoading": {
 		"message": "Fortsett innlasting"
