@@ -51,13 +51,13 @@
 		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"clearCaches": {
-		"message": "Fjern caches"
+		"message": "Fjern mellomlagrde data"
 	},
 	"clearCachesFailed": {
-		"message": "Klarte ikke å fjerne caches."
+		"message": "Klarte ikke å fjerne mellomlagrede data."
 	},
 	"clearCachesSuccess": {
-		"message": "Caches er fjernet."
+		"message": "Mellomlagrde data er fjernet."
 	},
 	"clearLastSync": {
 		"message": "Fjern siste synkroniseringsdato"
@@ -79,10 +79,10 @@
 		"message": "Lukk"
 	},
 	"confirmClearCachesMessage": {
-		"message": "All of the caches will be cleared, except for the sync cache."
+		"message": "Alle mellomlagrede data blir fjernet, unntatt sync-data."
 	},
 	"confirmClearCachesTitle": {
-		"message": "Fjerne caches?"
+		"message": "Fjerne mellomlagring?"
 	},
 	"confirmClearLastSyncMessage": {
 		"message": "Du er nødt til å synkronisere på nytt manuelt på historikksiden til strømmetjenesten om du ønsker å reaktivere automatisk synkronisering."
