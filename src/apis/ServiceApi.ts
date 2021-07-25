@@ -2,11 +2,11 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Cache, CacheItems } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
 import { Item } from '@models/Item';
-import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
@@ -44,20 +44,19 @@ export abstract class ServiceApi {
 			return;
 		}
 		try {
-			const storage = await BrowserStorage.get(['corrections', 'traktCache']);
-			const { corrections } = storage;
-			let { traktCache } = storage;
-			if (!traktCache) {
-				traktCache = {};
-			}
-			const promises = [];
+			const caches = await Cache.get([
+				'itemsToTraktItems',
+				'traktItems',
+				'traktHistoryItems',
+				'urlsToTraktItems',
+			]);
+			const { corrections } = await BrowserStorage.get('corrections');
 			for (const item of missingItems) {
 				const databaseId = item.getDatabaseId();
 				const correction = corrections?.[databaseId];
-				promises.push(ServiceApi.loadTraktItemHistory(item, traktCache, correction));
+				await ServiceApi.loadTraktItemHistory(item, caches, correction);
 			}
-			await Promise.all(promises);
-			await BrowserStorage.set({ traktCache }, false);
+			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load Trakt history.', err);
@@ -70,39 +69,23 @@ export abstract class ServiceApi {
 
 	static async loadTraktItemHistory(
 		item: Item,
-		traktCache: Record<string, SavedTraktItem>,
+		caches: CacheItems<
+			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
+		>,
 		correction?: Suggestion
 	) {
 		try {
-			const cacheId = ServiceApi.getTraktCacheId(item);
 			if (!item.trakt) {
-				const cacheItem = traktCache[cacheId];
-				item.trakt =
-					correction || !cacheItem
-						? await TraktSearch.find(item, correction)
-						: TraktItem.load(cacheItem);
+				item.trakt = await TraktSearch.find(item, caches, correction);
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
-				await TraktSync.loadHistory(item);
-				traktCache[cacheId] = TraktItem.save(item.trakt);
+				await TraktSync.loadHistory(item, caches.traktHistoryItems);
 			}
 		} catch (err) {
 			if (item.trakt) {
 				delete item.trakt.watchedAt;
 			}
 		}
-	}
-
-	static getTraktCacheId(item: Item): string {
-		return item.type === 'show'
-			? `/shows/${ServiceApi.getTraktCacheStr(item.title)}/seasons/${item.season ?? 0}/episodes/${
-					item.episode ?? ServiceApi.getTraktCacheStr(item.episodeTitle ?? '0')
-			  }`
-			: `/movies/${ServiceApi.getTraktCacheStr(item.title)}${item.year ? `-${item.year}` : ''}`;
-	}
-
-	static getTraktCacheStr(title: string): string {
-		return title.toLowerCase().replace(/[^\w]/g, '-').replace(/-+/g, '-');
 	}
 
 	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {

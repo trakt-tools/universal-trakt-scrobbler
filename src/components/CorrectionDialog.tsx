@@ -1,6 +1,7 @@
 import { CorrectionApi, Suggestion } from '@apis/CorrectionApi';
 import { ExactItemDetails, TraktSearch } from '@apis/TraktSearch';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
@@ -128,7 +129,11 @@ export const CorrectionDialog: React.FC = () => {
 			const newItem = oldItem.clone();
 			delete newItem.trakt;
 			delete newItem.imageUrl;
-			newItem.trakt = await TraktSearch.find(newItem, exactItemDetails);
+
+			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
+			newItem.trakt = await TraktSearch.find(newItem, caches, exactItemDetails);
+			await Cache.set(caches);
+
 			if (!newItem.trakt) {
 				throw new Error('Failed to find item');
 			}

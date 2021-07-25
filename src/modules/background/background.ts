@@ -54,6 +54,7 @@ const init = async () => {
 	if (scrobblerEnabled) {
 		addTabListener(BrowserStorage.options);
 	}
+	void Cache.check();
 	void checkAutoSync();
 	if (BrowserStorage.options.grantCookies) {
 		addWebRequestListener();
@@ -248,10 +249,6 @@ Messaging.messageHandlers = {
 	login: () => TraktAuth.authorize(),
 
 	logout: () => TraktAuth.revokeToken(),
-
-	'get-cache': (message) => Cache.getValue(message.key),
-
-	'set-cache': (message) => Cache.setValue(message.key, message.value),
 
 	'send-request': (message, tabId) => Requests.send(message.request, tabId),
 

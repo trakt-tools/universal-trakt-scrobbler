@@ -1,67 +1,152 @@
 import { Suggestion } from '@apis/CorrectionApi';
+import { TmdbApiConfig } from '@apis/TmdbApi';
+import { TraktSettingsResponse } from '@apis/TraktSettings';
+import { TraktHistoryItem } from '@apis/TraktSync';
+import { BrowserStorage } from '@common/BrowserStorage';
+import { SavedTraktItem } from '@models/TraktItem';
 
-export interface CacheValues {
-	suggestions: Partial<Record<string, Suggestion[] | null>>;
-	imageUrls: Partial<Record<string, string | null>>;
+export type CacheItems<T extends (keyof CacheValues)[]> = {
+	[K in T[number]]: CacheItem<K>;
+};
+
+export type CacheValues = {
+	[K in keyof CacheSubValues]: Partial<Record<string, Cacheable<CacheSubValues[K]>>>;
+};
+
+export interface CacheSubValues {
+	imageUrls: string | null;
+	itemsToTraktItems: string;
+	suggestions: Suggestion[] | null;
+	tmdbApiConfigs: TmdbApiConfig | null;
+	traktHistoryItems: TraktHistoryItem[];
+	traktItems: SavedTraktItem;
+	traktSettings: TraktSettingsResponse;
+	urlsToTraktItems: string;
+}
+
+export type Cacheable<T = unknown> = {
+	value: T;
+	timestamp: number;
+};
+
+export type CacheStorageValues = {
+	[K in `${keyof CacheValues}Cache`]?: CacheValues[CacheStorageKeysToKeys[K]];
+};
+
+export type CacheStorageKeysToKeys = ReverseMap<CacheKeysToStorageKeys>;
+
+export type CacheKeysToStorageKeys = {
+	[K in keyof CacheValues]: `${K}Cache`;
+};
+
+export class CacheItem<K extends keyof CacheValues> {
+	readonly cache: CacheValues[K];
+
+	constructor(cache: CacheValues[K]) {
+		this.cache = cache;
+	}
+
+	get(subKey: string): CacheSubValues[K] | undefined {
+		return this.cache[subKey]?.value as never;
+	}
+
+	set(subKey: string, subValue: CacheSubValues[K]) {
+		if (!this.cache[subKey]) {
+			this.cache[subKey] = {
+				value: subValue as never,
+				timestamp: Cache.timestamp,
+			};
+		}
+	}
 }
 
 class _Cache {
-	private timers: Record<keyof CacheValues, number | null> = {
-		suggestions: null,
-		imageUrls: null,
+	/**
+	 * Time to live for each cached value, in seconds.
+	 */
+	private ttl: Record<keyof CacheValues, number> = {
+		imageUrls: 24 * 60 * 60,
+		itemsToTraktItems: 24 * 60 * 60,
+		suggestions: 60 * 60,
+		tmdbApiConfigs: 7 * 24 * 60 * 60,
+		traktHistoryItems: 45 * 60,
+		traktItems: 24 * 60 * 60,
+		traktSettings: 24 * 60 * 60,
+		urlsToTraktItems: 24 * 60 * 60,
 	};
 
-	/** In seconds. */
-	private expiries: Record<keyof CacheValues, number> = {
-		suggestions: 360,
-		imageUrls: 360,
-	};
+	private isChecking = false;
+	private checkTimeout: number | null = null;
 
-	readonly values: CacheValues;
+	readonly storageKeys = Object.keys(this.ttl).map(
+		(key) => `${key}Cache`
+	) as (keyof CacheStorageValues)[];
 
-	constructor() {
-		this.values = this.getInitialValues();
-		this.startTimers();
-	}
+	timestamp = 0;
 
-	private getInitialValues(): CacheValues {
-		return {
-			suggestions: {},
-			imageUrls: {},
-		};
-	}
-
-	private invalidate<K extends keyof CacheValues>(key: K, expiry: number): void {
-		this.values[key] = this.getInitialValues()[key];
-		this.timers[key] = window.setTimeout(() => this.invalidate(key, expiry), expiry * 1e3);
-	}
-
-	startTimers(): void {
-		for (const [key, expiry] of Object.entries(this.expiries) as [keyof CacheValues, number][]) {
-			if (this.timers[key] === null) {
-				this.timers[key] = window.setTimeout(() => this.invalidate(key, expiry), expiry * 1e3);
-			}
+	async check() {
+		if (this.isChecking) {
+			return;
 		}
-	}
+		this.isChecking = true;
 
-	stopTimers() {
-		for (const [key, timer] of Object.entries(this.timers) as [
-			keyof CacheValues,
-			number | null
-		][]) {
-			if (timer !== null) {
-				window.clearTimeout(timer);
-				this.timers[key] = null;
-			}
+		if (this.checkTimeout !== null) {
+			window.clearTimeout(this.checkTimeout);
 		}
+
+		const now = Math.trunc(Date.now() / 1e3);
+		for (const [key, ttl] of Object.entries(this.ttl) as [keyof CacheValues, number][]) {
+			const storageKey = `${key}Cache` as const;
+			const storage = await BrowserStorage.get(storageKey);
+			const cache = storage[storageKey];
+			if (!cache) {
+				continue;
+			}
+			for (const [subKey, subValue] of Object.entries(cache) as [string, Cacheable][]) {
+				if (now - subValue.timestamp > ttl) {
+					delete cache[subKey];
+				}
+			}
+			await BrowserStorage.set({ [storageKey]: cache }, false);
+		}
+
+		// Check again every hour
+		this.checkTimeout = window.setTimeout(() => void this.check(), 3600000);
+
+		this.isChecking = false;
 	}
 
-	setValue<K extends keyof CacheValues>(key: K, value: CacheValues[K]) {
-		Cache.values[key] = value;
+	async get<K extends keyof CacheValues>(key: K): Promise<CacheItem<K>>;
+	async get<T extends (keyof CacheValues)[]>(keys: T): Promise<CacheItems<T>>;
+	async get<K extends keyof CacheValues, T extends (keyof CacheValues)[]>(
+		keyOrKeys: K | T
+	): Promise<CacheItem<K> | CacheItems<T>> {
+		this.timestamp = Math.trunc(Date.now() / 1e3);
+
+		const caches = {} as CacheItems<T>;
+		const keys = Array.isArray(keyOrKeys) ? keyOrKeys : [keyOrKeys];
+		const storageKeys = keys.map((key) => `${key}Cache` as const);
+		const storage = await BrowserStorage.get(storageKeys);
+		for (const key of keys) {
+			const storageKey = `${key}Cache` as const;
+			caches[key] = new CacheItem(storage[storageKey] || {}) as never;
+		}
+		return Array.isArray(keyOrKeys) ? caches : caches[keyOrKeys];
 	}
 
-	getValue<K extends keyof CacheValues>(key: K): CacheValues[K] {
-		return this.values[key];
+	async set<T extends (keyof CacheValues)[]>(items: Partial<CacheItems<T>>) {
+		const caches: Partial<CacheStorageValues> = {};
+		const keys = Object.keys(items) as (keyof CacheItems<T>)[];
+		const storageKeys = keys.map((key) => `${key}Cache` as const);
+		const storage = await BrowserStorage.get(storageKeys);
+		for (const key of keys) {
+			const storageKey = `${key}Cache` as const;
+			caches[storageKey] = {
+				...(storage[storageKey] || {}),
+				...(items[key]?.cache || {}),
+			} as never;
+		}
+		await BrowserStorage.set(caches, false);
 	}
 }
 

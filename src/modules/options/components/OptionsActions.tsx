@@ -1,4 +1,5 @@
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
@@ -9,8 +10,8 @@ import { useEffect, useState } from 'react';
 export const OptionsActions: React.FC = () => {
 	const [cacheSize, setCacheSize] = useState('0 B');
 
-	const updateTraktCacheSize = async () => {
-		setCacheSize(await BrowserStorage.getSize('traktCache'));
+	const updateCachesSize = async () => {
+		setCacheSize(await BrowserStorage.getSize(Cache.storageKeys));
 	};
 
 	const onClearStorageClick = async () => {
@@ -26,7 +27,7 @@ export const OptionsActions: React.FC = () => {
 					});
 					await EventDispatcher.dispatch('OPTIONS_CLEAR', null, {});
 					await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
-					void updateTraktCacheSize();
+					void updateCachesSize();
 				} catch (err) {
 					Errors.error('Failed to clear storage.', err);
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
@@ -38,22 +39,22 @@ export const OptionsActions: React.FC = () => {
 		});
 	};
 
-	const onClearTraktCacheClick = async () => {
+	const onClearCachesClick = async () => {
 		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
-			title: I18N.translate('confirmClearTraktCacheTitle'),
-			message: I18N.translate('confirmClearTraktCacheMessage'),
+			title: I18N.translate('confirmClearCachesTitle'),
+			message: I18N.translate('confirmClearCachesMessage'),
 			onConfirm: async () => {
 				try {
-					await BrowserStorage.remove('traktCache');
+					await BrowserStorage.remove(Cache.storageKeys);
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'clearTraktCacheSuccess',
+						messageName: 'clearCachesSuccess',
 						severity: 'success',
 					});
-					void updateTraktCacheSize();
+					void updateCachesSize();
 				} catch (err) {
-					Errors.error('Failed to clear Trakt cache.', err);
+					Errors.error('Failed to clear caches.', err);
 					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'clearTraktCacheFailed',
+						messageName: 'clearCachesFailed',
 						severity: 'error',
 					});
 				}
@@ -62,7 +63,7 @@ export const OptionsActions: React.FC = () => {
 	};
 
 	useEffect(() => {
-		void updateTraktCacheSize();
+		void updateCachesSize();
 	}, []);
 
 	return (
@@ -72,8 +73,8 @@ export const OptionsActions: React.FC = () => {
 				<Button onClick={onClearStorageClick} variant="contained">
 					{I18N.translate('clearStorage')}
 				</Button>
-				<Button onClick={onClearTraktCacheClick} variant="contained">
-					{I18N.translate('clearTraktCache')} (<span>{cacheSize}</span>)
+				<Button onClick={onClearCachesClick} variant="contained">
+					{I18N.translate('clearCaches')} (<span>{cacheSize}</span>)
 				</Button>
 			</Box>
 		</Box>

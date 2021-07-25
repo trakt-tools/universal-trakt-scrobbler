@@ -1,4 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
+import { Cache, CacheItem } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
@@ -37,16 +38,24 @@ class _TraktSync extends TraktApi {
 		super();
 	}
 
-	async loadHistory(item: Item): Promise<void> {
+	async loadHistory(
+		item: Item,
+		traktHistoryItemsCache: CacheItem<'traktHistoryItems'>
+	): Promise<void> {
 		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
 		if (!item.trakt || !watchedAt) {
 			return;
 		}
-		const responseText = await Requests.send({
-			url: this.getUrl(item),
-			method: 'GET',
-		});
-		const historyItems = JSON.parse(responseText) as TraktHistoryItem[];
+		const databaseId = item.trakt.getDatabaseId();
+		let historyItems = traktHistoryItemsCache.get(databaseId);
+		if (!historyItems) {
+			const responseText = await Requests.send({
+				url: this.getUrl(item),
+				method: 'GET',
+			});
+			historyItems = JSON.parse(responseText) as TraktHistoryItem[];
+			traktHistoryItemsCache.set(databaseId, historyItems);
+		}
 		let historyItemMatch: ParsedTraktHistoryItem | null = null;
 		for (const historyItem of historyItems) {
 			const parsedHistoryItem: ParsedTraktHistoryItem = {
@@ -122,15 +131,17 @@ class _TraktSync extends TraktApi {
 				episodes: responseJson.not_found.episodes.map((item) => item.ids.trakt),
 				movies: responseJson.not_found.movies.map((item) => item.ids.trakt),
 			};
+			const traktHistoryItemsCache = await Cache.get('traktHistoryItems');
 			for (const item of items) {
 				if (
 					item.trakt &&
 					((item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) ||
 						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))
 				) {
-					await TraktSync.loadHistory(item);
+					await TraktSync.loadHistory(item, traktHistoryItemsCache);
 				}
 			}
+			await Cache.set({ traktHistoryItems: traktHistoryItemsCache });
 			await EventDispatcher.dispatch('HISTORY_SYNC_SUCCESS', null, {
 				added: responseJson.added,
 			});

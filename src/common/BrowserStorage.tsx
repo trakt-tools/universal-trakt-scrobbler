@@ -1,6 +1,7 @@
 import { HboGoApiParams } from '@/hbo-go/HboGoApi';
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
+import { CacheStorageValues } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -15,12 +16,23 @@ import {
 	Storage as WebExtStorage,
 } from 'webextension-polyfill-ts';
 
-export type StorageValues = StorageValuesV4;
+export type StorageValues = StorageValuesV5;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
 
+export type StorageValuesV5 = {
+	version?: 5;
+	auth?: TraktAuthDetails;
+	options?: StorageValuesOptionsV3;
+	syncOptions?: StorageValuesSyncOptionsV2;
+	syncCache?: SyncCacheValue;
+	corrections?: Partial<Record<string, Suggestion>>;
+	scrobblingItem?: Omit<SavedItem, ''>;
+	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+} & CacheStorageValues;
+
 export type StorageValuesV4 = {
-	version?: number;
+	version?: 4;
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV3;
 	syncOptions?: StorageValuesSyncOptionsV2;
@@ -32,7 +44,7 @@ export type StorageValuesV4 = {
 };
 
 export type StorageValuesV3 = {
-	version?: number;
+	version?: 3;
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV3;
 	syncOptions?: StorageValuesSyncOptionsV2;
@@ -44,7 +56,7 @@ export type StorageValuesV3 = {
 };
 
 export type StorageValuesV2 = {
-	version?: number;
+	version?: 2;
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV2;
 	syncOptions?: StorageValuesSyncOptionsV2;
@@ -56,7 +68,7 @@ export type StorageValuesV2 = {
 };
 
 export type StorageValuesV1 = {
-	version?: number;
+	version?: 1;
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV1;
 	syncOptions?: StorageValuesSyncOptionsV1;
@@ -176,7 +188,8 @@ export type SyncOption<K extends keyof StorageValuesSyncOptions> = {
 };
 
 class _BrowserStorage {
-	currentVersion = 4;
+	readonly currentVersion = 5;
+
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
 	optionsDetails = {} as Options;
@@ -212,7 +225,7 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the upgrade process.
 	 */
 	async upgrade(version: number) {
-		if (version < 2) {
+		if (version < 2 && this.currentVersion >= 2) {
 			console.log('Upgrading to v2...');
 
 			await BrowserStorage.remove(
@@ -248,7 +261,7 @@ class _BrowserStorage {
 			}
 		}
 
-		if (version < 3) {
+		if (version < 3 && this.currentVersion >= 3) {
 			console.log('Upgrading to v3...');
 
 			const values = await BrowserStorage.get('options');
@@ -264,10 +277,16 @@ class _BrowserStorage {
 			}
 		}
 
-		if (version < 4) {
+		if (version < 4 && this.currentVersion >= 4) {
 			console.log('Upgrading to v4...');
 
 			await BrowserStorage.remove(['correctItems'] as unknown as (keyof StorageValues)[], true);
+		}
+
+		if (version < 5 && this.currentVersion >= 5) {
+			console.log('Upgrading to v5...');
+
+			await BrowserStorage.remove(['traktCache'] as unknown as (keyof StorageValues)[], true);
 		}
 
 		await BrowserStorage.set({ version: this.currentVersion }, true);
@@ -280,13 +299,30 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
-		if (version > 3) {
+		if (version > 4 && this.currentVersion <= 4) {
+			console.log('Downgrading to v4...');
+
+			await BrowserStorage.remove(
+				[
+					'imageUrlsCache',
+					'itemsToTraktItemsCache',
+					'suggestionsCache',
+					'tmdbApiConfigsCache',
+					'traktHistoryItemsCache',
+					'traktItemsCache',
+					'urlsToTraktItemsCache',
+				] as unknown as (keyof StorageValues)[],
+				true
+			);
+		}
+
+		if (version > 3 && this.currentVersion <= 3) {
 			console.log('Downgrading to v3...');
 
 			await BrowserStorage.remove(['corrections'] as unknown as (keyof StorageValues)[], true);
 		}
 
-		if (version > 2) {
+		if (version > 2 && this.currentVersion <= 2) {
 			console.log('Downgrading to v2...');
 
 			const values = await BrowserStorage.get('options');
@@ -302,7 +338,7 @@ class _BrowserStorage {
 			}
 		}
 
-		if (version > 1) {
+		if (version > 1 && this.currentVersion <= 1) {
 			console.log('Downgrading to v1...');
 
 			await BrowserStorage.remove(

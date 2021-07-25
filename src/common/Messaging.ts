@@ -1,5 +1,4 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
-import { CacheValues } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
@@ -16,8 +15,6 @@ export interface MessageRequests {
 	'finish-login': FinishLoginMessage;
 	login: LoginMessage;
 	logout: LogoutMessage;
-	'get-cache': GetCacheMessage;
-	'set-cache': SetCacheMessage;
 	'set-title': SetTitleMessage;
 	'set-active-icon': SetActiveIconMessage;
 	'set-inactive-icon': SetInactiveIconMessage;
@@ -34,19 +31,15 @@ export interface MessageRequests {
 	'check-auto-sync': CheckAutoSyncMessage;
 }
 
-export type ReturnType<T extends MessageRequest> = T extends GetCacheMessage
-	? ReturnTypes<T['key']>[T['action']]
-	: ReturnTypes[T['action']];
+export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
 
-export interface ReturnTypes<GetCacheKey extends keyof CacheValues = keyof CacheValues> {
+export interface ReturnTypes {
 	'open-tab': WebExtTabs.Tab | null;
 	'get-tab-id': number | null;
 	'check-login': TraktAuthDetails | null;
 	'finish-login': void;
 	login: TraktAuthDetails;
 	logout: void;
-	'get-cache': CacheValues[GetCacheKey];
-	'set-cache': void;
 	'set-title': void;
 	'set-active-icon': void;
 	'set-inactive-icon': void;
@@ -92,17 +85,6 @@ export interface LoginMessage {
 
 export interface LogoutMessage {
 	action: 'logout';
-}
-
-export interface GetCacheMessage<K extends keyof CacheValues = keyof CacheValues> {
-	action: 'get-cache';
-	key: K;
-}
-
-export interface SetCacheMessage<K extends keyof CacheValues = keyof CacheValues> {
-	action: 'set-cache';
-	key: K;
-	value: CacheValues[K];
 }
 
 export interface SendRequestMessage {

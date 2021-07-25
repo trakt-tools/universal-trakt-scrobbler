@@ -16,3 +16,9 @@ declare type Messages = typeof import('@locales/en/messages.json');
 declare type MessageName = keyof Messages;
 
 declare type Promisable<T> = T | PromiseLike<T>;
+
+declare type ReverseMap<T extends Record<keyof T, T[keyof T]>> = {
+	[P in T[keyof T]]: {
+		[K in keyof T]: T[K] extends P ? K : never;
+	}[keyof T];
+};
