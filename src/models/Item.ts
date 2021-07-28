@@ -20,10 +20,12 @@ const correctTitles: Record<string, string> = {
 export interface IItem extends ItemBase {
 	watchedAt?: moment.Moment;
 	trakt?: TraktItem | null;
+	isHidden?: boolean;
 	isSelected?: boolean;
 	index?: number;
 	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
+	isLoading?: boolean;
 }
 
 export interface SavedItem extends ItemBase {
@@ -58,10 +60,12 @@ export class Item implements IItem {
 	watchedAt?: moment.Moment;
 	progress: number;
 	trakt?: TraktItem | null;
-	isSelected?: boolean;
-	index?: number;
+	isHidden: boolean;
+	isSelected: boolean;
+	index: number;
 	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
+	isLoading: boolean;
 
 	constructor(options: IItem) {
 		this.serviceId = options.serviceId;
@@ -76,10 +80,12 @@ export class Item implements IItem {
 		this.watchedAt = options.watchedAt?.clone();
 		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
-		this.isSelected = options.isSelected;
-		this.index = options.index;
+		this.isHidden = options.isHidden ?? false;
+		this.isSelected = options.isSelected ?? false;
+		this.index = options.index ?? 0;
 		this.suggestions = options.suggestions;
 		this.imageUrl = options.imageUrl;
+		this.isLoading = options.isLoading ?? false;
 		this.id = options.id || this.generateId();
 	}
 
@@ -139,8 +145,15 @@ export class Item implements IItem {
 		return `${this.title} (${this.year})`;
 	}
 
+	doHide() {
+		return (
+			(BrowserStorage.syncOptions.hideSynced && this.trakt && !!this.trakt.watchedAt) ||
+			this.progress < BrowserStorage.syncOptions.minPercentageWatched
+		);
+	}
+
 	isSelectable() {
-		return this.trakt && !this.trakt.watchedAt;
+		return !this.isLoading && !!this.trakt && !this.trakt.watchedAt && !this.doHide();
 	}
 
 	isMissingWatchedDate() {

@@ -18,13 +18,13 @@ import { browser, Manifest as WebExtManifest } from 'webextension-polyfill-ts';
 
 export type StorageValues = StorageValuesV6;
 export type StorageValuesOptions = StorageValuesOptionsV3;
-export type StorageValuesSyncOptions = StorageValuesSyncOptionsV2;
+export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
 export type StorageValuesV6 = {
 	version?: 6;
 	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV3;
-	syncOptions?: StorageValuesSyncOptionsV2;
+	syncOptions?: StorageValuesSyncOptionsV3;
 	syncCache?: SyncCacheValue;
 	corrections?: Partial<Record<string, Suggestion>>;
 	scrobblingDetails?: ScrobblingDetails;
@@ -133,6 +133,13 @@ export type ServiceValue = {
 };
 
 export type ThemeValue = 'light' | 'dark' | 'system';
+
+export type StorageValuesSyncOptionsV3 = {
+	addWithReleaseDate: boolean;
+	addWithReleaseDateMissing: boolean;
+	hideSynced: boolean;
+	minPercentageWatched: number;
+};
 
 export type StorageValuesSyncOptionsV2 = {
 	addWithReleaseDate: boolean;
@@ -348,6 +355,16 @@ class _BrowserStorage {
 			console.log('Upgrading to v6...');
 
 			await this.doRemove(['scrobblingItem'] as unknown as (keyof StorageValues)[], true);
+
+			const values = await this.get('syncOptions');
+
+			const optionsV2 = values.syncOptions as Partial<StorageValuesSyncOptionsV2> | undefined;
+			const optionsV3 = values.syncOptions as Partial<StorageValuesSyncOptionsV3> | undefined;
+			if (optionsV2 && optionsV3) {
+				delete optionsV2.itemsPerLoad;
+
+				await this.doSet({ syncOptions: optionsV3 as unknown as StorageValuesSyncOptions }, true);
+			}
 		}
 
 		await this.set({ version: this.currentVersion }, true);
@@ -748,13 +765,6 @@ class _BrowserStorage {
 				id: 'addWithReleaseDateMissing',
 				value: false,
 				dependencies: ['addWithReleaseDate'],
-				doShow: true,
-			},
-			itemsPerLoad: {
-				type: 'number',
-				id: 'itemsPerLoad',
-				value: 10,
-				minValue: 1,
 				doShow: true,
 			},
 			minPercentageWatched: {

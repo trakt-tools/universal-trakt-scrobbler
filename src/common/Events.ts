@@ -12,6 +12,7 @@ import { Shared } from '@common/Shared';
 import { Color } from '@material-ui/lab';
 import { Item, SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
+import { SyncStore } from '@stores/SyncStore';
 import { PartialDeep } from 'type-fest';
 
 export interface EventData {
@@ -34,10 +35,10 @@ export interface EventData {
 	MISSING_WATCHED_DATE_ADDED: MissingWatchedDateAddedData;
 	CORRECTION_DIALOG_SHOW: CorrectionDialogShowData;
 	ITEM_CORRECTED: ItemCorrectedData;
+	SCROBBLING_ITEM_CORRECTED: ItemCorrectedData;
 	SYNC_OPTIONS_CHANGE: PartialDeep<StorageValuesSyncOptions>;
-	SYNC_STORE_UPDATE: SyncStoreUpdateData;
+	SYNC_STORE_RESET: SuccessData;
 	SERVICE_HISTORY_LOAD_ERROR: ErrorData;
-	SERVICE_HISTORY_CHANGE: ServiceHistoryChangeData;
 	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
@@ -45,6 +46,10 @@ export interface EventData {
 	STORAGE_OPTIONS_CHANGE: StorageOptionsChangeData;
 	STORAGE_OPTIONS_CLEAR: SuccessData;
 	CONTENT_SCRIPT_DISCONNECT: ContentScriptDisconnectData;
+	SYNC_DIALOG_SHOW: SyncDialogShowData;
+	ITEMS_LOAD: ItemsLoadData;
+	SYNC_STORE_LOADING_START: SuccessData;
+	SYNC_STORE_LOADING_STOP: SuccessData;
 }
 
 export type Event = keyof EventData;
@@ -90,31 +95,22 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	serviceId: string | null;
 	items: Item[];
 }
 
 export interface MissingWatchedDateAddedData {
-	items: Item[];
+	oldItems: Item[];
+	newItems: Item[];
 }
 
 export interface CorrectionDialogShowData {
-	serviceId: string | null;
 	item?: Item;
+	isScrobblingItem: boolean;
 }
 
 export interface ItemCorrectedData {
 	oldItem: SavedItem;
 	newItem: SavedItem;
-}
-
-export interface SyncStoreUpdateData {
-	visibleItemsChanged: boolean;
-}
-
-export interface ServiceHistoryChangeData {
-	index?: number;
-	checked: boolean;
 }
 
 export interface HistorySyncSuccessData {
@@ -135,6 +131,20 @@ export interface StorageOptionsChangeData {
 
 export interface ContentScriptDisconnectData {
 	tabId: number;
+}
+
+export interface SyncDialogShowData {
+	store: SyncStore;
+	serviceId: string | null;
+	items: Item[];
+}
+
+export interface ItemsUpdateData {
+	items: Item[];
+}
+
+export interface ItemsLoadData {
+	items: Partial<Record<number, Item | null>>;
 }
 
 export type EventDispatcherListeners = Record<
@@ -158,7 +168,7 @@ class _EventDispatcher {
 		'SCROBBLE_STOP',
 		'SCROBBLE_PROGRESS',
 		'SEARCH_ERROR',
-		'ITEM_CORRECTED',
+		'SCROBBLING_ITEM_CORRECTED',
 		'STORAGE_OPTIONS_CHANGE',
 	];
 

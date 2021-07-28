@@ -51,12 +51,10 @@ export class CacheItem<K extends keyof CacheValues> {
 	}
 
 	set(subKey: string, subValue: CacheSubValues[K]) {
-		if (!this.cache[subKey]) {
-			this.cache[subKey] = {
-				value: subValue as never,
-				timestamp: Cache.timestamp,
-			};
-		}
+		this.cache[subKey] = {
+			value: subValue as never,
+			timestamp: Cache.timestamp,
+		};
 	}
 }
 

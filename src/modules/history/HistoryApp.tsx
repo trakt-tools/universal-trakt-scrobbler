@@ -51,40 +51,58 @@ export const HistoryApp: React.FC = () => {
 	return (
 		<ErrorBoundary>
 			<HistoryHeader history={history} isLoggedIn={isLoggedIn} />
-			<Container className="history-container">
-				<Router history={history}>
-					<Switch>
-						<Route path="/login" render={() => <LoginPage />} />
-						<Route
-							path="/home"
-							render={LoginWrapper.wrap(() => (
+			<Router history={history}>
+				<Switch>
+					<Route
+						path="/login"
+						render={() => (
+							<Container className="history-container">
+								<LoginPage />
+							</Container>
+						)}
+					/>
+					<Route
+						path="/home"
+						render={LoginWrapper.wrap(() => (
+							<Container className="history-container">
 								<HomePage />
-							))}
-						/>
-						<Route path="/about" render={() => <AboutPage />} />
-						{getServices()
-							.filter((service) => service.hasSync)
-							.map((service) => (
-								<Route
-									key={service.id}
-									path={service.path}
-									render={LoginWrapper.wrap(() => (
+							</Container>
+						))}
+					/>
+					<Route
+						path="/about"
+						render={() => (
+							<Container className="history-container">
+								<AboutPage />
+							</Container>
+						)}
+					/>
+					{getServices()
+						.filter((service) => service.hasSync)
+						.map((service) => (
+							<Route
+								key={service.id}
+								path={service.path}
+								render={LoginWrapper.wrap(() => (
+									<Container className="history-container history-container--sync" maxWidth={false}>
 										<SyncPage serviceId={service.id} />
-									))}
-								/>
-							))}
-						<Route
-							path="/auto-sync"
-							render={LoginWrapper.wrap(() => (
+									</Container>
+								))}
+							/>
+						))}
+					<Route
+						path="/auto-sync"
+						render={LoginWrapper.wrap(() => (
+							<Container className="history-container history-container--sync" maxWidth={false}>
 								<AutoSyncPage />
-							))}
-						/>
-						<Redirect to="/login" />
-					</Switch>
-				</Router>
-				<UtsDialog />
-				<UtsSnackbar />
-			</Container>
+							</Container>
+						))}
+					/>
+					<Redirect to="/login" />
+				</Switch>
+			</Router>
+			<UtsDialog />
+			<UtsSnackbar />
 		</ErrorBoundary>
 	);
 };

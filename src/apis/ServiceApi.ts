@@ -34,15 +34,16 @@ export abstract class ServiceApi {
 		registerServiceApi(this.id, this);
 	}
 
-	static async loadTraktHistory(items: Item[]) {
-		const missingItems = items.filter(
+	static async loadTraktHistory(items: Item[], processItem?: (item: Item) => Promise<Item>) {
+		const hasLoadedTraktHistory = !items.some(
 			(item) =>
 				typeof item.trakt === 'undefined' ||
 				(item.trakt && typeof item.trakt.watchedAt === 'undefined')
 		);
-		if (missingItems.length === 0) {
-			return;
+		if (hasLoadedTraktHistory) {
+			return items;
 		}
+		let newItems = items.map((item) => item.clone());
 		try {
 			const caches = await Cache.get([
 				'itemsToTraktItems',
@@ -51,11 +52,20 @@ export abstract class ServiceApi {
 				'urlsToTraktItems',
 			]);
 			const { corrections } = await BrowserStorage.get('corrections');
-			for (const item of missingItems) {
-				const databaseId = item.getDatabaseId();
-				const correction = corrections?.[databaseId];
-				await ServiceApi.loadTraktItemHistory(item, caches, correction);
+			const promises = [];
+			for (const item of newItems) {
+				if (
+					typeof item.trakt === 'undefined' ||
+					(item.trakt && typeof item.trakt.watchedAt === 'undefined')
+				) {
+					const databaseId = item.getDatabaseId();
+					const correction = corrections?.[databaseId];
+					promises.push(ServiceApi.loadTraktItemHistory(item, caches, correction, processItem));
+				} else {
+					promises.push(Promise.resolve(item));
+				}
 			}
+			newItems = await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
@@ -65,6 +75,7 @@ export abstract class ServiceApi {
 				});
 			}
 		}
+		return newItems;
 	}
 
 	static async loadTraktItemHistory(
@@ -72,27 +83,35 @@ export abstract class ServiceApi {
 		caches: CacheItems<
 			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
 		>,
-		correction?: Suggestion
+		correction?: Suggestion,
+		processItem?: (item: Item) => Promise<Item>
 	) {
 		try {
 			if (!item.trakt) {
 				item.trakt = await TraktSearch.find(item, caches, correction);
+				if (processItem) {
+					item = await processItem(item.clone());
+				}
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
 				await TraktSync.loadHistory(item, caches.traktHistoryItems);
+				if (processItem) {
+					item = await processItem(item.clone());
+				}
 			}
 		} catch (err) {
 			if (item.trakt) {
 				delete item.trakt.watchedAt;
 			}
 		}
+		return item;
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<Item[]> {
+		let items: Item[] = [];
 		try {
 			const store = getSyncStore(this.id);
 			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
-			let items: Item[] = [];
 			const historyItems: unknown[] = [];
 			do {
 				let responseItems: unknown[] = [];
@@ -103,11 +122,14 @@ export abstract class ServiceApi {
 					responseItems = await this.loadHistoryItems();
 				}
 				if (responseItems.length > 0) {
-					let filteredItems: unknown[] = [];
 					if (lastSync > 0 && lastSyncId) {
 						for (const [index, responseItem] of responseItems.entries()) {
-							if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
-								filteredItems.push(responseItem);
+							if (itemsToLoad === 0) {
+								this.leftoverHistoryItems = responseItems.slice(index);
+								break;
+							} else if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
+								historyItems.push(responseItem);
+								itemsToLoad -= 1;
 							} else {
 								this.leftoverHistoryItems = responseItems.slice(index);
 								hasReachedLastSyncDate = true;
@@ -115,17 +137,23 @@ export abstract class ServiceApi {
 							}
 						}
 					} else {
-						filteredItems = responseItems;
+						for (const [index, responseItem] of responseItems.entries()) {
+							if (itemsToLoad === 0) {
+								this.leftoverHistoryItems = responseItems.slice(index);
+								break;
+							} else {
+								historyItems.push(responseItem);
+								itemsToLoad -= 1;
+							}
+						}
 					}
-					itemsToLoad -= filteredItems.length;
-					historyItems.push(...filteredItems);
 				}
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				items = await this.convertHistoryItems(historyItems);
 			}
-			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
+			await store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load history.', err);
@@ -135,6 +163,7 @@ export abstract class ServiceApi {
 			}
 			throw err;
 		}
+		return items;
 	}
 
 	/**

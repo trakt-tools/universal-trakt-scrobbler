@@ -47,9 +47,6 @@
 	"cannotSync": {
 		"message": "Klarer ikke å synkronisere elementer"
 	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
-	},
 	"clearCaches": {
 		"message": "Fjern mellomlagrede data"
 	},
@@ -210,8 +207,8 @@
 	"itemSynced": {
 		"message": "Elementet er synkronisert"
 	},
-	"itemsPerLoad": {
-		"message": "Antall elementer i hver innlasting."
+	"itemsMissingWatchedDate": {
+		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"lastSync": {
 		"message": "Siste synkroniseringsdato"
@@ -265,11 +262,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Legg inn en gyldig dato!"
 	},
-	"nextPage": {
-		"message": "Neste side"
-	},
 	"no": {
 		"message": "Nei"
+	},
+	"noItemsSelected": {
+		"message": "No items are selected. Select some items and try again."
 	},
 	"noServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
@@ -294,9 +291,6 @@
 	},
 	"options": {
 		"message": "Alternativer"
-	},
-	"previousPage": {
-		"message": "Forrige side"
 	},
 	"progress": {
 		"message": "Fullført: $PROGRESS$%",
@@ -394,6 +388,9 @@
 	},
 	"sync": {
 		"message": "Synkroniser historikk"
+	},
+	"syncing": {
+		"message": "Syncing"
 	},
 	"systemTheme": {
 		"message": "Bestemmes av operativsystemet"

@@ -47,9 +47,6 @@
 	"cannotSync": {
 		"message": "Cannot sync items"
 	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
-	},
 	"clearCaches": {
 		"message": "Clear Caches"
 	},
@@ -210,8 +207,8 @@
 	"itemSynced": {
 		"message": "Item synced"
 	},
-	"itemsPerLoad": {
-		"message": "Items per load."
+	"itemsMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"lastSync": {
 		"message": "Last Sync Date"
@@ -265,11 +262,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Please enter a valid date!"
 	},
-	"nextPage": {
-		"message": "Next Page"
-	},
 	"no": {
 		"message": "No"
+	},
+	"noItemsSelected": {
+		"message": "No items are selected. Select some items and try again."
 	},
 	"noServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
@@ -294,9 +291,6 @@
 	},
 	"options": {
 		"message": "Options"
-	},
-	"previousPage": {
-		"message": "Previous Page"
 	},
 	"progress": {
 		"message": "Progress: $PROGRESS$%",
@@ -394,6 +388,9 @@
 	},
 	"sync": {
 		"message": "Sync"
+	},
+	"syncing": {
+		"message": "Syncing"
 	},
 	"systemTheme": {
 		"message": "Use your system preference"

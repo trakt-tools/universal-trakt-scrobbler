@@ -8,17 +8,19 @@ import {
 	Button,
 	Card,
 	CardContent,
-	CircularProgress,
 	Divider,
 	LinearProgress,
 	Tooltip,
 	Typography,
 } from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 interface HistoryListItemCardProps {
+	isLoading: boolean;
 	item?: Item | TraktItem | null;
 	name: string;
 	suggestions?: Suggestion[] | null;
@@ -27,12 +29,15 @@ interface HistoryListItemCardProps {
 	openCorrectionDialog?: () => Promise<void>;
 }
 
-export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
-	props: HistoryListItemCardProps
-) => {
-	const { item, name, suggestions, imageUrl, openMissingWatchedDateDialog, openCorrectionDialog } =
-		props;
-
+export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
+	isLoading,
+	item,
+	name,
+	suggestions,
+	imageUrl,
+	openMissingWatchedDateDialog,
+	openCorrectionDialog,
+}) => {
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
 		item instanceof TraktItem && typeof watchedAt === 'undefined' ? (
@@ -42,18 +47,22 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 				{`${I18N.translate('watched')} ${watchedAt.format(Shared.dateFormat)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
-			<Button color="secondary" onClick={openMissingWatchedDateDialog}>
+			<Button color="secondary" disabled={isLoading} onClick={openMissingWatchedDateDialog}>
 				<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
 			</Button>
 		) : (
 			<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
 		)
-	) : null;
+	) : (
+		<Typography variant="overline" style={{ width: '75%' }}>
+			<Skeleton variant="text" />
+		</Typography>
+	);
 
-	const hasImage = !item || item instanceof TraktItem;
+	const hasImage = item instanceof TraktItem;
 	return (
 		<Card className={`history-list-item-card ${hasImage ? 'image' : ''}`} variant="outlined">
-			{(!item || item instanceof TraktItem) && <TmdbImage imageUrl={imageUrl} />}
+			{hasImage && <TmdbImage imageUrl={imageUrl} />}
 			<CardContent className="history-list-item-card-content">
 				<UtsCenter isHorizontal={false}>
 					<Typography variant="overline">{`${I18N.translate('on')} ${name}`}</Typography>
@@ -81,7 +90,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 								</>
 							)}
 							{openCorrectionDialog && (
-								<Button color="secondary" onClick={openCorrectionDialog}>
+								<Button color="secondary" disabled={isLoading} onClick={openCorrectionDialog}>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
 										{BrowserStorage.options.sendReceiveSuggestions ? (
@@ -98,7 +107,22 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 							)}
 						</>
 					) : (
-						<CircularProgress />
+						<>
+							<Typography variant="overline" style={{ width: '25%' }}>
+								<Skeleton variant="text" />
+							</Typography>
+							<Typography variant="h6" style={{ width: '75%' }}>
+								<Skeleton variant="text" />
+							</Typography>
+							<Typography variant="subtitle2" style={{ width: '50%' }}>
+								<Skeleton variant="text" />
+							</Typography>
+							<Divider className="history-list-item-divider" />
+							{watchedAtComponent}
+							<Typography variant="caption" style={{ width: '25%' }}>
+								<Skeleton variant="text" />
+							</Typography>
+						</>
 					)}
 				</UtsCenter>
 			</CardContent>
@@ -113,4 +137,14 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = (
 			)}
 		</Card>
 	);
+};
+
+HistoryListItemCard.propTypes = {
+	isLoading: PropTypes.bool.isRequired,
+	item: PropTypes.oneOfType([PropTypes.instanceOf(Item), PropTypes.instanceOf(TraktItem)]),
+	name: PropTypes.string.isRequired,
+	suggestions: PropTypes.array,
+	imageUrl: PropTypes.string,
+	openMissingWatchedDateDialog: PropTypes.func,
+	openCorrectionDialog: PropTypes.func,
 };

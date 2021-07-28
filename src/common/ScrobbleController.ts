@@ -51,10 +51,10 @@ export class ScrobbleController {
 	checkListeners() {
 		const { scrobble } = BrowserStorage.options?.services?.[this.api.id];
 		if (scrobble && !this.hasAddedListeners) {
-			EventDispatcher.subscribe('ITEM_CORRECTED', null, this.onItemCorrected);
+			EventDispatcher.subscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
 			this.hasAddedListeners = true;
 		} else if (!scrobble && this.hasAddedListeners) {
-			EventDispatcher.unsubscribe('ITEM_CORRECTED', null, this.onItemCorrected);
+			EventDispatcher.unsubscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
 			this.hasAddedListeners = false;
 		}
 	}

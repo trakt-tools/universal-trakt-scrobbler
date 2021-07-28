@@ -21,7 +21,7 @@ interface HistoryOptionsListProps {
 	store: SyncStore;
 }
 
-const _HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
+export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
@@ -58,20 +58,14 @@ const _HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
 			<Toolbar />
 			<FormGroup className="history-options-list-container">
 				{Object.values(BrowserStorage.syncOptionsDetails).map((option) => (
-					<HistoryOptionsListItem key={option.id} option={option} />
+					<HistoryOptionsListItem key={option.id} store={store} option={option} />
 				))}
 				<Box className="button-group-container">
 					<InputLabel shrink={true}>{I18N.translate('select')}</InputLabel>
 					<ButtonGroup className="button-group" variant="contained">
-						<Button onClick={() => void store.selectAll().dispatchEvent(false)}>
-							{I18N.translate('selectAll')}
-						</Button>
-						<Button onClick={() => void store.selectNone().dispatchEvent(false)}>
-							{I18N.translate('selectNone')}
-						</Button>
-						<Button onClick={() => void store.toggleAll().dispatchEvent(false)}>
-							{I18N.translate('toggleAll')}
-						</Button>
+						<Button onClick={() => void store.selectAll()}>{I18N.translate('selectAll')}</Button>
+						<Button onClick={() => void store.selectNone()}>{I18N.translate('selectNone')}</Button>
+						<Button onClick={() => void store.toggleAll()}>{I18N.translate('toggleAll')}</Button>
 					</ButtonGroup>
 				</Box>
 			</FormGroup>
@@ -79,8 +73,6 @@ const _HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
 	);
 };
 
-_HistoryOptionsList.propTypes = {
+HistoryOptionsList.propTypes = {
 	store: PropTypes.instanceOf(SyncStore).isRequired,
 };
-
-export const HistoryOptionsList = React.memo(_HistoryOptionsList);

@@ -47,9 +47,6 @@
 	"cannotSync": {
 		"message": "Não é possível sincronizar os itens"
 	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
-	},
 	"clearCaches": {
 		"message": "Limpar Caches"
 	},
@@ -210,8 +207,8 @@
 	"itemSynced": {
 		"message": "Item sincronizado"
 	},
-	"itemsPerLoad": {
-		"message": "Itens por página."
+	"itemsMissingWatchedDate": {
+		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
 	"lastSync": {
 		"message": "Data da Última Sincronização"
@@ -265,11 +262,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Por favor, selecione uma data válida!"
 	},
-	"nextPage": {
-		"message": "Próxima Página"
-	},
 	"no": {
 		"message": "Não"
+	},
+	"noItemsSelected": {
+		"message": "Nenhum item está selecionado. Selecione alguns itens e tente novamente."
 	},
 	"noServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
@@ -294,9 +291,6 @@
 	},
 	"options": {
 		"message": "Opções"
-	},
-	"previousPage": {
-		"message": "Página Anterior"
 	},
 	"progress": {
 		"message": "Progresso: $PROGRESS$%",
@@ -394,6 +388,9 @@
 	},
 	"sync": {
 		"message": "Sincronizar"
+	},
+	"syncing": {
+		"message": "Sincronizando"
 	},
 	"systemTheme": {
 		"message": "Usar sua preferência do sistema"

@@ -3,14 +3,21 @@ import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { SwitchOption } from '@components/SwitchOption';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
+import { SyncStore } from '@stores/SyncStore';
 import React, { useEffect, useState } from 'react';
 
 interface HistoryOptionsListItemProps {
+	store: SyncStore;
 	option: OptionDetails<StorageValuesSyncOptions>;
 }
 
-export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
-	const [isDisabled, setDisabled] = useState(BrowserStorage.checkSyncOptionDisabled(option));
+export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({
+	store,
+	option,
+}) => {
+	const [isDisabled, setDisabled] = useState(
+		store.data.isLoading || BrowserStorage.checkSyncOptionDisabled(option)
+	);
 	const [value, setValue] = useState(option.value);
 
 	const handleChange = (optionId: string, newValue: unknown) => {
@@ -22,10 +29,14 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			EventDispatcher.subscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
+			EventDispatcher.subscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
 		};
 
 		const stopListeners = () => {
 			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			EventDispatcher.unsubscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
+			EventDispatcher.unsubscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -41,9 +52,13 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 					(dependency) => data.syncOptions && dependency in data.syncOptions
 				);
 				if (hasDependenciesChanged) {
-					setDisabled(BrowserStorage.checkSyncOptionDisabled(option));
+					checkDisabled();
 				}
 			}
+		};
+
+		const checkDisabled = () => {
+			setDisabled(store.data.isLoading || BrowserStorage.checkSyncOptionDisabled(option));
 		};
 
 		startListeners();

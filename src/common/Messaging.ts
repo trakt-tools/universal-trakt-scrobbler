@@ -188,7 +188,12 @@ class _Messaging {
 	 * Sends a message to all extension pages (so it will be sent to the background page, the popup page, the history page and the options page, if all of them are open).
 	 */
 	async toExtension<T extends MessageRequest>(message: T): Promise<ReturnType<T>> {
-		const response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
+		let response = null as ReturnType<T>;
+		try {
+			response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
+		} catch (err) {
+			// Do nothing
+		}
 		return response;
 	}
 

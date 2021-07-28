@@ -30,8 +30,8 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 interface CorrectionDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId: string | null;
 	item?: Item;
+	isScrobblingItem: boolean;
 	url: string;
 }
 
@@ -79,7 +79,7 @@ export const CorrectionDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
-		serviceId: null,
+		isScrobblingItem: false,
 		url: '',
 	});
 
@@ -151,10 +151,14 @@ export const CorrectionDialog: React.FC = () => {
 			corrections[databaseId] = suggestion;
 			await BrowserStorage.set({ corrections }, true);
 			await CorrectionApi.saveSuggestion(newItem, suggestion);
-			await EventDispatcher.dispatch('ITEM_CORRECTED', dialog.serviceId, {
-				oldItem: Item.save(oldItem),
-				newItem: Item.save(newItem),
-			});
+			await EventDispatcher.dispatch(
+				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
+				null,
+				{
+					oldItem: Item.save(oldItem),
+					newItem: Item.save(newItem),
+				}
+			);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to correct item.', err);

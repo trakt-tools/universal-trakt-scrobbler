@@ -24,7 +24,6 @@ import React from 'react';
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId: string | null;
 	items: Item[];
 	dateType: MissingWatchedDateType | null;
 	date: moment.Moment | null;
@@ -37,7 +36,6 @@ export const MissingWatchedDateDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<MissingWatchedDateDialogState>({
 		isOpen: false,
 		isLoading: false,
-		serviceId: null,
 		items: [],
 		dateType: null,
 		date: null,
@@ -92,9 +90,11 @@ export const MissingWatchedDateDialog: React.FC = () => {
 			if (!dialog.dateType) {
 				throw new Error('Missing date type');
 			}
+			const oldItems = dialog.items;
+			const newItems = oldItems.map((item) => item.clone());
 			switch (dialog.dateType) {
 				case 'release-date': {
-					for (const item of dialog.items) {
+					for (const item of newItems) {
 						const releaseDate = item.trakt?.releaseDate;
 						if (!releaseDate) {
 							throw new Error('Missing release date');
@@ -104,7 +104,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 					break;
 				}
 				case 'current-date':
-					for (const item of dialog.items) {
+					for (const item of newItems) {
 						item.watchedAt = moment();
 					}
 					break;
@@ -112,14 +112,20 @@ export const MissingWatchedDateDialog: React.FC = () => {
 					if (!dialog.date || !!dialog.dateError) {
 						throw new Error('Missing date or invalid date');
 					}
-					for (const item of dialog.items) {
+					for (const item of newItems) {
 						item.watchedAt = dialog.date;
 					}
 					break;
 				// no-default
 			}
-			await EventDispatcher.dispatch('MISSING_WATCHED_DATE_ADDED', dialog.serviceId, {
-				items: dialog.items,
+			for (const item of newItems) {
+				if (item.trakt) {
+					delete item.trakt.watchedAt;
+				}
+			}
+			await EventDispatcher.dispatch('MISSING_WATCHED_DATE_ADDED', null, {
+				oldItems,
+				newItems,
 			});
 		} catch (err) {
 			if (!(err as RequestException).canceled) {

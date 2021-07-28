@@ -1,15 +1,10 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, ServiceHistoryChangeData } from '@common/Events';
+import { EventDispatcher } from '@common/Events';
 import { Item } from '@models/Item';
 
 export interface SyncStoreData {
+	isLoading: boolean;
+	loadQueue: number[];
 	items: Item[];
-	visibleItems: Item[];
-	selectedItems: Item[];
-	page: number;
-	itemsPerPage: number;
-	itemsToLoad: number;
-	hasNextPage: boolean;
 	hasReachedEnd: boolean;
 	hasReachedLastSyncDate: boolean;
 }
@@ -39,183 +34,111 @@ export class SyncStore {
 
 	static getInitialData(): SyncStoreData {
 		return {
+			isLoading: false,
+			loadQueue: [],
 			items: [],
-			visibleItems: [],
-			selectedItems: [],
-			page: 0,
-			itemsPerPage: 0,
-			itemsToLoad: 0,
-			hasNextPage: false,
 			hasReachedEnd: false,
 			hasReachedLastSyncDate: false,
 		};
 	}
 
-	startListeners(): void {
-		EventDispatcher.subscribe('SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
-		EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
-	}
-
-	stopListeners(): void {
-		EventDispatcher.unsubscribe('SERVICE_HISTORY_CHANGE', null, this.onHistoryChange);
-		EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, this.onHistorySyncSuccess);
-	}
-
-	onHistoryChange = (data: ServiceHistoryChangeData) => {
-		if (typeof data.index === 'undefined') {
-			return;
-		}
-		const item = this.data.items[data.index];
-		if (item) {
-			item.isSelected = data.checked;
-			this.data.selectedItems = this.data.visibleItems.filter(
-				(visibleItem) => visibleItem.isSelected
-			);
-		}
-		void this.dispatchEvent(false);
-	};
-
-	onHistorySyncSuccess = (): void => {
-		void this.dispatchEvent(false);
-	};
-
-	selectAll(): SyncStore {
-		for (const item of this.data.visibleItems) {
-			if (item.isSelectable()) {
-				item.isSelected = true;
+	async selectAll(): Promise<SyncStore> {
+		const newItems: Item[] = [];
+		for (const item of this.data.items) {
+			if (!item.isSelected && item.isSelectable()) {
+				const newItem = item.clone();
+				newItem.isSelected = true;
+				newItems.push(newItem);
 			}
 		}
-		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
+		await this.update(newItems, true);
 		return this;
 	}
 
-	selectNone(): SyncStore {
-		for (const item of this.data.visibleItems) {
-			item.isSelected = false;
-		}
-		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
-		return this;
-	}
-
-	toggleAll(): SyncStore {
-		for (const item of this.data.visibleItems) {
-			if (item.isSelectable()) {
-				item.isSelected = !item.isSelected;
+	async selectNone(): Promise<SyncStore> {
+		const newItems: Item[] = [];
+		for (const item of this.data.items) {
+			if (item.isSelected) {
+				const newItem = item.clone();
+				newItem.isSelected = false;
+				newItems.push(newItem);
 			}
 		}
-		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
+		await this.update(newItems, true);
 		return this;
 	}
 
-	goToPreviousPage(): SyncStore {
-		if (this.data.page > 1) {
-			this.data.page -= 1;
+	async toggleAll(): Promise<SyncStore> {
+		const newItems: Item[] = [];
+		for (const item of this.data.items) {
+			if (item.isSelected || (!item.isSelected && item.isSelectable())) {
+				const newItem = item.clone();
+				newItem.isSelected = !newItem.isSelected;
+				newItems.push(newItem);
+			}
 		}
+		await this.update(newItems, true);
 		return this;
 	}
 
-	goToNextPage(): SyncStore {
-		this.data.page += 1;
-		return this;
+	areItemsMissingWatchedDate() {
+		let missingCount = 0;
+		return this.data.items.some((item) => {
+			if (item.isMissingWatchedDate()) {
+				missingCount += 1;
+			}
+			return missingCount > 1;
+		});
 	}
 
-	setData(data: Partial<SyncStoreData>): SyncStore {
-		const itemsPerPage = this.data.itemsPerPage;
+	async setData(data: Partial<SyncStoreData>): Promise<SyncStore> {
+		let index = this.data.items.length;
 		this.data = {
 			...this.data,
 			...data,
-			items: [...this.data.items, ...(data.items ?? [])],
-			visibleItems: [],
-			selectedItems: [],
+			items: [...this.data.items, ...(data.items || [])],
 		};
-		for (const [index, item] of this.data.items.entries()) {
-			item.index = index;
+		if (data.items) {
+			for (const item of data.items) {
+				item.index = index;
+				item.isLoading = true;
+				index += 1;
+			}
+			await this.dispatchUpdate(data.items);
 		}
-		if (this.data.itemsPerPage !== itemsPerPage && this.data.page > 0) {
-			this.updatePage(itemsPerPage);
-		}
-		this.updateItemsToLoad();
-		this.updateHasNextPage();
 		return this;
 	}
 
-	resetData(): SyncStore {
+	async resetData(): Promise<SyncStore> {
 		this.data = SyncStore.getInitialData();
-		return this;
-	}
-
-	updatePage(oldItemsPerPage: number): SyncStore {
-		const oldIndex = (this.data.page - 1) * oldItemsPerPage;
-		const newPage = Math.floor(oldIndex / this.data.itemsPerPage) + 1;
-		this.data.page = newPage;
+		await EventDispatcher.dispatch('SYNC_STORE_RESET', null, {});
 		return this;
 	}
 
 	/**
-	 * Replaces items for immutability.
-	 *
-	 * **Be careful when using this method because it relies on the item indexes being the same.**
+	 * Updates items for immutability.
 	 */
-	replaceItems(newItems: Item[], visibleItemsChanged: boolean) {
+	async update(newItems: Item[], doDispatch: boolean): Promise<SyncStore> {
 		for (const newItem of newItems) {
-			if (typeof newItem.index === 'undefined') {
-				continue;
-			}
-
 			this.data.items[newItem.index] = newItem;
 		}
-
-		return this.updateVisibleItems(visibleItemsChanged);
-	}
-
-	update(data?: Partial<SyncStoreData>): Promise<void> {
-		if (data) {
-			this.setData(data);
-		} else {
-			this.updateItemsToLoad();
-			this.updateHasNextPage();
+		if (doDispatch) {
+			await this.dispatchUpdate(newItems);
 		}
-		return this.updateVisibleItems(true);
+		return this;
 	}
 
-	updateItemsToLoad() {
-		this.data.itemsToLoad = (this.data.page + 1) * this.data.itemsPerPage - this.data.items.length;
-	}
-
-	updateHasNextPage() {
-		this.data.hasNextPage =
-			this.data.itemsPerPage > 0 &&
-			this.data.page < Math.ceil(this.data.items.length / this.data.itemsPerPage);
-	}
-
-	updateVisibleItems(visibleItemsChanged: boolean): Promise<void> {
-		this.data.visibleItems = [];
-		if (this.data.page > 0) {
-			this.data.visibleItems = this.data.items.slice(
-				(this.data.page - 1) * this.data.itemsPerPage,
-				this.data.page * this.data.itemsPerPage
-			);
-		} else if (this.id === 'multiple') {
-			this.data.visibleItems = [...this.data.items];
+	async dispatchUpdate(newItems: Item[]): Promise<SyncStore> {
+		if (newItems.length === 0) {
+			return this;
 		}
-		if (this.data.visibleItems.length > 0) {
-			if (BrowserStorage.syncOptions.hideSynced) {
-				this.data.visibleItems = this.data.visibleItems.filter((item) => !item.trakt?.watchedAt);
-			}
-			this.data.visibleItems = this.data.visibleItems.filter(
-				(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
-			);
+		const eventData: Record<number, Item> = {};
+		for (const newItem of newItems) {
+			eventData[newItem.index] = newItem;
 		}
-		for (const item of this.data.items) {
-			if (item.isSelected && (!this.data.visibleItems.includes(item) || !item.isSelectable())) {
-				item.isSelected = false;
-			}
-		}
-		this.data.selectedItems = this.data.visibleItems.filter((item) => item.isSelected);
-		return this.dispatchEvent(visibleItemsChanged);
-	}
-
-	dispatchEvent(visibleItemsChanged: boolean): Promise<void> {
-		return EventDispatcher.dispatch('SYNC_STORE_UPDATE', null, { visibleItemsChanged });
+		await EventDispatcher.dispatch('ITEMS_LOAD', null, {
+			items: eventData,
+		});
+		return this;
 	}
 }

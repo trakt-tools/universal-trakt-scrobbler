@@ -91,7 +91,7 @@ class _AutoSync {
 			try {
 				const api = getServiceApi(service.id);
 				const store = getSyncStore(service.id);
-				store.resetData();
+				await store.resetData();
 
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
@@ -99,7 +99,7 @@ class _AutoSync {
 					(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
-					await ServiceApi.loadTraktHistory(items);
+					items = await ServiceApi.loadTraktHistory(items);
 
 					const foundItems = items.filter((item) => item.trakt);
 					const itemsToSync = foundItems.filter(
@@ -109,16 +109,21 @@ class _AutoSync {
 						for (const itemToSync of itemsToSync) {
 							itemToSync.isSelected = true;
 						}
-						await TraktSync.sync(itemsToSync);
+						await TraktSync.sync(store, itemsToSync);
 					}
+
+					items = store.data.items.filter(
+						(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
+					);
 
 					const missingWatchedDate = items.some((item) => item.isMissingWatchedDate());
 					if (missingWatchedDate || foundItems.length !== items.length) {
-						throw new Error();
+						throw new Error('Items are either missing the watched date or have not been found');
 					}
 				}
 			} catch (err) {
 				syncCache.failed = true;
+				Errors.log(`Failed to auto sync ${service.id}`, err);
 			}
 
 			const partialServiceValue = partialOptions.services?.[service.id] || {};

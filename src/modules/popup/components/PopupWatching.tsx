@@ -19,8 +19,8 @@ export interface IPopupWatching {
 export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 	const openCorrectionDialog = async () => {
 		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
-			serviceId: item.serviceId,
 			item,
+			isScrobblingItem: true,
 		});
 	};
 

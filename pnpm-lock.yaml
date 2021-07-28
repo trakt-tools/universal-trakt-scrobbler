@@ -26,7 +26,9 @@ specifiers:
   '@types/react': ^17.0.11
   '@types/react-dom': ^17.0.7
   '@types/react-router-dom': ^5.1.7
+  '@types/react-virtualized-auto-sizer': ^1.0.1
   '@types/react-window': ^1.8.4
+  '@types/react-window-infinite-loader': ^1.0.4
   '@typescript-eslint/eslint-plugin': ^4.27.0
   '@typescript-eslint/parser': ^4.27.0
   archiver: ^5.3.0
@@ -53,7 +55,9 @@ specifiers:
   react: ^17.0.2
   react-dom: ^17.0.2
   react-router-dom: ^5.2.0
+  react-virtualized-auto-sizer: ^1.0.5
   react-window: ^1.8.6
+  react-window-infinite-loader: ^1.0.7
   rollbar: ^2.22.0
   sass: ^1.35.0
   sass-loader: ^12.1.0
@@ -82,7 +86,9 @@ dependencies:
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-router-dom: 5.2.0_react@17.0.2
+  react-virtualized-auto-sizer: 1.0.5_react-dom@17.0.2+react@17.0.2
   react-window: 1.8.6_react-dom@17.0.2+react@17.0.2
+  react-window-infinite-loader: 1.0.7_react-dom@17.0.2+react@17.0.2
   rollbar: 2.22.0
   type-fest: 1.2.2
   webextension-polyfill-ts: 0.26.0
@@ -107,7 +113,9 @@ devDependencies:
   '@types/react': 17.0.11
   '@types/react-dom': 17.0.7
   '@types/react-router-dom': 5.1.7
+  '@types/react-virtualized-auto-sizer': 1.0.1
   '@types/react-window': 1.8.4
+  '@types/react-window-infinite-loader': 1.0.4
   '@typescript-eslint/eslint-plugin': 4.27.0_1c5b48a1f115d929d137a72df737d54c
   '@typescript-eslint/parser': 4.27.0_eslint@7.28.0+typescript@4.3.2
   archiver: 5.3.0
@@ -2393,6 +2401,25 @@ packages:
     dependencies:
       '@types/react': 17.0.11
     dev: false
+
+  /@types/react-virtualized-auto-sizer/1.0.1:
+    resolution:
+      {
+        integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==,
+      }
+    dependencies:
+      '@types/react': 17.0.14
+    dev: true
+
+  /@types/react-window-infinite-loader/1.0.4:
+    resolution:
+      {
+        integrity: sha512-bfztJr6udQ/8+/KsomCDOh/bWQv9uQZzpvPwhZC/izKuVdilH+yv/ql4m9Dql5DgbomGiKPzphaZrqIf2ApyTA==,
+      }
+    dependencies:
+      '@types/react': 17.0.14
+      '@types/react-window': 1.8.4
+    dev: true
 
   /@types/react-window/1.8.4:
     resolution:
@@ -6967,6 +6994,34 @@ packages:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.7.2
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
+  /react-virtualized-auto-sizer/1.0.5_react-dom@17.0.2+react@17.0.2:
+    resolution:
+      {
+        integrity: sha512-kivjYVWX15TX2IUrm8F1jaCEX8EXrpy3DD+u41WGqJ1ZqbljWpiwscV+VxOM1l7sSIM1jwi2LADjhhAJkJ9dxA==,
+      }
+    engines: { node: '>8.0.0' }
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
+    dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
+  /react-window-infinite-loader/1.0.7_react-dom@17.0.2+react@17.0.2:
+    resolution:
+      {
+        integrity: sha512-wg3LWkUpG21lhv+cZvNy+p0+vtclZw+9nP2vO6T9PKT50EN1cUq37Dq6FzcM38h/c2domE0gsUhb6jHXtGogAA==,
+      }
+    engines: { node: '>8.0.0' }
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
+    dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     dev: false

@@ -1,7 +1,8 @@
 @import '@styles/common.scss';
 
 .missing-watched-date-dialog,
-.correction-dialog {
+.correction-dialog,
+.sync-dialog {
 	min-height: 150px;
 	min-width: 300px;
 }
