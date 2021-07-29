@@ -261,6 +261,8 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://*.uts.rafaelgomes.xyz/*',
 		],
 		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
+		// Uncomment this to connect to react-devtools
+		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
 	};
 	switch (browserName) {
 		case 'chrome': {
