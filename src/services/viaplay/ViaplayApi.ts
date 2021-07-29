@@ -5,6 +5,16 @@ import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
 import moment from 'moment';
 
+export interface ViaplayAuthResponse {
+	success: boolean;
+	userData?: {
+		firstName: string;
+		lastName: string;
+		username: string;
+		userId: string;
+	};
+}
+
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
 		'viaplay:blocks': [ViaplayHistoryPage];
@@ -98,10 +108,8 @@ class _ViaplayApi extends ServiceApi {
 
 	async activate() {
 		let host;
-		let isAuthorized = false;
 		if (location.hostname.includes('viaplay')) {
 			host = location.hostname + '/';
-			isAuthorized = true;
 		} else {
 			const response = await fetch(this.INITIAL_URL);
 			host = response.url.split('//')[1];
@@ -114,13 +122,23 @@ class _ViaplayApi extends ServiceApi {
 		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-${region}`;
 		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
 
-		if (!isAuthorized) {
-			await Requests.send({
-				url: this.AUTH_URL,
-				method: 'GET',
-			});
-		}
+		const authResponseText = await Requests.send({
+			url: this.AUTH_URL,
+			method: 'GET',
+		});
+		const authResponse = JSON.parse(authResponseText) as ViaplayAuthResponse;
+		this.session = {
+			profileName: authResponse.userData?.firstName || null,
+		};
+
 		this.isActivated = true;
+	}
+
+	async checkLogin() {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		return !!this.session && this.session.profileName !== null;
 	}
 
 	async loadHistoryItems(): Promise<ViaplayProduct[]> {

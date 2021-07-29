@@ -82,8 +82,8 @@ export interface SearchErrorData {
 }
 
 export interface DialogShowData {
-	title: string;
-	message: string;
+	title: string | React.ReactNode;
+	message: string | React.ReactNode;
 	onConfirm?: () => void;
 	onDeny?: () => void;
 }

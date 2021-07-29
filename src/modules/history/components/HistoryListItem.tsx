@@ -86,7 +86,7 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	} else if (serviceId) {
 		serviceName = getService(serviceId).name;
 	} else {
-		serviceName = 'Unknown';
+		serviceName = I18N.translate('unknown');
 	}
 
 	return item?.isHidden ? null : index === -1 ? (

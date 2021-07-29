@@ -277,6 +277,12 @@
 	"notFound": {
 		"message": "Ikke funnet"
 	},
+	"notLoggedIn": {
+		"message": "Not Logged In"
+	},
+	"notLoggedInDescription": {
+		"message": "Looks like you're not logged in to this service. Please go to the page below and log in before trying to sync."
+	},
 	"notWatched": {
 		"message": "Ikke registrert som sett"
 	},
@@ -291,6 +297,12 @@
 	},
 	"options": {
 		"message": "Alternativer"
+	},
+	"profile": {
+		"message": "Profile"
+	},
+	"profileDescription": {
+		"message": "This is the current profile. If this is not the profile that you want to sync, switch profiles in the service page."
 	},
 	"progress": {
 		"message": "Fullført: $PROGRESS$%",
@@ -403,6 +415,9 @@
 	},
 	"toggleAll": {
 		"message": "Veksle"
+	},
+	"unknown": {
+		"message": "Unknown"
 	},
 	"use": {
 		"message": "Bruk"

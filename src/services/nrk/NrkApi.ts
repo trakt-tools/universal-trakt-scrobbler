@@ -151,8 +151,18 @@ class _NrkApi extends ServiceApi {
 			method: 'GET',
 		});
 		const userData = JSON.parse(response) as NrkUserData;
+		this.session = {
+			profileName: userData.name,
+		};
 		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
 		this.isActivated = true;
+	}
+
+	async checkLogin() {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		return !!this.session && this.session.profileName !== null;
 	}
 
 	async loadHistoryItems(): Promise<NrkProgressItem[]> {

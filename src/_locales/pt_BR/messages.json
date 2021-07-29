@@ -277,6 +277,12 @@
 	"notFound": {
 		"message": "Não Encontrado"
 	},
+	"notLoggedIn": {
+		"message": "Não Logado"
+	},
+	"notLoggedInDescription": {
+		"message": "Parece que você não está logado nesse serviço. Por favor, vá até a página abaixo e entre com sua conta antes de tentar sincronizar."
+	},
 	"notWatched": {
 		"message": "Não Assistido"
 	},
@@ -291,6 +297,12 @@
 	},
 	"options": {
 		"message": "Opções"
+	},
+	"profile": {
+		"message": "Perfil"
+	},
+	"profileDescription": {
+		"message": "Esse é o perfil atual. Se esse não é o perfil que você deseja sincronizar, mude de perfis na página do serviço."
 	},
 	"progress": {
 		"message": "Progresso: $PROGRESS$%",
@@ -403,6 +415,9 @@
 	},
 	"toggleAll": {
 		"message": "Inverso"
+	},
+	"unknown": {
+		"message": "Desconhecido"
 	},
 	"use": {
 		"message": "Usar"

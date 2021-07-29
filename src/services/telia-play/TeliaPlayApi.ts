@@ -156,7 +156,18 @@ class _TeliaPlayApi extends ServiceApi {
 		const responseJson = JSON.parse(response) as TeliaAuth;
 		this.jwt = responseJson.token.accessToken;
 
+		this.session = {
+			profileName: '',
+		};
+
 		this.isActivated = true;
+	}
+
+	async checkLogin() {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		return !!this.session && this.session.profileName !== null;
 	}
 
 	async loadHistoryItems(): Promise<TeliaMediaObject[]> {

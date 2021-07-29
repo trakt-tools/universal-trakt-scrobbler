@@ -23,10 +23,15 @@ export const getServiceApi = (id: string) => {
 	return api;
 };
 
+export interface ServiceApiSession {
+	profileName: string | null;
+}
+
 export abstract class ServiceApi {
 	readonly id: string;
 	private leftoverHistoryItems: unknown[] = [];
 	hasReachedHistoryEnd = false;
+	session: ServiceApiSession | null = null;
 
 	constructor(id: string) {
 		this.id = id;
@@ -105,6 +110,10 @@ export abstract class ServiceApi {
 			}
 		}
 		return item;
+	}
+
+	checkLogin(): Promise<boolean> {
+		return Promise.resolve(!!this.session && this.session.profileName !== null);
 	}
 
 	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<Item[]> {

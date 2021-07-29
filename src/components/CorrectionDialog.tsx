@@ -252,7 +252,7 @@ export const CorrectionDialog: React.FC = () => {
 												  }`
 												: `(${dialog.item.year.toString()})`
 									  }`
-									: 'Unknown'
+									: I18N.translate('unknown')
 							)}
 						</DialogContentText>
 						{dialog.item?.suggestions && dialog.item.suggestions.length > 0 && (

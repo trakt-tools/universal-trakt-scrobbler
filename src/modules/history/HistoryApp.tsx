@@ -1,5 +1,6 @@
 import { HistoryHeader } from '@components/HistoryHeader';
 import { LoginWrapper } from '@components/LoginWrapper';
+import { ServiceLoginWrapper } from '@components/ServiceLoginWrapper';
 import { UtsDialog } from '@components/UtsDialog';
 import { UtsSnackbar } from '@components/UtsSnackbar';
 import { useHistory } from '@contexts/HistoryContext';
@@ -62,7 +63,9 @@ export const HistoryApp: React.FC = () => {
 											maxWidth={false}
 										>
 											<SyncProvider serviceId={service.id}>
-												<SyncPage />
+												<ServiceLoginWrapper>
+													<SyncPage />
+												</ServiceLoginWrapper>
 											</SyncProvider>
 										</Container>
 									</LoginWrapper>

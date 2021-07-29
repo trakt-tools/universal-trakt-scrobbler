@@ -65,11 +65,13 @@ export const HistoryHeader: React.FC = () => {
 						</>
 					}
 					right={
-						isLoggedIn ? (
-							<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
-								{I18N.translate('logout')}
-							</Button>
-						) : undefined
+						<>
+							{isLoggedIn && (
+								<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
+									{I18N.translate('logout')}
+								</Button>
+							)}
+						</>
 					}
 				/>
 			</Toolbar>
