@@ -263,7 +263,7 @@ class _NetflixApi extends ServiceApi {
 		const id = historyItem.movieID.toString();
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
-		const watchedAt = moment(historyItem.date + historyItem.duration * 1000);
+		const watchedAt = moment(historyItem.date);
 		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
