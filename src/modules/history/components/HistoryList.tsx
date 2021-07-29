@@ -11,6 +11,7 @@ import {
 	StorageOptionsChangeData,
 } from '@common/Events';
 import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
+import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
 import { Box } from '@material-ui/core';
 import { Item } from '@models/Item';
@@ -41,6 +42,7 @@ const calculateTotalItems = (serviceId: string | null, store: SyncStore) => {
 };
 
 export const HistoryList: React.FC = () => {
+	const history = useHistory();
 	const { serviceId, service, api, store } = useSync();
 
 	const [itemCount, setItemCount] = useState(calculateItemCount(serviceId, store));
@@ -259,6 +261,7 @@ export const HistoryList: React.FC = () => {
 		};
 
 		const onHistoryLoadError = async () => {
+			history.push('/home');
 			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'loadHistoryError',
 				severity: 'error',
