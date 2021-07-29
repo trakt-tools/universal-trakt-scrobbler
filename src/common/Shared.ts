@@ -1,4 +1,3 @@
-import { History } from 'history';
 import { browser } from 'webextension-polyfill-ts';
 
 export interface SharedValues {
@@ -7,7 +6,6 @@ export interface SharedValues {
 	browser: BrowserName;
 	pageType: PageType;
 	tabId: number | null;
-	history?: History;
 	redirectPath?: string;
 	dateFormat: string;
 }

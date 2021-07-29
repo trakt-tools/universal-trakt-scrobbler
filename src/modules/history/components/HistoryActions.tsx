@@ -1,23 +1,18 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { useSync } from '@contexts/SyncContext';
 import { Box, Button, Divider } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import { SyncStore } from '@stores/SyncStore';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-interface HistoryActionsProps {
-	serviceId: string | null;
-	store: SyncStore;
-}
+export const HistoryActions: React.FC = () => {
+	const { serviceId, store } = useSync();
+	const theme = useTheme();
 
-export const HistoryActions: React.FC<HistoryActionsProps> = ({ serviceId, store }) => {
 	const [areItemsMissingWatchedDate, setItemsMissingWatchedDate] = useState(
 		store.areItemsMissingWatchedDate()
 	);
-
-	const theme = useTheme();
 
 	const onSyncClick = async () => {
 		const selectedItems = store.data.items.filter((item) => item.isSelected);
@@ -97,9 +92,4 @@ export const HistoryActions: React.FC<HistoryActionsProps> = ({ serviceId, store
 			</Box>
 		</Box>
 	);
-};
-
-HistoryActions.propTypes = {
-	serviceId: PropTypes.string,
-	store: PropTypes.instanceOf(SyncStore).isRequired,
 };

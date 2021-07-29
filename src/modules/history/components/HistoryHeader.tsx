@@ -2,23 +2,20 @@ import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
 import { UtsLeftRight } from '@components/UtsLeftRight';
+import { useHistory } from '@contexts/HistoryContext';
+import { useSession } from '@contexts/SessionContext';
 import { AppBar, Button, Toolbar } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HomeIcon from '@material-ui/icons/Home';
 import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { History } from 'history';
 import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
-interface HistoryHeaderProps {
-	history: History;
-	isLoggedIn: boolean;
-}
-
-export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
-	const { history, isLoggedIn } = props;
+export const HistoryHeader: React.FC = () => {
+	const history = useHistory();
+	const { isLoggedIn } = useSession();
 	const theme = useTheme();
 
 	const onRouteClick = (path: string) => {

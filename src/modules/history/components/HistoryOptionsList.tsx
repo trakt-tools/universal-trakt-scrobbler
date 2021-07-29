@@ -3,6 +3,7 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
+import { useSync } from '@contexts/SyncContext';
 import {
 	Box,
 	Button,
@@ -12,16 +13,12 @@ import {
 	InputLabel,
 	Toolbar,
 } from '@material-ui/core';
-import { SyncStore } from '@stores/SyncStore';
-import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { PartialDeep } from 'type-fest';
 
-interface HistoryOptionsListProps {
-	store: SyncStore;
-}
+export const HistoryOptionsList: React.FC = () => {
+	const { store } = useSync();
 
-export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store }) => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
@@ -58,7 +55,7 @@ export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store })
 			<Toolbar />
 			<FormGroup className="history-options-list-container">
 				{Object.values(BrowserStorage.syncOptionsDetails).map((option) => (
-					<HistoryOptionsListItem key={option.id} store={store} option={option} />
+					<HistoryOptionsListItem key={option.id} option={option} />
 				))}
 				<Box className="button-group-container">
 					<InputLabel shrink={true}>{I18N.translate('select')}</InputLabel>
@@ -71,8 +68,4 @@ export const HistoryOptionsList: React.FC<HistoryOptionsListProps> = ({ store })
 			</FormGroup>
 		</Drawer>
 	);
-};
-
-HistoryOptionsList.propTypes = {
-	store: PropTypes.instanceOf(SyncStore).isRequired,
 };

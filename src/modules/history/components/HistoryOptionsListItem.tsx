@@ -3,18 +3,16 @@ import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { SwitchOption } from '@components/SwitchOption';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
-import { SyncStore } from '@stores/SyncStore';
+import { useSync } from '@contexts/SyncContext';
 import React, { useEffect, useState } from 'react';
 
 interface HistoryOptionsListItemProps {
-	store: SyncStore;
 	option: OptionDetails<StorageValuesSyncOptions>;
 }
 
-export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({
-	store,
-	option,
-}) => {
+export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
+	const { store } = useSync();
+
 	const [isDisabled, setDisabled] = useState(
 		store.data.isLoading || BrowserStorage.checkSyncOptionDisabled(option)
 	);

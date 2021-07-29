@@ -22,6 +22,7 @@
 				"./src/modules/options/components/*",
 				"./src/modules/popup/components/*"
 			],
+			"@contexts/*": ["./src/contexts/*"],
 			"@images/*": ["./src/images/*"],
 			"@models/*": ["./src/models/*"],
 			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],

@@ -1,4 +1,5 @@
 import { Box } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 interface UtsCenterProps {
@@ -7,8 +8,11 @@ interface UtsCenterProps {
 	isHorizontal?: boolean;
 }
 
-export const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
-	const { children, className, isHorizontal = true } = props;
+export const UtsCenter: React.FC<UtsCenterProps> = ({
+	children,
+	className,
+	isHorizontal = true,
+}) => {
 	return (
 		<Box
 			className={`container--center-${isHorizontal ? 'horizontal' : 'vertical'} ${className || ''}`}
@@ -16,4 +20,10 @@ export const UtsCenter: React.FC<UtsCenterProps> = (props: UtsCenterProps) => {
 			{children}
 		</Box>
 	);
+};
+
+UtsCenter.propTypes = {
+	children: PropTypes.node.isRequired,
+	className: PropTypes.string,
+	isHorizontal: PropTypes.bool,
 };

@@ -1,52 +1,21 @@
-import { EventDispatcher } from '@common/Events';
-import { Session } from '@common/Session';
-import { Shared } from '@common/Shared';
-import { ErrorBoundary } from '@components/ErrorBoundary';
 import { LoginWrapper } from '@components/LoginWrapper';
 import { PopupHeader } from '@components/PopupHeader';
+import { useHistory } from '@contexts/HistoryContext';
 import { Box } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
+import { LoginPage } from '@pages/LoginPage';
 import { AboutPage } from '@pages/PopupAboutPage';
 import { HomePage } from '@pages/PopupHomePage';
-import { LoginPage } from '@pages/PopupLoginPage';
-import { createHashHistory } from 'history';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 
-const history = createHashHistory();
-Shared.history = history;
-
 export const PopupApp: React.FC = () => {
-	const [isLoggedIn, setLoggedIn] = useState(Session.isLoggedIn);
+	const history = useHistory();
 	const theme = useTheme();
 
-	useEffect(() => {
-		const startListeners = () => {
-			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLogin);
-			EventDispatcher.subscribe('LOGOUT_SUCCESS', null, onLogout);
-		};
-
-		const stopListeners = () => {
-			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLogin);
-			EventDispatcher.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
-		};
-
-		const onLogin = () => {
-			setLoggedIn(true);
-		};
-
-		const onLogout = () => {
-			setLoggedIn(false);
-			history.push('/login');
-		};
-
-		startListeners();
-		return stopListeners;
-	}, []);
-
 	return (
-		<ErrorBoundary>
-			<PopupHeader history={history} isLoggedIn={isLoggedIn} />
+		<>
+			<PopupHeader />
 			<Box className={`popup-container ${theme.palette.type}`}>
 				<Box className="popup-container--overlay-image" />
 				<Box className="popup-container--overlay-color" />
@@ -56,9 +25,11 @@ export const PopupApp: React.FC = () => {
 							<Route path="/login" render={() => <LoginPage />} />
 							<Route
 								path="/home"
-								render={LoginWrapper.wrap(() => (
-									<HomePage />
-								))}
+								render={() => (
+									<LoginWrapper>
+										<HomePage />
+									</LoginWrapper>
+								)}
 							/>
 							<Route path="/about" render={() => <AboutPage />} />
 							<Redirect to="/login" />
@@ -66,6 +37,6 @@ export const PopupApp: React.FC = () => {
 					</Router>
 				</Box>
 			</Box>
-		</ErrorBoundary>
+		</>
 	);
 };

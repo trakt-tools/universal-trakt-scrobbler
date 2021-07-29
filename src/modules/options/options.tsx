@@ -2,7 +2,7 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
-import { ThemeWrapper } from '@components/ThemeWrapper';
+import { AppWrapper } from '@components/AppWrapper';
 import '@options/options.html';
 import '@options/options.scss';
 import { OptionsApp } from '@options/OptionsApp';
@@ -16,9 +16,9 @@ const init = async () => {
 	Messaging.init();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
-		<ThemeWrapper>
+		<AppWrapper usesHistory={false} usesSession={false}>
 			<OptionsApp />
-		</ThemeWrapper>,
+		</AppWrapper>,
 		root
 	);
 };

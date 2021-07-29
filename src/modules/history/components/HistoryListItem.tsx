@@ -1,18 +1,16 @@
 import { EventDispatcher, ItemsLoadData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryListItemCard } from '@components/HistoryListItemCard';
+import { useSync } from '@contexts/SyncContext';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import SyncIcon from '@material-ui/icons/Sync';
 import { Item } from '@models/Item';
 import { getService } from '@models/Service';
-import { SyncStore } from '@stores/SyncStore';
 import React, { useEffect, useState } from 'react';
 import { areEqual, ListChildComponentProps } from 'react-window';
 
 export interface HistoryListItemProps {
-	store: SyncStore;
-	serviceId: string | null;
 	onContinueLoadingClick: () => Promise<void>;
 }
 
@@ -21,7 +19,9 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	index,
 	style,
 }) => {
-	const { store, serviceId, onContinueLoadingClick } = data;
+	const { serviceId, store } = useSync();
+
+	const { onContinueLoadingClick } = data;
 
 	if (!serviceId) {
 		index -= 1;

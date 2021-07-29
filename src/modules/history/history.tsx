@@ -3,7 +3,7 @@ import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { ThemeWrapper } from '@components/ThemeWrapper';
+import { AppWrapper } from '@components/AppWrapper';
 import '@history/history.html';
 import '@history/history.scss';
 import { HistoryApp } from '@history/HistoryApp';
@@ -18,9 +18,9 @@ const init = async () => {
 	Messaging.init();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
-		<ThemeWrapper>
+		<AppWrapper usesHistory={true} usesSession={true}>
 			<HistoryApp />
-		</ThemeWrapper>,
+		</AppWrapper>,
 		root
 	);
 };

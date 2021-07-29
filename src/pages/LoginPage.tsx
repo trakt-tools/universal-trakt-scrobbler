@@ -3,9 +3,9 @@ import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
+import { useHistory } from '@contexts/HistoryContext';
 import { Button, CircularProgress } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 
 export const LoginPage: React.FC = () => {
 	const history = useHistory();

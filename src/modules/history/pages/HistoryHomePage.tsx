@@ -1,10 +1,10 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
+import { useHistory } from '@contexts/HistoryContext';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import { getServices, Service } from '@models/Service';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();

@@ -11,22 +11,14 @@ import {
 	StorageOptionsChangeData,
 } from '@common/Events';
 import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
+import { useSync } from '@contexts/SyncContext';
 import { Box } from '@material-ui/core';
 import { Item } from '@models/Item';
-import { Service } from '@models/Service';
 import { SyncStore } from '@stores/SyncStore';
-import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-
-interface HistoryListProps {
-	serviceId: string | null;
-	service: Service | null;
-	api: ServiceApi | null;
-	store: SyncStore;
-}
 
 export type LastSyncValues = Record<string, LastSyncValue>;
 
@@ -48,7 +40,9 @@ const calculateTotalItems = (serviceId: string | null, store: SyncStore) => {
 	return store.data.items.length + (store.data.hasReachedEnd ? 1 : 0) + (serviceId ? 0 : 1);
 };
 
-export const HistoryList: React.FC<HistoryListProps> = ({ serviceId, service, api, store }) => {
+export const HistoryList: React.FC = () => {
+	const { serviceId, service, api, store } = useSync();
+
 	const [itemCount, setItemCount] = useState(calculateItemCount(serviceId, store));
 	const [continueLoading, setContinueLoading] = useState(false);
 
@@ -235,7 +229,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ serviceId, service, ap
 		[]
 	);
 
-	const itemData = useMemo(() => ({ store, serviceId, onContinueLoadingClick }), []);
+	const itemData = useMemo(() => ({ onContinueLoadingClick }), []);
 
 	useEffect(() => {
 		const startListeners = () => {
@@ -398,11 +392,4 @@ export const HistoryList: React.FC<HistoryListProps> = ({ serviceId, service, ap
 			</AutoSizer>
 		</Box>
 	);
-};
-
-HistoryList.propTypes = {
-	serviceId: PropTypes.string,
-	service: PropTypes.instanceOf(Service),
-	api: PropTypes.any,
-	store: PropTypes.instanceOf(SyncStore).isRequired,
 };

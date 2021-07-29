@@ -1,5 +1,4 @@
 import { BrowserStorage } from '@common/BrowserStorage';
-import { ErrorBoundary } from '@components/ErrorBoundary';
 import { OptionsActions } from '@components/OptionsActions';
 import { OptionsHeader } from '@components/OptionsHeader';
 import { OptionsList } from '@components/OptionsList';
@@ -10,7 +9,7 @@ import React from 'react';
 
 export const OptionsApp: React.FC = () => {
 	return (
-		<ErrorBoundary>
+		<>
 			<OptionsHeader />
 			<Container className="options-container">
 				<OptionsList details={BrowserStorage.optionsDetails} />
@@ -18,6 +17,6 @@ export const OptionsApp: React.FC = () => {
 				<UtsDialog />
 				<UtsSnackbar />
 			</Container>
-		</ErrorBoundary>
+		</>
 	);
 };
