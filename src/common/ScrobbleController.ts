@@ -25,7 +25,6 @@ export const getScrobbleController = (id: string) => {
 export class ScrobbleController {
 	readonly api: ServiceApi;
 	readonly parser: ScrobbleParser;
-	private hasSearchedItem = false;
 	private reachedScrobbleThreshold = false;
 	private scrobbleThreshold = 80.0;
 	private progress = 0.0;
@@ -66,13 +65,17 @@ export class ScrobbleController {
 		}
 		this.reachedScrobbleThreshold = false;
 		this.progress = 0.0;
-		if (!item.trakt && !this.hasSearchedItem) {
-			this.hasSearchedItem = true;
+		if (typeof item.trakt === 'undefined') {
 			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
 			const { corrections } = await BrowserStorage.get(['corrections']);
 			const databaseId = item.getDatabaseId();
 			const correction = corrections?.[databaseId];
-			item.trakt = await TraktSearch.find(item, caches, correction);
+			try {
+				item.trakt = await TraktSearch.find(item, caches, correction);
+			} catch (err) {
+				item.trakt = null;
+				throw err;
+			}
 			await Cache.set(caches);
 		}
 		if (!item.trakt) {
@@ -91,7 +94,6 @@ export class ScrobbleController {
 	}
 
 	async stopScrobble(): Promise<void> {
-		this.hasSearchedItem = false;
 		const item = this.parser.getItem();
 		if (!item?.trakt) {
 			return;

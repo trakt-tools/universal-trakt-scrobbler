@@ -59,7 +59,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 		</Typography>
 	);
 
-	const hasImage = item instanceof TraktItem;
+	const hasImage = item instanceof TraktItem || item === null;
 	return (
 		<Card className={`history-list-item-card ${hasImage ? 'image' : ''}`} variant="outlined">
 			{hasImage && <TmdbImage imageUrl={imageUrl} />}

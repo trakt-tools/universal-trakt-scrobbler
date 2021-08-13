@@ -107,6 +107,11 @@ export abstract class ServiceApi {
 		} catch (err) {
 			if (item.trakt) {
 				delete item.trakt.watchedAt;
+			} else {
+				item.trakt = null;
+			}
+			if (processItem) {
+				item = await processItem(item.clone());
 			}
 		}
 		return item;

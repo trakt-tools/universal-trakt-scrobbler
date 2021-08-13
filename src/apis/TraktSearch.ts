@@ -3,6 +3,7 @@ import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
 import moment from 'moment';
@@ -73,8 +74,8 @@ class _TraktSearch extends TraktApi {
 		item: Item,
 		caches: CacheItems<['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']>,
 		exactItemDetails?: ExactItemDetails
-	): Promise<TraktItem | undefined> {
-		let traktItem: TraktItem | undefined;
+	): Promise<TraktItem | null> {
+		let traktItem: TraktItem | null = null;
 		const databaseId = item.getDatabaseId();
 		let traktDatabaseId = exactItemDetails
 			? 'id' in exactItemDetails
@@ -136,9 +137,13 @@ class _TraktSearch extends TraktApi {
 					releaseDate,
 				});
 			}
-			await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
+			if (Shared.pageType === 'content') {
+				await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
+			}
 		} catch (err) {
-			await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as RequestException });
+			if (Shared.pageType === 'content') {
+				await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as RequestException });
+			}
 			throw err;
 		}
 		if (traktItem) {
