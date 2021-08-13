@@ -1,4 +1,3 @@
-import { secrets } from '@/secrets';
 import { BrowserStorage } from '@common/BrowserStorage';
 import {
 	EventDispatcher,
@@ -7,6 +6,7 @@ import {
 	StorageOptionsChangeData,
 } from '@common/Events';
 import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import React from 'react';
 import Rollbar from 'rollbar';
 
@@ -34,7 +34,7 @@ class _Errors {
 		const { allowRollbar } = BrowserStorage.options;
 		if (allowRollbar && !this.rollbar) {
 			this.rollbar = new Rollbar({
-				accessToken: secrets.rollbarToken,
+				accessToken: Shared.rollbarToken,
 				autoInstrument: {
 					network: false, // Do not set to true on Firefox (see https://github.com/rollbar/rollbar.js/issues/638).
 				},
@@ -42,7 +42,7 @@ class _Errors {
 				captureUncaught: true,
 				captureUnhandledRejections: true,
 				payload: {
-					environment: 'production',
+					environment: Shared.environment,
 				},
 			});
 			window.Rollbar = this.rollbar;

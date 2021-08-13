@@ -122,10 +122,11 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 		module: {
 			rules: [
 				{
-					test: /secrets\.ts$/,
+					test: /Shared\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
 						multiple: [
+							{ search: '@@environment', replace: mode },
 							{ search: '@@clientId', replace: config.clientId },
 							{ search: '@@clientSecret', replace: config.clientSecret },
 							{ search: '@@rollbarToken', replace: config.rollbarToken },

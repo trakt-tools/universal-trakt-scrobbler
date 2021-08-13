@@ -1,4 +1,3 @@
-import { secrets } from '@/secrets';
 import { TraktApi } from '@apis/TraktApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
@@ -34,14 +33,14 @@ class _TraktAuth extends TraktApi {
 
 	getHeaders(): Record<string, unknown> {
 		return {
-			'trakt-api-key': secrets.clientId,
+			'trakt-api-key': Shared.clientId,
 			'trakt-api-version': this.API_VERSION,
 		};
 	}
 
 	getAuthorizeUrl(): string {
 		return `${this.AUTHORIZE_URL}?response_type=code&client_id=${
-			secrets.clientId
+			Shared.clientId
 		}&redirect_uri=${this.getRedirectUrl()}`;
 	}
 
@@ -105,8 +104,8 @@ class _TraktAuth extends TraktApi {
 	getToken(redirectUrl: string): Promise<TraktAuthDetails> {
 		return this.requestToken({
 			code: this.getCode(redirectUrl),
-			client_id: secrets.clientId,
-			client_secret: secrets.clientSecret,
+			client_id: Shared.clientId,
+			client_secret: Shared.clientSecret,
 			redirect_uri: this.getRedirectUrl(),
 			grant_type: 'authorization_code',
 		});
@@ -115,8 +114,8 @@ class _TraktAuth extends TraktApi {
 	refreshToken(refreshToken: string): Promise<TraktAuthDetails> {
 		return this.requestToken({
 			refresh_token: refreshToken,
-			client_id: secrets.clientId,
-			client_secret: secrets.clientSecret,
+			client_id: Shared.clientId,
+			client_secret: Shared.clientSecret,
 			redirect_uri: this.getRedirectUrl(),
 			grant_type: 'refresh_token',
 		});
@@ -146,8 +145,8 @@ class _TraktAuth extends TraktApi {
 			method: 'POST',
 			body: {
 				access_token: values.auth?.access_token,
-				client_id: secrets.clientId,
-				client_secret: secrets.clientSecret,
+				client_id: Shared.clientId,
+				client_secret: Shared.clientSecret,
 			},
 		});
 		await BrowserStorage.remove('auth', true);

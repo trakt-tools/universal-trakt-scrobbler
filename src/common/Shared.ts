@@ -3,6 +3,12 @@ import { browser } from 'webextension-polyfill-ts';
 export interface SharedValues {
 	DATABASE_URL: string;
 
+	environment: string;
+	clientId: string;
+	clientSecret: string;
+	rollbarToken: string;
+	tmdbApiKey: string;
+
 	browser: BrowserName;
 	pageType: PageType;
 	tabId: number | null;
@@ -27,6 +33,12 @@ const browserPrefix = browser
 
 export const Shared: SharedValues = {
 	DATABASE_URL: 'https://uts.rafaelgomes.xyz/api',
+
+	environment: '@@environment',
+	clientId: '@@clientId',
+	clientSecret: '@@clientSecret',
+	rollbarToken: '@@rollbarToken',
+	tmdbApiKey: '@@tmdbApiKey',
 
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',

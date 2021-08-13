@@ -1,4 +1,3 @@
-import { secrets } from '@/secrets';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
@@ -58,7 +57,7 @@ class _TmdbApi {
 		}
 		try {
 			const responseText = await Requests.send({
-				url: `${this.CONFIGURATION_URL}?api_key=${secrets.tmdbApiKey}`,
+				url: `${this.CONFIGURATION_URL}?api_key=${Shared.tmdbApiKey}`,
 				method: 'GET',
 			});
 			const responseJson = JSON.parse(responseText) as TmdbConfigResponse;
@@ -133,7 +132,7 @@ class _TmdbApi {
 			type = 'movie';
 			path = item.tmdbId.toString();
 		}
-		return `${this.API_URL}/${type}/${path}/images?api_key=${secrets.tmdbApiKey}`;
+		return `${this.API_URL}/${type}/${path}/images?api_key=${Shared.tmdbApiKey}`;
 	}
 
 	/**
