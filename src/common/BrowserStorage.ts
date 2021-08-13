@@ -677,15 +677,16 @@ class _BrowserStorage {
 			const originsToAdd = [];
 			const originsToRemove = [];
 
-			for (const [id, value] of Object.entries(partialOptions.services)) {
-				if (!value || (!('scrobble' in value) && !('sync' in value))) {
+			for (const [id, partialValue] of Object.entries(partialOptions.services)) {
+				if (!partialValue || (!('scrobble' in partialValue) && !('sync' in partialValue))) {
 					continue;
 				}
 
+				const value = options.services[id];
 				const service = getService(id);
-				if (value.scrobble || value.sync) {
+				if (partialValue.scrobble || partialValue.sync) {
 					originsToAdd.push(...service.hostPatterns);
-				} else {
+				} else if (!value.scrobble && !value.sync) {
 					originsToRemove.push(...service.hostPatterns);
 				}
 			}
