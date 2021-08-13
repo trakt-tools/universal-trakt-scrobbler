@@ -261,7 +261,7 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://*.themoviedb.org/*',
 			'*://*.uts.rafaelgomes.xyz/*',
 		],
-		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
+		web_accessible_resources: ['images/*'],
 		// Uncomment this to connect to react-devtools
 		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
 	};

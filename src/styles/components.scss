@@ -9,8 +9,11 @@
 
 .tmdb-image {
 	@extend %full-view;
+	background-color: #000;
+	background-image: url('@images/trakt-icon.png');
 	background-position: center;
-	background-size: cover !important;
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
 .tmdb-image-overlay {

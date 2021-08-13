@@ -43,8 +43,6 @@ class _TmdbApi {
 	readonly CONFIGURATION_URL = `${this.API_URL}/configuration`;
 	readonly DATABASE_URL = `${Shared.DATABASE_URL}/tmdb`;
 	readonly IMAGES_DATABASE_URL = `${this.DATABASE_URL}/images`;
-	readonly PLACEHOLDER_IMAGE =
-		'https://trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png';
 
 	private config?: TmdbApiConfig | null;
 
