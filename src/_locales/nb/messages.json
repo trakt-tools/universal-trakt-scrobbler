@@ -266,7 +266,7 @@
 		"message": "Nei"
 	},
 	"noItemsSelected": {
-		"message": "No items are selected. Select some items and try again."
+		"message": "Ingen elementer er valgt. Kryss av for noen elementer og prøv på nytt."
 	},
 	"noServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
@@ -278,10 +278,10 @@
 		"message": "Ikke funnet"
 	},
 	"notLoggedIn": {
-		"message": "Not Logged In"
+		"message": "Ikke logget inn"
 	},
 	"notLoggedInDescription": {
-		"message": "Looks like you're not logged in to this service. Please go to the page below and log in before trying to sync."
+		"message": "Det ser ut som du ikke er innlogget på denne tjenesten. Forsøk å gå inn på siden nedenfor og gjør en innlogging før du forsøker å synkronisere."
 	},
 	"notWatched": {
 		"message": "Ikke registrert som sett"
@@ -299,10 +299,10 @@
 		"message": "Alternativer"
 	},
 	"profile": {
-		"message": "Profile"
+		"message": "Profil"
 	},
 	"profileDescription": {
-		"message": "This is the current profile. If this is not the profile that you want to sync, switch profiles in the service page."
+		"message": "Dette er den valgte profilen. Dersom dette ikke er profilen du ønsker å synkronisere, forsøk å bytte profilen inne på siden til strømmetjenesten."
 	},
 	"progress": {
 		"message": "Fullført: $PROGRESS$%",
@@ -402,7 +402,7 @@
 		"message": "Synkroniser historikk"
 	},
 	"syncing": {
-		"message": "Syncing"
+		"message": "Synkroniserer"
 	},
 	"systemTheme": {
 		"message": "Bestemmes av operativsystemet"
@@ -417,7 +417,7 @@
 		"message": "Veksle"
 	},
 	"unknown": {
-		"message": "Unknown"
+		"message": "Ukjent"
 	},
 	"use": {
 		"message": "Bruk"
