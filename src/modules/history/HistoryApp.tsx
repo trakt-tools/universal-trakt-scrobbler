@@ -21,21 +21,24 @@ export const HistoryApp: React.FC = () => {
 
 	return (
 		<>
-			<HistoryHeader />
 			<Router history={history}>
 				<Switch>
 					<Route
 						path="/login"
 						render={() => (
-							<Container className="history-container">
-								<LoginPage />
-							</Container>
+							<>
+								<HistoryHeader />
+								<Container className="history-container">
+									<LoginPage />
+								</Container>
+							</>
 						)}
 					/>
 					<Route
 						path="/home"
 						render={() => (
 							<LoginWrapper>
+								<HistoryHeader />
 								<Container className="history-container">
 									<HomePage />
 								</Container>
@@ -45,9 +48,12 @@ export const HistoryApp: React.FC = () => {
 					<Route
 						path="/about"
 						render={() => (
-							<Container className="history-container">
-								<AboutPage />
-							</Container>
+							<>
+								<HistoryHeader />
+								<Container className="history-container">
+									<AboutPage />
+								</Container>
+							</>
 						)}
 					/>
 					{getServices()
@@ -58,16 +64,17 @@ export const HistoryApp: React.FC = () => {
 								path={service.path}
 								render={() => (
 									<LoginWrapper>
-										<Container
-											className="history-container history-container--sync"
-											maxWidth={false}
-										>
-											<SyncProvider serviceId={service.id}>
-												<ServiceLoginWrapper>
+										<SyncProvider serviceId={service.id}>
+											<ServiceLoginWrapper>
+												<HistoryHeader />
+												<Container
+													className="history-container history-container--sync"
+													maxWidth={false}
+												>
 													<SyncPage />
-												</ServiceLoginWrapper>
-											</SyncProvider>
-										</Container>
+												</Container>
+											</ServiceLoginWrapper>
+										</SyncProvider>
 									</LoginWrapper>
 								)}
 							/>
@@ -76,11 +83,12 @@ export const HistoryApp: React.FC = () => {
 						path="/auto-sync"
 						render={() => (
 							<LoginWrapper>
-								<Container className="history-container history-container--sync" maxWidth={false}>
-									<SyncProvider serviceId={null}>
+								<SyncProvider serviceId={null}>
+									<HistoryHeader />
+									<Container className="history-container history-container--sync" maxWidth={false}>
 										<AutoSyncPage />
-									</SyncProvider>
-								</Container>
+									</Container>
+								</SyncProvider>
 							</LoginWrapper>
 						)}
 					/>

@@ -4,7 +4,8 @@ import { Tabs } from '@common/Tabs';
 import { UtsLeftRight } from '@components/UtsLeftRight';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSession } from '@contexts/SessionContext';
-import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { useSync } from '@contexts/SyncContext';
+import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HomeIcon from '@material-ui/icons/Home';
@@ -16,6 +17,7 @@ import { browser } from 'webextension-polyfill-ts';
 export const HistoryHeader: React.FC = () => {
 	const history = useHistory();
 	const { isLoggedIn } = useSession();
+	const { serviceId, service, api } = useSync();
 	const theme = useTheme();
 
 	const onRouteClick = (path: string) => {
@@ -63,6 +65,30 @@ export const HistoryHeader: React.FC = () => {
 								{I18N.translate('options')}
 							</Button>
 						</>
+					}
+					middle={
+						<Typography variant="overline">
+							{serviceId !== null ? (
+								service ? (
+									<>
+										{I18N.translate('history')} {I18N.translate('for')}{' '}
+										<Box display="inline" fontWeight="fontWeightBold">
+											{service.name}
+										</Box>
+										, {I18N.translate('profile')}:{' '}
+										<Tooltip title={I18N.translate('profileDescription')}>
+											<Box display="inline" fontWeight="fontWeightBold">
+												{api?.session?.profileName || I18N.translate('unknown')}
+											</Box>
+										</Tooltip>
+									</>
+								) : (
+									I18N.translate('history')
+								)
+							) : (
+								I18N.translate('autoSync')
+							)}
+						</Typography>
 					}
 					right={
 						<>

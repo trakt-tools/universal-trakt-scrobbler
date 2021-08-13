@@ -160,6 +160,9 @@
 	"errorNotificationServers": {
 		"message": "Não foi possível conectar com os servidores do Trakt. Estamos tentando consertar isso, por favor tente mais tarde."
 	},
+	"for": {
+		"message": "para"
+	},
 	"from": {
 		"message": "de"
 	},

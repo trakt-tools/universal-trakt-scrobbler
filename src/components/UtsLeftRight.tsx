@@ -6,13 +6,15 @@ interface UtsLeftRightProps {
 	centerVertically: boolean;
 	className?: string;
 	left: React.ReactNode;
-	right?: React.ReactNode;
+	middle?: React.ReactNode;
+	right: React.ReactNode;
 }
 
 export const UtsLeftRight: React.FC<UtsLeftRightProps> = ({
 	centerVertically,
 	className,
 	left,
+	middle,
 	right,
 }) => {
 	return (
@@ -20,6 +22,7 @@ export const UtsLeftRight: React.FC<UtsLeftRightProps> = ({
 			className={`container--left-right${centerVertically ? '--center' : ''} ${className || ''}`}
 		>
 			<Box>{left}</Box>
+			{middle && <Box>{middle}</Box>}
 			<Box>{right}</Box>
 		</Box>
 	);
@@ -29,5 +32,6 @@ UtsLeftRight.propTypes = {
 	centerVertically: PropTypes.bool.isRequired,
 	className: PropTypes.string,
 	left: PropTypes.node.isRequired,
-	right: PropTypes.node,
+	middle: PropTypes.node,
+	right: PropTypes.node.isRequired,
 };

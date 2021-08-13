@@ -100,13 +100,15 @@ export const PopupHeader: React.FC = () => {
 						</>
 					}
 					right={
-						isLoggedIn ? (
-							<Tooltip title={I18N.translate('logout')}>
-								<IconButton color="inherit" onClick={onLogoutClick}>
-									<ExitToAppIcon />
-								</IconButton>
-							</Tooltip>
-						) : undefined
+						<>
+							{isLoggedIn && (
+								<Tooltip title={I18N.translate('logout')}>
+									<IconButton color="inherit" onClick={onLogoutClick}>
+										<ExitToAppIcon />
+									</IconButton>
+								</Tooltip>
+							)}
+						</>
 					}
 				/>
 			</Toolbar>

@@ -160,6 +160,9 @@
 	"errorNotificationServers": {
 		"message": "Vi klarte ikke å nå Trakt.tv serverene. Vi forsøker å fikse det, vennligst prøv igjen senere."
 	},
+	"for": {
+		"message": "for"
+	},
 	"from": {
 		"message": "fra"
 	},
