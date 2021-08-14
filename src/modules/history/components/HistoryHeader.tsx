@@ -71,7 +71,7 @@ export const HistoryHeader: React.FC = () => {
 							{serviceId !== null ? (
 								service ? (
 									<>
-										{I18N.translate('history')} {I18N.translate('for')}{' '}
+										{I18N.translate('historyFor')}{' '}
 										<Box display="inline" fontWeight="fontWeightBold">
 											{service.name}
 										</Box>

@@ -160,9 +160,6 @@
 	"errorNotificationServers": {
 		"message": "We couldn't talk to Trakt servers. We're trying to fix it, please try again later."
 	},
-	"for": {
-		"message": "for"
-	},
 	"from": {
 		"message": "from"
 	},
@@ -180,6 +177,9 @@
 	},
 	"history": {
 		"message": "History"
+	},
+	"historyFor": {
+		"message": "History for"
 	},
 	"historySyncError": {
 		"message": "Failed to sync history."
