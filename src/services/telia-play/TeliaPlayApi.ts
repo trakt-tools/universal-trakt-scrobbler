@@ -263,6 +263,10 @@ class _TeliaPlayApi extends ServiceApi {
 		return historyItems;
 	}
 
+	getHistoryItemId(historyItem: TeliaMediaObject) {
+		return historyItem.loopId;
+	}
+
 	convertHistoryItems(historyItems: TeliaMediaObject[]) {
 		const items = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
 		return items;

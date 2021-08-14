@@ -6,7 +6,7 @@ import { Cache, CacheItems } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
-import { Item } from '@models/Item';
+import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
@@ -30,7 +30,10 @@ export interface ServiceApiSession {
 export abstract class ServiceApi {
 	readonly id: string;
 	private leftoverHistoryItems: unknown[] = [];
+	hasCheckedHistoryCache = false;
 	hasReachedHistoryEnd = false;
+	nextHistoryPage = 0;
+	nextHistoryUrl = '';
 	session: ServiceApiSession | null = null;
 
 	constructor(id: string) {
@@ -124,6 +127,13 @@ export abstract class ServiceApi {
 	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<Item[]> {
 		let items: Item[] = [];
 		try {
+			const caches = await Cache.get(['history', 'historyItemsToItems', 'items']);
+			let historyCache = caches.history.get(this.id);
+			if (!historyCache) {
+				historyCache = {
+					items: [],
+				};
+			}
 			const store = getSyncStore(this.id);
 			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
 			const historyItems: unknown[] = [];
@@ -134,40 +144,103 @@ export abstract class ServiceApi {
 					this.leftoverHistoryItems = [];
 				} else if (!this.hasReachedHistoryEnd) {
 					responseItems = await this.loadHistoryItems();
+					if (!this.hasCheckedHistoryCache) {
+						let firstItem: SavedItem | null = null;
+						if (historyCache.items.length > 0) {
+							const historyItemId = `${this.id}_${this.getHistoryItemId(historyCache.items[0])}`;
+							const itemId = caches.historyItemsToItems.get(historyItemId);
+							if (itemId) {
+								firstItem = caches.items.get(itemId) ?? null;
+							}
+						}
+						if (
+							responseItems.length > 0 &&
+							firstItem &&
+							this.isNewHistoryItem(responseItems[0], firstItem.watchedAt ?? 0, firstItem.id ?? '')
+						) {
+							historyCache = {
+								items: [],
+							};
+						}
+						this.nextHistoryPage = historyCache.nextPage ?? this.nextHistoryPage;
+						this.nextHistoryUrl = historyCache.nextUrl ?? this.nextHistoryUrl;
+						if (historyCache.items.length > 0) {
+							responseItems = historyCache.items;
+							historyCache.items = [];
+						}
+						this.hasCheckedHistoryCache = true;
+					}
+					historyCache.nextPage = this.nextHistoryPage;
+					historyCache.nextUrl = this.nextHistoryUrl;
+					historyCache.items.push(...responseItems);
 				}
-				if (responseItems.length > 0) {
-					if (lastSync > 0 && lastSyncId) {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (itemsToLoad === 0) {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								break;
-							} else if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
-								historyItems.push(responseItem);
-								itemsToLoad -= 1;
-							} else {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								hasReachedLastSyncDate = true;
-								break;
-							}
-						}
-					} else {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (itemsToLoad === 0) {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								break;
-							} else {
-								historyItems.push(responseItem);
-								itemsToLoad -= 1;
-							}
-						}
+				for (const [index, responseItem] of responseItems.entries()) {
+					if (itemsToLoad === 0) {
+						this.leftoverHistoryItems = responseItems.slice(index);
+						break;
+					} else if (
+						lastSync === 0 ||
+						!lastSyncId ||
+						this.isNewHistoryItem(responseItem, lastSync, lastSyncId)
+					) {
+						historyItems.push(responseItem);
+						itemsToLoad -= 1;
+					} else if (lastSync > 0 && lastSyncId) {
+						this.leftoverHistoryItems = responseItems.slice(index);
+						hasReachedLastSyncDate = true;
+						break;
 					}
 				}
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				items = await this.convertHistoryItems(historyItems);
+				const tmpItems: (Item | null)[] = [];
+				const historyItemsToConvert = [];
+
+				for (const historyItem of historyItems) {
+					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
+					const itemId = caches.historyItemsToItems.get(historyItemId);
+					if (itemId) {
+						const item = caches.items.get(itemId);
+						if (item) {
+							tmpItems.push(Item.load(item));
+						} else {
+							tmpItems.push(null);
+							historyItemsToConvert.push(historyItem);
+						}
+					} else {
+						tmpItems.push(null);
+						historyItemsToConvert.push(historyItem);
+					}
+				}
+
+				if (historyItemsToConvert.length > 0) {
+					const convertedItems = await this.convertHistoryItems(historyItemsToConvert);
+					let index = 0;
+					items = tmpItems.map((item) => {
+						if (item !== null) {
+							return item;
+						}
+
+						item = convertedItems[index];
+						index += 1;
+						return item;
+					});
+				} else {
+					items = tmpItems as Item[];
+				}
+
+				for (const [index, historyItem] of historyItems.entries()) {
+					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
+					const item = items[index];
+					const itemDatabaseId = item.getDatabaseId();
+					caches.historyItemsToItems.set(historyItemId, itemDatabaseId);
+					caches.items.set(itemDatabaseId, Item.save(item));
+				}
 			}
 			await store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
+			caches.history.set(this.id, historyCache);
+			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load history.', err);
@@ -196,6 +269,15 @@ export abstract class ServiceApi {
 	 */
 	isNewHistoryItem(historyItem: unknown, lastSync: number, lastSyncId: string): boolean {
 		return true;
+	}
+
+	/**
+	 * This method is responsible for returning a unique ID for a history item.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	getHistoryItemId(historyItem: unknown): string {
+		return '';
 	}
 
 	/**

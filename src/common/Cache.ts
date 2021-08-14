@@ -3,6 +3,7 @@ import { TmdbApiConfig } from '@apis/TmdbApi';
 import { TraktSettingsResponse } from '@apis/TraktSettings';
 import { TraktHistoryItem } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
 
 export type CacheItems<T extends (keyof CacheValues)[]> = {
@@ -14,7 +15,10 @@ export type CacheValues = {
 };
 
 export interface CacheSubValues {
+	history: HistoryCache;
+	historyItemsToItems: string;
 	imageUrls: string | null;
+	items: SavedItem;
 	itemsToTraktItems: string;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
@@ -38,6 +42,12 @@ export type CacheStorageKeysToKeys = ReverseMap<CacheKeysToStorageKeys>;
 export type CacheKeysToStorageKeys = {
 	[K in keyof CacheValues]: `${K}Cache`;
 };
+
+export interface HistoryCache {
+	nextPage?: number;
+	nextUrl?: string;
+	items: unknown[];
+}
 
 export class CacheItem<K extends keyof CacheValues> {
 	readonly cache: CacheValues[K];
@@ -63,7 +73,10 @@ class _Cache {
 	 * Time to live for each cached value, in seconds.
 	 */
 	private ttl: Record<keyof CacheValues, number> = {
+		history: 24 * 60 * 60,
+		historyItemsToItems: 24 * 60 * 60,
 		imageUrls: 24 * 60 * 60,
+		items: 24 * 60 * 60,
 		itemsToTraktItems: 24 * 60 * 60,
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,

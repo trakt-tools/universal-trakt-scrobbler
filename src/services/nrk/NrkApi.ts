@@ -120,7 +120,6 @@ export interface NrkSession {
 class _NrkApi extends ServiceApi {
 	HOST_URL: string;
 	API_HOST_URL: string;
-	HISTORY_API_URL: string;
 	TOKEN_URL: string;
 	USERDATA_URL: string;
 	PROGRAM_URL: string;
@@ -132,7 +131,6 @@ class _NrkApi extends ServiceApi {
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
-		this.HISTORY_API_URL = '';
 		this.TOKEN_URL = `${this.HOST_URL}/auth/token`;
 		this.USERDATA_URL = `${this.HOST_URL}/auth/userdata`;
 		this.PROGRAM_URL = '/tv/catalog/programs/';
@@ -154,7 +152,7 @@ class _NrkApi extends ServiceApi {
 		this.session = {
 			profileName: userData.name,
 		};
-		this.HISTORY_API_URL = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
+		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
 		this.isActivated = true;
 	}
 
@@ -170,7 +168,7 @@ class _NrkApi extends ServiceApi {
 			await this.activate();
 		}
 		const responseText = await Requests.send({
-			url: this.HISTORY_API_URL,
+			url: this.nextHistoryUrl,
 			method: 'GET',
 			headers: {
 				Authorization: 'Bearer ' + this.token,
@@ -179,7 +177,7 @@ class _NrkApi extends ServiceApi {
 		const responseJson = JSON.parse(responseText) as NrkProgressResponse;
 		const responseItems = responseJson.progresses;
 		if (responseJson._links.next) {
-			this.HISTORY_API_URL = this.API_HOST_URL + responseJson._links.next.href;
+			this.nextHistoryUrl = this.API_HOST_URL + responseJson._links.next.href;
 		} else {
 			this.hasReachedHistoryEnd = true;
 		}
@@ -191,6 +189,10 @@ class _NrkApi extends ServiceApi {
 			!!historyItem.registeredAt &&
 			Math.trunc(new Date(historyItem.registeredAt).getTime() / 1e3) > lastSync
 		);
+	}
+
+	getHistoryItemId(historyItem: NrkProgressItem) {
+		return historyItem.id;
 	}
 
 	convertHistoryItems(historyItems: NrkProgressItem[]) {

@@ -98,7 +98,6 @@ class _ViaplayApi extends ServiceApi {
 	HOST_URL = '';
 	API_BASE_URL = '';
 	HISTORY_API_URL = '';
-	HISTORY_API_NEXT_PAGE_URL = '';
 	AUTH_URL = '';
 	isActivated = false;
 
@@ -120,7 +119,7 @@ class _ViaplayApi extends ServiceApi {
 		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
 		this.HISTORY_API_URL = `${this.API_BASE_URL}watched`;
 		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-${region}`;
-		this.HISTORY_API_NEXT_PAGE_URL = this.HISTORY_API_URL;
+		this.nextHistoryUrl = this.HISTORY_API_URL;
 
 		const authResponseText = await Requests.send({
 			url: this.AUTH_URL,
@@ -146,11 +145,11 @@ class _ViaplayApi extends ServiceApi {
 			await this.activate();
 		}
 		const responseText = await Requests.send({
-			url: this.HISTORY_API_NEXT_PAGE_URL,
+			url: this.nextHistoryUrl,
 			method: 'GET',
 		});
 		let historyPage: ViaplayHistoryPage;
-		if (this.HISTORY_API_NEXT_PAGE_URL === this.HISTORY_API_URL) {
+		if (this.nextHistoryUrl === this.HISTORY_API_URL) {
 			//First initial load/page
 			const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
 			historyPage = responseJson._embedded['viaplay:blocks'][0];
@@ -159,7 +158,7 @@ class _ViaplayApi extends ServiceApi {
 		}
 		const responseItems = historyPage._embedded['viaplay:products'];
 		const url = historyPage._links?.next?.href;
-		this.HISTORY_API_NEXT_PAGE_URL = url;
+		this.nextHistoryUrl = url;
 		this.hasReachedHistoryEnd = !url || responseItems.length === 0;
 		return responseItems;
 	}
@@ -169,6 +168,10 @@ class _ViaplayApi extends ServiceApi {
 			!!historyItem.user.progress?.updated &&
 			Math.trunc(historyItem.user.progress?.updated / 1e3) > lastSync
 		);
+	}
+
+	getHistoryItemId(historyItem: ViaplayProduct) {
+		return historyItem.system.guid;
 	}
 
 	convertHistoryItems(historyItems: ViaplayProduct[]) {

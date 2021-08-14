@@ -189,6 +189,10 @@ class _HboGoApi extends ServiceApi {
 		return !!historyItem.Id && historyItem.Id !== lastSyncId;
 	}
 
+	getHistoryItemId(historyItem: HboGoHistoryItem) {
+		return historyItem.Id;
+	}
+
 	async convertHistoryItems(historyItems: HboGoHistoryItem[]) {
 		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));

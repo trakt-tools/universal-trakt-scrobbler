@@ -147,7 +147,6 @@ class _NetflixApi extends ServiceApi {
 	ACTIVATE_URL: string;
 	isActivated: boolean;
 	session: NetflixSession | null = null;
-	nextHistoryPage = 0;
 
 	constructor() {
 		super(NetflixService.id);
@@ -206,6 +205,10 @@ class _NetflixApi extends ServiceApi {
 
 	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number, lastSyncId: string) {
 		return historyItem.date > 0 && Math.trunc(historyItem.date / 1e3) > lastSync;
+	}
+
+	getHistoryItemId(historyItem: NetflixHistoryItem) {
+		return historyItem.movieID.toString();
 	}
 
 	async convertHistoryItems(historyItems: NetflixHistoryItem[]) {
