@@ -10,6 +10,9 @@
   <a href="https://github.com/trakt-tools/universal-trakt-scrobbler/releases">
     <img alt="GitHub Release" src="https://img.shields.io/github/release/trakt-tools/universal-trakt-scrobbler.svg">
   </a>
+	<a href="https://crowdin.com/project/universal-trakt-scrobbler" title="Crowdin" target="_blank">
+		<img src="https://badges.crowdin.net/universal-trakt-scrobbler/localized.svg">
+	</a>
 </p>
 <p align=left">
   <a href="">
