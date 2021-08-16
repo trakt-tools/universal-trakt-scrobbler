@@ -5,9 +5,7 @@ import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
-import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
 import {
 	Button,
@@ -25,15 +23,15 @@ import {
 	TextField,
 } from '@material-ui/core';
 import { Item } from '@models/Item';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface CorrectionDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	serviceId: string | null;
 	item?: Item;
+	isScrobblingItem: boolean;
 	url: string;
 }
 
@@ -81,7 +79,7 @@ export const CorrectionDialog: React.FC = () => {
 	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
-		serviceId: null,
+		isScrobblingItem: false,
 		url: '',
 	});
 
@@ -153,23 +151,14 @@ export const CorrectionDialog: React.FC = () => {
 			corrections[databaseId] = suggestion;
 			await BrowserStorage.set({ corrections }, true);
 			await CorrectionApi.saveSuggestion(newItem, suggestion);
-			await EventDispatcher.dispatch('ITEM_CORRECTED', dialog.serviceId, {
-				oldItem,
-				newItem,
-			});
-			if (Shared.pageType === 'popup') {
-				const scrobblingInfo = await Messaging.toBackground({ action: 'get-scrobbling-info' });
-				if (scrobblingInfo.tabId) {
-					await Messaging.toContent(
-						{
-							action: 'item-corrected',
-							oldItem: Item.save(oldItem),
-							newItem: Item.save(newItem),
-						},
-						scrobblingInfo.tabId
-					);
+			await EventDispatcher.dispatch(
+				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
+				null,
+				{
+					oldItem: Item.save(oldItem),
+					newItem: Item.save(newItem),
 				}
-			}
+			);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to correct item.', err);
@@ -263,7 +252,7 @@ export const CorrectionDialog: React.FC = () => {
 												  }`
 												: `(${dialog.item.year.toString()})`
 									  }`
-									: 'Unknown'
+									: I18N.translate('unknown')
 							)}
 						</DialogContentText>
 						{dialog.item?.suggestions && dialog.item.suggestions.length > 0 && (

@@ -1,24 +1,28 @@
+import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
-import { ThemeWrapper } from '@components/ThemeWrapper';
+import { AppWrapper } from '@components/AppWrapper';
 import '@options/options.html';
 import '@options/options.scss';
 import { OptionsApp } from '@options/OptionsApp';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-const init = () => {
+const init = async () => {
 	Shared.pageType = 'popup';
-	Messaging.startListeners();
+	await BrowserStorage.init();
+	Errors.init();
+	Messaging.init();
 	const root = document.querySelector('#root');
 	ReactDOM.render(
-		<ThemeWrapper>
+		<AppWrapper usesHistory={false} usesSession={false}>
 			<OptionsApp />
-		</ThemeWrapper>,
+		</AppWrapper>,
 		root
 	);
 };
 
-Messaging.messageHandlers = {};
+Messaging.addHandlers({});
 
-init();
+void init();

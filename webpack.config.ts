@@ -1,10 +1,10 @@
 import { ServiceValues } from '@models/Service';
-import * as archiver from 'archiver';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import archiver from 'archiver';
+import fs from 'fs-extra';
+import path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
-import * as webpack from 'webpack';
+import webpack from 'webpack';
 import { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
 import packageJson = require('./package.json');
@@ -122,10 +122,11 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 		module: {
 			rules: [
 				{
-					test: /secrets\.ts$/,
+					test: /Shared\.ts$/,
 					loader: 'string-replace-loader',
 					options: {
 						multiple: [
+							{ search: '@@environment', replace: mode },
 							{ search: '@@clientId', replace: config.clientId },
 							{ search: '@@clientSecret', replace: config.clientSecret },
 							{ search: '@@rollbarToken', replace: config.rollbarToken },
@@ -260,7 +261,9 @@ const getManifest = (config: Config, browserName: string): string => {
 			'*://*.themoviedb.org/*',
 			'*://*.uts.rafaelgomes.xyz/*',
 		],
-		web_accessible_resources: ['images/uts-icon-38.png', 'images/uts-icon-selected-38.png'],
+		web_accessible_resources: ['images/*'],
+		// Uncomment this to connect to react-devtools
+		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
 	};
 	switch (browserName) {
 		case 'chrome': {

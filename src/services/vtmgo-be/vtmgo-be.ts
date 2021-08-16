@@ -1,4 +1,4 @@
-import { init } from '@service';
 import '@/vtmgo-be/VtmgoBeParser';
+import { init } from '@service';
 
 void init('vtmgo-be');

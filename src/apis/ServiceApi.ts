@@ -6,7 +6,7 @@ import { Cache, CacheItems } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException } from '@common/Requests';
-import { Item } from '@models/Item';
+import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
@@ -23,10 +23,18 @@ export const getServiceApi = (id: string) => {
 	return api;
 };
 
+export interface ServiceApiSession {
+	profileName: string | null;
+}
+
 export abstract class ServiceApi {
 	readonly id: string;
 	private leftoverHistoryItems: unknown[] = [];
+	hasCheckedHistoryCache = false;
 	hasReachedHistoryEnd = false;
+	nextHistoryPage = 0;
+	nextHistoryUrl = '';
+	session: ServiceApiSession | null = null;
 
 	constructor(id: string) {
 		this.id = id;
@@ -34,15 +42,16 @@ export abstract class ServiceApi {
 		registerServiceApi(this.id, this);
 	}
 
-	static async loadTraktHistory(items: Item[]) {
-		const missingItems = items.filter(
+	static async loadTraktHistory(items: Item[], processItem?: (item: Item) => Promise<Item>) {
+		const hasLoadedTraktHistory = !items.some(
 			(item) =>
 				typeof item.trakt === 'undefined' ||
 				(item.trakt && typeof item.trakt.watchedAt === 'undefined')
 		);
-		if (missingItems.length === 0) {
-			return;
+		if (hasLoadedTraktHistory) {
+			return items;
 		}
+		let newItems = items.map((item) => item.clone());
 		try {
 			const caches = await Cache.get([
 				'itemsToTraktItems',
@@ -51,11 +60,20 @@ export abstract class ServiceApi {
 				'urlsToTraktItems',
 			]);
 			const { corrections } = await BrowserStorage.get('corrections');
-			for (const item of missingItems) {
-				const databaseId = item.getDatabaseId();
-				const correction = corrections?.[databaseId];
-				await ServiceApi.loadTraktItemHistory(item, caches, correction);
+			const promises = [];
+			for (const item of newItems) {
+				if (
+					typeof item.trakt === 'undefined' ||
+					(item.trakt && typeof item.trakt.watchedAt === 'undefined')
+				) {
+					const databaseId = item.getDatabaseId();
+					const correction = corrections?.[databaseId];
+					promises.push(ServiceApi.loadTraktItemHistory(item, caches, correction, processItem));
+				} else {
+					promises.push(Promise.resolve(item));
+				}
 			}
+			newItems = await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
@@ -65,6 +83,7 @@ export abstract class ServiceApi {
 				});
 			}
 		}
+		return newItems;
 	}
 
 	static async loadTraktItemHistory(
@@ -72,27 +91,51 @@ export abstract class ServiceApi {
 		caches: CacheItems<
 			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
 		>,
-		correction?: Suggestion
+		correction?: Suggestion,
+		processItem?: (item: Item) => Promise<Item>
 	) {
 		try {
 			if (!item.trakt) {
 				item.trakt = await TraktSearch.find(item, caches, correction);
+				if (processItem) {
+					item = await processItem(item.clone());
+				}
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
 				await TraktSync.loadHistory(item, caches.traktHistoryItems);
+				if (processItem) {
+					item = await processItem(item.clone());
+				}
 			}
 		} catch (err) {
 			if (item.trakt) {
 				delete item.trakt.watchedAt;
+			} else {
+				item.trakt = null;
+			}
+			if (processItem) {
+				item = await processItem(item.clone());
 			}
 		}
+		return item;
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<void> {
+	checkLogin(): Promise<boolean> {
+		return Promise.resolve(!!this.session && this.session.profileName !== null);
+	}
+
+	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<Item[]> {
+		let items: Item[] = [];
 		try {
+			const caches = await Cache.get(['history', 'historyItemsToItems', 'items']);
+			let historyCache = caches.history.get(this.id);
+			if (!historyCache) {
+				historyCache = {
+					items: [],
+				};
+			}
 			const store = getSyncStore(this.id);
 			let { hasReachedEnd, hasReachedLastSyncDate } = store.data;
-			let items: Item[] = [];
 			const historyItems: unknown[] = [];
 			do {
 				let responseItems: unknown[] = [];
@@ -101,31 +144,103 @@ export abstract class ServiceApi {
 					this.leftoverHistoryItems = [];
 				} else if (!this.hasReachedHistoryEnd) {
 					responseItems = await this.loadHistoryItems();
-				}
-				if (responseItems.length > 0) {
-					let filteredItems: unknown[] = [];
-					if (lastSync > 0 && lastSyncId) {
-						for (const [index, responseItem] of responseItems.entries()) {
-							if (this.isNewHistoryItem(responseItem, lastSync, lastSyncId)) {
-								filteredItems.push(responseItem);
-							} else {
-								this.leftoverHistoryItems = responseItems.slice(index);
-								hasReachedLastSyncDate = true;
-								break;
+					if (!this.hasCheckedHistoryCache) {
+						let firstItem: SavedItem | null = null;
+						if (historyCache.items.length > 0) {
+							const historyItemId = `${this.id}_${this.getHistoryItemId(historyCache.items[0])}`;
+							const itemId = caches.historyItemsToItems.get(historyItemId);
+							if (itemId) {
+								firstItem = caches.items.get(itemId) ?? null;
 							}
 						}
-					} else {
-						filteredItems = responseItems;
+						if (
+							responseItems.length > 0 &&
+							firstItem &&
+							this.isNewHistoryItem(responseItems[0], firstItem.watchedAt ?? 0, firstItem.id ?? '')
+						) {
+							historyCache = {
+								items: [],
+							};
+						}
+						this.nextHistoryPage = historyCache.nextPage ?? this.nextHistoryPage;
+						this.nextHistoryUrl = historyCache.nextUrl ?? this.nextHistoryUrl;
+						if (historyCache.items.length > 0) {
+							responseItems = historyCache.items;
+							historyCache.items = [];
+						}
+						this.hasCheckedHistoryCache = true;
 					}
-					itemsToLoad -= filteredItems.length;
-					historyItems.push(...filteredItems);
+					historyCache.nextPage = this.nextHistoryPage;
+					historyCache.nextUrl = this.nextHistoryUrl;
+					historyCache.items.push(...responseItems);
+				}
+				for (const [index, responseItem] of responseItems.entries()) {
+					if (itemsToLoad === 0) {
+						this.leftoverHistoryItems = responseItems.slice(index);
+						break;
+					} else if (
+						lastSync === 0 ||
+						!lastSyncId ||
+						this.isNewHistoryItem(responseItem, lastSync, lastSyncId)
+					) {
+						historyItems.push(responseItem);
+						itemsToLoad -= 1;
+					} else if (lastSync > 0 && lastSyncId) {
+						this.leftoverHistoryItems = responseItems.slice(index);
+						hasReachedLastSyncDate = true;
+						break;
+					}
 				}
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				items = await this.convertHistoryItems(historyItems);
+				const tmpItems: (Item | null)[] = [];
+				const historyItemsToConvert = [];
+
+				for (const historyItem of historyItems) {
+					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
+					const itemId = caches.historyItemsToItems.get(historyItemId);
+					if (itemId) {
+						const item = caches.items.get(itemId);
+						if (item) {
+							tmpItems.push(Item.load(item));
+						} else {
+							tmpItems.push(null);
+							historyItemsToConvert.push(historyItem);
+						}
+					} else {
+						tmpItems.push(null);
+						historyItemsToConvert.push(historyItem);
+					}
+				}
+
+				if (historyItemsToConvert.length > 0) {
+					const convertedItems = await this.convertHistoryItems(historyItemsToConvert);
+					let index = 0;
+					items = tmpItems.map((item) => {
+						if (item !== null) {
+							return item;
+						}
+
+						item = convertedItems[index];
+						index += 1;
+						return item;
+					});
+				} else {
+					items = tmpItems as Item[];
+				}
+
+				for (const [index, historyItem] of historyItems.entries()) {
+					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
+					const item = items[index];
+					const itemDatabaseId = item.getDatabaseId();
+					caches.historyItemsToItems.set(historyItemId, itemDatabaseId);
+					caches.items.set(itemDatabaseId, Item.save(item));
+				}
 			}
-			store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
+			await store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
+			caches.history.set(this.id, historyCache);
+			await Cache.set(caches);
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to load history.', err);
@@ -135,6 +250,7 @@ export abstract class ServiceApi {
 			}
 			throw err;
 		}
+		return items;
 	}
 
 	/**
@@ -153,6 +269,15 @@ export abstract class ServiceApi {
 	 */
 	isNewHistoryItem(historyItem: unknown, lastSync: number, lastSyncId: string): boolean {
 		return true;
+	}
+
+	/**
+	 * This method is responsible for returning a unique ID for a history item.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	getHistoryItemId(historyItem: unknown): string {
+		return '';
 	}
 
 	/**

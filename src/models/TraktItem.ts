@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface ITraktItem extends TraktItemBase {
 	releaseDate?: moment.Moment;

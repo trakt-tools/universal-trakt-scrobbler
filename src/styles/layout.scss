@@ -35,8 +35,27 @@ body {
 .container--left-right,
 .container--left-right--center {
 	display: flex;
-	justify-content: space-between;
 	width: 100%;
+
+	// Left container
+	> :first-child {
+		flex: 1;
+	}
+
+	// Middle container
+	> :nth-child(2) {
+		text-align: center;
+
+		// This means the next sibling (which is the right container), so the right container only grows if there's a middle container, to prevent the left container from overflowing
+		& + * {
+			flex: 1;
+		}
+	}
+
+	// Right container
+	> :last-child {
+		text-align: right;
+	}
 }
 
 .container--left-right--center {

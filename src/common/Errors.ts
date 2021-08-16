@@ -1,36 +1,55 @@
-import { secrets } from '@/secrets';
 import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, ScrobbleErrorData, SearchErrorData } from '@common/Events';
+import {
+	EventDispatcher,
+	ScrobbleErrorData,
+	SearchErrorData,
+	StorageOptionsChangeData,
+} from '@common/Events';
 import { RequestException } from '@common/Requests';
-import * as React from 'react';
-import * as Rollbar from 'rollbar';
+import { Shared } from '@common/Shared';
+import React from 'react';
+import Rollbar from 'rollbar';
 
 class _Errors {
 	rollbar?: Rollbar;
 
-	startRollbar(): void {
-		this.rollbar = Rollbar.init({
-			accessToken: secrets.rollbarToken,
-			autoInstrument: {
-				network: false, // Do not set to true on Firefox (see https://github.com/rollbar/rollbar.js/issues/638).
-			},
-			captureIp: false,
-			captureUncaught: true,
-			captureUnhandledRejections: true,
-			payload: {
-				environment: 'production',
-			},
-		});
-		window.Rollbar = this.rollbar;
-	}
-
-	startListeners(): void {
+	init() {
+		this.checkRollbar();
+		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 		EventDispatcher.subscribe('SCROBBLE_ERROR', null, (data: ScrobbleErrorData) =>
 			this.onItemError(data, 'scrobble')
 		);
 		EventDispatcher.subscribe('SEARCH_ERROR', null, (data: SearchErrorData) =>
 			this.onItemError(data, 'find')
 		);
+	}
+
+	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+		if (data.options && 'allowRollbar' in data.options) {
+			this.checkRollbar();
+		}
+	};
+
+	checkRollbar() {
+		const { allowRollbar } = BrowserStorage.options;
+		if (allowRollbar && !this.rollbar) {
+			this.rollbar = new Rollbar({
+				accessToken: Shared.rollbarToken,
+				autoInstrument: {
+					network: false, // Do not set to true on Firefox (see https://github.com/rollbar/rollbar.js/issues/638).
+				},
+				captureIp: false,
+				captureUncaught: true,
+				captureUnhandledRejections: true,
+				payload: {
+					environment: Shared.environment,
+				},
+			});
+			window.Rollbar = this.rollbar;
+		} else if (!allowRollbar && this.rollbar) {
+			delete this.rollbar;
+			delete window.Rollbar;
+		}
 	}
 
 	async onItemError(

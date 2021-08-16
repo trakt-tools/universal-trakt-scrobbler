@@ -1,22 +1,26 @@
-import { History } from 'history';
 import { browser } from 'webextension-polyfill-ts';
 
-interface SharedValues {
+export interface SharedValues {
 	DATABASE_URL: string;
+
+	environment: string;
+	clientId: string;
+	clientSecret: string;
+	rollbarToken: string;
+	tmdbApiKey: string;
 
 	browser: BrowserName;
 	pageType: PageType;
 	tabId: number | null;
-	history?: History;
 	redirectPath?: string;
 	dateFormat: string;
 }
 
-type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
+export type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
 
-type BrowserName = 'firefox' | 'chrome' | 'unknown';
+export type BrowserName = 'firefox' | 'chrome' | 'unknown';
 
-type PageType = 'content' | 'popup' | 'background';
+export type PageType = 'content' | 'popup' | 'background';
 
 const browsers: Record<BrowserPrefix, BrowserName> = {
 	moz: 'firefox',
@@ -29,6 +33,12 @@ const browserPrefix = browser
 
 export const Shared: SharedValues = {
 	DATABASE_URL: 'https://uts.rafaelgomes.xyz/api',
+
+	environment: '@@environment',
+	clientId: '@@clientId',
+	clientSecret: '@@clientSecret',
+	rollbarToken: '@@rollbarToken',
+	tmdbApiKey: '@@tmdbApiKey',
 
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',

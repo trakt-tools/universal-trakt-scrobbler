@@ -1,21 +1,35 @@
 import { BrowserStorage } from '@common/BrowserStorage';
+import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
+import { useHistory } from '@contexts/HistoryContext';
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import { getServices, Service } from '@models/Service';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 
 export const HomePage: React.FC = () => {
 	const history = useHistory();
-	const [currentServices, setServices] = useState([] as Service[]);
+	const [services, setServices] = useState([] as Service[]);
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
 	};
 
 	useEffect(() => {
+		const startListeners = () => {
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
+
+		const stopListeners = () => {
+			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+		};
+
+		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+			if (data.options?.services) {
+				checkEnabledServices();
+			}
+		};
+
 		const checkEnabledServices = () => {
 			const serviceOptions = BrowserStorage.options.services;
 			const enabledServices = getServices().filter(
@@ -24,16 +38,18 @@ export const HomePage: React.FC = () => {
 			setServices(enabledServices);
 		};
 
+		startListeners();
 		checkEnabledServices();
+		return stopListeners;
 	}, []);
 
 	return (
 		<HistoryInfo>
-			{currentServices.length > 0 ? (
+			{services.length > 0 ? (
 				<>
 					<Typography variant="h6">{I18N.translate('selectService')}</Typography>
 					<List>
-						{currentServices.map((service) => (
+						{services.map((service) => (
 							<ListItem
 								key={service.id}
 								button={true}

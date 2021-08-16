@@ -3,6 +3,20 @@
 
 $sidebarWidth: 300px;
 
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+}
+
+#root {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+}
+
 .history-actions {
 	display: flex;
 	justify-content: center;
@@ -15,27 +29,24 @@ $sidebarWidth: 300px;
 
 .history-actions--container {
 	background-color: #fff;
-	bottom: 0;
-	left: 0;
-	position: fixed;
-	right: 0;
 }
 
 .history-container {
 	padding-top: 16px;
-}
 
-.history-container-message {
-	padding-bottom: 100px;
-	padding-left: $sidebarWidth;
-	text-align: center;
-	width: 100%;
+	&.history-container--sync {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		padding: 0;
+	}
 }
 
 .history-content {
 	display: flex;
+	flex: 1;
+	height: 100%;
 	justify-content: center;
-	padding-bottom: 100px;
 	padding-left: $sidebarWidth;
 }
 
@@ -59,7 +70,10 @@ $sidebarWidth: 300px;
 
 .history-list-item {
 	display: flex;
+	left: 50% !important;
 	justify-content: end;
+	transform: translateX(-50%);
+	width: auto !important;
 
 	> * {
 		margin: 0 8px;
@@ -110,6 +124,14 @@ $sidebarWidth: 300px;
 .history-list-item-divider {
 	margin: 8px 0;
 	width: 100%;
+}
+
+.history-list-item-message {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	text-align: center;
 }
 
 .history-options-list-container {

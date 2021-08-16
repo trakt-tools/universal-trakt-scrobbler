@@ -2,7 +2,7 @@ import { TeliaPlayService } from '@/telia-play/TeliaPlayService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { Item } from '@models/Item';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface TeliaContinueWatchingList {
 	list: TeliaContinueWatchingItem[];
@@ -156,7 +156,18 @@ class _TeliaPlayApi extends ServiceApi {
 		const responseJson = JSON.parse(response) as TeliaAuth;
 		this.jwt = responseJson.token.accessToken;
 
+		this.session = {
+			profileName: '',
+		};
+
 		this.isActivated = true;
+	}
+
+	async checkLogin() {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		return !!this.session && this.session.profileName !== null;
 	}
 
 	async loadHistoryItems(): Promise<TeliaMediaObject[]> {
@@ -250,6 +261,10 @@ class _TeliaPlayApi extends ServiceApi {
 		this.hasReachedHistoryEnd = true;
 
 		return historyItems;
+	}
+
+	getHistoryItemId(historyItem: TeliaMediaObject) {
+		return historyItem.loopId;
 	}
 
 	convertHistoryItems(historyItems: TeliaMediaObject[]) {

@@ -1,14 +1,19 @@
 import { TraktSearchItem } from '@apis/TraktSearch';
 import {
-	ServiceValue,
+	BrowserStorage,
+	ScrobblingDetails,
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
 } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
+import { DispatchEventMessage, Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Color } from '@material-ui/lab';
 import { Item, SavedItem } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+import { SavedTraktItem } from '@models/TraktItem';
+import { SyncStore } from '@stores/SyncStore';
+import { PartialDeep } from 'type-fest';
 
 export interface EventData {
 	LOGIN_SUCCESS: LoginSuccessData;
@@ -17,33 +22,34 @@ export interface EventData {
 	LOGOUT_ERROR: ErrorData;
 	SCROBBLE_SUCCESS: ScrobbleSuccessData;
 	SCROBBLE_ERROR: ScrobbleErrorData;
-	SCROBBLE_ACTIVE: SuccessData;
-	SCROBBLE_INACTIVE: SuccessData;
-	SCROBBLE_START: ScrobbleStartData;
-	SCROBBLE_PAUSE: SuccessData;
-	SCROBBLE_STOP: SuccessData;
-	SCROBBLE_PROGRESS: ScrobbleProgressData;
+	SCROBBLE_START: ScrobblingDetails;
+	SCROBBLE_PAUSE: ScrobblingDetails;
+	SCROBBLE_STOP: ScrobblingDetails;
+	SCROBBLE_PROGRESS: ScrobblingDetails;
 	SEARCH_SUCCESS: SearchSuccessData;
 	SEARCH_ERROR: SearchErrorData;
-	OPTIONS_CHANGE: OptionsChangeData<keyof StorageValuesOptions>;
-	SERVICE_OPTIONS_CHANGE: ServiceOptionsChangeData;
-	OPTIONS_CLEAR: SuccessData;
+	OPTIONS_CHANGE: PartialDeep<StorageValuesOptions>;
 	DIALOG_SHOW: DialogShowData;
 	SNACKBAR_SHOW: SnackbarShowData;
 	MISSING_WATCHED_DATE_DIALOG_SHOW: MissingWatchedDateDialogShowData;
 	MISSING_WATCHED_DATE_ADDED: MissingWatchedDateAddedData;
 	CORRECTION_DIALOG_SHOW: CorrectionDialogShowData;
 	ITEM_CORRECTED: ItemCorrectedData;
-	HISTORY_OPTIONS_CHANGE: HistoryOptionsChangeData;
-	SYNC_STORE_UPDATE: SyncStoreUpdateData;
+	SCROBBLING_ITEM_CORRECTED: ItemCorrectedData;
+	SYNC_OPTIONS_CHANGE: PartialDeep<StorageValuesSyncOptions>;
+	SYNC_STORE_RESET: SuccessData;
 	SERVICE_HISTORY_LOAD_ERROR: ErrorData;
-	SERVICE_HISTORY_CHANGE: ServiceHistoryChangeData;
 	TRAKT_HISTORY_LOAD_ERROR: ErrorData;
 	HISTORY_SYNC_SUCCESS: HistorySyncSuccessData;
 	HISTORY_SYNC_ERROR: ErrorData;
 	REQUESTS_CANCEL: RequestsCancelData;
-	STORAGE_OPTIONS_CHANGE: SuccessData;
-	SCROBBLING_ITEM_UPDATE: ScrobblingItemUpdateData;
+	STORAGE_OPTIONS_CHANGE: StorageOptionsChangeData;
+	STORAGE_OPTIONS_CLEAR: SuccessData;
+	CONTENT_SCRIPT_DISCONNECT: ContentScriptDisconnectData;
+	SYNC_DIALOG_SHOW: SyncDialogShowData;
+	ITEMS_LOAD: ItemsLoadData;
+	SYNC_STORE_LOADING_START: SuccessData;
+	SYNC_STORE_LOADING_STOP: SuccessData;
 }
 
 export type Event = keyof EventData;
@@ -59,21 +65,13 @@ export interface LoginSuccessData {
 }
 
 export interface ScrobbleSuccessData {
-	item?: TraktItem;
+	item?: SavedTraktItem;
 	scrobbleType: number;
 }
 
 export type ScrobbleErrorData = ScrobbleSuccessData & {
 	error: RequestException;
 };
-
-export interface ScrobbleStartData {
-	item?: SavedItem;
-}
-
-export interface ScrobbleProgressData {
-	progress: number;
-}
 
 export interface SearchSuccessData {
 	searchItem: TraktSearchItem;
@@ -83,19 +81,9 @@ export interface SearchErrorData {
 	error: RequestException;
 }
 
-export interface OptionsChangeData<K extends keyof StorageValuesOptions> {
-	id: K;
-	value: StorageValuesOptions[K];
-}
-
-export type ServiceOptionsChangeData = {
-	id: string;
-	value: Partial<ServiceValue>;
-}[];
-
 export interface DialogShowData {
-	title: string;
-	message: string;
+	title: string | React.ReactNode;
+	message: string | React.ReactNode;
 	onConfirm?: () => void;
 	onDeny?: () => void;
 }
@@ -107,36 +95,22 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	serviceId: string | null;
 	items: Item[];
 }
 
 export interface MissingWatchedDateAddedData {
-	items: Item[];
+	oldItems: Item[];
+	newItems: Item[];
 }
 
 export interface CorrectionDialogShowData {
-	serviceId: string | null;
 	item?: Item;
+	isScrobblingItem: boolean;
 }
 
 export interface ItemCorrectedData {
-	oldItem: Item;
-	newItem: Item;
-}
-
-export interface HistoryOptionsChangeData {
-	id: keyof StorageValuesSyncOptions;
-	value: boolean | number;
-}
-
-export interface SyncStoreUpdateData {
-	visibleItemsChanged: boolean;
-}
-
-export interface ServiceHistoryChangeData {
-	index?: number;
-	checked: boolean;
+	oldItem: SavedItem;
+	newItem: SavedItem;
 }
 
 export interface HistorySyncSuccessData {
@@ -150,8 +124,27 @@ export interface RequestsCancelData {
 	key: string;
 }
 
-export interface ScrobblingItemUpdateData {
-	scrobblingItem?: SavedItem;
+export interface StorageOptionsChangeData {
+	options?: PartialDeep<StorageValuesOptions>;
+	syncOptions?: PartialDeep<StorageValuesSyncOptions>;
+}
+
+export interface ContentScriptDisconnectData {
+	tabId: number;
+}
+
+export interface SyncDialogShowData {
+	store: SyncStore;
+	serviceId: string | null;
+	items: Item[];
+}
+
+export interface ItemsUpdateData {
+	items: Item[];
+}
+
+export interface ItemsLoadData {
+	items: Partial<Record<number, Item | null>>;
 }
 
 export type EventDispatcherListeners = Record<
@@ -162,6 +155,23 @@ export type EventDispatcherListeners = Record<
 export type EventDispatcherListener<K extends Event> = (data: EventData[K]) => void | Promise<void>;
 
 class _EventDispatcher {
+	/**
+	 * Events that are dispatched to all extension pages and content pages.
+	 *
+	 * **Make sure that all data for global events can be serialized (for example, functions and class instances cannot be passed through global events).**
+	 */
+	GLOBAL_EVENTS: Event[] = [
+		'SCROBBLE_SUCCESS',
+		'SCROBBLE_ERROR',
+		'SCROBBLE_START',
+		'SCROBBLE_PAUSE',
+		'SCROBBLE_STOP',
+		'SCROBBLE_PROGRESS',
+		'SEARCH_ERROR',
+		'SCROBBLING_ITEM_CORRECTED',
+		'STORAGE_OPTIONS_CHANGE',
+	];
+
 	globalSpecifier = 'all';
 	listeners: EventDispatcherListeners;
 
@@ -207,8 +217,38 @@ class _EventDispatcher {
 	async dispatch<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
-		data: EventData[K]
+		data: EventData[K],
+		isExternal = false
 	): Promise<void> {
+		if (isExternal && eventType === 'STORAGE_OPTIONS_CHANGE') {
+			const { options, syncOptions } = data as StorageOptionsChangeData;
+			if (options) {
+				BrowserStorage.updateOptions(options);
+			}
+			if (syncOptions) {
+				BrowserStorage.updateSyncOptions(syncOptions);
+			}
+		}
+
+		// Dispatch the event to all other pages
+		if (!isExternal && this.GLOBAL_EVENTS.includes(eventType)) {
+			const message: DispatchEventMessage = {
+				action: 'dispatch-event',
+				eventType,
+				eventSpecifier,
+				data,
+			};
+			switch (Shared.pageType) {
+				case 'background':
+				case 'popup':
+					void Messaging.toAllContent(message);
+				// falls through
+				case 'content':
+					void Messaging.toExtension(message);
+					break;
+			}
+		}
+
 		if (!eventSpecifier) {
 			eventSpecifier = this.globalSpecifier;
 		}

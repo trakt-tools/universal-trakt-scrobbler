@@ -15,9 +15,10 @@ class _BrowserAction {
 	currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 	rotating: BrowserActionRotating | null = null;
 
-	startListeners() {
-		EventDispatcher.subscribe('SCROBBLE_ACTIVE', null, this.onScrobbleActive);
-		EventDispatcher.subscribe('SCROBBLE_INACTIVE', null, this.onScrobbleInactive);
+	init() {
+		EventDispatcher.subscribe('SCROBBLE_START', null, this.onScrobbleActive);
+		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onScrobbleInactive);
+		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onScrobbleInactive);
 	}
 
 	onScrobbleActive = () => {
@@ -32,7 +33,7 @@ class _BrowserAction {
 		if (Shared.pageType === 'background') {
 			await browser.browserAction.setTitle({ title });
 		} else {
-			await Messaging.toBackground({ action: 'set-title', title });
+			await Messaging.toExtension({ action: 'set-title', title });
 		}
 	}
 
@@ -48,7 +49,7 @@ class _BrowserAction {
 				});
 			}
 		} else {
-			await Messaging.toBackground({ action: 'set-active-icon' });
+			await Messaging.toExtension({ action: 'set-active-icon' });
 		}
 	}
 
@@ -64,7 +65,7 @@ class _BrowserAction {
 				});
 			}
 		} else {
-			await Messaging.toBackground({ action: 'set-inactive-icon' });
+			await Messaging.toExtension({ action: 'set-inactive-icon' });
 		}
 	}
 
@@ -83,7 +84,7 @@ class _BrowserAction {
 			image.onload = () => void this.rotateIcon();
 			image.src = this.currentIcon;
 		} else {
-			await Messaging.toBackground({ action: 'set-rotating-icon' });
+			await Messaging.toExtension({ action: 'set-rotating-icon' });
 		}
 	}
 
@@ -93,7 +94,7 @@ class _BrowserAction {
 				this.rotating.canceled = true;
 			}
 		} else {
-			await Messaging.toBackground({ action: 'set-static-icon' });
+			await Messaging.toExtension({ action: 'set-static-icon' });
 		}
 	}
 

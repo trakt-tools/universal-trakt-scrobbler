@@ -1,9 +1,9 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { Errors } from '@common/Errors';
+import { Event, EventData, EventDispatcher } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
-import { SavedItem } from '@models/Item';
 import { browser, Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
 
 export type MessageRequest = MessageRequests[keyof MessageRequests];
@@ -11,7 +11,7 @@ export type MessageRequest = MessageRequests[keyof MessageRequests];
 export interface MessageRequests {
 	'open-tab': OpenTabMessage;
 	'get-tab-id': GetTabIdMessage;
-	'check-login': CheckLoginMessage;
+	'validate-trakt-token': ValidateTraktTokenMessage;
 	'finish-login': FinishLoginMessage;
 	login: LoginMessage;
 	logout: LogoutMessage;
@@ -20,15 +20,10 @@ export interface MessageRequests {
 	'set-inactive-icon': SetInactiveIconMessage;
 	'set-rotating-icon': SetRotatingIconMessage;
 	'set-static-icon': SetStaticIconMessage;
-	'start-scrobble': StartScrobbleMessage;
-	'pause-scrobble': PauseScrobbleMessage;
-	'stop-scrobble': StopScrobbleMessage;
-	'update-scrobbling-item': UpdateScrobblingItemMessage;
-	'get-scrobbling-info': GetScrobblingInfoMessage;
 	'send-request': SendRequestMessage;
 	'show-notification': ShowNotificationMessage;
-	'item-corrected': ItemCorrectedMessage;
-	'check-auto-sync': CheckAutoSyncMessage;
+	'dispatch-event': DispatchEventMessage;
+	'send-to-all-content': SendToAllContentMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
@@ -36,7 +31,7 @@ export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
 export interface ReturnTypes {
 	'open-tab': WebExtTabs.Tab | null;
 	'get-tab-id': number | null;
-	'check-login': TraktAuthDetails | null;
+	'validate-trakt-token': TraktAuthDetails | null;
 	'finish-login': void;
 	login: TraktAuthDetails;
 	logout: void;
@@ -45,19 +40,10 @@ export interface ReturnTypes {
 	'set-inactive-icon': void;
 	'set-rotating-icon': void;
 	'set-static-icon': void;
-	'start-scrobble': void;
-	'pause-scrobble': void;
-	'stop-scrobble': void;
-	'update-scrobbling-item': void;
-	'get-scrobbling-info': {
-		item: SavedItem | null;
-		tabId: number | null;
-		isPaused: boolean;
-	};
 	'send-request': string;
 	'show-notification': void;
-	'item-corrected': void;
-	'check-auto-sync': void;
+	'dispatch-event': void;
+	'send-to-all-content': void;
 }
 
 export interface OpenTabMessage {
@@ -70,8 +56,8 @@ export interface GetTabIdMessage {
 	action: 'get-tab-id';
 }
 
-export interface CheckLoginMessage {
-	action: 'check-login';
+export interface ValidateTraktTokenMessage {
+	action: 'validate-trakt-token';
 }
 
 export interface FinishLoginMessage {
@@ -119,62 +105,43 @@ export interface ShowNotificationMessage {
 	message: string;
 }
 
-export interface StartScrobbleMessage {
-	action: 'start-scrobble';
-	item: SavedItem;
+export interface DispatchEventMessage<T extends Event = Event> {
+	action: 'dispatch-event';
+	eventType: T;
+	eventSpecifier: string | null;
+	data: EventData[T];
 }
 
-export interface PauseScrobbleMessage {
-	action: 'pause-scrobble';
+export interface SendToAllContentMessage {
+	action: 'send-to-all-content';
+	message: Exclude<MessageRequest, SendToAllContentMessage>;
 }
 
-export interface StopScrobbleMessage {
-	action: 'stop-scrobble';
-}
-
-export interface UpdateScrobblingItemMessage {
-	action: 'update-scrobbling-item';
-	item: SavedItem;
-}
-
-export interface GetScrobblingInfoMessage {
-	action: 'get-scrobbling-info';
-}
-
-export interface ItemCorrectedMessage {
-	action: 'item-corrected';
-	oldItem: SavedItem;
-	newItem: SavedItem;
-}
-
-export interface CheckAutoSyncMessage {
-	action: 'check-auto-sync';
-}
+export type MessageHandlers = {
+	[K in keyof MessageRequests]?: (
+		message: MessageRequests[K],
+		tabId: number | null
+	) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
+};
 
 class _Messaging {
 	/**
 	 * Returning undefined from a message handler means that the response will not be sent back. This is useful for situations where a message is received in multiple places (background, popup, ...) but only one of them is responsible for responding, while the others simply receive the message and do something with it.
 	 */
-	messageHandlers: {
-		[K in keyof MessageRequests]?: (
-			message: MessageRequests[K],
-			tabId: number | null
-		) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
-	} = {};
+	private messageHandlers: MessageHandlers = {
+		'dispatch-event': (message) =>
+			EventDispatcher.dispatch(message.eventType, message.eventSpecifier, message.data, true),
+	};
 
 	ports = new Map<number, WebExtRuntime.Port>();
 
-	startListeners() {
-		if (Shared.pageType === 'content') {
-			browser.runtime.connect();
-		} else if (Shared.pageType === 'background') {
+	init() {
+		if (Shared.pageType === 'background') {
 			browser.runtime.onConnect.addListener(this.onConnect);
+		} else if (Shared.pageType === 'content') {
+			browser.runtime.connect();
 		}
 		browser.runtime.onMessage.addListener(this.onMessage);
-	}
-
-	stoptListeners() {
-		browser.runtime.onMessage.removeListener(this.onMessage);
 	}
 
 	private onConnect = (port: WebExtRuntime.Port) => {
@@ -186,13 +153,9 @@ class _Messaging {
 		this.ports.set(tabId, port);
 		port.onDisconnect.addListener(() => {
 			this.ports.delete(tabId);
-			if (this.onPortDisconnected) {
-				void this.onPortDisconnected(port, tabId);
-			}
+			void EventDispatcher.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
 		});
 	};
-
-	onPortDisconnected: ((port: WebExtRuntime.Port, tabId: number) => Promisable<void>) | null = null;
 
 	private onMessage = <T extends MessageRequest>(
 		message: T,
@@ -214,14 +177,50 @@ class _Messaging {
 		});
 	};
 
-	async toBackground<T extends MessageRequest>(message: T): Promise<ReturnType<T>> {
-		const response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
+	addHandlers(messageHandlers: MessageHandlers) {
+		this.messageHandlers = {
+			...this.messageHandlers,
+			...messageHandlers,
+		};
+	}
+
+	/**
+	 * Sends a message to all extension pages (so it will be sent to the background page, the popup page, the history page and the options page, if all of them are open).
+	 */
+	async toExtension<T extends MessageRequest>(message: T): Promise<ReturnType<T>> {
+		let response = null as ReturnType<T>;
+		try {
+			response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
+		} catch (err) {
+			// Do nothing
+		}
 		return response;
 	}
 
+	/**
+	 * Sends a message to a specific content page (for example, the page that is currently scrobbling).
+	 */
 	async toContent<T extends MessageRequest>(message: T, tabId: number): Promise<ReturnType<T>> {
 		const response = ((await browser.tabs.sendMessage(tabId, message)) ?? null) as ReturnType<T>;
 		return response;
+	}
+
+	/**
+	 * Sends a message to all content pages.
+	 */
+	async toAllContent<T extends Exclude<MessageRequest, SendToAllContentMessage>>(
+		message: T
+	): Promise<void> {
+		if (Shared.pageType !== 'background') {
+			return this.toExtension({
+				action: 'send-to-all-content',
+				message,
+			});
+		}
+
+		for (const tabId of this.ports.keys()) {
+			await this.toContent(message, tabId);
+		}
 	}
 }
 

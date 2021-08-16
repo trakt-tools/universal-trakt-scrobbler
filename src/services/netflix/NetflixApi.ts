@@ -1,10 +1,10 @@
 import { NetflixService } from '@/netflix/NetflixService';
-import { ServiceApi } from '@apis/ServiceApi';
+import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
 import { RequestException, Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Item } from '@models/Item';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -19,6 +19,7 @@ export interface NetflixGlobalObject {
 			userInfo: {
 				data: {
 					authURL: string;
+					name: string | null;
 				};
 			};
 			serverDefs: {
@@ -36,7 +37,7 @@ export interface NetflixPlayerState {
 	};
 }
 
-export interface NetflixApiParams {
+export interface NetflixSession extends ServiceApiSession {
 	authUrl: string;
 	buildIdentifier: string;
 }
@@ -144,11 +145,8 @@ class _NetflixApi extends ServiceApi {
 	HOST_URL: string;
 	API_URL: string;
 	ACTIVATE_URL: string;
-	AUTH_REGEX: RegExp;
-	BUILD_IDENTIFIER_REGEX: RegExp;
 	isActivated: boolean;
-	apiParams: Partial<NetflixApiParams>;
-	nextHistoryPage = 0;
+	session: NetflixSession | null = null;
 
 	constructor() {
 		super(NetflixService.id);
@@ -156,53 +154,46 @@ class _NetflixApi extends ServiceApi {
 		this.HOST_URL = 'https://www.netflix.com';
 		this.API_URL = `${this.HOST_URL}/api/shakti`;
 		this.ACTIVATE_URL = `${this.HOST_URL}/Activate`;
-		this.AUTH_REGEX = /"authURL":"(.*?)"/;
-		this.BUILD_IDENTIFIER_REGEX = /"BUILD_IDENTIFIER":"(.*?)"/;
 
 		this.isActivated = false;
-		this.apiParams = {};
-	}
-
-	extractAuthUrl(text: string): string | undefined {
-		return this.AUTH_REGEX.exec(text)?.[1];
-	}
-
-	extractBuildIdentifier(text: string): string | undefined {
-		return this.BUILD_IDENTIFIER_REGEX.exec(text)?.[1];
 	}
 
 	async activate() {
-		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the API params.
-		const apiParams = await this.getApiParams();
-		if (apiParams && this.checkParams(apiParams)) {
-			this.apiParams.authUrl = apiParams.authUrl;
-			this.apiParams.buildIdentifier = apiParams.buildIdentifier;
-		} else {
-			const responseText = await Requests.send({
-				url: this.ACTIVATE_URL,
-				method: 'GET',
-			});
-			this.apiParams.authUrl = this.extractAuthUrl(responseText);
-			this.apiParams.buildIdentifier = this.extractBuildIdentifier(responseText);
+		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the session.
+		try {
+			this.session = await this.getSession();
+			if (!this.session) {
+				const responseText = await Requests.send({
+					url: this.ACTIVATE_URL,
+					method: 'GET',
+				});
+				this.session = this.extractSession(responseText);
+			}
+			if (this.session) {
+				this.isActivated = true;
+			}
+		} catch (err) {
+			Errors.log(`Failed to activate ${this.id} API`, err);
+			throw new Error('Failed to activate API');
 		}
-		this.isActivated = true;
 	}
 
-	checkParams(apiParams: Partial<NetflixApiParams>): apiParams is NetflixApiParams {
-		return (
-			typeof apiParams.authUrl !== 'undefined' && typeof apiParams.buildIdentifier !== 'undefined'
-		);
+	async checkLogin() {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		return !!this.session && this.session.profileName !== null;
 	}
 
 	async loadHistoryItems(): Promise<NetflixHistoryItem[]> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
-		if (!this.checkParams(this.apiParams)) {
-			throw new Error('Invalid API params');
+		if (!this.session) {
+			throw new Error('Invalid session');
 		}
 		const responseText = await Requests.send({
-			url: `${this.API_URL}/${this.apiParams.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.apiParams.authUrl}&pg=${this.nextHistoryPage}`,
+			url: `${this.API_URL}/${this.session.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.session.authUrl}&pg=${this.nextHistoryPage}`,
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
@@ -216,20 +207,24 @@ class _NetflixApi extends ServiceApi {
 		return historyItem.date > 0 && Math.trunc(historyItem.date / 1e3) > lastSync;
 	}
 
+	getHistoryItemId(historyItem: NetflixHistoryItem) {
+		return historyItem.movieID.toString();
+	}
+
 	async convertHistoryItems(historyItems: NetflixHistoryItem[]) {
 		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
 	}
 
 	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
-		if (!this.checkParams(this.apiParams)) {
-			throw new Error('Invalid API params');
+		if (!this.session) {
+			throw new Error('Invalid session');
 		}
 		let historyItemsWithMetadata: NetflixHistoryItemWithMetadata[] = [];
 		const responseText = await Requests.send({
-			url: `${this.API_URL}/${this.apiParams.buildIdentifier}/pathEvaluator?languages=en-US`,
+			url: `${this.API_URL}/${this.session.buildIdentifier}/pathEvaluator?languages=en-US`,
 			method: 'POST',
-			body: `authURL=${this.apiParams.authUrl}&${historyItems
+			body: `authURL=${this.session.authUrl}&${historyItems
 				.map((historyItem) => `path=["videos",${historyItem.movieID},["releaseYear","summary"]]`)
 				.join('&')}`,
 		});
@@ -263,7 +258,7 @@ class _NetflixApi extends ServiceApi {
 		const id = historyItem.movieID.toString();
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
-		const watchedAt = moment(historyItem.date + historyItem.duration * 1000);
+		const watchedAt = moment(historyItem.date);
 		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
@@ -308,12 +303,12 @@ class _NetflixApi extends ServiceApi {
 		if (!this.isActivated) {
 			await this.activate();
 		}
-		if (!this.checkParams(this.apiParams)) {
-			throw new Error('Invalid API params');
+		if (!this.session) {
+			throw new Error('Invalid session');
 		}
 		try {
 			const responseText = await Requests.send({
-				url: `${this.API_URL}/${this.apiParams.buildIdentifier}/metadata?languages=en-US&movieid=${id}`,
+				url: `${this.API_URL}/${this.session.buildIdentifier}/metadata?languages=en-US&movieid=${id}`,
 				method: 'GET',
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
@@ -369,22 +364,35 @@ class _NetflixApi extends ServiceApi {
 		return item;
 	}
 
-	getApiParams(): Promise<Partial<NetflixApiParams> | null> {
-		return ScriptInjector.inject<Partial<NetflixApiParams>>(this.id, 'api-params', '', () => {
-			const apiParams: Partial<NetflixApiParams> = {};
+	getSession(): Promise<NetflixSession | null> {
+		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '', () => {
+			let session: NetflixSession | null = null;
 			const { netflix } = window;
 			if (netflix) {
-				const authUrl = netflix.reactContext.models.userInfo.data.authURL;
-				if (authUrl) {
-					apiParams.authUrl = authUrl;
-				}
-				const buildIdentifier = netflix.reactContext.models.serverDefs.data.BUILD_IDENTIFIER;
-				if (buildIdentifier) {
-					apiParams.buildIdentifier = buildIdentifier;
+				const { userInfo, serverDefs } = netflix.reactContext.models;
+				const authUrl = userInfo.data.authURL;
+				const buildIdentifier = serverDefs.data.BUILD_IDENTIFIER;
+				const profileName = userInfo.data.name;
+				if (authUrl && buildIdentifier) {
+					session = { authUrl, buildIdentifier, profileName };
 				}
 			}
-			return apiParams;
+			return session;
 		});
+	}
+
+	extractSession(text: string): NetflixSession | null {
+		let session: NetflixSession | null = null;
+		const authUrlRegex = /"authURL":"(.*?)"/;
+		const buildIdentifierRegex = /"BUILD_IDENTIFIER":"(.*?)"/;
+		const profileNameRegex = /"userInfo":\{"name":"(.*?)"/;
+		const authUrl = authUrlRegex.exec(text)?.[1];
+		const buildIdentifier = buildIdentifierRegex.exec(text)?.[1];
+		const profileName = profileNameRegex.exec(text)?.[1] || null;
+		if (authUrl && buildIdentifier) {
+			session = { authUrl, buildIdentifier, profileName };
+		}
+		return session;
 	}
 }
 

@@ -14,17 +14,17 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Kunne ikke legge til manglende «sett dato»."
 	},
-	"addWithReleaseDateMissingName": {
+	"addWithReleaseDate": {
+		"message": "Legg til med utgivelsesdato."
+	},
+	"addWithReleaseDateMissing": {
 		"message": "Legg til utgivelsesdato kun for elementer som mangler «sett dato»."
 	},
-	"addWithReleaseDateName": {
-		"message": "Legg til med utgivelsesdato."
+	"allowRollbar": {
+		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
 	"allowRollbarDescription": {
 		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
-	},
-	"allowRollbarName": {
-		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
 	"appDescription": {
 		"message": "En universell sync-tjeneste for Trakt.tv."
@@ -46,9 +46,6 @@
 	},
 	"cannotSync": {
 		"message": "Klarer ikke å synkronisere elementer"
-	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"clearCaches": {
 		"message": "Fjern mellomlagrede data"
@@ -169,17 +166,20 @@
 	"goToHistoryPage": {
 		"message": "Gå til historikksiden"
 	},
+	"grantCookies": {
+		"message": "Tillat «informasjonskapsler» slik at utvidelsen kan virke sammen med Firefox Containers."
+	},
 	"grantCookiesDescription": {
 		"message": "Utvidelsen virker sammen med Firefox Containers, ved å hente cookies fra den nåværende container du er på. Kun skru det på dersom du bruker Firefox Containers."
 	},
-	"grantCookiesName": {
-		"message": "Tillat «informasjonskapsler» slik at utvidelsen kan virke sammen med Firefox Containers."
-	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Skjul allerede synkroniserte elementer."
 	},
 	"history": {
 		"message": "Historikk"
+	},
+	"historyFor": {
+		"message": "Historikk for"
 	},
 	"historySyncError": {
 		"message": "Klarte ikke å synkronisere historikken."
@@ -210,8 +210,8 @@
 	"itemSynced": {
 		"message": "Elementet er synkronisert"
 	},
-	"itemsPerLoadName": {
-		"message": "Antall elementer i hver innlasting."
+	"itemsMissingWatchedDate": {
+		"message": "Enkelte elementer mangler «sett dato». Legg til hver enkelt, eller tillat valget å legge til utgivelsesdato og forsøk igjen."
 	},
 	"lastSync": {
 		"message": "Siste synkroniseringsdato"
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Logg ut"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Minimum prosent sett."
 	},
 	"missingWatchedDate": {
@@ -265,11 +265,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Legg inn en gyldig dato!"
 	},
-	"nextPage": {
-		"message": "Neste side"
-	},
 	"no": {
 		"message": "Nei"
+	},
+	"noItemsSelected": {
+		"message": "Ingen elementer er valgt. Kryss av for noen elementer og prøv på nytt."
 	},
 	"noServices": {
 		"message": "Ingen strømmetjenester er aktivert. Strømmetjenester kan aktiveres fra siden for alternativer."
@@ -279,6 +279,12 @@
 	},
 	"notFound": {
 		"message": "Ikke funnet"
+	},
+	"notLoggedIn": {
+		"message": "Ikke logget inn"
+	},
+	"notLoggedInDescription": {
+		"message": "Det ser ut som du ikke er innlogget på denne tjenesten. Forsøk å gå inn på siden nedenfor og gjør en innlogging før du forsøker å synkronisere."
 	},
 	"notWatched": {
 		"message": "Ikke registrert som sett"
@@ -295,8 +301,11 @@
 	"options": {
 		"message": "Alternativer"
 	},
-	"previousPage": {
-		"message": "Forrige side"
+	"profile": {
+		"message": "Profil"
+	},
+	"profileDescription": {
+		"message": "Dette er den valgte profilen. Dersom dette ikke er profilen du ønsker å synkronisere, forsøk å bytte profilen inne på siden til strømmetjenesten."
 	},
 	"progress": {
 		"message": "Fullført: $PROGRESS$%",
@@ -354,11 +363,11 @@
 	"selectService": {
 		"message": "Velg en strømmetjeneste å synkronisere fra:"
 	},
+	"sendReceiveSuggestions": {
+		"message": "Send / motta forslag til rettelser."
+	},
 	"sendReceiveSuggestionsDescription": {
 		"message": "Hver gang du retter en feilaktig tittel, så blir rettelsen send til en Google Cloud-database slik at andre brukere kan få nytte av rettelsen. Dette alternativet er også nødt til å være påslått for å motta andres rettelser."
-	},
-	"sendReceiveSuggestionsName": {
-		"message": "Send / motta forslag til rettelser."
 	},
 	"service": {
 		"message": "Strømmetjeneste"
@@ -369,17 +378,17 @@
 	"serviceSync": {
 		"message": "Historikk-synkronisering"
 	},
+	"services": {
+		"message": "Strømmetjenester"
+	},
 	"servicesDescription": {
 		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
-	"servicesName": {
-		"message": "Strømmetjenester"
+	"showNotifications": {
+		"message": "Vis nettleservarsler"
 	},
 	"showNotificationsDescription": {
 		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
-	},
-	"showNotificationsName": {
-		"message": "Vis nettleservarsler"
 	},
 	"suggestedBy": {
 		"message": "Foreslått av $COUNT$ brukere",
@@ -395,23 +404,26 @@
 	"sync": {
 		"message": "Synkroniser historikk"
 	},
+	"syncing": {
+		"message": "Synkroniserer"
+	},
 	"systemTheme": {
 		"message": "Bestemmes av operativsystemet"
+	},
+	"theme": {
+		"message": "Tema"
 	},
 	"themeDescription": {
 		"message": "Velg ønsket tema."
 	},
-	"themeName": {
-		"message": "Tema"
-	},
 	"toggleAll": {
 		"message": "Veksle"
 	},
+	"unknown": {
+		"message": "Ukjent"
+	},
 	"use": {
 		"message": "Bruk"
-	},
-	"use24ClockName": {
-		"message": "Bruk 24-timers klokke."
 	},
 	"useCurrentDate": {
 		"message": "Bruk dagens dato."

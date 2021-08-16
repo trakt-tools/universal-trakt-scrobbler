@@ -1,22 +1,17 @@
-import { TraktSettings } from '@apis/TraktSettings';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Messaging } from '@common/Messaging';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { UtsCenter } from '@components/UtsCenter';
+import { useHistory } from '@contexts/HistoryContext';
 import { Button, CircularProgress } from '@material-ui/core';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 
 export const LoginPage: React.FC = () => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
-	const onLoginClick = async () => {
+	const onLoginClick = async (): Promise<void> => {
 		setLoading(true);
 		await Session.login();
 	};
@@ -32,8 +27,7 @@ export const LoginPage: React.FC = () => {
 			EventDispatcher.unsubscribe('LOGIN_ERROR', null, onLoginError);
 		};
 
-		const onLoginSuccess = async () => {
-			Shared.dateFormat = await TraktSettings.getTimeAndDateFormat();
+		const onLoginSuccess = () => {
 			setLoading(false);
 			if (Shared.redirectPath) {
 				history.push(Shared.redirectPath);
@@ -52,11 +46,6 @@ export const LoginPage: React.FC = () => {
 
 	useEffect(() => {
 		const init = async () => {
-			Shared.tabId = await Messaging.toBackground({ action: 'get-tab-id' });
-			await BrowserStorage.init();
-			if (BrowserStorage.options.allowRollbar) {
-				Errors.startRollbar();
-			}
 			await Session.checkLogin();
 		};
 

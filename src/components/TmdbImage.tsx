@@ -1,6 +1,5 @@
-import { TmdbApi } from '@apis/TmdbApi';
 import { Box } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 interface TmdbImageProps {
 	imageUrl?: string | null;
@@ -11,7 +10,7 @@ export const TmdbImage: React.FC<TmdbImageProps> = ({ imageUrl }: TmdbImageProps
 		<Box>
 			<Box
 				className="tmdb-image"
-				style={{ backgroundImage: `url(${imageUrl || TmdbApi.PLACEHOLDER_IMAGE})` }}
+				style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined}
 			/>
 			<Box className="tmdb-image-overlay" />
 		</Box>

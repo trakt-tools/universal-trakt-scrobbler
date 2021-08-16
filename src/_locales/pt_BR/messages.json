@@ -14,17 +14,17 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Ocorreu um erro ao adicionar a data em que o item foi assistido."
 	},
-	"addWithReleaseDateMissingName": {
+	"addWithReleaseDate": {
+		"message": "Adicionar com data de lançamento."
+	},
+	"addWithReleaseDateMissing": {
 		"message": "Adicionar com data de lançamento apenas para itens que estão faltando com a data em que foram assistidos."
 	},
-	"addWithReleaseDateName": {
-		"message": "Adicionar com data de lançamento."
+	"allowRollbar": {
+		"message": "Permitir que o Rollbar colete informações sobre erros."
 	},
 	"allowRollbarDescription": {
 		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
-	},
-	"allowRollbarName": {
-		"message": "Permitir que o Rollbar colete informações sobre erros."
 	},
 	"appDescription": {
 		"message": "Um sincronizador universal para o Trakt.tv."
@@ -46,9 +46,6 @@
 	},
 	"cannotSync": {
 		"message": "Não é possível sincronizar os itens"
-	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
 	"clearCaches": {
 		"message": "Limpar Caches"
@@ -169,17 +166,20 @@
 	"goToHistoryPage": {
 		"message": "Ir para a Página de Histórico"
 	},
+	"grantCookies": {
+		"message": "Autorizar a permissão de \"cookies\" para que a extensão funcione com Firefox Containers."
+	},
 	"grantCookiesDescription": {
 		"message": "Com essa opção ativada, a extensão funcionará com Firefox Containers, obtendo os cookies do atual container em que você está. Somente a ative se você usa Firefox Containers."
 	},
-	"grantCookiesName": {
-		"message": "Autorizar a permissão de \"cookies\" para que a extensão funcione com Firefox Containers."
-	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Esconder itens sincronizados."
 	},
 	"history": {
 		"message": "Histórico"
+	},
+	"historyFor": {
+		"message": "Histórico para"
 	},
 	"historySyncError": {
 		"message": "Ocorreu um erro ao sincronizar o histórico."
@@ -210,8 +210,8 @@
 	"itemSynced": {
 		"message": "Item sincronizado"
 	},
-	"itemsPerLoadName": {
-		"message": "Itens por página."
+	"itemsMissingWatchedDate": {
+		"message": "Alguns itens estão faltando a data em que foram assistidos. Resolva cada item ou ative a opção para adicionar com data de lançamento e tente novamente."
 	},
 	"lastSync": {
 		"message": "Data da Última Sincronização"
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Sair"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Mínima porcentagem assistida."
 	},
 	"missingWatchedDate": {
@@ -265,11 +265,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Por favor, selecione uma data válida!"
 	},
-	"nextPage": {
-		"message": "Próxima Página"
-	},
 	"no": {
 		"message": "Não"
+	},
+	"noItemsSelected": {
+		"message": "Nenhum item está selecionado. Selecione alguns itens e tente novamente."
 	},
 	"noServices": {
 		"message": "Nenhum serviço de streaming ativado. Você pode ativar serviços de streaming na página de opções."
@@ -279,6 +279,12 @@
 	},
 	"notFound": {
 		"message": "Não Encontrado"
+	},
+	"notLoggedIn": {
+		"message": "Não Logado"
+	},
+	"notLoggedInDescription": {
+		"message": "Parece que você não está logado nesse serviço. Por favor, vá até a página abaixo e entre com sua conta antes de tentar sincronizar."
 	},
 	"notWatched": {
 		"message": "Não Assistido"
@@ -295,8 +301,11 @@
 	"options": {
 		"message": "Opções"
 	},
-	"previousPage": {
-		"message": "Página Anterior"
+	"profile": {
+		"message": "Perfil"
+	},
+	"profileDescription": {
+		"message": "Esse é o perfil atual. Se esse não é o perfil que você deseja sincronizar, mude de perfis na página do serviço."
 	},
 	"progress": {
 		"message": "Progresso: $PROGRESS$%",
@@ -354,11 +363,11 @@
 	"selectService": {
 		"message": "Selecione um serviço de streaming para sincronizar:"
 	},
+	"sendReceiveSuggestions": {
+		"message": "Enviar / receber sugestões de correção."
+	},
 	"sendReceiveSuggestionsDescription": {
 		"message": "Com essa opção ativada, sempre que você atualizar um item errado, a correção será enviada para uma base de dados armazenada na Google Cloud para que outros usuários possam receber sugestões de correção. Essa opção também é necessária para receber essas sugestões de correção."
-	},
-	"sendReceiveSuggestionsName": {
-		"message": "Enviar / receber sugestões de correção."
 	},
 	"service": {
 		"message": "Serviço"
@@ -369,17 +378,17 @@
 	"serviceSync": {
 		"message": "Sincronização"
 	},
+	"services": {
+		"message": "Serviços de streaming"
+	},
 	"servicesDescription": {
 		"message": "Escolha quais serviços de streaming deseja ativar."
 	},
-	"servicesName": {
-		"message": "Serviços de streaming"
+	"showNotifications": {
+		"message": "Mostrar notificações no navegador."
 	},
 	"showNotificationsDescription": {
 		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
-	},
-	"showNotificationsName": {
-		"message": "Mostrar notificações no navegador."
 	},
 	"suggestedBy": {
 		"message": "Sugerido por $COUNT$ usuários",
@@ -395,23 +404,26 @@
 	"sync": {
 		"message": "Sincronizar"
 	},
+	"syncing": {
+		"message": "Sincronizando"
+	},
 	"systemTheme": {
 		"message": "Usar sua preferência do sistema"
+	},
+	"theme": {
+		"message": "Tema"
 	},
 	"themeDescription": {
 		"message": "Escolha que tema usar."
 	},
-	"themeName": {
-		"message": "Tema"
-	},
 	"toggleAll": {
 		"message": "Inverso"
 	},
+	"unknown": {
+		"message": "Desconhecido"
+	},
 	"use": {
 		"message": "Usar"
-	},
-	"use24ClockName": {
-		"message": "Usar relógio de 24 horas."
 	},
 	"useCurrentDate": {
 		"message": "Usar data atual."

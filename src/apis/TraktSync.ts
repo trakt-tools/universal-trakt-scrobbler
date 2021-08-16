@@ -4,7 +4,8 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { Item } from '@models/Item';
-import * as moment from 'moment';
+import { SyncStore } from '@stores/SyncStore';
+import moment from 'moment';
 
 export interface TraktHistoryItem {
 	id: number;
@@ -40,18 +41,20 @@ class _TraktSync extends TraktApi {
 
 	async loadHistory(
 		item: Item,
-		traktHistoryItemsCache: CacheItem<'traktHistoryItems'>
+		traktHistoryItemsCache: CacheItem<'traktHistoryItems'>,
+		forceRefresh = false
 	): Promise<void> {
 		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
 		if (!item.trakt || !watchedAt) {
 			return;
 		}
 		const databaseId = item.trakt.getDatabaseId();
-		let historyItems = traktHistoryItemsCache.get(databaseId);
+		let historyItems = forceRefresh ? null : traktHistoryItemsCache.get(databaseId);
 		if (!historyItems) {
 			const responseText = await Requests.send({
 				url: this.getUrl(item),
 				method: 'GET',
+				cancelKey: forceRefresh ? 'sync' : 'default',
 			});
 			historyItems = JSON.parse(responseText) as TraktHistoryItem[];
 			traktHistoryItemsCache.set(databaseId, historyItems);
@@ -105,7 +108,8 @@ class _TraktSync extends TraktApi {
 		return url;
 	}
 
-	async sync(items: Item[]) {
+	async sync(store: SyncStore, items: Item[]) {
+		const newItems: Item[] = [];
 		try {
 			const data = {
 				episodes: items
@@ -125,6 +129,7 @@ class _TraktSync extends TraktApi {
 				url: this.SYNC_URL,
 				method: 'POST',
 				body: data,
+				cancelKey: 'sync',
 			});
 			const responseJson = JSON.parse(responseText) as TraktSyncResponse;
 			const notFoundItems = {
@@ -138,16 +143,21 @@ class _TraktSync extends TraktApi {
 					((item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) ||
 						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))
 				) {
-					await TraktSync.loadHistory(item, traktHistoryItemsCache);
+					const newItem = item.clone();
+					await TraktSync.loadHistory(newItem, traktHistoryItemsCache, true);
+					newItem.isSelected = false;
+					newItems.push(newItem);
 				}
 			}
 			await Cache.set({ traktHistoryItems: traktHistoryItemsCache });
+			await store.update(newItems, true);
 			await EventDispatcher.dispatch('HISTORY_SYNC_SUCCESS', null, {
 				added: responseJson.added,
 			});
 		} catch (err) {
 			if (!(err as RequestException).canceled) {
 				Errors.error('Failed to sync history.', err);
+				await store.update(newItems, true);
 				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
 			}
 		}

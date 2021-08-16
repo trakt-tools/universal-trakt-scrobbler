@@ -3,6 +3,8 @@ import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
 import { UtsLeftRight } from '@components/UtsLeftRight';
+import { useHistory } from '@contexts/HistoryContext';
+import { useSession } from '@contexts/SessionContext';
 import { AppBar, IconButton, Toolbar, Tooltip } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HistoryIcon from '@material-ui/icons/History';
@@ -10,21 +12,17 @@ import HomeIcon from '@material-ui/icons/Home';
 import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SyncIcon from '@material-ui/icons/Sync';
-import { History } from 'history';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
-interface IPopupHeader {
-	history: History;
-	isLoggedIn: boolean;
-}
-
-export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => {
+export const PopupHeader: React.FC = () => {
 	const [syncButton, setSyncButton] = React.useState({
 		isEnabled: false,
 		hasError: false,
 	});
+
+	const history = useHistory();
+	const { isLoggedIn } = useSession();
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -102,21 +100,18 @@ export const PopupHeader: React.FC<IPopupHeader> = ({ history, isLoggedIn }) => 
 						</>
 					}
 					right={
-						isLoggedIn ? (
-							<Tooltip title={I18N.translate('logout')}>
-								<IconButton color="inherit" onClick={onLogoutClick}>
-									<ExitToAppIcon />
-								</IconButton>
-							</Tooltip>
-						) : undefined
+						<>
+							{isLoggedIn && (
+								<Tooltip title={I18N.translate('logout')}>
+									<IconButton color="inherit" onClick={onLogoutClick}>
+										<ExitToAppIcon />
+									</IconButton>
+								</Tooltip>
+							)}
+						</>
 					}
 				/>
 			</Toolbar>
 		</AppBar>
 	);
-};
-
-PopupHeader.propTypes = {
-	history: PropTypes.any.isRequired,
-	isLoggedIn: PropTypes.bool.isRequired,
 };

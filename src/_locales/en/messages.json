@@ -14,17 +14,17 @@
 	"addMissingWatchedDateFailed": {
 		"message": "Failed to add missing watched date."
 	},
-	"addWithReleaseDateMissingName": {
+	"addWithReleaseDate": {
+		"message": "Add with release date."
+	},
+	"addWithReleaseDateMissing": {
 		"message": "Add with release date only for items that are missing the watched date."
 	},
-	"addWithReleaseDateName": {
-		"message": "Add with release date."
+	"allowRollbar": {
+		"message": "Allow Rollbar to collect information about bugs."
 	},
 	"allowRollbarDescription": {
 		"message": "With this option enabled, whenever a bug occurs, information about it will be collected and sent to us, so that we can fix it faster and improve the extension. This information includes: when the bug happened, the traceback of the bug, the name and version  of your browser, and the name of your OS. This data is not shared with any other service."
-	},
-	"allowRollbarName": {
-		"message": "Allow Rollbar to collect information about bugs."
 	},
 	"appDescription": {
 		"message": "A universal sync for Trakt.tv."
@@ -46,9 +46,6 @@
 	},
 	"cannotSync": {
 		"message": "Cannot sync items"
-	},
-	"cannotSyncMissingWatchedDate": {
-		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"clearCaches": {
 		"message": "Clear Caches"
@@ -169,17 +166,20 @@
 	"goToHistoryPage": {
 		"message": "Go to History Page"
 	},
+	"grantCookies": {
+		"message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
+	},
 	"grantCookiesDescription": {
 		"message": "With this option enabled, the extension will work with Firefox Containers, by retrieving the cookies from the current container that you are on. Only enable it if you use Firefox Containers."
 	},
-	"grantCookiesName": {
-		"message": "Grant the \"cookies\" permission so that the extension can work with Firefox Containers."
-	},
-	"hideSyncedName": {
+	"hideSynced": {
 		"message": "Hide synced."
 	},
 	"history": {
 		"message": "History"
+	},
+	"historyFor": {
+		"message": "History for"
 	},
 	"historySyncError": {
 		"message": "Failed to sync history."
@@ -210,8 +210,8 @@
 	"itemSynced": {
 		"message": "Item synced"
 	},
-	"itemsPerLoadName": {
-		"message": "Items per load."
+	"itemsMissingWatchedDate": {
+		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
 	"lastSync": {
 		"message": "Last Sync Date"
@@ -237,7 +237,7 @@
 	"logout": {
 		"message": "Logout"
 	},
-	"minPercentageWatchedName": {
+	"minPercentageWatched": {
 		"message": "Minimum percentage watched."
 	},
 	"missingWatchedDate": {
@@ -265,11 +265,11 @@
 	"missingWatchedDateDialogInvalidDateLabel": {
 		"message": "Please enter a valid date!"
 	},
-	"nextPage": {
-		"message": "Next Page"
-	},
 	"no": {
 		"message": "No"
+	},
+	"noItemsSelected": {
+		"message": "No items are selected. Select some items and try again."
 	},
 	"noServices": {
 		"message": "No streaming services enabled. You can enable streaming services in the options page."
@@ -279,6 +279,12 @@
 	},
 	"notFound": {
 		"message": "Not Found"
+	},
+	"notLoggedIn": {
+		"message": "Not Logged In"
+	},
+	"notLoggedInDescription": {
+		"message": "Looks like you're not logged in to this service. Please go to the page below and log in before trying to sync."
 	},
 	"notWatched": {
 		"message": "Not Watched"
@@ -295,8 +301,11 @@
 	"options": {
 		"message": "Options"
 	},
-	"previousPage": {
-		"message": "Previous Page"
+	"profile": {
+		"message": "Profile"
+	},
+	"profileDescription": {
+		"message": "This is the current profile. If this is not the profile that you want to sync, switch profiles in the service page."
 	},
 	"progress": {
 		"message": "Progress: $PROGRESS$%",
@@ -354,11 +363,11 @@
 	"selectService": {
 		"message": "Select a streaming service to sync from:"
 	},
+	"sendReceiveSuggestions": {
+		"message": "Send / receive correction suggestions."
+	},
 	"sendReceiveSuggestionsDescription": {
 		"message": "With this option enabled, whenever you update a wrong item, the correction will be sent to a Google Cloud database so that other users can receive correction suggestions. This option is also required to receive those correction suggestions."
-	},
-	"sendReceiveSuggestionsName": {
-		"message": "Send / receive correction suggestions."
 	},
 	"service": {
 		"message": "Service"
@@ -369,17 +378,17 @@
 	"serviceSync": {
 		"message": "Sync"
 	},
+	"services": {
+		"message": "Streaming services"
+	},
 	"servicesDescription": {
 		"message": "Choose which streaming services to enable."
 	},
-	"servicesName": {
-		"message": "Streaming services"
+	"showNotifications": {
+		"message": "Show browser notifications."
 	},
 	"showNotificationsDescription": {
 		"message": "With this option enabled, you will receive browser notifications whenever you start / stop scrobbling something."
-	},
-	"showNotificationsName": {
-		"message": "Show browser notifications."
 	},
 	"suggestedBy": {
 		"message": "Suggested by $COUNT$ users",
@@ -395,23 +404,26 @@
 	"sync": {
 		"message": "Sync"
 	},
+	"syncing": {
+		"message": "Syncing"
+	},
 	"systemTheme": {
 		"message": "Use your system preference"
+	},
+	"theme": {
+		"message": "Theme"
 	},
 	"themeDescription": {
 		"message": "Choose what theme to use."
 	},
-	"themeName": {
-		"message": "Theme"
-	},
 	"toggleAll": {
 		"message": "Toggle"
 	},
+	"unknown": {
+		"message": "Unknown"
+	},
 	"use": {
 		"message": "Use"
-	},
-	"use24ClockName": {
-		"message": "Use 24-hour clock."
 	},
 	"useCurrentDate": {
 		"message": "Use current date."

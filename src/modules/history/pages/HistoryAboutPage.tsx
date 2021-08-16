@@ -2,7 +2,7 @@ import { I18N } from '@common/I18N';
 import { Tabs } from '@common/Tabs';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { Button, Typography } from '@material-ui/core';
-import * as React from 'react';
+import React from 'react';
 
 export const AboutPage: React.FC = () => {
 	const onLinkClick = async (url: string) => {

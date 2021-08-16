@@ -2,22 +2,23 @@ import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
 import { UtsLeftRight } from '@components/UtsLeftRight';
-import { AppBar, Button, Toolbar } from '@material-ui/core';
+import { useHistory } from '@contexts/HistoryContext';
+import { useSession } from '@contexts/SessionContext';
+import { useSync } from '@contexts/SyncContext';
+import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import HomeIcon from '@material-ui/icons/Home';
 import InfoIcon from '@material-ui/icons/Info';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { History } from 'history';
-import * as React from 'react';
+import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
-interface HistoryHeaderProps {
-	history: History;
-	isLoggedIn: boolean;
-}
-
-export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeaderProps) => {
-	const { history, isLoggedIn } = props;
+export const HistoryHeader: React.FC = () => {
+	const history = useHistory();
+	const { isLoggedIn } = useSession();
+	const { serviceId, service, api } = useSync();
+	const theme = useTheme();
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -32,7 +33,11 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 	};
 
 	return (
-		<AppBar className="history-header" position="sticky">
+		<AppBar
+			className="history-header"
+			position="sticky"
+			style={{ zIndex: theme.zIndex.drawer + 1 }}
+		>
 			<Toolbar>
 				<UtsLeftRight
 					centerVertically={true}
@@ -61,12 +66,38 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = (props: HistoryHeader
 							</Button>
 						</>
 					}
+					middle={
+						<Typography variant="overline">
+							{serviceId !== null ? (
+								service ? (
+									<>
+										{I18N.translate('historyFor')}{' '}
+										<Box display="inline" fontWeight="fontWeightBold">
+											{service.name}
+										</Box>
+										, {I18N.translate('profile')}:{' '}
+										<Tooltip title={I18N.translate('profileDescription')}>
+											<Box display="inline" fontWeight="fontWeightBold">
+												{api?.session?.profileName || I18N.translate('unknown')}
+											</Box>
+										</Tooltip>
+									</>
+								) : (
+									I18N.translate('history')
+								)
+							) : (
+								I18N.translate('autoSync')
+							)}
+						</Typography>
+					}
 					right={
-						isLoggedIn ? (
-							<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
-								{I18N.translate('logout')}
-							</Button>
-						) : undefined
+						<>
+							{isLoggedIn && (
+								<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
+									{I18N.translate('logout')}
+								</Button>
+							)}
+						</>
 					}
 				/>
 			</Toolbar>

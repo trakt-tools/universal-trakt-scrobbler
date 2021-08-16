@@ -8,8 +8,8 @@ import { UtsSnackbar } from '@components/UtsSnackbar';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@material-ui/core';
 import PauseIcon from '@material-ui/icons/Pause';
 import { Item } from '@models/Item';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 export interface IPopupWatching {
 	item: Item;
@@ -19,8 +19,8 @@ export interface IPopupWatching {
 export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 	const openCorrectionDialog = async () => {
 		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
-			serviceId: item.serviceId,
 			item,
+			isScrobblingItem: true,
 		});
 	};
 

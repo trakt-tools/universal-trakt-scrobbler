@@ -1,7 +1,19 @@
+import { TraktScrobble } from '@apis/TraktScrobble';
 import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import {
+	ContentScriptDisconnectData,
+	EventDispatcher,
+	StorageOptionsChangeData,
+} from '@common/Events';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
-import { browser, Runtime as WebExtRuntime } from 'webextension-polyfill-ts';
+import { getServices } from '@models/Service';
+import {
+	browser,
+	Manifest as WebExtManifest,
+	Runtime as WebExtRuntime,
+	Tabs as WebExtTabs,
+} from 'webextension-polyfill-ts';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;
@@ -11,14 +23,97 @@ export interface ScriptInjectorMessage {
 }
 
 class _ScriptInjector {
+	contentScripts: WebExtManifest.ContentScript[] | null = null;
+	injectedContentScriptTabs = new Set();
 	injectedScriptIds = new Set<string>();
 
-	startListeners() {
-		browser.runtime.onConnect.addListener(this.onConnect);
+	init() {
+		if (Shared.pageType === 'background') {
+			this.updateContentScripts();
+			this.checkTabListener();
+			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+			EventDispatcher.subscribe('CONTENT_SCRIPT_DISCONNECT', null, this.onContentScriptDisconnect);
+		} else if (Shared.pageType === 'content') {
+			browser.runtime.onConnect.addListener(this.onConnect);
+		}
 	}
 
-	stopListeners() {
-		browser.runtime.onConnect.removeListener(this.onConnect);
+	private onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+		if (data.options?.services) {
+			const doCheck = Object.values(data.options.services).some(
+				(serviceValue) => serviceValue && 'scrobble' in serviceValue
+			);
+			if (doCheck) {
+				this.updateContentScripts();
+				this.checkTabListener();
+			}
+		}
+	};
+
+	private onContentScriptDisconnect = async (data: ContentScriptDisconnectData) => {
+		if (this.injectedContentScriptTabs.has(data.tabId)) {
+			this.injectedContentScriptTabs.delete(data.tabId);
+		}
+		const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+		if (scrobblingDetails && data.tabId === scrobblingDetails.tabId) {
+			await TraktScrobble.stop();
+		}
+	};
+
+	updateContentScripts() {
+		this.contentScripts = getServices()
+			.filter(
+				(service) => service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble
+			)
+			.map((service) => ({
+				matches: service.hostPatterns.map((hostPattern) =>
+					hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
+				),
+				js: [`${service.id}.js`],
+				run_at: 'document_idle',
+			}));
+	}
+
+	checkTabListener() {
+		const scrobblerEnabled = getServices().some(
+			(service) => service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble
+		);
+		if (scrobblerEnabled && !browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
+			browser.tabs.onUpdated.addListener(this.onTabUpdated);
+		} else if (!scrobblerEnabled && browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
+			browser.tabs.onUpdated.removeListener(this.onTabUpdated);
+		}
+	}
+
+	onTabUpdated = (_: unknown, __: unknown, tab: WebExtTabs.Tab) => {
+		void this.injectContentScript(tab);
+	};
+
+	async injectContentScript(tab: Partial<WebExtTabs.Tab>) {
+		if (
+			!this.contentScripts ||
+			tab.status !== 'complete' ||
+			!tab.id ||
+			!tab.url ||
+			!tab.url.startsWith('http') ||
+			tab.url.endsWith('#noinject') ||
+			this.injectedContentScriptTabs.has(tab.id)
+		) {
+			return;
+		}
+		for (const { matches, js, run_at: runAt } of this.contentScripts) {
+			if (!js || !runAt) {
+				continue;
+			}
+			const isMatch = matches.find((match) => tab.url?.match(match));
+			if (isMatch) {
+				this.injectedContentScriptTabs.add(tab.id);
+				for (const file of js) {
+					await browser.tabs.executeScript(tab.id, { file, runAt });
+				}
+				break;
+			}
+		}
 	}
 
 	private onConnect = (port: WebExtRuntime.Port) => {

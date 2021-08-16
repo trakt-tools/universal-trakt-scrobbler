@@ -1,7 +1,7 @@
 import { UtsCenter } from '@components/UtsCenter';
 import { Box } from '@material-ui/core';
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 export const PopupInfo: React.FC = ({ children }) => {
 	return (
