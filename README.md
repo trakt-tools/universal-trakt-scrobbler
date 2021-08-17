@@ -31,6 +31,7 @@
 - [Which streaming services are supported?](#which-streaming-services-are-supported)
 - [How does the extension work?](#how-does-the-extension-work)
 - [Problems](#problems)
+- [Help Translate](#help-translate)
 - [Development](#development)
 - [Credits](#credits)
 
@@ -70,6 +71,12 @@ It extracts information about the TV shows / movies that you are watching / have
 ### Other Problems
 
 If you find any other problems or have suggestions or questions, feel free to [open an issue](https://github.com/trakt-tools/universal-trakt-scrobbler/issues/new).
+
+### Help Translate
+
+Help us translate the extension through Crowdin at https://crowdin.com/project/universal-trakt-scrobbler. You'll need to create a Crowdin account (you can sign in with your GitHub account). Then select the language you wish to contribute to and start translating (don't forget to save your translations). If a language isn't available yet, open an issue requesting it to be added.
+
+You can also vote for translations, which helps confirm good translations and flag inaccurate ones.
 
 ### Development
 
