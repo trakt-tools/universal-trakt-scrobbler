@@ -385,7 +385,7 @@
 		"message": "Velg strømmetjenester som du vil ha aktive."
 	},
 	"showNotifications": {
-		"message": "Vis nettleservarsler"
+		"message": "Vis nettleservarsler."
 	},
 	"showNotificationsDescription": {
 		"message": "Viser nettleservarsler hver gang du starter / stopper å scrobble noe."
