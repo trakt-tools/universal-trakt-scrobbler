@@ -1,28 +1,10 @@
-const path = require('path');
-
 const ROOT_DIR = __dirname;
-const SRC_DIR = path.resolve(ROOT_DIR, 'src');
 
 const getTranslationsOverride = () => {
 	return {
 		files: ['**/_locales/**/*.json'],
-		plugins: ['@rafaelgomesxyz/i18n-json'],
-		extends: ['plugin:@rafaelgomesxyz/i18n-json/recommended'],
-		rules: {
-			'@rafaelgomesxyz/i18n-json/identical-keys': [
-				'error',
-				{
-					filePath: path.resolve(SRC_DIR, '_locales', 'en', 'messages.json'),
-					checkDuplicateValues: true,
-				},
-			],
-		},
-		settings: {
-			'@rafaelgomesxyz/i18n-json/ignore-keys': {
-				'**': ['*.description', '*.placeholders'],
-				'**/pt_BR/**': ['serviceScrobble'],
-			},
-		},
+		plugins: ['i18n-json'],
+		extends: ['plugin:i18n-json/recommended'],
 	};
 };
 

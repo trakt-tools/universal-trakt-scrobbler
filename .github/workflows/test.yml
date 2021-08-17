@@ -23,4 +23,3 @@ jobs:
           pnpm install
           cp config.dev.json config.json
           pnpm run check
-          pnpm run check-translations

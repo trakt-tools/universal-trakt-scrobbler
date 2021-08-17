@@ -24,7 +24,7 @@
 		"message": "Permitir que o Rollbar colete informações sobre erros."
 	},
 	"allowRollbarDescription": {
-		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do neu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
+		"message": "Com essa opção ativada, sempre que um erro acontecer, informações sobre ele serão coletadas e enviadas para nós, para que possamos consertá-lo mais rápido e melhorar a extensão. Essas informações incluem: quando o erro aconteceu, o traço do erro, o nome e a versão do seu navegador, e o nome do seu sistema operacional. Esses dados não são compartilhados com nenhum outro serviço."
 	},
 	"appDescription": {
 		"message": "Um sincronizador universal para o Trakt.tv."
@@ -328,7 +328,7 @@
 		"message": "Alguns itens foram sincronizados automaticamente recentemente. Clique aqui para revisá-los e confirmar que os itens corretos foram sincronizados."
 	},
 	"recentAutoSyncError": {
-		"message": "Alguns itens falharam ao sincronizar automaticamente recentemente. Clique aqui para revisá-los e corrigí-los."
+		"message": "Alguns itens falharam ao sincronizar automaticamente recentemente. Clique aqui para revisá-los e corrigi-los."
 	},
 	"save": {
 		"message": "Salvar"
@@ -388,7 +388,7 @@
 		"message": "Mostrar notificações no navegador."
 	},
 	"showNotificationsDescription": {
-		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar ."
+		"message": "Com essa opção ativada, você receberá notificações no seu navegador sempre que um scrobble começar/parar."
 	},
 	"suggestedBy": {
 		"message": "Sugerido por $COUNT$ usuários",
