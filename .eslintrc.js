@@ -1,10 +1,21 @@
+const path = require('path');
+
 const ROOT_DIR = __dirname;
+const SRC_DIR = path.resolve(ROOT_DIR, 'src');
 
 const getTranslationsOverride = () => {
 	return {
 		files: ['**/_locales/**/*.json'],
 		plugins: ['i18n-json'],
 		extends: ['plugin:i18n-json/recommended'],
+		rules: {
+			'i18n-json/identical-keys': [
+				'error',
+				{
+					filePath: path.resolve(SRC_DIR, '_locales', 'en', 'messages.json'),
+				},
+			],
+		},
 	};
 };
 
