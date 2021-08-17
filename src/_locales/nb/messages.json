@@ -24,7 +24,7 @@
 		"message": "Tillat at feilinformasjon sendes til Rollbar."
 	},
 	"allowRollbarDescription": {
-		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendinghetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
+		"message": "Dersom det oppstår en feil, kan utviklerne få informasjon om det, slik at det er enklere å feilsøke, fikse og forbedre utvidelsen. Informasjonen som sendes inkluderer: Når feilen inntraff, omstendighetene rundt feilen, navn og versjonsnummeret på nettleseren, og navnet på operativsystemet. Dataene blir ikke delt videre med andre tjenester."
 	},
 	"appDescription": {
 		"message": "En universell sync-tjeneste for Trakt.tv."
@@ -33,10 +33,10 @@
 		"message": "Automatisk synkronisering"
 	},
 	"autoSyncNotActivated": {
-		"message": "Automatisk synkronisering er ikke aktivert. Du er nødt til å synkronisere manuelt på historikksiden først, på denne måten kan «siste synkroniseringsdato» lagres."
+		"message": "Automatisk synkronisering er ikke aktivert. Du er først nødt til å synkronisere manuelt på historikksiden, på denne måten kan «siste synkroniseringsdato» lagres."
 	},
 	"autoSyncPageMessage": {
-		"message": "Disse elementene ble automatisk synkronisert eller kunne ikke synkroniseres siden forrige gang. Dersom korreksjoner trengs, legg dem til, og velg elementene som krever endringer, og trykk på Synkroniser-knappen. Når du gjør det, slettes cachen og disse elementene vil ikke stå på denne siden lengre. Dersom ingen korreksjoner er nødvendige, kan du trykke på Fjern synkroniseringscache-knappen og det samme vil skje."
+		"message": "Disse elementene har blitt forsøkt synkronisert siden forrige gang. Dersom noen er feil, rett dem opp, og velg elementene som krever endringer. Trykk deretter på Synkroniser-knappen. Når du gjør dette, slettes cachen og disse elementene vil forsvinne fra denne listen. Dersom ingen endringer er nødvendige, kan du trykke på knappen «Fjern synkroniseringscache» for å fjerne elementene fra listen."
 	},
 	"autoSyncing": {
 		"message": "Synkroniserer automatisk..."
