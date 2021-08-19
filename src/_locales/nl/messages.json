@@ -9,7 +9,7 @@
 		"message": "Toevoegen"
 	},
 	"addDate": {
-		"message": "Add date"
+		"message": "Datum toevoegen"
 	},
 	"addMissingWatchedDateFailed": {
 		"message": "Het is niet gelukt om de bekeken data toe te voegen."
@@ -18,7 +18,7 @@
 		"message": "Voeg toe met datum van publicatie."
 	},
 	"addWithReleaseDateMissing": {
-		"message": "Add with release date only for items that are missing the watched date."
+		"message": "Voeg met de releasedatum toe indien er geen datum gevonden werd wanneer het item bekeken werd."
 	},
 	"allowRollbar": {
 		"message": "Rollbar toelaten om informatie over fouten te verzamelen."
@@ -27,19 +27,19 @@
 		"message": "Indien ingeschakeld wordt er bij het optreden van een fout, informatie doorgestuurd zodat we deze fout snel kunnen oplossen en de extentie kunnen verbeteren. Deze informatie bevat: wanneer deze fout voor kwam, een traceback hiernaar, de naam en versie van uw browser en de naam van uw besturingssysteem. Deze data wordt niet gedeeld met anderen."
 	},
 	"appDescription": {
-		"message": "Een universele synchronisatie extentie voor Trakt.tv"
+		"message": "Een universele synchronisatie extentie voor Trakt.tv."
 	},
 	"autoSync": {
-		"message": "Automatic Sync"
+		"message": "Automatisch synchroniseren"
 	},
 	"autoSyncNotActivated": {
-		"message": "Automatic sync not activated. You need to sync manually in the history page first, so that the last sync date can be saved."
+		"message": "Automatisch synchroniseren is niet geactiveerd. U moet eerst handmatig via de geschiedenispagina synchroniseren, zodat de laatste synchronisatie datum kan worden opgeslagen."
 	},
 	"autoSyncPageMessage": {
-		"message": "These are the items that were automatically synced or failed to automatically sync since the last review. If any corrections are needed, apply them, select the items that need to be corrected, and click the Sync button. When you do that, the cache will be deleted and these items will no longer appear on this page. If no corrections are needed, simply click the Clear Sync Cache button and the same thing will happen."
+		"message": "Dit zijn de items die automatisch werden gesynchroniseerd of niet automatisch konden worden gesynchroniseerd sinds de laatste review. Als er correcties nodig zijn, moet u deze toepassen, selecteer daarna de items die gecorrigeerd moeten worden en klik op de knop Synchroniseren. Daarna zal de cache worden verwijderd en zullen deze items niet meer op deze pagina verschijnen. Als er geen correcties nodig zijn, klik dan op de knop Synchroniseer Cache Wissen en hetzelfde zal gebeuren."
 	},
 	"autoSyncing": {
-		"message": "Automatically syncing..."
+		"message": "Automatisch synchroniseren..."
 	},
 	"cancel": {
 		"message": "Annuleren"
@@ -48,16 +48,16 @@
 		"message": "Kan deze items niet synchroniseren"
 	},
 	"clearCaches": {
-		"message": "Clear Caches"
+		"message": "Cache legen"
 	},
 	"clearCachesFailed": {
-		"message": "Failed to clear caches."
+		"message": "Fout bij het legen van de caches."
 	},
 	"clearCachesSuccess": {
-		"message": "Caches cleared."
+		"message": "Cache geleegd."
 	},
 	"clearLastSync": {
-		"message": "Clear Last Sync Date"
+		"message": "Laatste synchronisatie datum wissen"
 	},
 	"clearStorage": {
 		"message": "Gegevens verwijderen"
@@ -69,23 +69,23 @@
 		"message": "Gegevens verwijderd."
 	},
 	"clearSyncCache": {
-		"message": "Clear Sync Cache"
+		"message": "Synchronisatie Cache leegmaken"
 	},
 	"close": {
 		"description": "This is the verb, as in 'to close'.",
 		"message": "Sluiten"
 	},
 	"confirmClearCachesMessage": {
-		"message": "All of the caches will be cleared, except for the sync cache."
+		"message": "Alle caches zullen worden geleegd, behalve de synchronisatie cache."
 	},
 	"confirmClearCachesTitle": {
-		"message": "Clear caches?"
+		"message": "Cache legen?"
 	},
 	"confirmClearLastSyncMessage": {
-		"message": "You'll need to sync manually in the history page of the streaming service again to reactivate the automatic sync."
+		"message": "Je moet handmatig synchroniseren op de geschiedenis pagina van de streamingdienst om de automatische synchronisatie opnieuw te activeren."
 	},
 	"confirmClearLastSyncTitle": {
-		"message": "Clear last sync date for $SERVICE$?",
+		"message": "Laatste synchronisatie datum voor $SERVICE$ verwijderen?",
 		"placeholders": {
 			"service": {
 				"content": "$1"
@@ -99,13 +99,13 @@
 		"message": "Gegevens verwijderen?"
 	},
 	"confirmClearSyncCacheMessage": {
-		"message": "All of the items in the current page will be removed from the cache and you'll no longer be able to review them."
+		"message": "Alle items op de huidige pagina worden verwijderd uit de cache en je kan ze nadien niet meer bewerken."
 	},
 	"confirmClearSyncCacheTitle": {
-		"message": "Clear sync cache?"
+		"message": "Synchronisatie cache legen?"
 	},
 	"continueLoading": {
-		"message": "Continue Loading"
+		"message": "Blijven laden"
 	},
 	"correct": {
 		"description": "This is the verb, as in 'to correct'.",
@@ -126,7 +126,7 @@
 		}
 	},
 	"correctionDialogContentWithSuggestions": {
-		"message": "Enter the correct Trakt URL for $TITLE$ in the field below or use one of the suggestions.",
+		"message": "Voer de juiste Trakt URL in voor $TITLE$ in het veld hieronder of gebruik een van de suggesties.",
 		"placeholders": {
 			"title": {
 				"content": "$1"
@@ -134,7 +134,7 @@
 		}
 	},
 	"correctionDialogSyncedWarning": {
-		"message": "WARNING: You are correcting an item that was already synced. If you proceed, the previously synced item will be removed from your Trakt history."
+		"message": "WAARSCHUWING: U corrigeert een item dat al is gesynchroniseerd. Als u doorgaat, wordt het eerder gesynchroniseerde item verwijderd uit uw Trakt geschiedenis."
 	},
 	"couldNotScrobble": {
 		"message": "Kon de data niet verwerken."
@@ -143,10 +143,10 @@
 		"message": "Donker"
 	},
 	"days": {
-		"message": "Days"
+		"message": "Dagen"
 	},
 	"daysDescription": {
-		"message": "How often the automatic sync will happen."
+		"message": "Hoe vaak de automatische synchronisatie zal gebeuren."
 	},
 	"errorNotification": {
 		"message": "Er is een fout opgetreden. :("
@@ -164,7 +164,7 @@
 		"message": "van"
 	},
 	"goToHistoryPage": {
-		"message": "Go to History Page"
+		"message": "Ga naar de geschiedenis pagina"
 	},
 	"grantCookies": {
 		"message": "Laat \"cookies\" toe zodat de extentie kan werken met Firefox Containers."
@@ -179,7 +179,7 @@
 		"message": "Historiek"
 	},
 	"historyFor": {
-		"message": "History for"
+		"message": "Geschiedenis van"
 	},
 	"historySyncError": {
 		"message": "Kon de historiek niet synchroniseren."
@@ -214,7 +214,7 @@
 		"message": "Sommige items missen de kijk datum. Los dit per item op of schakel de optie in om toe te voegen met datum van publicatie."
 	},
 	"lastSync": {
-		"message": "Last Sync Date"
+		"message": "Laatste synchronisatie datum"
 	},
 	"lightTheme": {
 		"message": "Licht"
@@ -226,7 +226,7 @@
 		"message": "Kon de Trakt historiek niet laden."
 	},
 	"loadingHistory": {
-		"message": "Loading history"
+		"message": "Geschiedenis laden"
 	},
 	"loadingSuggestions": {
 		"message": "Suggesties inladen"
@@ -238,7 +238,7 @@
 		"message": "Uitloggen"
 	},
 	"minPercentageWatched": {
-		"message": "Minimum percentage watched."
+		"message": "Minimaal percentage bekeken."
 	},
 	"missingWatchedDate": {
 		"message": "Kijk datum vermist"
@@ -252,7 +252,7 @@
 		}
 	},
 	"missingWatchedDateDialogContentMultiple": {
-		"message": "Choose how you want to add the missing watched date for the $ITEMS$ items.",
+		"message": "Kies hoe je de vermiste kijk datum wil ingeven voor $ITEMS$.",
 		"placeholders": {
 			"items": {
 				"content": "$1"
@@ -269,22 +269,22 @@
 		"message": "Nee"
 	},
 	"noItemsSelected": {
-		"message": "No items are selected. Select some items and try again."
+		"message": "Geen items geselecteerd. Selecteer er enkele en probeer het opnieuw."
 	},
 	"noServices": {
 		"message": "Geen streaming services ingeschakeld. Je kan deze inschakelen op de opties pagina."
 	},
 	"notAvailable": {
-		"message": "Not Available"
+		"message": "Niet beschikbaar"
 	},
 	"notFound": {
 		"message": "Niet Gevonden"
 	},
 	"notLoggedIn": {
-		"message": "Not Logged In"
+		"message": "Niet ingelogd"
 	},
 	"notLoggedInDescription": {
-		"message": "Looks like you're not logged in to this service. Please go to the page below and log in before trying to sync."
+		"message": "Het lijkt erop dat u niet bent ingelogd op deze service. Ga naar onderstaande pagina en log in voordat u opnieuw probeert te synchroniseren."
 	},
 	"notWatched": {
 		"message": "Niet Bekeken"
@@ -302,10 +302,10 @@
 		"message": "Opties"
 	},
 	"profile": {
-		"message": "Profile"
+		"message": "Profiel"
 	},
 	"profileDescription": {
-		"message": "This is the current profile. If this is not the profile that you want to sync, switch profiles in the service page."
+		"message": "Dit is het huidige profiel. Als dit niet het profiel is dat u wilt synchroniseren, schakel dan eerst uw profiel op de servicepagina."
 	},
 	"progress": {
 		"message": "Vooruitgang: $PROGRESS$%",
@@ -319,16 +319,16 @@
 		"message": "Einde van de historiek bereikt."
 	},
 	"reachedLastSyncDate": {
-		"message": "Reached the last sync date. If you wish to load items past this point, click the button below."
+		"message": "De laatste synchronisatie datum is bereikt. Als u de items voorbij dit punt wil laden, klik op de knop hieronder."
 	},
 	"readMore": {
 		"message": "Lees meer"
 	},
 	"recentAutoSync": {
-		"message": "Some items were recently automatically synced. Click here to review them and make sure that the correct items were synced."
+		"message": "Sommige items zijn onlangs automatisch gesynchroniseerd. Klik hier om te controleren of de juiste items werden gesynchroniseerd."
 	},
 	"recentAutoSyncError": {
-		"message": "Some items recently failed to automatically sync. Click here to review and correct them."
+		"message": "Sommige items zijn onlangs niet automatisch gesynchroniseerd. Klik hier om ze te bekijken en te corrigeren."
 	},
 	"save": {
 		"message": "Opslaan"
@@ -376,10 +376,10 @@
 		"message": "Scrobble"
 	},
 	"serviceSync": {
-		"message": "Sync"
+		"message": "Synchroniseren"
 	},
 	"services": {
-		"message": "Streaming services"
+		"message": "Streaming Services"
 	},
 	"servicesDescription": {
 		"message": "Kies welke streaming services je wil inschakelen."
@@ -405,7 +405,7 @@
 		"message": "Synchroniseer"
 	},
 	"syncing": {
-		"message": "Syncing"
+		"message": "Synchroniseren"
 	},
 	"systemTheme": {
 		"message": "Gebruik de systeem voorkeuren"
@@ -420,7 +420,7 @@
 		"message": "Omwisselen"
 	},
 	"unknown": {
-		"message": "Unknown"
+		"message": "Onbekend"
 	},
 	"use": {
 		"message": "Gebruik"
