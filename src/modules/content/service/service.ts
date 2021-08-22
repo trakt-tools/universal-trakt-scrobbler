@@ -18,4 +18,7 @@ export const init = async (serviceId: string) => {
 	Messaging.init();
 };
 
-Messaging.addHandlers({});
+Messaging.addHandlers({
+	'inject-function': ({ serviceId, key, url, fnStr, fnParamsStr }) =>
+		ScriptInjector.inject(serviceId, key, url, fnStr, fnParamsStr),
+});

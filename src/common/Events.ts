@@ -45,7 +45,8 @@ export interface EventData {
 	REQUESTS_CANCEL: RequestsCancelData;
 	STORAGE_OPTIONS_CHANGE: StorageOptionsChangeData;
 	STORAGE_OPTIONS_CLEAR: SuccessData;
-	CONTENT_SCRIPT_DISCONNECT: ContentScriptDisconnectData;
+	CONTENT_SCRIPT_CONNECT: ContentScriptConnectData;
+	CONTENT_SCRIPT_DISCONNECT: ContentScriptConnectData;
 	SYNC_DIALOG_SHOW: SyncDialogShowData;
 	ITEMS_LOAD: ItemsLoadData;
 	SYNC_STORE_LOADING_START: SuccessData;
@@ -129,7 +130,7 @@ export interface StorageOptionsChangeData {
 	syncOptions?: PartialDeep<StorageValuesSyncOptions>;
 }
 
-export interface ContentScriptDisconnectData {
+export interface ContentScriptConnectData {
 	tabId: number;
 }
 
@@ -170,6 +171,8 @@ class _EventDispatcher {
 		'SEARCH_ERROR',
 		'SCROBBLING_ITEM_CORRECTED',
 		'STORAGE_OPTIONS_CHANGE',
+		'CONTENT_SCRIPT_CONNECT',
+		'CONTENT_SCRIPT_DISCONNECT',
 	];
 
 	globalSpecifier = 'all';
