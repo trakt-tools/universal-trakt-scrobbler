@@ -6,6 +6,7 @@ export interface ServiceValues {
 	hasScrobbler: boolean;
 	hasSync: boolean;
 	hasAutoSync: boolean;
+	limitations?: string[];
 }
 
 const services = new Map<string, Service>();
@@ -34,6 +35,7 @@ export class Service implements ServiceValues {
 	readonly hasScrobbler: boolean;
 	readonly hasSync: boolean;
 	readonly hasAutoSync: boolean;
+	readonly limitations: string[];
 
 	constructor(values: ServiceValues) {
 		this.id = values.id;
@@ -43,6 +45,7 @@ export class Service implements ServiceValues {
 		this.hasScrobbler = values.hasScrobbler;
 		this.hasSync = values.hasSync;
 		this.hasAutoSync = values.hasAutoSync;
+		this.limitations = values.limitations ?? [];
 
 		registerService(this.id, this);
 	}

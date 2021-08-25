@@ -34,7 +34,7 @@ export abstract class ServiceApi {
 	hasReachedHistoryEnd = false;
 	nextHistoryPage = 0;
 	nextHistoryUrl = '';
-	session: ServiceApiSession | null = null;
+	session?: ServiceApiSession | null;
 
 	constructor(id: string) {
 		this.id = id;

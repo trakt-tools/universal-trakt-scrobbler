@@ -20,6 +20,7 @@ export interface CacheSubValues {
 	imageUrls: string | null;
 	items: SavedItem;
 	itemsToTraktItems: string;
+	servicesData: unknown;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
 	traktHistoryItems: TraktHistoryItem[];
@@ -78,6 +79,7 @@ class _Cache {
 		imageUrls: 24 * 60 * 60,
 		items: 24 * 60 * 60,
 		itemsToTraktItems: 24 * 60 * 60,
+		servicesData: 24 * 60 * 60,
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
 		traktHistoryItems: 45 * 60,

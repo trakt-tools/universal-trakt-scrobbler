@@ -1,4 +1,3 @@
-import { HboGoApiParams } from '@/hbo-go/HboGoApi';
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { TraktSettings } from '@apis/TraktSettings';
@@ -16,66 +15,48 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import { browser, Manifest as WebExtManifest } from 'webextension-polyfill-ts';
 
-export type StorageValues = StorageValuesV6;
+export type StorageValues = StorageValuesV7;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
-export type StorageValuesV6 = {
+export type StorageValuesV7 = Omit<StorageValuesV6, 'version' | 'hboGoApiParams'> & {
+	version?: 7;
+};
+
+export type StorageValuesV6 = Omit<
+	StorageValuesV5,
+	'version' | 'syncOptions' | 'scrobblingItem'
+> & {
 	version?: 6;
-	auth?: TraktAuthDetails;
-	options?: StorageValuesOptionsV3;
 	syncOptions?: StorageValuesSyncOptionsV3;
-	syncCache?: SyncCacheValue;
-	corrections?: Partial<Record<string, Suggestion>>;
 	scrobblingDetails?: ScrobblingDetails;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 } & CacheStorageValues;
 
-export type StorageValuesV5 = {
+export type StorageValuesV5 = Omit<StorageValuesV4, 'version' | 'traktCache'> & {
 	version?: 5;
-	auth?: TraktAuthDetails;
-	options?: StorageValuesOptionsV3;
-	syncOptions?: StorageValuesSyncOptionsV2;
-	syncCache?: SyncCacheValue;
-	corrections?: Partial<Record<string, Suggestion>>;
-	scrobblingItem?: Omit<SavedItem, ''>;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 } & CacheStorageValues;
 
-export type StorageValuesV4 = {
+export type StorageValuesV4 = Omit<StorageValuesV3, 'version' | 'correctItems'> & {
 	version?: 4;
-	auth?: TraktAuthDetails;
-	options?: StorageValuesOptionsV3;
-	syncOptions?: StorageValuesSyncOptionsV2;
-	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
-	syncCache?: SyncCacheValue;
 	corrections?: Partial<Record<string, Suggestion>>;
-	scrobblingItem?: Omit<SavedItem, ''>;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
-export type StorageValuesV3 = {
+export type StorageValuesV3 = Omit<StorageValuesV2, 'version' | 'options'> & {
 	version?: 3;
-	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV3;
-	syncOptions?: StorageValuesSyncOptionsV2;
-	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
-	syncCache?: SyncCacheValue;
-	correctItems?: Partial<Record<string, Record<string, CorrectItem>>>;
-	scrobblingItem?: Omit<SavedItem, ''>;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
-export type StorageValuesV2 = {
+export type StorageValuesV2 = Omit<
+	StorageValuesV1,
+	'version' | 'options' | 'syncOptions' | 'traktCache' | 'correctUrls' | 'scrobblingItem'
+> & {
 	version?: 2;
-	auth?: TraktAuthDetails;
 	options?: StorageValuesOptionsV2;
 	syncOptions?: StorageValuesSyncOptionsV2;
 	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
 	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<string, Record<string, CorrectItem>>>;
 	scrobblingItem?: Omit<SavedItem, ''>;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
 };
 
 export type StorageValuesV1 = {
@@ -87,7 +68,7 @@ export type StorageValuesV1 = {
 	correctUrls?: Partial<Record<string, Record<string, string>>>;
 	scrobblingItem?: unknown;
 	scrobblingTabId?: number;
-	hboGoApiParams?: Omit<HboGoApiParams, ''>;
+	hboGoApiParams?: unknown;
 };
 
 export interface ScrobblingDetails {
@@ -96,22 +77,16 @@ export interface ScrobblingDetails {
 	isPaused: boolean;
 }
 
-export type StorageValuesOptionsV3 = {
+export type StorageValuesOptionsV3 = Omit<StorageValuesOptionsV2, 'streamingServices'> & {
 	services: Record<string, ServiceValue>;
-	showNotifications: boolean;
-	sendReceiveSuggestions: boolean;
-	theme: ThemeValue;
-	allowRollbar: boolean;
-	grantCookies: boolean;
 };
 
-export type StorageValuesOptionsV2 = {
+export type StorageValuesOptionsV2 = Omit<
+	StorageValuesOptionsV1,
+	'streamingServices' | 'disableScrobbling'
+> & {
 	streamingServices: Record<string, ServiceValue>;
-	showNotifications: boolean;
-	sendReceiveSuggestions: boolean;
 	theme: ThemeValue;
-	allowRollbar: boolean;
-	grantCookies: boolean;
 };
 
 export type StorageValuesOptionsV1 = {
@@ -134,18 +109,10 @@ export type ServiceValue = {
 
 export type ThemeValue = 'light' | 'dark' | 'system';
 
-export type StorageValuesSyncOptionsV3 = {
-	addWithReleaseDate: boolean;
-	addWithReleaseDateMissing: boolean;
-	hideSynced: boolean;
-	minPercentageWatched: number;
-};
+export type StorageValuesSyncOptionsV3 = Omit<StorageValuesSyncOptionsV2, 'itemsPerLoad'>;
 
-export type StorageValuesSyncOptionsV2 = {
-	addWithReleaseDate: boolean;
+export type StorageValuesSyncOptionsV2 = StorageValuesSyncOptionsV1 & {
 	addWithReleaseDateMissing: boolean;
-	hideSynced: boolean;
-	itemsPerLoad: number;
 	minPercentageWatched: number;
 };
 
@@ -244,7 +211,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 6;
+	readonly currentVersion = 7;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -367,6 +334,21 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 7 && this.currentVersion >= 7) {
+			console.log('Upgrading to v7...');
+
+			const { options } = await this.get('options');
+
+			if (options?.services && 'hbo-go' in options.services) {
+				options.services['hbo-max'] = options.services['hbo-go'];
+				options.services['hbo-max'].lastSync = 0;
+				options.services['hbo-max'].lastSyncId = '';
+				delete options.services['hbo-go'];
+
+				await this.doSet({ options }, true);
+			}
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -377,6 +359,10 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 6 && this.currentVersion <= 6) {
+			console.log('Downgrading to v6...');
+		}
+
 		if (version > 5 && this.currentVersion <= 5) {
 			console.log('Downgrading to v5...');
 
@@ -388,12 +374,17 @@ class _BrowserStorage {
 
 			await this.doRemove(
 				[
+					'historyCache',
+					'historyItemsToItemsCache',
 					'imageUrlsCache',
+					'itemsCache',
 					'itemsToTraktItemsCache',
+					'servicesDataCache',
 					'suggestionsCache',
 					'tmdbApiConfigsCache',
 					'traktHistoryItemsCache',
 					'traktItemsCache',
+					'traktSettingsCache',
 					'urlsToTraktItemsCache',
 				] as unknown as (keyof StorageValues)[],
 				true
