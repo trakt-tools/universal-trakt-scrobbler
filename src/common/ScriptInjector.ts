@@ -1,19 +1,15 @@
 import { TraktScrobble } from '@apis/TraktScrobble';
-import { BrowserStorage, StorageValues } from '@common/BrowserStorage';
+import { BrowserStorage } from '@common/BrowserStorage';
 import {
-	ContentScriptDisconnectData,
+	ContentScriptConnectData,
 	EventDispatcher,
 	StorageOptionsChangeData,
 } from '@common/Events';
+import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { getServices } from '@models/Service';
-import {
-	browser,
-	Manifest as WebExtManifest,
-	Runtime as WebExtRuntime,
-	Tabs as WebExtTabs,
-} from 'webextension-polyfill-ts';
+import { browser, Manifest as WebExtManifest, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;
@@ -33,8 +29,6 @@ class _ScriptInjector {
 			this.checkTabListener();
 			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 			EventDispatcher.subscribe('CONTENT_SCRIPT_DISCONNECT', null, this.onContentScriptDisconnect);
-		} else if (Shared.pageType === 'content') {
-			browser.runtime.onConnect.addListener(this.onConnect);
 		}
 	}
 
@@ -50,7 +44,7 @@ class _ScriptInjector {
 		}
 	};
 
-	private onContentScriptDisconnect = async (data: ContentScriptDisconnectData) => {
+	private onContentScriptDisconnect = async (data: ContentScriptConnectData) => {
 		if (this.injectedContentScriptTabs.has(data.tabId)) {
 			this.injectedContentScriptTabs.delete(data.tabId);
 		}
@@ -96,7 +90,6 @@ class _ScriptInjector {
 			!tab.id ||
 			!tab.url ||
 			!tab.url.startsWith('http') ||
-			tab.url.endsWith('#noinject') ||
 			this.injectedContentScriptTabs.has(tab.id)
 		) {
 			return;
@@ -116,32 +109,30 @@ class _ScriptInjector {
 		}
 	}
 
-	private onConnect = (port: WebExtRuntime.Port) => {
-		port.onMessage.addListener((message: unknown) => {
-			const { serviceId, key, url, fnStr } = message as ScriptInjectorMessage;
-			this.inject(serviceId, key, url, fnStr)
-				.then((value) => port.postMessage(value))
-				.catch(() => port.postMessage(undefined));
-		});
-	};
-
 	/**
 	 * @param serviceId
 	 * @param key This should be unique for `serviceId`.
 	 * @param url If the content page isn't open, this URL will be used to open a tab in the background, so that the script can be injected. If an empty string is provided, `null` will be returned instead.
+	 *
 	 * @param fn The function that will be injected. It will be injected by converting it to a string (with `Function.prototype.toString`), so it should not contain any references to outside variables/functions, because they will not be available in the injected script.
+	 *
+	 * It should also not contain any syntax that gets transpiled by Babel, because Babel's helpers will not be available either. A good way to test it is to go to https://babeljs.io/repl#?browsers=&presets=typescript,env&externalPlugins=@babel/plugin-transform-runtime@7.15.0, paste the function and see if it adds Babel helpers at the top. If it does, try using older syntax that doesn't require polyfill.
+	 *
+	 * @param fnParams If outside values are needed, they should be passed here. The object will be converted to a string with `JSON.stringify`.
 	 * @returns
 	 */
-	inject<T>(
+	inject<T, U extends Record<string, unknown> = Record<string, unknown>>(
 		serviceId: string,
 		key: string,
 		url: string,
-		fn: (() => T | null) | string
+		fn: ((params: U) => T | null) | string,
+		fnParams: U | string = ''
 	): Promise<T | null> {
 		const fnStr = typeof fn === 'function' ? fn.toString() : fn;
+		const fnParamsStr = typeof fnParams === 'object' ? JSON.stringify(fnParams) : fnParams;
 
 		if (Shared.pageType !== 'content') {
-			return this.injectInTab(serviceId, key, url, fnStr);
+			return this.injectInTab(serviceId, key, url, fnStr, fnParamsStr);
 		}
 
 		return new Promise((resolve) => {
@@ -149,23 +140,14 @@ class _ScriptInjector {
 				const id = `${serviceId}-${key}`;
 
 				if (!this.injectedScriptIds.has(id)) {
-					const script = document.createElement('script');
-					script.textContent = `
-						window.addEventListener('uts-get-${id}', () => {
-							let value = null;
-							try {
-								value = (${fnStr})();
-							} catch (err) {
-								// Do nothing
-							}
+					const idStr = JSON.stringify(id);
+					const scriptFn = this.getScriptFn();
+					const scriptFnStr = `(${scriptFn.toString()})(${idStr}, ${fnStr}, ${fnParamsStr});`;
 
-							const event = new CustomEvent('uts-on-${id}-received', {
-								detail: value,
-							});
-							window.dispatchEvent(event);
-						});
-					`;
+					const script = document.createElement('script');
+					script.textContent = scriptFnStr;
 					document.body.appendChild(script);
+
 					this.injectedScriptIds.add(id);
 				}
 
@@ -188,42 +170,61 @@ class _ScriptInjector {
 		serviceId: string,
 		key: string,
 		url: string,
-		fnStr: string
+		fnStr: string,
+		fnParamsStr: string
 	): Promise<T | null> {
-		const storageKey = `${serviceId}-${key}`
-			.split('-')
-			.map((word, index) => (index === 0 ? word : `${word[0].toUpperCase()}${word.slice(1)}`))
-			.join('') as keyof StorageValues;
-		const values = await BrowserStorage.get(storageKey);
-		if (values[storageKey]) {
-			return values[storageKey] as T;
-		}
-
 		if (!url) {
 			return null;
 		}
 
-		const tab = await Tabs.open(`${url}#noinject`, { active: false });
-		if (!tab?.id) {
-			return null;
-		}
-
-		await browser.tabs.executeScript(tab.id, {
-			file: `${serviceId}.js`,
-			runAt: 'document_end',
-		});
-
-		const port = browser.tabs.connect(tab.id);
 		return new Promise((resolve) => {
-			port.onMessage.addListener((value) => {
-				if (tab.id) {
-					void browser.tabs.remove(tab.id);
+			let tabId: number | undefined;
+
+			const onScriptConnect = async (data: ContentScriptConnectData) => {
+				if (typeof tabId === 'undefined' || tabId !== data.tabId) {
+					return;
 				}
-				void BrowserStorage.set({ [storageKey]: value as unknown }, false);
-				resolve(value as unknown as T | null);
-			});
-			port.postMessage({ serviceId, key, url, fnStr });
+
+				const value = await Messaging.toContent(
+					{ action: 'inject-function', serviceId, key, url, fnStr, fnParamsStr },
+					tabId
+				);
+				void browser.tabs.remove(tabId);
+				resolve(value as T | null);
+
+				EventDispatcher.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+			};
+
+			EventDispatcher.subscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+
+			Tabs.open(url, { active: false })
+				.then((tab) => (tabId = tab?.id))
+				.catch(() => {
+					// Do nothing
+				});
 		});
+	}
+
+	private getScriptFn() {
+		return <T, U extends Record<string, unknown>>(
+			id: string,
+			fn: (params: U) => T | null,
+			fnParams: U
+		) => {
+			window.addEventListener(`uts-get-${id}`, () => {
+				let value: T | null = null;
+				try {
+					value = fn(fnParams);
+				} catch (err) {
+					// Do nothing
+				}
+
+				const event = new CustomEvent(`uts-on-${id}-received`, {
+					detail: value,
+				});
+				window.dispatchEvent(event);
+			});
+		};
 	}
 }
 

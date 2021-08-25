@@ -45,19 +45,24 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 
 ### Which streaming services are supported?
 
-| Streaming Service | Scrobble | Sync | Limitations                                                                     |
-| :---------------: | :------: | :--: | :------------------------------------------------------------------------------ |
-|   Amazon Prime    |    ✔️    |  ❌  | -                                                                               |
-|    Disney Plus    |    ✔️    |  ❌  | -                                                                               |
-|  GoPlay Belgium   |    ✔️    |  ❌  | -                                                                               |
-|      HBO Go       |    ✔️    |  ✔️  | - Only available for Latin America<br>- Can only sync the 30 last watched items |
-|      Netflix      |    ✔️    |  ✔️  | -                                                                               |
-|        NRK        |    ✔️    |  ✔️  | -                                                                               |
-|  Streamz Belgium  |    ✔️    |  ❌  | -                                                                               |
-|    Telia Play     |    ❌    |  ✔️  | -                                                                               |
-|      Viaplay      |    ✔     |  ✔️  | -                                                                               |
-|   VRTNu Belgium   |    ✔️    |  ❌  | -                                                                               |
-|  VTM Go Belgium   |    ✔️    |  ❌  | -                                                                               |
+<!-- services-start -->
+<!-- Update this section with `npx trakt-tools dev update-readme` -->
+
+| Streaming Service | Scrobble | Sync | Limitations |
+| :---------------: | :------: | :--: | :---------- |
+|   Amazon Prime    |    ✔️    |  ❌  | -           |
+|    DisneyPlus     |    ✔️    |  ❌  | -           |
+|     GoPlay BE     |    ✔️    |  ❌  | -           |
+|      HBO Max      |    ✔️    |  ✔️  | -           |
+|      Netflix      |    ✔️    |  ✔️  | -           |
+|        NRK        |    ✔️    |  ✔️  | -           |
+|    Streamz BE     |    ✔️    |  ❌  | -           |
+|    Telia Play     |    ❌    |  ✔️  | -           |
+|      Viaplay      |    ✔️    |  ✔️  | -           |
+|     VRTNu BE      |    ✔️    |  ❌  | -           |
+|     VTMGo BE      |    ✔️    |  ❌  | -           |
+
+<!-- services-end -->
 
 ### How does the extension work?
 

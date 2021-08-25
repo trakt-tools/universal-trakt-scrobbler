@@ -24,6 +24,7 @@ export interface MessageRequests {
 	'show-notification': ShowNotificationMessage;
 	'dispatch-event': DispatchEventMessage;
 	'send-to-all-content': SendToAllContentMessage;
+	'inject-function': InjectFunctionMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
@@ -44,6 +45,7 @@ export interface ReturnTypes {
 	'show-notification': void;
 	'dispatch-event': void;
 	'send-to-all-content': void;
+	'inject-function': unknown;
 }
 
 export interface OpenTabMessage {
@@ -117,6 +119,15 @@ export interface SendToAllContentMessage {
 	message: Exclude<MessageRequest, SendToAllContentMessage>;
 }
 
+export interface InjectFunctionMessage {
+	action: 'inject-function';
+	serviceId: string;
+	key: string;
+	url: string;
+	fnStr: string;
+	fnParamsStr: string;
+}
+
 export type MessageHandlers = {
 	[K in keyof MessageRequests]?: (
 		message: MessageRequests[K],
@@ -151,6 +162,8 @@ class _Messaging {
 		}
 
 		this.ports.set(tabId, port);
+		void EventDispatcher.dispatch('CONTENT_SCRIPT_CONNECT', null, { tabId });
+
 		port.onDisconnect.addListener(() => {
 			this.ports.delete(tabId);
 			void EventDispatcher.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });

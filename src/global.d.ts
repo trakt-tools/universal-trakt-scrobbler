@@ -1,6 +1,5 @@
 declare interface Window {
 	netflix?: import('@/netflix/NetflixApi').NetflixGlobalObject;
-	sdk?: import('@/hbo-go/HboGoApi').HboGoGlobalObject;
 	player?: import('@/nrk/NrkApi').NrkGlobalObject;
 	Rollbar?: import('rollbar');
 }
