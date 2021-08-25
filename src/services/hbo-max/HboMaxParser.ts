@@ -13,12 +13,6 @@ class _HboMaxParser extends ScrobbleParser {
 			watchingUrlRegex: /\/episode\/(.+)|\/feature\/(.+)/,
 		});
 	}
-
-	protected parseItemIdFromUrl() {
-		const hboMaxId = super.parseItemIdFromUrl();
-		const id = hboMaxId ? HboMaxApi.convertHboMaxId(hboMaxId) : null;
-		return id;
-	}
 }
 
 export const HboMaxParser = new _HboMaxParser();

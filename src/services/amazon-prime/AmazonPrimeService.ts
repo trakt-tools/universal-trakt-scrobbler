@@ -6,6 +6,6 @@ export const AmazonPrimeService = new Service({
 	homePage: 'https://www.primevideo.com/',
 	hostPatterns: ['*://*.primevideo.com/*'],
 	hasScrobbler: true,
-	hasSync: false,
-	hasAutoSync: false,
+	hasSync: true,
+	hasAutoSync: true,
 });
