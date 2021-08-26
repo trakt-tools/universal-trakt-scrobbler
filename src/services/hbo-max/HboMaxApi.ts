@@ -37,14 +37,7 @@ export interface HboMaxProfile {
 }
 
 export interface HboMaxHistoryItem {
-	/**
-	 * Formats:
-	 *
-	 * - e_XXXXXXXXXXXXXXXXXXXX
-	 * - m_XXXXXXXXXXXXXXXXXXXX
-	 */
 	id: string;
-
 	progress: number;
 	watchedAt: number;
 }
@@ -313,9 +306,8 @@ class _HboMaxApi extends ServiceApi {
 		const historyResponse = JSON.parse(historyResponseText) as HboMaxHistoryResponse;
 
 		for (const historyResponseItem of historyResponse) {
-			const id = this.convertHboMaxId(historyResponseItem.id);
 			historyItems.push({
-				id,
+				id: historyResponseItem.id,
 				progress:
 					Math.round((historyResponseItem.position / historyResponseItem.runtime) * 10000) / 100,
 				watchedAt: moment(historyResponseItem.created).unix(),
@@ -350,11 +342,10 @@ class _HboMaxApi extends ServiceApi {
 		return items;
 	}
 
-	parseItemMetadata(hboMaxId: string, itemMetadata: HboMaxItemMetadata) {
+	parseItemMetadata(id: string, itemMetadata: HboMaxItemMetadata) {
 		let item: Item;
 
 		const serviceId = this.id;
-		const id = this.convertHboMaxId(hboMaxId);
 		const { releaseYear: year } = itemMetadata;
 
 		if ('seriesTitles' in itemMetadata) {
@@ -389,7 +380,7 @@ class _HboMaxApi extends ServiceApi {
 		return item;
 	}
 
-	async getItem(itemId: string): Promise<Item | null> {
+	async getItem(id: string): Promise<Item | null> {
 		let item: Item | null = null;
 
 		if (!this.isActivated) {
@@ -400,8 +391,6 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		try {
-			const id = this.convertItemId(itemId);
-
 			const responseText = await Requests.send({
 				url: Utils.replace(this.ITEM_METADATA_URL, { ...this.session, id }),
 				method: 'GET',
@@ -420,26 +409,6 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		return item;
-	}
-
-	/**
-	 * Converts an HBO Max ID (`urn:hbo:episode:XXXXXXXXXXXXXXXXXXXX` or `urn:hbo:feature:XXXXXXXXXXXXXXXXXXXX`) to an item ID (`e_XXXXXXXXXXXXXXXXXXXX` or `m_XXXXXXXXXXXXXXXXXXXX`).
-	 */
-	convertHboMaxId(hboMaxId: string) {
-		const idParts = hboMaxId.split(':');
-		const [, , fullType, partialId] = idParts;
-		const shortType = fullType === 'episode' ? 'e' : 'm';
-		return `${shortType}_${partialId}`;
-	}
-
-	/**
-	 * Converts an item ID (`e_XXXXXXXXXXXXXXXXXXXX` or `m_XXXXXXXXXXXXXXXXXXXX`) to an HBO Max ID (`urn:hbo:episode:XXXXXXXXXXXXXXXXXXXX` or `urn:hbo:feature:XXXXXXXXXXXXXXXXXXXX`).
-	 */
-	convertItemId(itemId: string) {
-		const shortType = itemId[0];
-		const fullType = shortType === 'e' ? 'episode' : 'feature';
-		const partialId = itemId.slice(2);
-		return `urn:hbo:${fullType}:${partialId}`;
 	}
 
 	getSession(): Promise<Partial<HboMaxSession> | null> {
