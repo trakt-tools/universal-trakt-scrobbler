@@ -1,8 +1,10 @@
+import { FullView } from '@components/FullView';
 import { LoginWrapper } from '@components/LoginWrapper';
 import { PopupHeader } from '@components/PopupHeader';
+import { PopupOverlay } from '@components/PopupOverlay';
 import { useHistory } from '@contexts/HistoryContext';
-import { Box } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import BackgroundImage from '@images/background.jpg';
+import { Box } from '@mui/material';
 import { LoginPage } from '@pages/LoginPage';
 import { AboutPage } from '@pages/PopupAboutPage';
 import { HomePage } from '@pages/PopupHomePage';
@@ -11,15 +13,34 @@ import { Redirect, Route, Router, Switch } from 'react-router-dom';
 
 export const PopupApp: React.FC = () => {
 	const history = useHistory();
-	const theme = useTheme();
 
 	return (
 		<>
 			<PopupHeader />
-			<Box className={`popup-container ${theme.palette.type}`}>
-				<Box className="popup-container--overlay-image" />
-				<Box className="popup-container--overlay-color" />
-				<Box className="popup-container--content">
+			<Box
+				sx={{
+					position: 'relative',
+					width: 400,
+					height: 200,
+				}}
+			>
+				<FullView
+					sx={{
+						backgroundImage: `url("${BackgroundImage}")`,
+						filter: 'blur(1px) grayscale(0.5)',
+					}}
+				/>
+				<PopupOverlay />
+				<Box
+					sx={{
+						position: 'relative',
+						height: 1,
+
+						'& > *': {
+							height: 1,
+						},
+					}}
+				>
 					<Router history={history}>
 						<Switch>
 							<Route path="/login" render={() => <LoginPage />} />

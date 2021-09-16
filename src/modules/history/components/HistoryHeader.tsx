@@ -1,16 +1,17 @@
 import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
-import { UtsLeftRight } from '@components/UtsLeftRight';
+import { LeftRight } from '@components/LeftRight';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSession } from '@contexts/SessionContext';
 import { useSync } from '@contexts/SyncContext';
-import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import HomeIcon from '@material-ui/icons/Home';
-import InfoIcon from '@material-ui/icons/Info';
-import SettingsIcon from '@material-ui/icons/Settings';
+import {
+	ExitToApp as ExitToAppIcon,
+	Home as HomeIcon,
+	Info as InfoIcon,
+	Settings as SettingsIcon,
+} from '@mui/icons-material';
+import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -18,7 +19,6 @@ export const HistoryHeader: React.FC = () => {
 	const history = useHistory();
 	const { isLoggedIn } = useSession();
 	const { serviceId, service, api } = useSync();
-	const theme = useTheme();
 
 	const onRouteClick = (path: string) => {
 		history.push(path);
@@ -34,12 +34,14 @@ export const HistoryHeader: React.FC = () => {
 
 	return (
 		<AppBar
-			className="history-header"
 			position="sticky"
-			style={{ zIndex: theme.zIndex.drawer + 1 }}
+			sx={{
+				zIndex: ({ zIndex }) => zIndex.drawer + 1,
+				color: '#fff',
+			}}
 		>
 			<Toolbar>
-				<UtsLeftRight
+				<LeftRight
 					centerVertically={true}
 					left={
 						<>
@@ -66,7 +68,7 @@ export const HistoryHeader: React.FC = () => {
 							</Button>
 						</>
 					}
-					middle={
+					center={
 						<Typography variant="overline">
 							{serviceId !== null ? (
 								service ? (

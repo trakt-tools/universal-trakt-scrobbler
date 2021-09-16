@@ -3,7 +3,6 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
-import { Shared } from '@common/Shared';
 
 class _Session {
 	isLoggedIn: boolean;

@@ -1,10 +1,10 @@
 import { I18N } from '@common/I18N';
 import { Tabs } from '@common/Tabs';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { SwitchOption } from '@components/SwitchOption';
-import { Grid, IconButton, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
-import LaunchIcon from '@material-ui/icons/Launch';
 import { Service } from '@models/Service';
+import { Block as BlockIcon, Launch as LaunchIcon } from '@mui/icons-material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
@@ -21,12 +21,12 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 	};
 
 	return (
-		<Grid item className="options-grid-item--centered" xs={1}>
+		<CenteredGrid item xs={1}>
 			{service.hasSync ? (
 				<>
 					<SwitchOption id="sync" value={sync} isDisabled={false} handleChange={handleChange} />
 					<Tooltip title={I18N.translate('goToHistoryPage')}>
-						<span>
+						<Box component="span">
 							<IconButton
 								color="inherit"
 								disabled={!sync}
@@ -35,7 +35,7 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 							>
 								<LaunchIcon fontSize="small" />
 							</IconButton>
-						</span>
+						</Box>
 					</Tooltip>
 				</>
 			) : (
@@ -43,7 +43,7 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 

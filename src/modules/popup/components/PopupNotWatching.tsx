@@ -1,6 +1,6 @@
 import { I18N } from '@common/I18N';
 import { PopupInfo } from '@components/PopupInfo';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import React from 'react';
 
 export const PopupNotWatching: React.FC = () => {

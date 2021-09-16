@@ -3,7 +3,7 @@ import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Box, Button, Divider } from '@material-ui/core';
+import { Box, Button, Divider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 export const OptionsActions: React.FC = () => {
@@ -65,14 +65,33 @@ export const OptionsActions: React.FC = () => {
 	}, []);
 
 	return (
-		<Box className="options-actions--container">
+		<Box
+			sx={{
+				position: 'fixed',
+				right: 0,
+				bottom: 0,
+				left: 0,
+				backgroundColor: '#fff',
+			}}
+		>
 			<Divider />
-			<Box className="options-actions">
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					padding: 2,
+
+					'& > *': {
+						marginY: 0,
+						marginX: 1,
+					},
+				}}
+			>
 				<Button onClick={onClearStorageClick} variant="contained">
 					{I18N.translate('clearStorage')}
 				</Button>
 				<Button onClick={onClearCachesClick} variant="contained">
-					{I18N.translate('clearCaches')} (<span>{cacheSize}</span>)
+					{I18N.translate('clearCaches')} (<Box component="span">{cacheSize}</Box>)
 				</Button>
 			</Box>
 		</Box>

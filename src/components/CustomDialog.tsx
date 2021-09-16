@@ -1,20 +1,20 @@
 import { DialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import {
 	Button,
-	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogContentText,
 	DialogTitle,
-} from '@material-ui/core';
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;
 }
 
-export const UtsDialog: React.FC = () => {
+export const CustomDialog: React.FC = () => {
 	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
 		title: '',
@@ -56,21 +56,21 @@ export const UtsDialog: React.FC = () => {
 	}, []);
 
 	return (
-		<Dialog onClose={() => closeDialog(false)} open={dialog.isOpen}>
+		<CustomDialogRoot onClose={() => closeDialog(false)} open={dialog.isOpen}>
 			<DialogTitle>{dialog.title}</DialogTitle>
 			<DialogContent>
 				<DialogContentText>{dialog.message}</DialogContentText>
 			</DialogContent>
 			<DialogActions>
-				<Button color="primary" onClick={() => closeDialog(false)}>
+				<Button onClick={() => closeDialog(false)}>
 					{I18N.translate(dialog.onConfirm || dialog.onDeny ? 'no' : 'close')}
 				</Button>
 				{dialog.onConfirm && (
-					<Button color="primary" onClick={() => closeDialog(true)} variant="contained">
+					<Button onClick={() => closeDialog(true)} variant="contained">
 						{I18N.translate('yes')}
 					</Button>
 				)}
 			</DialogActions>
-		</Dialog>
+		</CustomDialogRoot>
 	);
 };

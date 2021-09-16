@@ -1,7 +1,7 @@
 import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
 import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
-import { CssBaseline, useMediaQuery } from '@material-ui/core';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import '@fonts';
+import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
 import React from 'react';
 
 interface ThemeWrapperProps {
@@ -11,6 +11,18 @@ interface ThemeWrapperProps {
 export interface ThemeDetails {
 	value: ThemeValue;
 	palette: 'light' | 'dark';
+}
+
+export interface CustomTheme {
+	sizes: {
+		sidebar: number;
+	};
+}
+
+declare module '@mui/material/styles' {
+	interface Theme extends CustomTheme {}
+
+	interface ThemeOptions extends CustomTheme {}
 }
 
 export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWrapperProps) => {
@@ -68,9 +80,25 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 		return stopListeners;
 	}, []);
 
-	const theme = createMuiTheme({
+	const theme = createTheme({
+		components: {
+			MuiCssBaseline: {
+				styleOverrides: {
+					'*:focus': {
+						outline: 'none',
+					},
+
+					body: {
+						margin: 0,
+					},
+				},
+			},
+		},
 		palette: {
-			type: themeDetails.palette,
+			mode: themeDetails.palette,
+		},
+		sizes: {
+			sidebar: 300,
 		},
 	});
 

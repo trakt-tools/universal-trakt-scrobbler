@@ -1,6 +1,7 @@
 import { CustomOptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceOption } from '@components/ServiceOption';
 import {
 	Button,
@@ -10,7 +11,7 @@ import {
 	ListItemSecondaryAction,
 	ListItemText,
 	Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -65,21 +66,27 @@ export const ServiceOptions: React.FC<ServiceOptionsProps> = ({ option }) => {
 			</ListItem>
 			<ListItem>
 				<Grid container spacing={2}>
-					<Grid item className="options-grid-item" xs={12}>
-						<Grid container className="options-grid-container" spacing={10}>
+					<Grid
+						item
+						xs={12}
+						sx={{
+							overflow: 'hidden',
+						}}
+					>
+						<CenteredGrid container spacing={10}>
 							<Grid item xs={3}>
 								<Typography variant="caption">{I18N.translate('service')}</Typography>
 							</Grid>
-							<Grid item className="options-grid-item--centered" xs={1}>
+							<CenteredGrid item xs={1}>
 								<Typography variant="caption">{I18N.translate('serviceScrobble')}</Typography>
-							</Grid>
-							<Grid item className="options-grid-item--centered" xs={1}>
+							</CenteredGrid>
+							<CenteredGrid item xs={1}>
 								<Typography variant="caption">{I18N.translate('serviceSync')}</Typography>
-							</Grid>
-							<Grid item className="options-grid-item--centered" xs={2}>
+							</CenteredGrid>
+							<CenteredGrid item xs={2}>
 								<Typography variant="caption">{I18N.translate('autoSync')}</Typography>
-							</Grid>
-						</Grid>
+							</CenteredGrid>
+						</CenteredGrid>
 					</Grid>
 					{Object.entries(option.value)
 						.sort(([idA], [idB]) => idA.localeCompare(idB))

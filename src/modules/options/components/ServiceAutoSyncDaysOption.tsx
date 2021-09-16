@@ -1,6 +1,6 @@
 import { I18N } from '@common/I18N';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
-import { Tooltip } from '@material-ui/core';
+import { Box, Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -19,17 +19,19 @@ const _ServiceAutoSyncDaysOption: React.FC<ServiceAutoSyncDaysOptionProps> = ({
 }) => {
 	return (
 		<Tooltip title={I18N.translate('daysDescription')}>
-			<span>
+			<Box component="span">
 				<NumericTextFieldOption
 					id="autoSyncDays"
 					label={I18N.translate('days')}
 					value={autoSyncDays}
 					isDisabled={!sync || !autoSync}
 					minValue={1}
-					style={{ width: 100 }}
 					handleChange={handleChange}
+					sx={{
+						width: 100,
+					}}
 				/>
-			</span>
+			</Box>
 		</Tooltip>
 	);
 };

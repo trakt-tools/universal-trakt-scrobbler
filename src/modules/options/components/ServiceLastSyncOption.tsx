@@ -2,10 +2,9 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear';
-import ErrorIcon from '@material-ui/icons/Error';
 import { Service } from '@models/Service';
+import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -47,7 +46,11 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 
 	return sync && autoSync && lastSync === 0 ? (
 		<Tooltip title={I18N.translate('autoSyncNotActivated')}>
-			<Box ml={0.5}>
+			<Box
+				sx={{
+					marginLeft: 0.5,
+				}}
+			>
 				<ErrorIcon color="error" fontSize="small" />
 			</Box>
 		</Tooltip>
@@ -66,7 +69,7 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 				</>
 			}
 		>
-			<span>
+			<Box component="span">
 				<IconButton
 					color="secondary"
 					disabled={!sync || !autoSync}
@@ -75,7 +78,7 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 				>
 					<ClearIcon fontSize="small" />
 				</IconButton>
-			</span>
+			</Box>
 		</Tooltip>
 	);
 };

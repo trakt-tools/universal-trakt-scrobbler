@@ -2,20 +2,20 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
+import { Center } from '@components/Center';
+import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
 import { TmdbImage } from '@components/TmdbImage';
-import { UtsCenter } from '@components/UtsCenter';
+import { Item } from '@models/Item';
+import { TraktItem } from '@models/TraktItem';
 import {
 	Button,
 	Card,
 	CardContent,
-	Divider,
 	LinearProgress,
+	Skeleton,
 	Tooltip,
 	Typography,
-} from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
-import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -54,19 +54,42 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 			<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
 		)
 	) : (
-		<Typography variant="overline" style={{ width: '75%' }}>
+		<Typography
+			variant="overline"
+			sx={{
+				width: 0.75,
+			}}
+		>
 			<Skeleton variant="text" />
 		</Typography>
 	);
 
 	const hasImage = item instanceof TraktItem || item === null;
 	return (
-		<Card className={`history-list-item-card ${hasImage ? 'image' : ''}`} variant="outlined">
+		<Card
+			variant="outlined"
+			sx={{
+				position: 'relative',
+				width: 350,
+				marginY: 1,
+				marginX: 0,
+				textAlign: 'center',
+				...(hasImage
+					? {
+							color: '#fff',
+					  }
+					: {}),
+			}}
+		>
 			{hasImage && <TmdbImage imageUrl={imageUrl} />}
-			<CardContent className="history-list-item-card-content">
-				<UtsCenter isHorizontal={false}>
+			<CardContent
+				sx={{
+					position: 'relative',
+				}}
+			>
+				<Center isHorizontal={false}>
 					<Typography variant="overline">{`${I18N.translate('on')} ${name}`}</Typography>
-					<Divider className="history-list-item-divider" />
+					<HistoryListItemDivider useDarkMode={hasImage} />
 					{typeof item !== 'undefined' ? (
 						<>
 							{item === null ? (
@@ -78,14 +101,14 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 									)}
 									<Typography variant="h6">{item.episodeTitle}</Typography>
 									<Typography variant="subtitle2">{item.title}</Typography>
-									<Divider className="history-list-item-divider" />
+									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
 							) : (
 								<>
 									{item.year && <Typography variant="overline">{item.year}</Typography>}
 									<Typography variant="h6">{item.title}</Typography>
-									<Divider className="history-list-item-divider" />
+									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
 							)}
@@ -108,30 +131,55 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 						</>
 					) : (
 						<>
-							<Typography variant="overline" style={{ width: '25%' }}>
+							<Typography
+								variant="overline"
+								sx={{
+									width: 0.25,
+								}}
+							>
 								<Skeleton variant="text" />
 							</Typography>
-							<Typography variant="h6" style={{ width: '75%' }}>
+							<Typography
+								variant="h6"
+								sx={{
+									width: 0.75,
+								}}
+							>
 								<Skeleton variant="text" />
 							</Typography>
-							<Typography variant="subtitle2" style={{ width: '50%' }}>
+							<Typography
+								variant="subtitle2"
+								sx={{
+									width: 0.5,
+								}}
+							>
 								<Skeleton variant="text" />
 							</Typography>
-							<Divider className="history-list-item-divider" />
+							<HistoryListItemDivider useDarkMode={hasImage} />
 							{watchedAtComponent}
-							<Typography variant="caption" style={{ width: '25%' }}>
+							<Typography
+								variant="caption"
+								sx={{
+									width: 0.25,
+								}}
+							>
 								<Skeleton variant="text" />
 							</Typography>
 						</>
 					)}
-				</UtsCenter>
+				</Center>
 			</CardContent>
 			{item && item.progress > 0.0 && (
 				<Tooltip title={I18N.translate('progress', item.progress.toString())}>
 					<LinearProgress
-						classes={{ root: 'history-list-item-progress' }}
 						value={item.progress}
 						variant="determinate"
+						sx={{
+							position: 'absolute',
+							bottom: 0,
+							width: 1,
+							height: ({ spacing }) => spacing(1),
+						}}
 					/>
 				</Tooltip>
 			)}

@@ -23,11 +23,12 @@
 				"./src/modules/popup/components/*"
 			],
 			"@contexts/*": ["./src/contexts/*"],
+			"@fonts": ["./src/fonts/fonts"],
 			"@images/*": ["./src/images/*"],
 			"@models/*": ["./src/models/*"],
 			"@pages/*": ["./src/pages/*", "./src/modules/history/pages/*", "./src/modules/popup/pages/*"],
+			"@templates/*": ["./src/templates/*"],
 			"@stores/*": ["./src/stores/*"],
-			"@styles/*": ["./src/styles/*"],
 			"@background": ["./src/modules/background/background"],
 			"@service": ["./src/modules/content/service/service"],
 			"@trakt": ["./src/modules/content/trakt/trakt"],

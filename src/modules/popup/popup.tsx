@@ -4,8 +4,6 @@ import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
-import '@popup/popup.html';
-import '@popup/popup.scss';
 import { PopupApp } from '@popup/PopupApp';
 import React from 'react';
 import ReactDOM from 'react-dom';

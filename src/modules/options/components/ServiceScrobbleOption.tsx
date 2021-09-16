@@ -1,8 +1,9 @@
 import { I18N } from '@common/I18N';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { SwitchOption } from '@components/SwitchOption';
-import { Grid, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
 import { Service } from '@models/Service';
+import { Block as BlockIcon } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -18,7 +19,7 @@ const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
 	handleChange,
 }) => {
 	return (
-		<Grid item className="options-grid-item--centered" xs={1}>
+		<CenteredGrid item xs={1}>
 			{service.hasScrobbler ? (
 				<SwitchOption
 					id="scrobble"
@@ -31,7 +32,7 @@ const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 

@@ -2,13 +2,11 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { useSync } from '@contexts/SyncContext';
-import { Box, Button, Divider } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import { Box, Button, Divider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 export const HistoryActions: React.FC = () => {
 	const { serviceId, store } = useSync();
-	const theme = useTheme();
 
 	const [areItemsMissingWatchedDate, setItemsMissingWatchedDate] = useState(
 		store.areItemsMissingWatchedDate()
@@ -73,10 +71,26 @@ export const HistoryActions: React.FC = () => {
 	}, []);
 
 	return (
-		<Box className="history-actions--container" style={{ zIndex: theme.zIndex.drawer + 1 }}>
+		<Box
+			sx={{
+				zIndex: ({ zIndex }) => zIndex.drawer + 1,
+				backgroundColor: '#fff',
+			}}
+		>
 			<Divider />
-			<Box className="history-actions">
-				<Button color="primary" onClick={onSyncClick} variant="contained">
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					padding: 2,
+
+					'& > *': {
+						marginY: 0,
+						marginX: 1,
+					},
+				}}
+			>
+				<Button onClick={onSyncClick} variant="contained">
 					{I18N.translate('sync')}
 				</Button>
 				{!serviceId && (

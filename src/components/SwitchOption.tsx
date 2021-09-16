@@ -1,8 +1,8 @@
-import { FormControlLabel, Switch } from '@material-ui/core';
+import { FormControlLabel, Switch } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-interface SwitchOptionProps {
+interface SwitchOptionProps extends WithSx {
 	id: string;
 	label?: string;
 	value: boolean;
@@ -16,7 +16,8 @@ export const SwitchOption: React.FC<SwitchOptionProps> = ({
 	value: initialValue,
 	isDisabled,
 	handleChange,
-}) => {
+	sx = {},
+}: SwitchOptionProps) => {
 	const [value, setValue] = useState(initialValue);
 
 	const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +30,7 @@ export const SwitchOption: React.FC<SwitchOptionProps> = ({
 	}, [initialValue]);
 
 	const switchComponent = (
-		<Switch checked={value} color="primary" disabled={isDisabled} onChange={onChange} />
+		<Switch checked={value} disabled={isDisabled} onChange={onChange} sx={sx} />
 	);
 
 	return label ? <FormControlLabel control={switchComponent} label={label} /> : switchComponent;

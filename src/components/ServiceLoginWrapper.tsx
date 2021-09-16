@@ -1,9 +1,9 @@
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { UtsCenter } from '@components/UtsCenter';
+import { Center } from '@components/Center';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
-import { CircularProgress, Link } from '@material-ui/core';
+import { CircularProgress, Link } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
@@ -47,9 +47,9 @@ export const ServiceLoginWrapper: React.FC = ({ children }) => {
 	}, []);
 
 	return isLoading ? (
-		<UtsCenter>
+		<Center>
 			<CircularProgress />
-		</UtsCenter>
+		</Center>
 	) : (
 		<>{children}</>
 	);

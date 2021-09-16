@@ -1,11 +1,11 @@
+import { CustomDialog } from '@components/CustomDialog';
+import { CustomSnackbar } from '@components/CustomSnackbar';
+import { HistoryContainer } from '@components/HistoryContainer';
 import { HistoryHeader } from '@components/HistoryHeader';
 import { LoginWrapper } from '@components/LoginWrapper';
 import { ServiceLoginWrapper } from '@components/ServiceLoginWrapper';
-import { UtsDialog } from '@components/UtsDialog';
-import { UtsSnackbar } from '@components/UtsSnackbar';
 import { useHistory } from '@contexts/HistoryContext';
 import { SyncProvider } from '@contexts/SyncContext';
-import { Container } from '@material-ui/core';
 import { getServices } from '@models/Service';
 import { AutoSyncPage } from '@pages/AutoSyncPage';
 import { AboutPage } from '@pages/HistoryAboutPage';
@@ -28,9 +28,9 @@ export const HistoryApp: React.FC = () => {
 						render={() => (
 							<>
 								<HistoryHeader />
-								<Container className="history-container">
+								<HistoryContainer>
 									<LoginPage />
-								</Container>
+								</HistoryContainer>
 							</>
 						)}
 					/>
@@ -39,9 +39,9 @@ export const HistoryApp: React.FC = () => {
 						render={() => (
 							<LoginWrapper>
 								<HistoryHeader />
-								<Container className="history-container">
+								<HistoryContainer>
 									<HomePage />
-								</Container>
+								</HistoryContainer>
 							</LoginWrapper>
 						)}
 					/>
@@ -50,9 +50,9 @@ export const HistoryApp: React.FC = () => {
 						render={() => (
 							<>
 								<HistoryHeader />
-								<Container className="history-container">
+								<HistoryContainer>
 									<AboutPage />
-								</Container>
+								</HistoryContainer>
 							</>
 						)}
 					/>
@@ -67,12 +67,9 @@ export const HistoryApp: React.FC = () => {
 										<SyncProvider serviceId={service.id}>
 											<ServiceLoginWrapper>
 												<HistoryHeader />
-												<Container
-													className="history-container history-container--sync"
-													maxWidth={false}
-												>
+												<HistoryContainer isSync={true} disableGutters={true} maxWidth={false}>
 													<SyncPage />
-												</Container>
+												</HistoryContainer>
 											</ServiceLoginWrapper>
 										</SyncProvider>
 									</LoginWrapper>
@@ -85,9 +82,9 @@ export const HistoryApp: React.FC = () => {
 							<LoginWrapper>
 								<SyncProvider serviceId={null}>
 									<HistoryHeader />
-									<Container className="history-container history-container--sync" maxWidth={false}>
+									<HistoryContainer isSync={true} disableGutters={true} maxWidth={false}>
 										<AutoSyncPage />
-									</Container>
+									</HistoryContainer>
 								</SyncProvider>
 							</LoginWrapper>
 						)}
@@ -95,8 +92,8 @@ export const HistoryApp: React.FC = () => {
 					<Redirect to="/login" />
 				</Switch>
 			</Router>
-			<UtsDialog />
-			<UtsSnackbar />
+			<CustomDialog />
+			<CustomSnackbar />
 		</>
 	);
 };

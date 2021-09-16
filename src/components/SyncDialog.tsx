@@ -2,16 +2,10 @@ import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, SyncDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { UtsCenter } from '@components/UtsCenter';
-import {
-	Button,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-} from '@material-ui/core';
+import { Center } from '@components/Center';
+import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { Item } from '@models/Item';
+import { Button, CircularProgress, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import React from 'react';
 
@@ -77,8 +71,7 @@ export const SyncDialog: React.FC = () => {
 	}, []);
 
 	return (
-		<Dialog
-			classes={{ paper: 'sync-dialog' }}
+		<CustomDialogRoot
 			open={isOpen}
 			aria-labelledby="sync-dialog-title"
 			disableEscapeKeyDown={true}
@@ -88,15 +81,13 @@ export const SyncDialog: React.FC = () => {
 		>
 			<DialogTitle id="sync-dialog-title">{I18N.translate('syncing')}</DialogTitle>
 			<DialogContent>
-				<UtsCenter>
+				<Center>
 					<CircularProgress />
-				</UtsCenter>
+				</Center>
 			</DialogContent>
 			<DialogActions>
-				<Button color="default" onClick={cancelSync}>
-					{I18N.translate('cancel')}
-				</Button>
+				<Button onClick={cancelSync}>{I18N.translate('cancel')}</Button>
 			</DialogActions>
-		</Dialog>
+		</CustomDialogRoot>
 	);
 };

@@ -3,8 +3,8 @@ import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { useHistory } from '@contexts/HistoryContext';
-import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import { getServices, Service } from '@models/Service';
+import { List, ListItem, ListItemText, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 export const HomePage: React.FC = () => {

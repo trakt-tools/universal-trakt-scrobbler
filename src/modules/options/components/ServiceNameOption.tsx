@@ -1,5 +1,5 @@
-import { Grid, Typography } from '@material-ui/core';
 import { Service } from '@models/Service';
+import { Grid, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 

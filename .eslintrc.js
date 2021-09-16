@@ -83,13 +83,15 @@ const getTsOverride = () => {
 	}
 
 	tsOverride.files = ['**/*.{ts,tsx}'];
-	tsOverride.plugins = ['prefer-arrow'];
+	tsOverride.plugins = ['mui', 'prefer-arrow'];
 	tsOverride.extends.splice(tsOverride.extends.length - 1, 0, ...extendsArr);
+	tsOverride.rules['mui/sort-sx-keys'] = 'error';
 	tsOverride.rules['@typescript-eslint/quotes'] = tsOverride.rules.quotes;
 	tsOverride.rules.quotes = 'off';
 	tsOverride.rules['@typescript-eslint/no-shadow'] = tsOverride.rules['no-shadow'];
 	tsOverride.rules['no-shadow'] = 'off';
 	tsOverride.rules['prefer-arrow/prefer-arrow-functions'] = 'error';
+	tsOverride.rules['@typescript-eslint/no-empty-interface'] = 'warn';
 
 	return tsOverride;
 };

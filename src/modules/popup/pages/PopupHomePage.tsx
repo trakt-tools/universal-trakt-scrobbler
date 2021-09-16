@@ -2,11 +2,11 @@ import { CorrectionApi } from '@apis/CorrectionApi';
 import { TmdbApi } from '@apis/TmdbApi';
 import { BrowserStorage, ScrobblingDetails } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
+import { Center } from '@components/Center';
 import { PopupNotWatching } from '@components/PopupNotWatching';
 import { PopupWatching } from '@components/PopupWatching';
-import { UtsCenter } from '@components/UtsCenter';
-import { CircularProgress } from '@material-ui/core';
 import { Item } from '@models/Item';
+import { CircularProgress } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 interface IPopupHomeContent {
@@ -125,9 +125,9 @@ export const HomePage: React.FC = () => {
 	let component = null;
 	if (content.isLoading) {
 		component = (
-			<UtsCenter>
+			<Center>
 				<CircularProgress color="secondary" />
-			</UtsCenter>
+			</Center>
 		);
 	} else if (content.scrobblingItem) {
 		component = <PopupWatching item={content.scrobblingItem} isPaused={content.isPaused} />;

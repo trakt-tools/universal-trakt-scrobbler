@@ -1,8 +1,8 @@
-import { MenuItem, Select } from '@material-ui/core';
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-interface SelectOptionProps {
+interface SelectOptionProps extends WithSx {
 	id: string;
 	value: string;
 	isDisabled: boolean;
@@ -16,11 +16,12 @@ export const SelectOption: React.FC<SelectOptionProps> = ({
 	isDisabled,
 	choices,
 	handleChange,
-}) => {
+	sx = {},
+}: SelectOptionProps) => {
 	const [value, setValue] = useState(initialValue);
 
-	const onChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-		const newValue = event.target.value as string;
+	const onChange = (event: SelectChangeEvent) => {
+		const newValue = event.target.value;
 		handleChange(id, newValue);
 	};
 
@@ -29,7 +30,7 @@ export const SelectOption: React.FC<SelectOptionProps> = ({
 	}, [initialValue]);
 
 	return (
-		<Select disabled={isDisabled} value={value} onChange={onChange}>
+		<Select disabled={isDisabled} value={value} onChange={onChange} sx={sx}>
 			{Object.entries(choices).map(([key, name]) => (
 				<MenuItem key={key} value={key}>
 					{name}

@@ -9,9 +9,9 @@ import { Errors } from '@common/Errors';
 import { DispatchEventMessage, Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { Color } from '@material-ui/lab';
 import { Item, SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
+import { AlertColor } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import { PartialDeep } from 'type-fest';
 
@@ -92,7 +92,7 @@ export interface DialogShowData {
 export interface SnackbarShowData {
 	messageName: MessageName;
 	messageArgs?: string[];
-	severity: Color;
+	severity: AlertColor;
 }
 
 export interface MissingWatchedDateDialogShowData {

@@ -1,21 +1,26 @@
 import { BrowserStorage } from '@common/BrowserStorage';
+import { CustomDialog } from '@components/CustomDialog';
+import { CustomSnackbar } from '@components/CustomSnackbar';
 import { OptionsActions } from '@components/OptionsActions';
 import { OptionsHeader } from '@components/OptionsHeader';
 import { OptionsList } from '@components/OptionsList';
-import { UtsDialog } from '@components/UtsDialog';
-import { UtsSnackbar } from '@components/UtsSnackbar';
-import { Container } from '@material-ui/core';
+import { Container } from '@mui/material';
 import React from 'react';
 
 export const OptionsApp: React.FC = () => {
 	return (
 		<>
 			<OptionsHeader />
-			<Container className="options-container">
+			<Container
+				sx={{
+					paddingTop: 2,
+					paddingBottom: '100px',
+				}}
+			>
 				<OptionsList details={BrowserStorage.optionsDetails} />
 				<OptionsActions />
-				<UtsDialog />
-				<UtsSnackbar />
+				<CustomDialog />
+				<CustomSnackbar />
 			</Container>
 		</>
 	);

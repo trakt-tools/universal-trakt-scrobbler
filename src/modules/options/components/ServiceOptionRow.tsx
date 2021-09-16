@@ -1,9 +1,10 @@
+import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceAutoSyncOptions } from '@components/ServiceAutoSyncOptions';
 import { ServiceNameOption } from '@components/ServiceNameOption';
 import { ServiceScrobbleOption } from '@components/ServiceScrobbleOption';
 import { ServiceSyncOption } from '@components/ServiceSyncOption';
-import { Grid } from '@material-ui/core';
 import { Service } from '@models/Service';
+import { Grid } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -27,8 +28,14 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 	handleChange,
 }) => {
 	return (
-		<Grid item className="options-grid-item" xs={12}>
-			<Grid container className="options-grid-container" spacing={10}>
+		<Grid
+			item
+			xs={12}
+			sx={{
+				overflow: 'hidden',
+			}}
+		>
+			<CenteredGrid container spacing={10}>
 				<ServiceNameOption service={service} />
 				<ServiceScrobbleOption service={service} scrobble={scrobble} handleChange={handleChange} />
 				<ServiceSyncOption service={service} sync={sync} handleChange={handleChange} />
@@ -40,7 +47,7 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 					lastSync={lastSync}
 					handleChange={handleChange}
 				/>
-			</Grid>
+			</CenteredGrid>
 		</Grid>
 	);
 };

@@ -1,8 +1,8 @@
-import { TextField } from '@material-ui/core';
+import { TextField } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-interface BaseTextFieldOptionProps<T extends string | number> {
+interface BaseTextFieldOptionProps<T extends string | number> extends WithSx {
 	id: string;
 	label: string;
 	value: T;
@@ -11,7 +11,6 @@ interface BaseTextFieldOptionProps<T extends string | number> {
 	minValue?: number;
 	maxValue?: number;
 	step?: number;
-	style?: React.CSSProperties;
 	handleChange: (id: string, newValue: T) => void;
 }
 
@@ -24,8 +23,8 @@ const BaseTextFieldOption = <T extends string | number>({
 	minValue = 0,
 	maxValue,
 	step = 1,
-	style,
 	handleChange,
+	sx = {},
 }: BaseTextFieldOptionProps<T>): React.ReactElement => {
 	const [value, setValue] = useState<T | null>(initialValue);
 
@@ -64,6 +63,7 @@ const BaseTextFieldOption = <T extends string | number>({
 		<TextField
 			disabled={isDisabled}
 			label={label}
+			margin="normal"
 			size="small"
 			type={typeof value}
 			value={value !== null ? value : ''}
@@ -77,8 +77,8 @@ const BaseTextFieldOption = <T extends string | number>({
 					  }
 					: {}
 			}
-			style={style}
 			onChange={onChange}
+			sx={sx}
 		/>
 	);
 };

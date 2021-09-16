@@ -1,12 +1,13 @@
 import { EventDispatcher, ItemsLoadData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { HistoryListItemCard } from '@components/HistoryListItemCard';
+import { HistoryListItemMessage } from '@components/HistoryListItemMessage';
 import { useSync } from '@contexts/SyncContext';
-import { Box, Button, Checkbox, Tooltip, Typography } from '@material-ui/core';
-import { green, red } from '@material-ui/core/colors';
-import SyncIcon from '@material-ui/icons/Sync';
 import { Item } from '@models/Item';
 import { getService } from '@models/Service';
+import { Sync as SyncIcon } from '@mui/icons-material';
+import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
+import { green, red } from '@mui/material/colors';
 import React, { useEffect, useState } from 'react';
 import { areEqual, ListChildComponentProps } from 'react-window';
 
@@ -18,7 +19,7 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	data,
 	index,
 	style,
-}) => {
+}: ListChildComponentProps<HistoryListItemProps>) => {
 	const { serviceId, store } = useSync();
 
 	const { onContinueLoadingClick } = data;
@@ -89,57 +90,93 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 		serviceName = I18N.translate('unknown');
 	}
 
-	return item?.isHidden ? null : index === -1 ? (
-		<Box className="history-list-item" style={style}>
-			<Box className="history-list-item-message" p={2}>
-				<Typography variant="body1">{I18N.translate('autoSyncPageMessage')}</Typography>
-			</Box>
-		</Box>
-	) : index === store.data.items.length && store.data.hasReachedEnd ? (
-		<Box className="history-list-item" style={style}>
-			<Box className="history-list-item-message" p={2}>
-				{store.data.hasReachedLastSyncDate ? (
-					<>
-						<Box mb={2}>
-							<Typography variant="body1">{I18N.translate('reachedLastSyncDate')}</Typography>
+	if (item?.isHidden) {
+		return null;
+	}
+
+	return (
+		<Box
+			style={style}
+			sx={{
+				left: '50% !important',
+				display: 'flex',
+				justifyContent: 'end',
+				width: 'auto !important',
+				transform: 'translateX(-50%)',
+
+				'& > *': {
+					marginY: 0,
+					marginX: 1,
+				},
+			}}
+		>
+			{index === -1 ? (
+				<HistoryListItemMessage>
+					<Typography variant="body1">{I18N.translate('autoSyncPageMessage')}</Typography>
+				</HistoryListItemMessage>
+			) : index === store.data.items.length && store.data.hasReachedEnd ? (
+				<HistoryListItemMessage>
+					{store.data.hasReachedLastSyncDate ? (
+						<>
+							<Box
+								sx={{
+									marginBottom: 2,
+								}}
+							>
+								<Typography variant="body1">{I18N.translate('reachedLastSyncDate')}</Typography>
+							</Box>
+							<Button onClick={onContinueLoadingClick} variant="contained">
+								{I18N.translate('continueLoading')}
+							</Button>
+						</>
+					) : (
+						<Typography variant="body1">{I18N.translate('reachedHistoryEnd')}</Typography>
+					)}
+				</HistoryListItemMessage>
+			) : (
+				<>
+					<Checkbox
+						disabled={!item?.isSelectable()}
+						checked={item?.isSelected || false}
+						edge="start"
+						onChange={onCheckboxChange}
+						sx={{
+							alignSelf: 'center',
+						}}
+					/>
+					<HistoryListItemCard
+						isLoading={item?.isLoading ?? true}
+						item={item}
+						name={serviceName}
+						openMissingWatchedDateDialog={openMissingWatchedDateDialog}
+					/>
+					<Tooltip title={I18N.translate(statusMessageName)}>
+						<Box
+							sx={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								alignSelf: 'center',
+								width: 32,
+								margin: 0,
+								padding: 0.5,
+								backgroundColor: statusColor,
+								color: '#fff',
+							}}
+						>
+							<SyncIcon />
 						</Box>
-						<Button color="primary" onClick={onContinueLoadingClick} variant="contained">
-							{I18N.translate('continueLoading')}
-						</Button>
-					</>
-				) : (
-					<Typography variant="body1">{I18N.translate('reachedHistoryEnd')}</Typography>
-				)}
-			</Box>
-		</Box>
-	) : (
-		<Box className="history-list-item" style={style}>
-			<Checkbox
-				disabled={!item?.isSelectable()}
-				checked={item?.isSelected || false}
-				className="history-list-item-checkbox"
-				edge="start"
-				onChange={onCheckboxChange}
-			/>
-			<HistoryListItemCard
-				isLoading={item?.isLoading ?? true}
-				item={item}
-				name={serviceName}
-				openMissingWatchedDateDialog={openMissingWatchedDateDialog}
-			/>
-			<Tooltip title={I18N.translate(statusMessageName)}>
-				<Box className="history-list-item-status" style={{ backgroundColor: statusColor }}>
-					<SyncIcon />
-				</Box>
-			</Tooltip>
-			<HistoryListItemCard
-				isLoading={item?.isLoading ?? true}
-				item={item?.trakt}
-				name="Trakt"
-				suggestions={item?.suggestions}
-				imageUrl={item?.imageUrl}
-				openCorrectionDialog={openCorrectionDialog}
-			/>
+					</Tooltip>
+					<HistoryListItemCard
+						isLoading={item?.isLoading ?? true}
+						item={item?.trakt}
+						name="Trakt"
+						suggestions={item?.suggestions}
+						imageUrl={item?.imageUrl}
+						openCorrectionDialog={openCorrectionDialog}
+					/>
+				</>
+			)}
 		</Box>
 	);
 };

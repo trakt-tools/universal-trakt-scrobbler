@@ -1,9 +1,10 @@
 import { BrowserStorage, OptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
 import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { OptionsListItemRoot } from '@components/OptionsListItemRoot';
 import { SelectOption } from '@components/SelectOption';
 import { SwitchOption } from '@components/SwitchOption';
-import { ListItem, ListItemSecondaryAction, ListItemText } from '@material-ui/core';
+import { ListItemSecondaryAction, ListItemText } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
@@ -81,17 +82,13 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
 	}
 
 	return (
-		<>
-			<ListItem
-				classes={{ root: 'options-list-item', secondaryAction: 'options-list-item--secondary' }}
-			>
-				<ListItemText
-					primary={I18N.translate(option.id)}
-					secondary={I18N.translate(`${option.id}Description`)}
-				/>
-				<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
-			</ListItem>
-		</>
+		<OptionsListItemRoot>
+			<ListItemText
+				primary={I18N.translate(option.id)}
+				secondary={I18N.translate(`${option.id}Description`)}
+			/>
+			<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
+		</OptionsListItemRoot>
 	);
 };
 

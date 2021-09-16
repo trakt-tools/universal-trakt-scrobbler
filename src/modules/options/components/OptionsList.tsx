@@ -3,7 +3,7 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { OptionsListItem } from '@components/OptionsListItem';
 import { ServiceOptions } from '@components/ServiceOptions';
-import { List } from '@material-ui/core';
+import { List } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { PartialDeep } from 'type-fest';

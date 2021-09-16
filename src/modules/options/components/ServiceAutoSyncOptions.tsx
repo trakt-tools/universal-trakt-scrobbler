@@ -1,10 +1,11 @@
 import { I18N } from '@common/I18N';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceAutoSyncDaysOption } from '@components/ServiceAutoSyncDaysOption';
 import { ServiceAutoSyncOption } from '@components/ServiceAutoSyncOption';
 import { ServiceLastSyncOption } from '@components/ServiceLastSyncOption';
-import { Grid, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
 import { Service } from '@models/Service';
+import { Block as BlockIcon } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -26,7 +27,7 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 	handleChange,
 }) => {
 	return (
-		<Grid item className="options-grid-item--centered" xs={2}>
+		<CenteredGrid item xs={2}>
 			{service.hasSync && service.hasAutoSync ? (
 				<>
 					<ServiceAutoSyncOption sync={sync} autoSync={autoSync} handleChange={handleChange} />
@@ -48,7 +49,7 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 
