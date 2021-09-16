@@ -9,7 +9,7 @@ specifiers:
   '@babel/preset-typescript': ^7.14.5
   '@babel/runtime': ^7.14.6
   '@date-io/moment': ^1.3.13
-  '@fontsource/roboto': ^4.4.5
+  '@fontsource/roboto': ^4.5.0
   '@material-ui/core': ^4.11.4
   '@material-ui/icons': ^4.11.2
   '@material-ui/lab': ^4.0.0-alpha.58
@@ -73,7 +73,7 @@ specifiers:
 
 dependencies:
   '@date-io/moment': 1.3.13_moment@2.29.1
-  '@fontsource/roboto': 4.4.5
+  '@fontsource/roboto': 4.5.0
   '@material-ui/core': 4.11.4_7a759d72fcbc11ce03c9de110c21df82
   '@material-ui/icons': 4.11.2_5e14cec25e1ceef8d08e6ab1e0c4cb05
   '@material-ui/lab': 4.0.0-alpha.58_5e14cec25e1ceef8d08e6ab1e0c4cb05
@@ -1775,10 +1775,10 @@ packages:
       - supports-color
     dev: true
 
-  /@fontsource/roboto/4.4.5:
+  /@fontsource/roboto/4.5.0:
     resolution:
       {
-        integrity: sha512-e3s7BF8MDBLpkA2r6lnl5PMnllF0McVvpolK9h2zzvVJw2WPexP1GTgMKHISlglYZRij2lKg/ZjQcIUUYDsAXg==,
+        integrity: sha512-ja4XYw/9kNRFM5Ndk9vwzHWsdBMXczyBazFkTXJQ74QQBnT0BbSsHn0pF60AU0Iznig1Wt9x3rADfG8LANvMpw==,
       }
     dev: false
 
