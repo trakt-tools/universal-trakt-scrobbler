@@ -6,7 +6,7 @@ import { ServiceLastSyncOption } from '@components/ServiceLastSyncOption';
 import { Service } from '@models/Service';
 import { Block as BlockIcon } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
 
 interface ServiceAutoSyncOptionsProps {
 	service: Service;
@@ -17,14 +17,14 @@ interface ServiceAutoSyncOptionsProps {
 	handleChange: (optionId: string, newValue: unknown) => void;
 }
 
-export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
+export const _ServiceAutoSyncOptions = ({
 	service,
 	sync,
 	autoSync,
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}: ServiceAutoSyncOptionsProps) => {
+}: ServiceAutoSyncOptionsProps): JSX.Element => {
 	return (
 		<CenteredGrid item xs={2}>
 			{service.hasSync && service.hasAutoSync ? (
@@ -52,4 +52,4 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 	);
 };
 
-export const ServiceAutoSyncOptions = React.memo(_ServiceAutoSyncOptions);
+export const ServiceAutoSyncOptions = memo(_ServiceAutoSyncOptions);

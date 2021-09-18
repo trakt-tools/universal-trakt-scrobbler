@@ -23,7 +23,7 @@ import {
 	ListItemText,
 	TextField,
 } from '@mui/material';
-import React from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface CorrectionDialogState {
@@ -39,11 +39,11 @@ interface SuggestionListItemData {
 	onCorrectButtonClick: (suggestion: Suggestion) => void;
 }
 
-const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemData>> = ({
+const SuggestionListItem = ({
 	index,
 	data,
 	style,
-}: ListChildComponentProps<SuggestionListItemData>) => {
+}: ListChildComponentProps<SuggestionListItemData>): JSX.Element => {
 	const suggestion = data.suggestions[index];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
@@ -64,8 +64,8 @@ const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemDat
 	);
 };
 
-export const CorrectionDialog: React.FC = () => {
-	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
+export const CorrectionDialog = (): JSX.Element => {
+	const [dialog, setDialog] = useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
 		isScrobblingItem: false,
@@ -79,7 +79,7 @@ export const CorrectionDialog: React.FC = () => {
 		}));
 	};
 
-	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+	const onUrlChange = (event: ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
 		const url = target.value;
 		setDialog((prevDialog) => ({
@@ -181,7 +181,7 @@ export const CorrectionDialog: React.FC = () => {
 			: `/movies/${showOrMovie}`;
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};

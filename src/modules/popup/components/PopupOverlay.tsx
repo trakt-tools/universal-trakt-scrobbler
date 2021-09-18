@@ -1,11 +1,8 @@
 import { FullView } from '@components/FullView';
-import React from 'react';
 
-export interface PopupOverlayProps {
-	children?: React.ReactNode;
-}
+export interface PopupOverlayProps extends WithChildren {}
 
-export const PopupOverlay: React.FC = ({ children }: PopupOverlayProps) => {
+export const PopupOverlay = ({ children }: PopupOverlayProps): JSX.Element => {
 	return (
 		<FullView
 			sx={{

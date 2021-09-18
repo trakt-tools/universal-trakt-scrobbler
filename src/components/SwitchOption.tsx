@@ -1,5 +1,5 @@
 import { FormControlLabel, Switch } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 interface SwitchOptionProps extends WithSx {
 	id: string;
@@ -9,17 +9,17 @@ interface SwitchOptionProps extends WithSx {
 	handleChange: (id: string, newValue: boolean) => void;
 }
 
-export const SwitchOption: React.FC<SwitchOptionProps> = ({
+export const SwitchOption = ({
 	id,
 	label,
 	value: initialValue,
 	isDisabled,
 	handleChange,
 	sx = {},
-}: SwitchOptionProps) => {
+}: SwitchOptionProps): JSX.Element => {
 	const [value, setValue] = useState(initialValue);
 
-	const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const onChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const newValue = event.target.checked;
 		handleChange(id, newValue);
 	};

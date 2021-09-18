@@ -7,7 +7,7 @@ import { PopupNotWatching } from '@components/PopupNotWatching';
 import { PopupWatching } from '@components/PopupWatching';
 import { Item } from '@models/Item';
 import { CircularProgress } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface IPopupHomeContent {
 	isLoading: boolean;
@@ -21,7 +21,7 @@ const initialContentState: IPopupHomeContent = {
 	isPaused: false,
 };
 
-export const HomePage: React.FC = () => {
+export const HomePage = (): JSX.Element => {
 	const [content, setContent] = useState(initialContentState);
 
 	useEffect(() => {

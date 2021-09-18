@@ -1,13 +1,12 @@
 import { FullView } from '@components/FullView';
 import TraktIconImage from '@images/trakt-icon.png';
 import { Box } from '@mui/material';
-import React from 'react';
 
 interface TmdbImageProps {
 	imageUrl?: string | null;
 }
 
-export const TmdbImage: React.FC<TmdbImageProps> = ({ imageUrl }: TmdbImageProps) => {
+export const TmdbImage = ({ imageUrl }: TmdbImageProps): JSX.Element => {
 	return (
 		<Box>
 			<FullView

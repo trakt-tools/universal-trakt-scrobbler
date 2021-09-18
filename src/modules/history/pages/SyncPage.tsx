@@ -4,9 +4,8 @@ import { HistoryList } from '@components/HistoryList';
 import { HistoryOptionsList } from '@components/HistoryOptionsList';
 import { MissingWatchedDateDialog } from '@components/MissingWatchedDateDialog';
 import { SyncDialog } from '@components/SyncDialog';
-import React from 'react';
 
-export const SyncPage: React.FC = () => {
+export const SyncPage = (): JSX.Element => {
 	return (
 		<>
 			<HistoryOptionsList />

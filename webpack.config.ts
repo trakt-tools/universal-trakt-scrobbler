@@ -176,7 +176,6 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					loader: 'babel-loader',
 					options: {
 						envName: env.test ? 'test' : mode,
-						presets: ['@babel/typescript', '@babel/preset-env', '@babel/preset-react'],
 					},
 				},
 			],

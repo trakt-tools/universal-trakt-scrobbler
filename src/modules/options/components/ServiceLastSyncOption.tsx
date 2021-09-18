@@ -5,7 +5,7 @@ import { Utils } from '@common/Utils';
 import { Service } from '@models/Service';
 import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
 
 interface ServiceLastSyncOptionProps {
 	service: Service;
@@ -14,12 +14,12 @@ interface ServiceLastSyncOptionProps {
 	lastSync: number;
 }
 
-const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
+const _ServiceLastSyncOption = ({
 	service,
 	sync,
 	autoSync,
 	lastSync,
-}: ServiceLastSyncOptionProps) => {
+}: ServiceLastSyncOptionProps): JSX.Element => {
 	const onClearLastSyncClick = async () => {
 		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearLastSyncTitle', service.name),
@@ -81,4 +81,4 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 	);
 };
 
-export const ServiceLastSyncOption = React.memo(_ServiceLastSyncOption);
+export const ServiceLastSyncOption = memo(_ServiceLastSyncOption);

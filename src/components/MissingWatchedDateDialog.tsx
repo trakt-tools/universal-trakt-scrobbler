@@ -20,7 +20,7 @@ import {
 	RadioGroup,
 	TextField,
 } from '@mui/material';
-import React from 'react';
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
@@ -28,13 +28,13 @@ interface MissingWatchedDateDialogState {
 	items: Item[];
 	dateType: MissingWatchedDateType | null;
 	date: number | null;
-	dateError: React.ReactNode | null;
+	dateError: ReactNode | null;
 }
 
 export type MissingWatchedDateType = 'release-date' | 'current-date' | 'custom-date';
 
-export const MissingWatchedDateDialog: React.FC = () => {
-	const [dialog, setDialog] = React.useState<MissingWatchedDateDialogState>({
+export const MissingWatchedDateDialog = (): JSX.Element => {
+	const [dialog, setDialog] = useState<MissingWatchedDateDialogState>({
 		isOpen: false,
 		isLoading: false,
 		items: [],
@@ -50,7 +50,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateTypeChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+	const onDateTypeChange = (event: ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
 		setDialog((prevDialog) => ({
 			...prevDialog,
@@ -73,7 +73,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateError = (err: React.ReactNode): void => {
+	const onDateError = (err: ReactNode): void => {
 		if (err !== dialog.dateError) {
 			setDialog((prevDialog) => ({
 				...prevDialog,
@@ -147,7 +147,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
 		};

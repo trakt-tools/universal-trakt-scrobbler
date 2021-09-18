@@ -1,13 +1,12 @@
 import { Dialog, DialogProps } from '@mui/material';
-import React from 'react';
 
 export interface CustomDialogRootProps extends DialogProps, WithChildren, WithSx {}
 
-export const CustomDialogRoot: React.FC<CustomDialogRootProps> = ({
+export const CustomDialogRoot = ({
 	children,
 	sx = {},
 	...props
-}: CustomDialogRootProps) => {
+}: CustomDialogRootProps): JSX.Element => {
 	return (
 		<Dialog
 			{...props}

@@ -1,12 +1,11 @@
 import { Box } from '@mui/material';
-import React from 'react';
 
 export interface HistoryListItemMessageProps extends WithChildren, WithSx {}
 
-export const HistoryListItemMessage: React.FC<HistoryListItemMessageProps> = ({
+export const HistoryListItemMessage = ({
 	children,
 	sx = {},
-}: HistoryListItemMessageProps) => {
+}: HistoryListItemMessageProps): JSX.Element => {
 	return (
 		<Box
 			sx={{

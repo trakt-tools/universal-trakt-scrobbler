@@ -13,6 +13,7 @@ import { Item, SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
 import { AlertColor } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
+import { ReactNode } from 'react';
 import { PartialDeep } from 'type-fest';
 
 export interface EventData {
@@ -83,8 +84,8 @@ export interface SearchErrorData {
 }
 
 export interface DialogShowData {
-	title: string | React.ReactNode;
-	message: string | React.ReactNode;
+	title: string | ReactNode;
+	message: string | ReactNode;
 	onConfirm?: () => void;
 	onDeny?: () => void;
 }

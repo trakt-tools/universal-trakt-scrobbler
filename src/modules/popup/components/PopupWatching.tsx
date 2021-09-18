@@ -9,17 +9,13 @@ import { TmdbImage } from '@components/TmdbImage';
 import { Item } from '@models/Item';
 import { Pause as PauseIcon } from '@mui/icons-material';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@mui/material';
-import React from 'react';
 
 export interface PopupWatchingProps {
 	item: Item;
 	isPaused: boolean;
 }
 
-export const PopupWatching: React.FC<PopupWatchingProps> = ({
-	item,
-	isPaused,
-}: PopupWatchingProps) => {
+export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Element => {
 	const openCorrectionDialog = async () => {
 		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			item,

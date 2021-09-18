@@ -8,10 +8,9 @@ import { Box } from '@mui/material';
 import { LoginPage } from '@pages/LoginPage';
 import { AboutPage } from '@pages/PopupAboutPage';
 import { HomePage } from '@pages/PopupHomePage';
-import React from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 
-export const PopupApp: React.FC = () => {
+export const PopupApp = (): JSX.Element => {
 	const history = useHistory();
 
 	return (

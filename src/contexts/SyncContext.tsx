@@ -1,7 +1,7 @@
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { getService, Service } from '@models/Service';
 import { getSyncStore, SyncStore } from '@stores/SyncStore';
-import React, { useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 export interface SyncContextValue {
 	serviceId: string | null;
@@ -10,7 +10,7 @@ export interface SyncContextValue {
 	api: ServiceApi | null;
 }
 
-export const SyncContext = React.createContext<SyncContextValue>({} as SyncContextValue);
+export const SyncContext = createContext<SyncContextValue>({} as SyncContextValue);
 
 export const useSync = () => {
 	const syncContext = useContext(SyncContext);
@@ -20,15 +20,11 @@ export const useSync = () => {
 	return syncContext;
 };
 
-interface SyncProviderProps {
+interface SyncProviderProps extends WithChildren {
 	serviceId: string | null;
-	children: React.ReactNode;
 }
 
-export const SyncProvider: React.FC<SyncProviderProps> = ({
-	serviceId,
-	children,
-}: SyncProviderProps) => {
+export const SyncProvider = ({ serviceId, children }: SyncProviderProps): JSX.Element => {
 	const service = serviceId ? getService(serviceId) : null;
 	const store = getSyncStore(serviceId);
 	const api = serviceId ? getServiceApi(serviceId) : null;

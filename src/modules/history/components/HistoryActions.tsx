@@ -3,9 +3,9 @@ import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { useSync } from '@contexts/SyncContext';
 import { Box, Button, Divider } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export const HistoryActions: React.FC = () => {
+export const HistoryActions = (): JSX.Element => {
 	const { serviceId, store } = useSync();
 
 	const [areItemsMissingWatchedDate, setItemsMissingWatchedDate] = useState(

@@ -1,13 +1,12 @@
 import { ListItem, ListItemProps } from '@mui/material';
-import React from 'react';
 
 export interface OptionsListItemRootProps extends ListItemProps, WithChildren, WithSx {}
 
-export const OptionsListItemRoot: React.FC<OptionsListItemRootProps> = ({
+export const OptionsListItemRoot = ({
 	children,
 	sx = {},
 	...props
-}: OptionsListItemRootProps) => {
+}: OptionsListItemRootProps): JSX.Element => {
 	return (
 		<ListItem
 			{...props}

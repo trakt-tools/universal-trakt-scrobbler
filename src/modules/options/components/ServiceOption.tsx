@@ -3,17 +3,14 @@ import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { Utils } from '@common/Utils';
 import { ServiceOptionRow } from '@components/ServiceOptionRow';
 import { getService } from '@models/Service';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ServiceOptionProps {
 	serviceId: string;
 	initialValue: ServiceValue;
 }
 
-export const ServiceOption: React.FC<ServiceOptionProps> = ({
-	serviceId,
-	initialValue,
-}: ServiceOptionProps) => {
+export const ServiceOption = ({ serviceId, initialValue }: ServiceOptionProps): JSX.Element => {
 	const [value, setValue] = useState(initialValue);
 
 	const service = getService(serviceId);

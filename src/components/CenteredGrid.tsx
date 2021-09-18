@@ -1,13 +1,8 @@
 import { Grid, GridProps } from '@mui/material';
-import React from 'react';
 
 export interface CenteredGridProps extends GridProps, WithChildren, WithSx {}
 
-export const CenteredGrid: React.FC<CenteredGridProps> = ({
-	children,
-	sx = {},
-	...props
-}: CenteredGridProps) => {
+export const CenteredGrid = ({ children, sx = {}, ...props }: CenteredGridProps): JSX.Element => {
 	return (
 		<Grid
 			{...props}

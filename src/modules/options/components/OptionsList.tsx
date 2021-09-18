@@ -4,14 +4,14 @@ import { EventDispatcher } from '@common/Events';
 import { OptionsListItem } from '@components/OptionsListItem';
 import { ServiceOptions } from '@components/ServiceOptions';
 import { List } from '@mui/material';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { PartialDeep } from 'type-fest';
 
 interface OptionsListProps {
 	details: OptionsDetails;
 }
 
-export const OptionsList: React.FC<OptionsListProps> = ({ details }: OptionsListProps) => {
+export const OptionsList = ({ details }: OptionsListProps): JSX.Element => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionsChange);

@@ -1,5 +1,5 @@
 import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface SelectOptionProps extends WithSx {
 	id: string;
@@ -9,14 +9,14 @@ interface SelectOptionProps extends WithSx {
 	handleChange: (id: string, newValue: string) => void;
 }
 
-export const SelectOption: React.FC<SelectOptionProps> = ({
+export const SelectOption = ({
 	id,
 	value: initialValue,
 	isDisabled,
 	choices,
 	handleChange,
 	sx = {},
-}: SelectOptionProps) => {
+}: SelectOptionProps): JSX.Element => {
 	const [value, setValue] = useState(initialValue);
 
 	const onChange = (event: SelectChangeEvent) => {

@@ -8,13 +8,13 @@ import {
 	DialogContentText,
 	DialogTitle,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface DialogState extends DialogShowData {
 	isOpen: boolean;
 }
 
-export const CustomDialog: React.FC = () => {
+export const CustomDialog = (): JSX.Element => {
 	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
 		title: '',

@@ -57,6 +57,8 @@ const getJsOverride = () => {
 					hoist: 'all',
 				},
 			],
+			'react/jsx-uses-react': 'off',
+			'react/react-in-jsx-scope': 'off',
 		},
 	};
 };

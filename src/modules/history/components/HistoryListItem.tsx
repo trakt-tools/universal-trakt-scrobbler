@@ -8,18 +8,18 @@ import { getService } from '@models/Service';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
 import { green, red } from '@mui/material/colors';
-import React, { useEffect, useState } from 'react';
+import { ChangeEvent, memo, useEffect, useState } from 'react';
 import { areEqual, ListChildComponentProps } from 'react-window';
 
 export interface HistoryListItemProps {
 	onContinueLoadingClick: () => Promise<void>;
 }
 
-const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> = ({
+const _HistoryListItem = ({
 	data,
 	index,
 	style,
-}: ListChildComponentProps<HistoryListItemProps>) => {
+}: ListChildComponentProps<HistoryListItemProps>): JSX.Element => {
 	const { serviceId, store } = useSync();
 
 	const { onContinueLoadingClick } = data;
@@ -29,7 +29,7 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	}
 	const [item, setItem] = useState<Item | null | undefined>(store.data.items[index] ?? undefined);
 
-	const onCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+	const onCheckboxChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (!item) {
 			return;
 		}
@@ -91,7 +91,7 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	}
 
 	if (item?.isHidden) {
-		return null;
+		return <></>;
 	}
 
 	return (
@@ -181,4 +181,4 @@ const _HistoryListItem: React.FC<ListChildComponentProps<HistoryListItemProps>> 
 	);
 };
 
-export const HistoryListItem = React.memo(_HistoryListItem, areEqual);
+export const HistoryListItem = memo(_HistoryListItem, areEqual);

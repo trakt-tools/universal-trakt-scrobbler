@@ -2,11 +2,9 @@ import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
 import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import '@fonts';
 import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
-import React from 'react';
+import { useEffect, useState } from 'react';
 
-interface ThemeWrapperProps {
-	children: React.ReactNode;
-}
+interface ThemeWrapperProps extends WithChildren {}
 
 export interface ThemeDetails {
 	value: ThemeValue;
@@ -25,15 +23,15 @@ declare module '@mui/material/styles' {
 	interface ThemeOptions extends CustomTheme {}
 }
 
-export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWrapperProps) => {
-	const [themeDetails, setThemeDetails] = React.useState<ThemeDetails>({
+export const ThemeWrapper = ({ children }: ThemeWrapperProps): JSX.Element => {
+	const [themeDetails, setThemeDetails] = useState<ThemeDetails>({
 		value: 'system',
 		palette: 'light',
 	});
 	const prefersLightMode = useMediaQuery('(prefers-color-scheme: light)', { noSsr: true });
 	const systemPalette = prefersLightMode ? 'light' : 'dark';
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const updateSystemPalette = () => {
 			if (themeDetails.value === 'system' && themeDetails.palette !== systemPalette) {
 				setThemeDetails({
@@ -46,7 +44,7 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 		updateSystemPalette();
 	}, [systemPalette]);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};

@@ -6,7 +6,6 @@ import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
 import { HistoryApp } from '@history/HistoryApp';
 import { GlobalStyles } from '@mui/material';
-import React from 'react';
 import ReactDOM from 'react-dom';
 
 const init = async () => {

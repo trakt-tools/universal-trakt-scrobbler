@@ -1,11 +1,11 @@
 import { createHashHistory } from 'history';
-import React, { useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 export interface HistoryProviderProps extends WithChildren {}
 
 const history = createHashHistory();
 
-export const HistoryContext = React.createContext(history);
+export const HistoryContext = createContext(history);
 
 export const useHistory = () => {
 	const historyContext = useContext(HistoryContext);
@@ -15,6 +15,6 @@ export const useHistory = () => {
 	return historyContext;
 };
 
-export const HistoryProvider: React.FC = ({ children }: HistoryProviderProps) => {
+export const HistoryProvider = ({ children }: HistoryProviderProps): JSX.Element => {
 	return <HistoryContext.Provider value={history}>{children}</HistoryContext.Provider>;
 };

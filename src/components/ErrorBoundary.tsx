@@ -1,15 +1,13 @@
 import { Errors } from '@common/Errors';
-import React from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
-interface ErrorBoundaryProps {
-	children: React.ReactNode;
-}
+interface ErrorBoundaryProps extends WithChildren {}
 
 interface ErrorBoundaryState {
 	hasError: boolean;
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = {
@@ -17,14 +15,14 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 		};
 	}
 
-	componentDidCatch(error: Error, info: React.ErrorInfo): void {
+	componentDidCatch(error: Error, info: ErrorInfo): void {
 		Errors.log(error, info);
 		this.setState({
 			hasError: true,
 		});
 	}
 
-	render(): React.ReactNode {
+	render(): ReactNode {
 		return this.state.hasError ? <div>Something went wrong.</div> : this.props.children;
 	}
 }

@@ -1,15 +1,14 @@
 import { Divider, DividerProps } from '@mui/material';
-import React from 'react';
 
 export interface HistoryListItemDividerProps extends DividerProps, WithSx {
 	useDarkMode?: boolean;
 }
 
-export const HistoryListItemDivider: React.FC<HistoryListItemDividerProps> = ({
+export const HistoryListItemDivider = ({
 	useDarkMode,
 	sx = {},
 	...props
-}: HistoryListItemDividerProps) => {
+}: HistoryListItemDividerProps): JSX.Element => {
 	return (
 		<Divider
 			{...props}

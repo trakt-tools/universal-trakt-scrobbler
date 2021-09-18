@@ -1,10 +1,9 @@
 import { Center } from '@components/Center';
 import { Box } from '@mui/material';
-import React from 'react';
 
 export interface PopupInfoProps extends WithChildren {}
 
-export const PopupInfo: React.FC = ({ children }: PopupInfoProps) => {
+export const PopupInfo = ({ children }: PopupInfoProps): JSX.Element => {
 	return (
 		<Center>
 			<Box

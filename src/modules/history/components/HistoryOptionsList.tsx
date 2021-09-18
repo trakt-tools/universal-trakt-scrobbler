@@ -5,10 +5,10 @@ import { I18N } from '@common/I18N';
 import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
 import { useSync } from '@contexts/SyncContext';
 import { Box, Button, ButtonGroup, Drawer, FormGroup, InputLabel, Toolbar } from '@mui/material';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { PartialDeep } from 'type-fest';
 
-export const HistoryOptionsList: React.FC = () => {
+export const HistoryOptionsList = (): JSX.Element => {
 	const { store } = useSync();
 
 	useEffect(() => {

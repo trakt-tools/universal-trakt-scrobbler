@@ -1,16 +1,15 @@
 import { Container, ContainerProps } from '@mui/material';
-import React from 'react';
 
 export interface HistoryContainerProps extends ContainerProps, WithChildren, WithSx {
 	isSync?: boolean;
 }
 
-export const HistoryContainer: React.FC<HistoryContainerProps> = ({
+export const HistoryContainer = ({
 	children,
 	isSync,
 	sx = {},
 	...props
-}: HistoryContainerProps) => {
+}: HistoryContainerProps): JSX.Element => {
 	return (
 		<Container
 			{...props}

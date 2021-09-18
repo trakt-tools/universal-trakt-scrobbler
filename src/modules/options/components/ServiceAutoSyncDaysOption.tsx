@@ -1,7 +1,7 @@
 import { I18N } from '@common/I18N';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
 import { Box, Tooltip } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
 
 interface ServiceAutoSyncDaysOptionProps {
 	sync: boolean;
@@ -10,12 +10,12 @@ interface ServiceAutoSyncDaysOptionProps {
 	handleChange: (optionId: string, newValue: number) => void;
 }
 
-const _ServiceAutoSyncDaysOption: React.FC<ServiceAutoSyncDaysOptionProps> = ({
+const _ServiceAutoSyncDaysOption = ({
 	sync,
 	autoSync,
 	autoSyncDays,
 	handleChange,
-}: ServiceAutoSyncDaysOptionProps) => {
+}: ServiceAutoSyncDaysOptionProps): JSX.Element => {
 	return (
 		<Tooltip title={I18N.translate('daysDescription')}>
 			<Box component="span">
@@ -35,4 +35,4 @@ const _ServiceAutoSyncDaysOption: React.FC<ServiceAutoSyncDaysOptionProps> = ({
 	);
 };
 
-export const ServiceAutoSyncDaysOption = React.memo(_ServiceAutoSyncDaysOption);
+export const ServiceAutoSyncDaysOption = memo(_ServiceAutoSyncDaysOption);

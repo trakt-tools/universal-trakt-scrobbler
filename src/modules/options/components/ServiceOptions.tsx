@@ -12,13 +12,12 @@ import {
 	ListItemText,
 	Typography,
 } from '@mui/material';
-import React from 'react';
 
 interface ServiceOptionsProps {
 	option: CustomOptionDetails<StorageValuesOptions, 'services'>;
 }
 
-export const ServiceOptions: React.FC<ServiceOptionsProps> = ({ option }: ServiceOptionsProps) => {
+export const ServiceOptions = ({ option }: ServiceOptionsProps): JSX.Element => {
 	const onSelectAllClick = async () => {
 		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
 			services: Object.fromEntries(

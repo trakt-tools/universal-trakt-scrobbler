@@ -5,15 +5,13 @@ import { OptionsListItemRoot } from '@components/OptionsListItemRoot';
 import { SelectOption } from '@components/SelectOption';
 import { SwitchOption } from '@components/SwitchOption';
 import { ListItemSecondaryAction, ListItemText } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface OptionsListItemProps {
 	option: OptionDetails<StorageValuesOptions>;
 }
 
-export const OptionsListItem: React.FC<OptionsListItemProps> = ({
-	option,
-}: OptionsListItemProps) => {
+export const OptionsListItem = ({ option }: OptionsListItemProps): JSX.Element => {
 	const [isDisabled, setDisabled] = useState(BrowserStorage.checkDisabledOption(option));
 	const [value, setValue] = useState(option.value);
 

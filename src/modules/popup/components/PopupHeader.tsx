@@ -14,11 +14,11 @@ import {
 	Sync as SyncIcon,
 } from '@mui/icons-material';
 import { AppBar, IconButton, Toolbar, Tooltip } from '@mui/material';
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
-export const PopupHeader: React.FC = () => {
-	const [syncButton, setSyncButton] = React.useState({
+export const PopupHeader = (): JSX.Element => {
+	const [syncButton, setSyncButton] = useState({
 		isEnabled: false,
 		hasError: false,
 	});
@@ -38,7 +38,7 @@ export const PopupHeader: React.FC = () => {
 		await Session.logout();
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const checkAutoSync = async () => {
 			const { syncCache } = await BrowserStorage.get('syncCache');
 			if (syncCache && syncCache.items.length > 0) {

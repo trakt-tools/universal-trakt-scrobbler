@@ -1,5 +1,5 @@
 import { SwitchOption } from '@components/SwitchOption';
-import React from 'react';
+import { memo } from 'react';
 
 interface ServiceAutoSyncOptionProps {
 	sync: boolean;
@@ -7,14 +7,14 @@ interface ServiceAutoSyncOptionProps {
 	handleChange: (optionId: string, newValue: boolean) => void;
 }
 
-const _ServiceAutoSyncOption: React.FC<ServiceAutoSyncOptionProps> = ({
+const _ServiceAutoSyncOption = ({
 	sync,
 	autoSync,
 	handleChange,
-}: ServiceAutoSyncOptionProps) => {
+}: ServiceAutoSyncOptionProps): JSX.Element => {
 	return (
 		<SwitchOption id="autoSync" value={autoSync} isDisabled={!sync} handleChange={handleChange} />
 	);
 };
 
-export const ServiceAutoSyncOption = React.memo(_ServiceAutoSyncOption);
+export const ServiceAutoSyncOption = memo(_ServiceAutoSyncOption);

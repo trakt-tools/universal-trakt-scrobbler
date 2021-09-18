@@ -7,7 +7,7 @@ import {
 } from '@common/Events';
 import { RequestException } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import React from 'react';
+import { ErrorInfo } from 'react';
 import Rollbar from 'rollbar';
 
 class _Errors {
@@ -66,7 +66,7 @@ class _Errors {
 		}
 	}
 
-	log(message: Error | string, details: Error | RequestException | React.ErrorInfo): void {
+	log(message: Error | string, details: Error | RequestException | ErrorInfo): void {
 		console.log(`[UTS] ${message.toString()}`, details);
 	}
 

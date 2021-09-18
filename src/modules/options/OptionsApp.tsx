@@ -5,9 +5,8 @@ import { OptionsActions } from '@components/OptionsActions';
 import { OptionsHeader } from '@components/OptionsHeader';
 import { OptionsList } from '@components/OptionsList';
 import { Container } from '@mui/material';
-import React from 'react';
 
-export const OptionsApp: React.FC = () => {
+export const OptionsApp = (): JSX.Element => {
 	return (
 		<>
 			<OptionsHeader />

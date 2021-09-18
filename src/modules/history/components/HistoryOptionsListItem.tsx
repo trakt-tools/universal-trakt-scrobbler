@@ -4,13 +4,13 @@ import { I18N } from '@common/I18N';
 import { SwitchOption } from '@components/SwitchOption';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
 import { useSync } from '@contexts/SyncContext';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface HistoryOptionsListItemProps {
 	option: OptionDetails<StorageValuesSyncOptions>;
 }
 
-export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ option }) => {
+export const HistoryOptionsListItem = ({ option }: HistoryOptionsListItemProps): JSX.Element => {
 	const { store } = useSync();
 
 	const [isDisabled, setDisabled] = useState(
@@ -90,7 +90,7 @@ export const HistoryOptionsListItem: React.FC<HistoryOptionsListItemProps> = ({ 
 			);
 			break;
 		default:
-			component = null;
+			component = <></>;
 			break;
 	}
 	return component;

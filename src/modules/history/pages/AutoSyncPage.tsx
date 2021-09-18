@@ -2,9 +2,9 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { useSync } from '@contexts/SyncContext';
 import { Item } from '@models/Item';
 import { SyncPage } from '@pages/SyncPage';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export const AutoSyncPage: React.FC = () => {
+export const AutoSyncPage = (): JSX.Element => {
 	const { store } = useSync();
 
 	const [isLoading, setLoading] = useState(true);
@@ -22,5 +22,5 @@ export const AutoSyncPage: React.FC = () => {
 		void loadCache();
 	}, []);
 
-	return isLoading ? null : <SyncPage />;
+	return <>{!isLoading && <SyncPage />}</>;
 };

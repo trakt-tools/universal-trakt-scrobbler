@@ -16,7 +16,6 @@ import {
 	Tooltip,
 	Typography,
 } from '@mui/material';
-import React from 'react';
 
 interface HistoryListItemCardProps {
 	isLoading: boolean;
@@ -28,7 +27,7 @@ interface HistoryListItemCardProps {
 	openCorrectionDialog?: () => Promise<void>;
 }
 
-export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
+export const HistoryListItemCard = ({
 	isLoading,
 	item,
 	name,
@@ -36,7 +35,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 	imageUrl,
 	openMissingWatchedDateDialog,
 	openCorrectionDialog,
-}: HistoryListItemCardProps) => {
+}: HistoryListItemCardProps): JSX.Element => {
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
 		item instanceof TraktItem && typeof watchedAt === 'undefined' ? (

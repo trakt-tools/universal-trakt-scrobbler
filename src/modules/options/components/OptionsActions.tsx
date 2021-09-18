@@ -4,9 +4,9 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Box, Button, Divider } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export const OptionsActions: React.FC = () => {
+export const OptionsActions = (): JSX.Element => {
 	const [cacheSize, setCacheSize] = useState('0 B');
 
 	const updateCachesSize = async () => {

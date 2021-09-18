@@ -2,19 +2,17 @@ import { ErrorBoundary } from '@components/ErrorBoundary';
 import { ThemeWrapper } from '@components/ThemeWrapper';
 import { HistoryProvider } from '@contexts/HistoryContext';
 import { SessionProvider } from '@contexts/SessionContext';
-import React from 'react';
 
-interface AppWrapperProps {
+interface AppWrapperProps extends WithChildren {
 	usesHistory: boolean;
 	usesSession: boolean;
-	children: React.ReactNode;
 }
 
-export const AppWrapper: React.FC<AppWrapperProps> = ({
+export const AppWrapper = ({
 	usesHistory,
 	usesSession,
 	children,
-}: AppWrapperProps) => {
+}: AppWrapperProps): JSX.Element => {
 	let component = <>{children}</>;
 	if (usesSession) {
 		component = <SessionProvider>{component}</SessionProvider>;

@@ -1,20 +1,20 @@
 import { Box } from '@mui/material';
-import React from 'react';
+import { ReactNode } from 'react';
 
 interface LeftRightProps extends WithSx {
 	centerVertically: boolean;
-	left: React.ReactNode;
-	center?: React.ReactNode;
-	right: React.ReactNode;
+	left: ReactNode;
+	center?: ReactNode;
+	right: ReactNode;
 }
 
-export const LeftRight: React.FC<LeftRightProps> = ({
+export const LeftRight = ({
 	centerVertically,
 	left,
 	center,
 	right,
 	sx = {},
-}: LeftRightProps) => {
+}: LeftRightProps): JSX.Element => {
 	return (
 		<Box
 			sx={{

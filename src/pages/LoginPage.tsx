@@ -5,9 +5,9 @@ import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { useHistory } from '@contexts/HistoryContext';
 import { Button, CircularProgress } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export const LoginPage: React.FC = () => {
+export const LoginPage = (): JSX.Element => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 

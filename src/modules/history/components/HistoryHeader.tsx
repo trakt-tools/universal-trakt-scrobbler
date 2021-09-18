@@ -12,10 +12,9 @@ import {
 	Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@mui/material';
-import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
-export const HistoryHeader: React.FC = () => {
+export const HistoryHeader = (): JSX.Element => {
 	const history = useHistory();
 	const { isLoggedIn } = useSession();
 	const { serviceId, service, api } = useSync();

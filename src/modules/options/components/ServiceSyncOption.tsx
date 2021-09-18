@@ -5,7 +5,7 @@ import { SwitchOption } from '@components/SwitchOption';
 import { Service } from '@models/Service';
 import { Block as BlockIcon, Launch as LaunchIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
 interface ServiceSyncOptionProps {
@@ -14,11 +14,11 @@ interface ServiceSyncOptionProps {
 	handleChange: (optionId: string, newValue: boolean) => void;
 }
 
-const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({
+const _ServiceSyncOption = ({
 	service,
 	sync,
 	handleChange,
-}: ServiceSyncOptionProps) => {
+}: ServiceSyncOptionProps): JSX.Element => {
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
 	};
@@ -50,4 +50,4 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({
 	);
 };
 
-export const ServiceSyncOption = React.memo(_ServiceSyncOption);
+export const ServiceSyncOption = memo(_ServiceSyncOption);

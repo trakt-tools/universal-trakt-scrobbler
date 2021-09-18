@@ -1,9 +1,8 @@
 import { Box } from '@mui/material';
-import React from 'react';
 
 export interface FullViewProps extends WithChildren, WithSx {}
 
-export const FullView: React.FC<FullViewProps> = ({ children, sx = {} }: FullViewProps) => {
+export const FullView = ({ children, sx = {} }: FullViewProps): JSX.Element => {
 	return (
 		<Box
 			sx={{

@@ -1,5 +1,6 @@
 import { TextField } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 interface BaseTextFieldOptionProps<T extends string | number> extends WithSx {
 	id: string;
@@ -24,10 +25,10 @@ const BaseTextFieldOption = <T extends string | number>({
 	step = 1,
 	handleChange,
 	sx = {},
-}: BaseTextFieldOptionProps<T>): React.ReactElement => {
+}: BaseTextFieldOptionProps<T>): JSX.Element => {
 	const [value, setValue] = useState<T | null>(initialValue);
 
-	const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const onChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const targetValue = event.target.value;
 		let newValue;
 		if (typeof value === 'string') {
@@ -82,10 +83,10 @@ const BaseTextFieldOption = <T extends string | number>({
 	);
 };
 
-export const TextFieldOption: React.FC<BaseTextFieldOptionProps<string>> = (props) => {
+export const TextFieldOption = (props: BaseTextFieldOptionProps<string>) => {
 	return BaseTextFieldOption(props);
 };
 
-export const NumericTextFieldOption: React.FC<BaseTextFieldOptionProps<number>> = (props) => {
+export const NumericTextFieldOption = (props: BaseTextFieldOptionProps<number>) => {
 	return BaseTextFieldOption(props);
 };

@@ -1,15 +1,10 @@
 import { Box } from '@mui/material';
-import React from 'react';
 
 interface CenterProps extends WithChildren, WithSx {
 	isHorizontal?: boolean;
 }
 
-export const Center: React.FC<CenterProps> = ({
-	children,
-	isHorizontal = true,
-	sx = {},
-}: CenterProps) => {
+export const Center = ({ children, isHorizontal = true, sx = {} }: CenterProps): JSX.Element => {
 	return (
 		<Box
 			sx={{

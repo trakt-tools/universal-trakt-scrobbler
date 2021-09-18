@@ -2,9 +2,8 @@ import { I18N } from '@common/I18N';
 import { Tabs } from '@common/Tabs';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { Button, Typography } from '@mui/material';
-import React from 'react';
 
-export const AboutPage: React.FC = () => {
+export const AboutPage = (): JSX.Element => {
 	const onLinkClick = async (url: string) => {
 		await Tabs.open(url);
 	};

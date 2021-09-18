@@ -5,7 +5,7 @@ import { ServiceScrobbleOption } from '@components/ServiceScrobbleOption';
 import { ServiceSyncOption } from '@components/ServiceSyncOption';
 import { Service } from '@models/Service';
 import { Grid } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
 
 interface ServiceOptionRowProps {
 	service: Service;
@@ -17,7 +17,7 @@ interface ServiceOptionRowProps {
 	handleChange: (optionId: string, newValue: unknown) => void;
 }
 
-const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
+const _ServiceOptionRow = ({
 	service,
 	scrobble,
 	sync,
@@ -25,7 +25,7 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}: ServiceOptionRowProps) => {
+}: ServiceOptionRowProps): JSX.Element => {
 	return (
 		<Grid
 			item
@@ -51,4 +51,4 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 	);
 };
 
-export const ServiceOptionRow = React.memo(_ServiceOptionRow);
+export const ServiceOptionRow = memo(_ServiceOptionRow);

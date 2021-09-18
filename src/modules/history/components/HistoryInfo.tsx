@@ -1,12 +1,9 @@
 import { Center } from '@components/Center';
 import { Box } from '@mui/material';
-import React from 'react';
 
-interface HistoryInfoProps {
-	children?: React.ReactNode;
-}
+interface HistoryInfoProps extends WithChildren {}
 
-export const HistoryInfo: React.FC<HistoryInfoProps> = ({ children }: HistoryInfoProps) => {
+export const HistoryInfo = ({ children }: HistoryInfoProps): JSX.Element => {
 	return (
 		<Center>
 			<Box

@@ -13,10 +13,9 @@ import { HomePage } from '@pages/HistoryHomePage';
 import { LoginPage } from '@pages/LoginPage';
 import { SyncPage } from '@pages/SyncPage';
 import '@services-apis';
-import React from 'react';
 import { Redirect, Route, Router, Switch } from 'react-router-dom';
 
-export const HistoryApp: React.FC = () => {
+export const HistoryApp = (): JSX.Element => {
 	const history = useHistory();
 
 	return (

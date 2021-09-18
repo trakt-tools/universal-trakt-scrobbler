@@ -5,9 +5,9 @@ import { HistoryInfo } from '@components/HistoryInfo';
 import { useHistory } from '@contexts/HistoryContext';
 import { getServices, Service } from '@models/Service';
 import { List, ListItem, ListItemText, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export const HomePage: React.FC = () => {
+export const HomePage = (): JSX.Element => {
 	const history = useHistory();
 	const [services, setServices] = useState([] as Service[]);
 
