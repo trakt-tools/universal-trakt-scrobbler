@@ -185,7 +185,7 @@ class _ViaplayApi extends ServiceApi {
 		const year = product.content.production.year;
 		const progressInfo = product.user.progress;
 		const progress = progressInfo?.elapsedPercent || 0;
-		const watchedAt = progressInfo ? Utils.unix(progressInfo.updated) : undefined;
+		const watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		const id = product.system.guid;
 		if (product.type === 'episode') {
 			const content = product.content;

@@ -52,7 +52,7 @@ class _TraktSettings extends TraktApi {
 			if (settings.account.time_24hr) {
 				dateFormat += ', H:mm:ss';
 			} else {
-				dateFormat += ', h:mm:ss aa';
+				dateFormat += ', h:mm:ss aaa';
 			}
 		} catch (err) {
 			dateFormat += 'd MMM yyyy, H:mm:ss';

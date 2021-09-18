@@ -68,7 +68,7 @@ class _TraktSync extends TraktApi {
 			if (watchedAt === parsedHistoryItem.watched_at) {
 				historyItemMatch = parsedHistoryItem;
 				break;
-			} else if (Utils.dateDiff(watchedAt, parsedHistoryItem.watched_at, 24 * 60 * 60)) {
+			} else if (Utils.dateDiff(watchedAt, parsedHistoryItem.watched_at, 26 * 60 * 60)) {
 				historyItemMatch = parsedHistoryItem;
 			}
 		}
