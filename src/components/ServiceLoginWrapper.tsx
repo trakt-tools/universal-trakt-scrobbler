@@ -4,10 +4,11 @@ import { Center } from '@components/Center';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
 import { CircularProgress, Link } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-export const ServiceLoginWrapper: React.FC = ({ children }) => {
+export interface ServiceLoginWrapperProps extends WithChildren {}
+
+export const ServiceLoginWrapper: React.FC = ({ children }: ServiceLoginWrapperProps) => {
 	const history = useHistory();
 	const { service, api } = useSync();
 
@@ -53,8 +54,4 @@ export const ServiceLoginWrapper: React.FC = ({ children }) => {
 	) : (
 		<>{children}</>
 	);
-};
-
-ServiceLoginWrapper.propTypes = {
-	children: PropTypes.node.isRequired,
 };

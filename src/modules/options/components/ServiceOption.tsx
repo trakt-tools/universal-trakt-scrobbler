@@ -3,7 +3,6 @@ import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
 import { Utils } from '@common/Utils';
 import { ServiceOptionRow } from '@components/ServiceOptionRow';
 import { getService } from '@models/Service';
-import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 
 interface ServiceOptionProps {
@@ -11,7 +10,10 @@ interface ServiceOptionProps {
 	initialValue: ServiceValue;
 }
 
-export const ServiceOption: React.FC<ServiceOptionProps> = ({ serviceId, initialValue }) => {
+export const ServiceOption: React.FC<ServiceOptionProps> = ({
+	serviceId,
+	initialValue,
+}: ServiceOptionProps) => {
 	const [value, setValue] = useState(initialValue);
 
 	const service = getService(serviceId);
@@ -57,9 +59,4 @@ export const ServiceOption: React.FC<ServiceOptionProps> = ({ serviceId, initial
 			handleChange={handleChange}
 		/>
 	);
-};
-
-ServiceOption.propTypes = {
-	serviceId: PropTypes.string.isRequired,
-	initialValue: PropTypes.any.isRequired,
 };

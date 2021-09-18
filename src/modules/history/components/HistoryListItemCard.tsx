@@ -1,7 +1,6 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
-import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
@@ -17,7 +16,6 @@ import {
 	Tooltip,
 	Typography,
 } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface HistoryListItemCardProps {
@@ -38,7 +36,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 	imageUrl,
 	openMissingWatchedDateDialog,
 	openCorrectionDialog,
-}) => {
+}: HistoryListItemCardProps) => {
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
 	const watchedAtComponent = item ? (
 		item instanceof TraktItem && typeof watchedAt === 'undefined' ? (
@@ -186,14 +184,4 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 			)}
 		</Card>
 	);
-};
-
-HistoryListItemCard.propTypes = {
-	isLoading: PropTypes.bool.isRequired,
-	item: PropTypes.oneOfType([PropTypes.instanceOf(Item), PropTypes.instanceOf(TraktItem)]),
-	name: PropTypes.string.isRequired,
-	suggestions: PropTypes.array,
-	imageUrl: PropTypes.string,
-	openMissingWatchedDateDialog: PropTypes.func,
-	openCorrectionDialog: PropTypes.func,
 };

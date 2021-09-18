@@ -4,7 +4,6 @@ import { EventDispatcher } from '@common/Events';
 import { OptionsListItem } from '@components/OptionsListItem';
 import { ServiceOptions } from '@components/ServiceOptions';
 import { List } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { PartialDeep } from 'type-fest';
 
@@ -12,7 +11,7 @@ interface OptionsListProps {
 	details: OptionsDetails;
 }
 
-export const OptionsList: React.FC<OptionsListProps> = ({ details }) => {
+export const OptionsList: React.FC<OptionsListProps> = ({ details }: OptionsListProps) => {
 	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionsChange);
@@ -57,8 +56,4 @@ export const OptionsList: React.FC<OptionsListProps> = ({ details }) => {
 				)}
 		</List>
 	);
-};
-
-OptionsList.propTypes = {
-	details: PropTypes.any.isRequired,
 };

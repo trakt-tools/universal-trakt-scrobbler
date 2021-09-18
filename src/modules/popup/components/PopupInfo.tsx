@@ -1,9 +1,10 @@
 import { Center } from '@components/Center';
 import { Box } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
-export const PopupInfo: React.FC = ({ children }) => {
+export interface PopupInfoProps extends WithChildren {}
+
+export const PopupInfo: React.FC = ({ children }: PopupInfoProps) => {
 	return (
 		<Center>
 			<Box
@@ -21,8 +22,4 @@ export const PopupInfo: React.FC = ({ children }) => {
 			</Box>
 		</Center>
 	);
-};
-
-PopupInfo.propTypes = {
-	children: PropTypes.node.isRequired,
 };

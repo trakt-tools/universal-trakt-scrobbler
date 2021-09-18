@@ -5,7 +5,6 @@ import { Utils } from '@common/Utils';
 import { Service } from '@models/Service';
 import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface ServiceLastSyncOptionProps {
@@ -80,13 +79,6 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 			</Box>
 		</Tooltip>
 	);
-};
-
-_ServiceLastSyncOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	lastSync: PropTypes.number.isRequired,
 };
 
 export const ServiceLastSyncOption = React.memo(_ServiceLastSyncOption);

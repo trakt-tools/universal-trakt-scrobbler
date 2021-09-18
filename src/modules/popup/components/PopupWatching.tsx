@@ -9,15 +9,17 @@ import { TmdbImage } from '@components/TmdbImage';
 import { Item } from '@models/Item';
 import { Pause as PauseIcon } from '@mui/icons-material';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
-export interface IPopupWatching {
+export interface PopupWatchingProps {
 	item: Item;
 	isPaused: boolean;
 }
 
-export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
+export const PopupWatching: React.FC<PopupWatchingProps> = ({
+	item,
+	isPaused,
+}: PopupWatchingProps) => {
 	const openCorrectionDialog = async () => {
 		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			item,
@@ -91,9 +93,4 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 			<CustomSnackbar />
 		</>
 	);
-};
-
-PopupWatching.propTypes = {
-	item: PropTypes.instanceOf(Item).isRequired,
-	isPaused: PropTypes.bool.isRequired,
 };

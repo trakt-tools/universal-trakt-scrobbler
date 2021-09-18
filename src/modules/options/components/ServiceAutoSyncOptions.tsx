@@ -6,7 +6,6 @@ import { ServiceLastSyncOption } from '@components/ServiceLastSyncOption';
 import { Service } from '@models/Service';
 import { Block as BlockIcon } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface ServiceAutoSyncOptionsProps {
@@ -25,7 +24,7 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}) => {
+}: ServiceAutoSyncOptionsProps) => {
 	return (
 		<CenteredGrid item xs={2}>
 			{service.hasSync && service.hasAutoSync ? (
@@ -51,15 +50,6 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 			)}
 		</CenteredGrid>
 	);
-};
-
-_ServiceAutoSyncOptions.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	autoSyncDays: PropTypes.number.isRequired,
-	lastSync: PropTypes.number.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };
 
 export const ServiceAutoSyncOptions = React.memo(_ServiceAutoSyncOptions);

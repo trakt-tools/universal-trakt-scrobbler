@@ -54,7 +54,6 @@ specifiers:
   lint-staged: ^11.0.0
   npm-run-all: ^4.1.5
   prettier: ^2.3.1
-  prop-types: ^15.7.2
   pug: ^3.0.2
   pug-loader: ^2.4.0
   react: ^17.0.2
@@ -86,7 +85,6 @@ dependencies:
   date-fns: 2.24.0
   deepmerge: 4.2.2
   history: 4.10.1
-  prop-types: 15.7.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-router-dom: 5.2.0_react@17.0.2

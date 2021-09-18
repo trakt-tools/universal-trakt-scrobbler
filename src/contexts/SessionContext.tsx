@@ -1,8 +1,9 @@
 import { EventDispatcher } from '@common/Events';
 import { Session } from '@common/Session';
 import { useHistory } from '@contexts/HistoryContext';
-import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
+
+export interface SessionProviderProps extends WithChildren {}
 
 const initialValue = {
 	isLoggedIn: Session.isLoggedIn,
@@ -18,7 +19,7 @@ export const useSession = () => {
 	return sessionContext;
 };
 
-export const SessionProvider: React.FC = ({ children }) => {
+export const SessionProvider: React.FC = ({ children }: SessionProviderProps) => {
 	const [value, setValue] = useState(initialValue);
 
 	const history = useHistory();
@@ -48,8 +49,4 @@ export const SessionProvider: React.FC = ({ children }) => {
 	}, []);
 
 	return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
-};
-
-SessionProvider.propTypes = {
-	children: PropTypes.node.isRequired,
 };

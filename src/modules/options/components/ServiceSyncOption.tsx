@@ -5,7 +5,6 @@ import { SwitchOption } from '@components/SwitchOption';
 import { Service } from '@models/Service';
 import { Block as BlockIcon, Launch as LaunchIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -15,7 +14,11 @@ interface ServiceSyncOptionProps {
 	handleChange: (optionId: string, newValue: boolean) => void;
 }
 
-const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, handleChange }) => {
+const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({
+	service,
+	sync,
+	handleChange,
+}: ServiceSyncOptionProps) => {
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
 	};
@@ -45,12 +48,6 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 			)}
 		</CenteredGrid>
 	);
-};
-
-_ServiceSyncOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };
 
 export const ServiceSyncOption = React.memo(_ServiceSyncOption);

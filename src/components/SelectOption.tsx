@@ -1,5 +1,4 @@
 import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 interface SelectOptionProps extends WithSx {
@@ -38,12 +37,4 @@ export const SelectOption: React.FC<SelectOptionProps> = ({
 			))}
 		</Select>
 	);
-};
-
-SelectOption.propTypes = {
-	id: PropTypes.string.isRequired,
-	value: PropTypes.string.isRequired,
-	isDisabled: PropTypes.bool.isRequired,
-	choices: PropTypes.any.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };

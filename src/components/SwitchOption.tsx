@@ -1,5 +1,4 @@
 import { FormControlLabel, Switch } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 interface SwitchOptionProps extends WithSx {
@@ -34,12 +33,4 @@ export const SwitchOption: React.FC<SwitchOptionProps> = ({
 	);
 
 	return label ? <FormControlLabel control={switchComponent} label={label} /> : switchComponent;
-};
-
-SwitchOption.propTypes = {
-	id: PropTypes.string.isRequired,
-	label: PropTypes.string,
-	value: PropTypes.bool.isRequired,
-	isDisabled: PropTypes.bool.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };

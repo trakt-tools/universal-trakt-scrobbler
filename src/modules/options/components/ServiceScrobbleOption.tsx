@@ -4,7 +4,6 @@ import { SwitchOption } from '@components/SwitchOption';
 import { Service } from '@models/Service';
 import { Block as BlockIcon } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface ServiceScrobbleOptionProps {
@@ -17,7 +16,7 @@ const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
 	service,
 	scrobble,
 	handleChange,
-}) => {
+}: ServiceScrobbleOptionProps) => {
 	return (
 		<CenteredGrid item xs={1}>
 			{service.hasScrobbler ? (
@@ -34,12 +33,6 @@ const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
 			)}
 		</CenteredGrid>
 	);
-};
-
-_ServiceScrobbleOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	scrobble: PropTypes.bool.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };
 
 export const ServiceScrobbleOption = React.memo(_ServiceScrobbleOption);

@@ -1,5 +1,4 @@
 import { TextField } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 interface BaseTextFieldOptionProps<T extends string | number> extends WithSx {
@@ -81,19 +80,6 @@ const BaseTextFieldOption = <T extends string | number>({
 			sx={sx}
 		/>
 	);
-};
-
-BaseTextFieldOption.propTypes = {
-	id: PropTypes.string.isRequired,
-	label: PropTypes.string.isRequired,
-	value: PropTypes.oneOf([PropTypes.string, PropTypes.number]).isRequired,
-	isDisabled: PropTypes.bool.isRequired,
-	isFloat: PropTypes.bool,
-	maxValue: PropTypes.number,
-	minValue: PropTypes.number,
-	step: PropTypes.number,
-	width: PropTypes.number,
-	handleChange: PropTypes.func.isRequired,
 };
 
 export const TextFieldOption: React.FC<BaseTextFieldOptionProps<string>> = (props) => {

@@ -12,14 +12,13 @@ import {
 	ListItemText,
 	Typography,
 } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface ServiceOptionsProps {
 	option: CustomOptionDetails<StorageValuesOptions, 'services'>;
 }
 
-export const ServiceOptions: React.FC<ServiceOptionsProps> = ({ option }) => {
+export const ServiceOptions: React.FC<ServiceOptionsProps> = ({ option }: ServiceOptionsProps) => {
 	const onSelectAllClick = async () => {
 		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
 			services: Object.fromEntries(
@@ -97,8 +96,4 @@ export const ServiceOptions: React.FC<ServiceOptionsProps> = ({ option }) => {
 			</ListItem>
 		</>
 	);
-};
-
-ServiceOptions.propTypes = {
-	option: PropTypes.any.isRequired,
 };

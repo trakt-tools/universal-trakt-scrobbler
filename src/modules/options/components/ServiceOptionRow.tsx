@@ -5,7 +5,6 @@ import { ServiceScrobbleOption } from '@components/ServiceScrobbleOption';
 import { ServiceSyncOption } from '@components/ServiceSyncOption';
 import { Service } from '@models/Service';
 import { Grid } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 
 interface ServiceOptionRowProps {
@@ -26,7 +25,7 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}) => {
+}: ServiceOptionRowProps) => {
 	return (
 		<Grid
 			item
@@ -50,16 +49,6 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 			</CenteredGrid>
 		</Grid>
 	);
-};
-
-_ServiceOptionRow.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	scrobble: PropTypes.bool.isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	autoSyncDays: PropTypes.number.isRequired,
-	lastSync: PropTypes.number.isRequired,
-	handleChange: PropTypes.func.isRequired,
 };
 
 export const ServiceOptionRow = React.memo(_ServiceOptionRow);

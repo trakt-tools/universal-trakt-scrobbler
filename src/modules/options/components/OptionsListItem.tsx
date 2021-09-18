@@ -5,14 +5,15 @@ import { OptionsListItemRoot } from '@components/OptionsListItemRoot';
 import { SelectOption } from '@components/SelectOption';
 import { SwitchOption } from '@components/SwitchOption';
 import { ListItemSecondaryAction, ListItemText } from '@mui/material';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 interface OptionsListItemProps {
 	option: OptionDetails<StorageValuesOptions>;
 }
 
-export const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
+export const OptionsListItem: React.FC<OptionsListItemProps> = ({
+	option,
+}: OptionsListItemProps) => {
 	const [isDisabled, setDisabled] = useState(BrowserStorage.checkDisabledOption(option));
 	const [value, setValue] = useState(option.value);
 
@@ -90,8 +91,4 @@ export const OptionsListItem: React.FC<OptionsListItemProps> = ({ option }) => {
 			<ListItemSecondaryAction>{secondaryAction}</ListItemSecondaryAction>
 		</OptionsListItemRoot>
 	);
-};
-
-OptionsListItem.propTypes = {
-	option: PropTypes.any.isRequired,
 };

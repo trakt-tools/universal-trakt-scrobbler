@@ -23,7 +23,6 @@ import {
 	ListItemText,
 	TextField,
 } from '@mui/material';
-import PropTypes from 'prop-types';
 import React from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
@@ -44,7 +43,7 @@ const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemDat
 	index,
 	data,
 	style,
-}) => {
+}: ListChildComponentProps<SuggestionListItemData>) => {
 	const suggestion = data.suggestions[index];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
@@ -63,12 +62,6 @@ const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemDat
 			</ListItemSecondaryAction>
 		</ListItem>
 	);
-};
-
-SuggestionListItem.propTypes = {
-	index: PropTypes.number.isRequired,
-	data: PropTypes.any.isRequired,
-	style: PropTypes.any.isRequired,
 };
 
 export const CorrectionDialog: React.FC = () => {

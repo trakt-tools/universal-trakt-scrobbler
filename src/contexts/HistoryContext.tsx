@@ -1,6 +1,7 @@
 import { createHashHistory } from 'history';
-import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
+
+export interface HistoryProviderProps extends WithChildren {}
 
 const history = createHashHistory();
 
@@ -14,10 +15,6 @@ export const useHistory = () => {
 	return historyContext;
 };
 
-export const HistoryProvider: React.FC = ({ children }) => {
+export const HistoryProvider: React.FC = ({ children }: HistoryProviderProps) => {
 	return <HistoryContext.Provider value={history}>{children}</HistoryContext.Provider>;
-};
-
-HistoryProvider.propTypes = {
-	children: PropTypes.node.isRequired,
 };
