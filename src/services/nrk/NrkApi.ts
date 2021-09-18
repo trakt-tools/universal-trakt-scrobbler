@@ -1,8 +1,8 @@
 import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
+import { Utils } from '@common/Utils';
 import { IItem, Item } from '@models/Item';
-import moment from 'moment';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
@@ -185,10 +185,7 @@ class _NrkApi extends ServiceApi {
 	}
 
 	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number, lastSyncId: string) {
-		return (
-			!!historyItem.registeredAt &&
-			Math.trunc(new Date(historyItem.registeredAt).getTime() / 1e3) > lastSync
-		);
+		return !!historyItem.registeredAt && Utils.unix(historyItem.registeredAt) > lastSync;
 	}
 
 	getHistoryItemId(historyItem: NrkProgressItem) {
@@ -209,7 +206,7 @@ class _NrkApi extends ServiceApi {
 		const titleInfo = programInfo.titles;
 		//TODO This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
 		const title = this.getTitle(programPage);
-		const watchedAt = historyItem.registeredAt ? moment(historyItem.registeredAt) : undefined;
+		const watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
 
 		const baseItem: IItem = {
 			type,

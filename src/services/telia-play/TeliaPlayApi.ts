@@ -1,8 +1,8 @@
 import { TeliaPlayService } from '@/telia-play/TeliaPlayService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
-import moment from 'moment';
 
 export interface TeliaContinueWatchingList {
 	list: TeliaContinueWatchingItem[];
@@ -300,8 +300,7 @@ class _TeliaPlayApi extends ServiceApi {
 		const type = this.parseType(mediaObject);
 		const year = parseInt(mediaObject.productionYear);
 		const progress = this.getPercentageWatched(mediaObject.watched);
-		const watchedDate = mediaObject.watched && new Date(mediaObject.watched.timestamp);
-		const watchedAt = watchedDate ? moment(watchedDate) : undefined;
+		const watchedAt = mediaObject.watched ? Utils.unix(mediaObject.watched.timestamp) : undefined;
 		if (type === 'show') {
 			const title = mediaObject.seriesTitle;
 			const season = mediaObject.seasonNumber;

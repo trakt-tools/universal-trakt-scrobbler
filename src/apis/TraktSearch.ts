@@ -4,9 +4,9 @@ import { CacheItems } from '@common/Cache';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
-import moment from 'moment';
 
 export type TraktSearchItem = TraktSearchShowItem | TraktSearchMovieItem;
 
@@ -24,7 +24,7 @@ export interface TraktEpisodeItemEpisode {
 		trakt: number;
 		tmdb: number;
 	};
-	/** Format: YYYY-MM-DDTHH:mm:ss.SSSZ */
+	/** Format: yyyy-MM-ddTHH:mm:ss.SSSZ */
 	first_aired: string | null;
 }
 
@@ -52,7 +52,7 @@ export interface TraktSearchMovieItemMovie {
 		trakt: number;
 		tmdb: number;
 	};
-	/** Format: YYYY-MM-DD */
+	/** Format: yyyy-MM-dd */
 	released: string;
 }
 
@@ -105,7 +105,7 @@ class _TraktSearch extends TraktApi {
 				const episode = searchItem.episode.number;
 				const episodeTitle = searchItem.episode.title;
 				const firstAired = searchItem.episode.first_aired;
-				const releaseDate = firstAired ? moment(firstAired) : undefined;
+				const releaseDate = firstAired ? Utils.unix(firstAired) : undefined;
 				traktItem = new TraktItem({
 					id,
 					tmdbId,
@@ -123,11 +123,7 @@ class _TraktSearch extends TraktApi {
 				const title = searchItem.movie.title;
 				const year = searchItem.movie.year;
 				const released = searchItem.movie.released;
-				let releaseDate;
-				if (released) {
-					const utcOffset = moment().format('Z'); // This is the user's local UTC offset, used to change the time based on daylight saving time. Example: -03:00
-					releaseDate = moment(`${released}T22:00:00.000${utcOffset}`); // Trakt apparently sets the time for 22:00 for all movies added with release date, so we do that here as well.
-				}
+				const releaseDate = released ? Utils.unix(released) : undefined;
 				traktItem = new TraktItem({
 					id,
 					tmdbId,

@@ -43,5 +43,5 @@ export const Shared: SharedValues = {
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',
 	tabId: null,
-	dateFormat: 'ddd D MMM YYYY, H:mm:ss',
+	dateFormat: 'EEE d MMM yyyy, H:mm:ss',
 };

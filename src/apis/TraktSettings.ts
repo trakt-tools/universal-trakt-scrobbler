@@ -18,7 +18,7 @@ class _TraktSettings extends TraktApi {
 	}
 
 	async getTimeAndDateFormat() {
-		let dateFormat = 'ddd ';
+		let dateFormat = 'EEE ';
 		try {
 			const cache = await Cache.get('traktSettings');
 			let settings = cache.get('default');
@@ -33,29 +33,29 @@ class _TraktSettings extends TraktApi {
 			}
 			switch (settings.account.date_format) {
 				case 'dmy':
-					dateFormat += 'D MMM YYYY';
+					dateFormat += 'd MMM yyyy';
 					break;
 				case 'mdy':
-					dateFormat += 'MMM D YYYY';
+					dateFormat += 'MMM d yyyy';
 					break;
 				case 'ydm':
-					dateFormat += 'YYYY D MMM';
+					dateFormat += 'yyyy d MMM';
 					break;
 				case 'ymd':
-					dateFormat += 'YYYY MMM D';
+					dateFormat += 'yyyy MMM d';
 					break;
 				default:
 					console.error('Unknown date format', settings.account.date_format);
-					dateFormat += 'D MMM YYYY, H:mm:ss';
+					dateFormat += 'd MMM yyyy, H:mm:ss';
 					return dateFormat;
 			}
 			if (settings.account.time_24hr) {
 				dateFormat += ', H:mm:ss';
 			} else {
-				dateFormat += ', h:mm:ss a';
+				dateFormat += ', h:mm:ss aa';
 			}
 		} catch (err) {
-			dateFormat += 'D MMM YYYY, H:mm:ss';
+			dateFormat += 'd MMM yyyy, H:mm:ss';
 		}
 		return dateFormat;
 	}

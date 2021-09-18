@@ -2,6 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
+import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
 import { TmdbImage } from '@components/TmdbImage';
@@ -44,7 +45,7 @@ export const HistoryListItemCard: React.FC<HistoryListItemCardProps> = ({
 			<Typography variant="overline">{I18N.translate('loadingHistory')}...</Typography>
 		) : watchedAt ? (
 			<Typography variant="overline">
-				{`${I18N.translate('watched')} ${watchedAt.format(Shared.dateFormat)}`}
+				{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
 			</Typography>
 		) : openMissingWatchedDateDialog ? (
 			<Button color="secondary" disabled={isLoading} onClick={openMissingWatchedDateDialog}>

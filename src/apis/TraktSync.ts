@@ -3,9 +3,9 @@ import { Cache, CacheItem } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { RequestException, Requests } from '@common/Requests';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { SyncStore } from '@stores/SyncStore';
-import moment from 'moment';
 
 export interface TraktHistoryItem {
 	id: number;
@@ -14,7 +14,7 @@ export interface TraktHistoryItem {
 
 export interface ParsedTraktHistoryItem {
 	id: number;
-	watched_at: moment.Moment;
+	watched_at: number;
 }
 
 export interface TraktSyncResponse {
@@ -63,12 +63,12 @@ class _TraktSync extends TraktApi {
 		for (const historyItem of historyItems) {
 			const parsedHistoryItem: ParsedTraktHistoryItem = {
 				id: historyItem.id,
-				watched_at: moment(historyItem.watched_at),
+				watched_at: Utils.unix(historyItem.watched_at),
 			};
-			if (watchedAt.isSame(parsedHistoryItem.watched_at)) {
+			if (watchedAt === parsedHistoryItem.watched_at) {
 				historyItemMatch = parsedHistoryItem;
 				break;
-			} else if (watchedAt.diff(parsedHistoryItem.watched_at, 'days') === 0) {
+			} else if (Utils.dateDiff(watchedAt, parsedHistoryItem.watched_at, 24 * 60 * 60)) {
 				historyItemMatch = parsedHistoryItem;
 			}
 		}

@@ -37,6 +37,7 @@ specifiers:
   babel-preset-minify: ^0.5.1
   cross-env: ^7.0.3
   css-loader: ^5.2.6
+  date-fns: ^2.24.0
   deepmerge: ^4.2.2
   eslint: ^7.28.0
   eslint-config-prettier: ^8.3.0
@@ -51,7 +52,6 @@ specifiers:
   husky: ^6.0.0
   jsonlint: ^1.6.3
   lint-staged: ^11.0.0
-  moment: ^2.29.1
   npm-run-all: ^4.1.5
   prettier: ^2.3.1
   prop-types: ^15.7.2
@@ -79,13 +79,13 @@ dependencies:
   '@emotion/styled': 11.3.0_c3907f8b95c8c3c314eb88864d8dfd18
   '@fontsource/roboto': 4.5.0
   '@mui/icons-material': 5.0.0_b2b327ccae611e4a214c11b95599453f
-  '@mui/lab': 5.0.0-alpha.47_5ad6db3e9f30d5344a2e908faf98184d
+  '@mui/lab': 5.0.0-alpha.47_78aa776c0269b82b6134f7534a7ea26b
   '@mui/material': 5.0.0_a1959ce1a85c74f039feef37fefb5396
   '@mui/system': 5.0.0_9be175d1f0fa6cb2fceeba289665664b
   axios: 0.21.4
+  date-fns: 2.24.0
   deepmerge: 4.2.2
   history: 4.10.1
-  moment: 2.29.1
   prop-types: 15.7.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
@@ -1776,7 +1776,7 @@ packages:
       }
     dev: false
 
-  /@date-io/date-fns/2.11.0:
+  /@date-io/date-fns/2.11.0_date-fns@2.24.0:
     resolution:
       {
         integrity: sha512-mPQ71plBeFrArvBSHtjWMHXA89IUbZ6kuo2dsjlRC/1uNOybo91spIb+wTu03NxKTl8ut07s0jJ9svF71afpRg==,
@@ -1788,6 +1788,7 @@ packages:
         optional: true
     dependencies:
       '@date-io/core': 2.11.0
+      date-fns: 2.24.0
     dev: false
 
   /@date-io/dayjs/2.11.0:
@@ -1818,7 +1819,7 @@ packages:
       '@date-io/core': 2.11.0
     dev: false
 
-  /@date-io/moment/2.11.0_moment@2.29.1:
+  /@date-io/moment/2.11.0:
     resolution:
       {
         integrity: sha512-QSL+83qezQ9Ty0dtFgAkk6eC0GMl/lgYfDajeVUDB3zVA2A038hzczRLBg29ifnBGhQMPABxuOafgWwhDjlarg==,
@@ -1830,7 +1831,6 @@ packages:
         optional: true
     dependencies:
       '@date-io/core': 2.11.0
-      moment: 2.29.1
     dev: false
 
   /@discoveryjs/json-ext/0.5.3:
@@ -2086,7 +2086,7 @@ packages:
       react: 17.0.2
     dev: false
 
-  /@mui/lab/5.0.0-alpha.47_5ad6db3e9f30d5344a2e908faf98184d:
+  /@mui/lab/5.0.0-alpha.47_78aa776c0269b82b6134f7534a7ea26b:
     resolution:
       {
         integrity: sha512-og0OYSbxkmrj41A0aChAEXugq9fs334jpVTFOoY735yP0TBedI/djqjrqnSm7JdMrwUxy8JfMt1PXYWrw/2SEg==,
@@ -2114,17 +2114,17 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.15.4
-      '@date-io/date-fns': 2.11.0
+      '@date-io/date-fns': 2.11.0_date-fns@2.24.0
       '@date-io/dayjs': 2.11.0
       '@date-io/luxon': 2.11.1
-      '@date-io/moment': 2.11.0_moment@2.29.1
+      '@date-io/moment': 2.11.0
       '@mui/core': 5.0.0-alpha.47_7a759d72fcbc11ce03c9de110c21df82
       '@mui/material': 5.0.0_a1959ce1a85c74f039feef37fefb5396
       '@mui/system': 5.0.0_9be175d1f0fa6cb2fceeba289665664b
       '@mui/utils': 5.0.0_react@17.0.2
       '@types/react': 17.0.11
       clsx: 1.1.1
-      moment: 2.29.1
+      date-fns: 2.24.0
       prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -4304,6 +4304,14 @@ packages:
       }
     dev: false
 
+  /date-fns/2.24.0:
+    resolution:
+      {
+        integrity: sha512-6ujwvwgPID6zbI0o7UbURi2vlLDR9uP26+tW6Lg+Ji3w7dd0i3DOcjcClLjLPranT60SSEFBwdSyYwn/ZkPIuw==,
+      }
+    engines: { node: '>=0.11' }
+    dev: false
+
   /debug/4.3.1:
     resolution:
       {
@@ -6302,13 +6310,6 @@ packages:
         integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==,
       }
     dev: true
-
-  /moment/2.29.1:
-    resolution:
-      {
-        integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==,
-      }
-    dev: false
 
   /ms/2.1.2:
     resolution:

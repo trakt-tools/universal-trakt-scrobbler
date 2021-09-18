@@ -43,7 +43,7 @@ class _AutoSync {
 			window.clearTimeout(this.checkTimeoutId);
 		}
 
-		const now = Math.trunc(Date.now() / 1e3);
+		const now = Utils.unix();
 		const servicesToSync = getServices().filter((service) => {
 			const value = BrowserStorage.options.services[service.id];
 			return (

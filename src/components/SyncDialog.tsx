@@ -2,6 +2,7 @@ import { TraktSync } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher, SyncDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { Item } from '@models/Item';
@@ -44,7 +45,7 @@ export const SyncDialog: React.FC = () => {
 			try {
 				await TraktSync.sync(store, items);
 				if (serviceId) {
-					const lastSync = items[0].watchedAt?.unix() ?? Math.trunc(Date.now() / 1e3);
+					const lastSync = items[0].watchedAt ?? Utils.unix();
 					if (lastSync > BrowserStorage.options.services[serviceId].lastSync) {
 						await BrowserStorage.saveOptions({
 							services: {

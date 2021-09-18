@@ -2,11 +2,12 @@ import { Errors } from '@common/Errors';
 import { EventDispatcher, MissingWatchedDateDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { RequestException } from '@common/Requests';
+import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { Item } from '@models/Item';
 import { DateTimePicker, LocalizationProvider } from '@mui/lab';
-import DateAdapter from '@mui/lab/AdapterMoment';
+import DateAdapter from '@mui/lab/AdapterDateFns';
 import {
 	Button,
 	CircularProgress,
@@ -19,7 +20,6 @@ import {
 	RadioGroup,
 	TextField,
 } from '@mui/material';
-import moment from 'moment';
 import React from 'react';
 
 interface MissingWatchedDateDialogState {
@@ -27,7 +27,7 @@ interface MissingWatchedDateDialogState {
 	isLoading: boolean;
 	items: Item[];
 	dateType: MissingWatchedDateType | null;
-	date: moment.Moment | null;
+	date: number | null;
 	dateError: React.ReactNode | null;
 }
 
@@ -58,14 +58,14 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateChange = (date: moment.Moment | null): void => {
+	const onDateChange = (date: number | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
 		}));
 	};
 
-	const onDateAccept = (date: moment.Moment | null): void => {
+	const onDateAccept = (date: number | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
@@ -100,23 +100,27 @@ export const MissingWatchedDateDialog: React.FC = () => {
 						if (!releaseDate) {
 							throw new Error('Missing release date');
 						}
-						item.watchedAt = releaseDate.clone();
+						item.watchedAt = releaseDate;
 					}
 					break;
 				}
-				case 'current-date':
+				case 'current-date': {
+					const now = Utils.unix();
 					for (const item of newItems) {
-						item.watchedAt = moment();
+						item.watchedAt = now;
 					}
 					break;
-				case 'custom-date':
+				}
+				case 'custom-date': {
 					if (!dialog.date || !!dialog.dateError) {
 						throw new Error('Missing date or invalid date');
 					}
+					const customDate = Utils.unix(dialog.date);
 					for (const item of newItems) {
-						item.watchedAt = dialog.date;
+						item.watchedAt = customDate;
 					}
 					break;
+				}
 				// no-default
 			}
 			for (const item of newItems) {
@@ -229,8 +233,8 @@ export const MissingWatchedDateDialog: React.FC = () => {
 							<LocalizationProvider dateAdapter={DateAdapter}>
 								<DateTimePicker
 									value={dialog.date}
-									inputFormat="YYYY/MM/DD HH:mm"
-									maxDateTime={moment()}
+									inputFormat="yyyy/MM/dd HH:mm"
+									maxDateTime={Date.now()}
 									onChange={onDateChange}
 									onAccept={onDateAccept}
 									onError={onDateError}

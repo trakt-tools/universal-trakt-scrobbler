@@ -1,11 +1,10 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Shared } from '@common/Shared';
+import { Utils } from '@common/Utils';
 import { Service } from '@models/Service';
 import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -63,7 +62,7 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 						<>
 							<br />
 							<br />
-							{I18N.translate('lastSync')}: {moment(lastSync * 1e3).format(Shared.dateFormat)}
+							{I18N.translate('lastSync')}: {Utils.timestamp(lastSync)}
 						</>
 					)}
 				</>
