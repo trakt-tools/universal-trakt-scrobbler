@@ -67,7 +67,7 @@ specifiers:
   style-loader: ^2.0.0
   ts-node: ^10.0.0
   tsconfig-paths-webpack-plugin: ^3.5.1
-  type-fest: ^1.2.2
+  type-fest: ^2.3.3
   typescript: ^4.3.2
   webextension-polyfill-ts: ^0.26.0
   webpack: ^5.53.0
@@ -92,7 +92,7 @@ dependencies:
   react-window: 1.8.6_react-dom@17.0.2+react@17.0.2
   react-window-infinite-loader: 1.0.7_react-dom@17.0.2+react@17.0.2
   rollbar: 2.24.0
-  type-fest: 1.2.2
+  type-fest: 2.3.3
   webextension-polyfill-ts: 0.26.0
 
 devDependencies:
@@ -8330,12 +8330,12 @@ packages:
     engines: { node: '>=10' }
     dev: true
 
-  /type-fest/1.2.2:
+  /type-fest/2.3.3:
     resolution:
       {
-        integrity: sha512-pfkPYCcuV0TJoo/jlsUeWNV8rk7uMU6ocnYNvca1Vu+pyKi8Rl8Zo2scPt9O72gCsXIm+dMxOOWuA3VFDSdzWA==,
+        integrity: sha512-4r1ygCTovO9M+cJOdhlit7JkDmMgYwOXmttU1Nd/9a5UY8oebN0+wN/b5N5i/f8aQ/pTDS2oQ3CBxnu+/1p4aA==,
       }
-    engines: { node: '>=10' }
+    engines: { node: '>=12.20' }
     dev: false
 
   /typescript/4.3.2:

@@ -53,7 +53,7 @@
 		"react-window": "^1.8.6",
 		"react-window-infinite-loader": "^1.0.7",
 		"rollbar": "^2.24.0",
-		"type-fest": "^1.2.2",
+		"type-fest": "^2.3.3",
 		"webextension-polyfill-ts": "^0.26.0"
 	},
 	"devDependencies": {
