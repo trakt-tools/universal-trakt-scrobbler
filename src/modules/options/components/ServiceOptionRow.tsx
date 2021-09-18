@@ -1,11 +1,11 @@
+import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceAutoSyncOptions } from '@components/ServiceAutoSyncOptions';
 import { ServiceNameOption } from '@components/ServiceNameOption';
 import { ServiceScrobbleOption } from '@components/ServiceScrobbleOption';
 import { ServiceSyncOption } from '@components/ServiceSyncOption';
-import { Grid } from '@material-ui/core';
 import { Service } from '@models/Service';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Grid } from '@mui/material';
+import { memo } from 'react';
 
 interface ServiceOptionRowProps {
 	service: Service;
@@ -17,7 +17,7 @@ interface ServiceOptionRowProps {
 	handleChange: (optionId: string, newValue: unknown) => void;
 }
 
-const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
+const _ServiceOptionRow = ({
 	service,
 	scrobble,
 	sync,
@@ -25,10 +25,16 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}) => {
+}: ServiceOptionRowProps): JSX.Element => {
 	return (
-		<Grid item className="options-grid-item" xs={12}>
-			<Grid container className="options-grid-container" spacing={10}>
+		<Grid
+			item
+			xs={12}
+			sx={{
+				overflow: 'hidden',
+			}}
+		>
+			<CenteredGrid container spacing={10}>
 				<ServiceNameOption service={service} />
 				<ServiceScrobbleOption service={service} scrobble={scrobble} handleChange={handleChange} />
 				<ServiceSyncOption service={service} sync={sync} handleChange={handleChange} />
@@ -40,19 +46,9 @@ const _ServiceOptionRow: React.FC<ServiceOptionRowProps> = ({
 					lastSync={lastSync}
 					handleChange={handleChange}
 				/>
-			</Grid>
+			</CenteredGrid>
 		</Grid>
 	);
 };
 
-_ServiceOptionRow.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	scrobble: PropTypes.bool.isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	autoSyncDays: PropTypes.number.isRequired,
-	lastSync: PropTypes.number.isRequired,
-	handleChange: PropTypes.func.isRequired,
-};
-
-export const ServiceOptionRow = React.memo(_ServiceOptionRow);
+export const ServiceOptionRow = memo(_ServiceOptionRow);

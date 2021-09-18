@@ -1,10 +1,10 @@
 import { I18N } from '@common/I18N';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { SwitchOption } from '@components/SwitchOption';
-import { Grid, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
 import { Service } from '@models/Service';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Block as BlockIcon } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
+import { memo } from 'react';
 
 interface ServiceScrobbleOptionProps {
 	service: Service;
@@ -12,13 +12,13 @@ interface ServiceScrobbleOptionProps {
 	handleChange: (optionId: string, newValue: boolean) => void;
 }
 
-const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
+const _ServiceScrobbleOption = ({
 	service,
 	scrobble,
 	handleChange,
-}) => {
+}: ServiceScrobbleOptionProps): JSX.Element => {
 	return (
-		<Grid item className="options-grid-item--centered" xs={1}>
+		<CenteredGrid item xs={1}>
 			{service.hasScrobbler ? (
 				<SwitchOption
 					id="scrobble"
@@ -31,14 +31,8 @@ const _ServiceScrobbleOption: React.FC<ServiceScrobbleOptionProps> = ({
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 
-_ServiceScrobbleOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	scrobble: PropTypes.bool.isRequired,
-	handleChange: PropTypes.func.isRequired,
-};
-
-export const ServiceScrobbleOption = React.memo(_ServiceScrobbleOption);
+export const ServiceScrobbleOption = memo(_ServiceScrobbleOption);

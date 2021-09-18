@@ -5,12 +5,12 @@ import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestException } from '@common/Requests';
-import { UtsCenter } from '@components/UtsCenter';
+import { Center } from '@components/Center';
+import { CustomDialogRoot } from '@components/CustomDialogRoot';
+import { Item } from '@models/Item';
 import {
 	Button,
 	CircularProgress,
-	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogContentText,
@@ -21,10 +21,8 @@ import {
 	ListItemSecondaryAction,
 	ListItemText,
 	TextField,
-} from '@material-ui/core';
-import { Item } from '@models/Item';
-import PropTypes from 'prop-types';
-import React from 'react';
+} from '@mui/material';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface CorrectionDialogState {
@@ -40,11 +38,11 @@ interface SuggestionListItemData {
 	onCorrectButtonClick: (suggestion: Suggestion) => void;
 }
 
-const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemData>> = ({
+const SuggestionListItem = ({
 	index,
 	data,
 	style,
-}) => {
+}: ListChildComponentProps<SuggestionListItemData>): JSX.Element => {
 	const suggestion = data.suggestions[index];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
@@ -57,11 +55,7 @@ const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemDat
 				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 			/>
 			<ListItemSecondaryAction>
-				<Button
-					color="primary"
-					variant="contained"
-					onClick={() => data.onCorrectButtonClick(suggestion)}
-				>
+				<Button variant="contained" onClick={() => data.onCorrectButtonClick(suggestion)}>
 					{I18N.translate('use')}
 				</Button>
 			</ListItemSecondaryAction>
@@ -69,14 +63,8 @@ const SuggestionListItem: React.FC<ListChildComponentProps<SuggestionListItemDat
 	);
 };
 
-SuggestionListItem.propTypes = {
-	index: PropTypes.number.isRequired,
-	data: PropTypes.any.isRequired,
-	style: PropTypes.any.isRequired,
-};
-
-export const CorrectionDialog: React.FC = () => {
-	const [dialog, setDialog] = React.useState<CorrectionDialogState>({
+export const CorrectionDialog = (): JSX.Element => {
+	const [dialog, setDialog] = useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
 		isScrobblingItem: false,
@@ -90,7 +78,7 @@ export const CorrectionDialog: React.FC = () => {
 		}));
 	};
 
-	const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+	const onUrlChange = (event: ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
 		const url = target.value;
 		setDialog((prevDialog) => ({
@@ -160,7 +148,7 @@ export const CorrectionDialog: React.FC = () => {
 				}
 			);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to correct item.', err);
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'correctItemFailed',
@@ -192,7 +180,7 @@ export const CorrectionDialog: React.FC = () => {
 			: `/movies/${showOrMovie}`;
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
@@ -220,17 +208,16 @@ export const CorrectionDialog: React.FC = () => {
 			: [I18N.translate('invalidTraktUrl'), true];
 
 	return (
-		<Dialog
-			classes={{ paper: 'correction-dialog' }}
+		<CustomDialogRoot
 			open={dialog.isOpen}
 			aria-labelledby="correction-dialog-title"
 			onClose={closeDialog}
 		>
 			<DialogTitle id="correction-dialog-title">{I18N.translate('correctItem')}</DialogTitle>
 			{dialog.isLoading ? (
-				<UtsCenter>
+				<Center>
 					<CircularProgress />
-				</UtsCenter>
+				</Center>
 			) : (
 				<>
 					<DialogContent>
@@ -258,7 +245,11 @@ export const CorrectionDialog: React.FC = () => {
 						{dialog.item?.suggestions && dialog.item.suggestions.length > 0 && (
 							<>
 								<Divider />
-								<DialogContentText className="correction-dialog-suggestions-title">
+								<DialogContentText
+									sx={{
+										marginTop: 1,
+									}}
+								>
 									{I18N.translate('suggestions')}:
 								</DialogContentText>
 								<FixedSizeList
@@ -285,16 +276,14 @@ export const CorrectionDialog: React.FC = () => {
 							value={dialog.url}
 							autoFocus
 							fullWidth
-							margin="dense"
+							margin="normal"
+							size="small"
 							onChange={onUrlChange}
 						/>
 					</DialogContent>
 					<DialogActions>
-						<Button color="default" onClick={closeDialog}>
-							{I18N.translate('cancel')}
-						</Button>
+						<Button onClick={closeDialog}>{I18N.translate('cancel')}</Button>
 						<Button
-							color="primary"
 							disabled={!dialog.url || urlError}
 							variant="contained"
 							onClick={() => onCorrectButtonClick()}
@@ -304,6 +293,6 @@ export const CorrectionDialog: React.FC = () => {
 					</DialogActions>
 				</>
 			)}
-		</Dialog>
+		</CustomDialogRoot>
 	);
 };

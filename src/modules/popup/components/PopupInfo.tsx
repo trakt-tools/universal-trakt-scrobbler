@@ -1,16 +1,24 @@
-import { UtsCenter } from '@components/UtsCenter';
-import { Box } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Center } from '@components/Center';
+import { Box } from '@mui/material';
 
-export const PopupInfo: React.FC = ({ children }) => {
+export interface PopupInfoProps extends WithChildren {}
+
+export const PopupInfo = ({ children }: PopupInfoProps): JSX.Element => {
 	return (
-		<UtsCenter>
-			<Box className="popup-info">{children}</Box>
-		</UtsCenter>
-	);
-};
+		<Center>
+			<Box
+				sx={{
+					color: '#fff',
+					textAlign: 'center',
 
-PopupInfo.propTypes = {
-	children: PropTypes.node.isRequired,
+					'& > *:not(.MuiLinearProgress-root)': {
+						marginY: 1,
+						marginX: 0,
+					},
+				}}
+			>
+				{children}
+			</Box>
+		</Center>
+	);
 };

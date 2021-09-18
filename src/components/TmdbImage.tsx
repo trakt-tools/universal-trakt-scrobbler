@@ -1,18 +1,28 @@
-import { Box } from '@material-ui/core';
-import React from 'react';
+import { FullView } from '@components/FullView';
+import TraktIconImage from '@images/trakt-icon.png';
+import { Box } from '@mui/material';
 
 interface TmdbImageProps {
 	imageUrl?: string | null;
 }
 
-export const TmdbImage: React.FC<TmdbImageProps> = ({ imageUrl }: TmdbImageProps) => {
+export const TmdbImage = ({ imageUrl }: TmdbImageProps): JSX.Element => {
 	return (
 		<Box>
-			<Box
-				className="tmdb-image"
-				style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined}
+			<FullView
+				sx={{
+					backgroundColor: '#000',
+					backgroundImage: `url("${imageUrl || TraktIconImage}")`,
+					backgroundPosition: 'center',
+					backgroundSize: 'cover',
+					backgroundRepeat: 'no-repeat',
+				}}
 			/>
-			<Box className="tmdb-image-overlay" />
+			<FullView
+				sx={{
+					backgroundColor: 'rgba(0, 0, 0, 0.5)',
+				}}
+			/>
 		</Box>
 	);
 };

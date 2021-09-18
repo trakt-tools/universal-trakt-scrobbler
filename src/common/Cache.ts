@@ -3,6 +3,7 @@ import { TmdbApiConfig } from '@apis/TmdbApi';
 import { TraktSettingsResponse } from '@apis/TraktSettings';
 import { TraktHistoryItem } from '@apis/TraktSync';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Utils } from '@common/Utils';
 import { SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
 
@@ -111,7 +112,7 @@ class _Cache {
 			window.clearTimeout(this.checkTimeout);
 		}
 
-		const now = Math.trunc(Date.now() / 1e3);
+		const now = Utils.unix();
 		for (const [key, ttl] of Object.entries(this.ttl) as [keyof CacheValues, number][]) {
 			const storageKey = `${key}Cache` as const;
 			const storage = await BrowserStorage.get(storageKey);
@@ -138,7 +139,7 @@ class _Cache {
 	async get<K extends keyof CacheValues, T extends (keyof CacheValues)[]>(
 		keyOrKeys: K | T
 	): Promise<CacheItem<K> | CacheItems<T>> {
-		this.timestamp = Math.trunc(Date.now() / 1e3);
+		this.timestamp = Utils.unix();
 
 		const caches = {} as CacheItems<T>;
 		const keys = Array.isArray(keyOrKeys) ? keyOrKeys : [keyOrKeys];

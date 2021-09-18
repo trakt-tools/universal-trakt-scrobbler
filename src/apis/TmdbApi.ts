@@ -1,6 +1,6 @@
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
@@ -76,7 +76,7 @@ class _TmdbApi {
 			cache.set('default', this.config);
 			await Cache.set({ tmdbApiConfigs: cache });
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.warning('Failed to get TMDB config.', err);
 			}
 			this.config = null;
@@ -110,7 +110,7 @@ class _TmdbApi {
 				return imageUrl;
 			}
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.warning('Failed to find item on TMDB.', err);
 			}
 		}

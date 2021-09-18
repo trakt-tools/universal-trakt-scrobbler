@@ -1,7 +1,6 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
-import moment from 'moment';
 
 // We use this to correct known wrong titles.
 const correctTitles: Record<string, string> = {
@@ -18,7 +17,7 @@ const correctTitles: Record<string, string> = {
 };
 
 export interface IItem extends ItemBase {
-	watchedAt?: moment.Moment;
+	watchedAt?: number;
 	trakt?: TraktItem | null;
 	isHidden?: boolean;
 	isSelected?: boolean;
@@ -57,7 +56,7 @@ export class Item implements IItem {
 	season?: number;
 	episode?: number;
 	episodeTitle?: string;
-	watchedAt?: moment.Moment;
+	watchedAt?: number;
 	progress: number;
 	trakt?: TraktItem | null;
 	isHidden: boolean;
@@ -77,7 +76,7 @@ export class Item implements IItem {
 			this.episode = options.episode;
 			this.episodeTitle = options.episodeTitle;
 		}
-		this.watchedAt = options.watchedAt?.clone();
+		this.watchedAt = options.watchedAt;
 		this.progress = options.progress ? Math.round(options.progress * 100) / 100 : 0.0;
 		this.trakt = options.trakt && new TraktItem(options.trakt); // Ensures immutability.
 		this.isHidden = options.isHidden ?? false;
@@ -99,7 +98,7 @@ export class Item implements IItem {
 			season: item.season,
 			episode: item.episode,
 			episodeTitle: item.episodeTitle,
-			watchedAt: item.watchedAt?.unix(),
+			watchedAt: item.watchedAt,
 			progress: item.progress,
 			trakt: item.trakt && TraktItem.save(item.trakt),
 			suggestions: item.suggestions,
@@ -110,8 +109,6 @@ export class Item implements IItem {
 	static load(savedItem: SavedItem): Item {
 		const options: IItem = {
 			...savedItem,
-			watchedAt:
-				typeof savedItem.watchedAt !== 'undefined' ? moment(savedItem.watchedAt * 1e3) : undefined,
 			trakt: savedItem.trakt && TraktItem.load(savedItem.trakt),
 		};
 

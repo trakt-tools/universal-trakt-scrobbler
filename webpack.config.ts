@@ -1,11 +1,11 @@
 import { ServiceValues } from '@models/Service';
 import archiver from 'archiver';
 import fs from 'fs-extra';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
-import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
-import webpack from 'webpack';
-import { ProgressPlugin } from 'webpack';
+import { Manifest as WebExtManifest } from 'webextension-polyfill';
+import webpack, { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
 import packageJson = require('./package.json');
 
@@ -31,9 +31,6 @@ const loaders = {
 	css: {
 		loader: 'css-loader',
 	},
-	sass: {
-		loader: 'sass-loader',
-	},
 	style: {
 		loader: 'style-loader',
 		options: {
@@ -56,6 +53,7 @@ class RunAfterBuildPlugin {
 }
 
 const plugins = {
+	html: HtmlWebpackPlugin,
 	progress: ProgressPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
 	tsConfigPaths: TsconfigPathsPlugin,
@@ -158,11 +156,8 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					},
 				},
 				{
-					test: /\.html$/,
-					type: 'asset/resource',
-					generator: {
-						filename: '[name][ext]',
-					},
+					test: /\.pug$/,
+					loader: 'pug-loader',
 				},
 				{
 					test: /\.(jpg|png)$/,
@@ -170,10 +165,6 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					generator: {
 						filename: 'images/[name][ext]',
 					},
-				},
-				{
-					test: /\.scss$/,
-					use: [loaders.style, loaders.css, loaders.sass],
 				},
 				{
 					test: /\.css$/,
@@ -185,7 +176,6 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					loader: 'babel-loader',
 					options: {
 						envName: env.test ? 'test' : mode,
-						presets: ['@babel/typescript', '@babel/preset-env', '@babel/preset-react'],
 					},
 				},
 			],
@@ -197,6 +187,33 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 		},
 		plugins: [
 			new plugins.progress(),
+			new plugins.html({
+				template: './src/templates/main.pug',
+				templateParameters: {
+					title: 'Universal Trakt Scrobbler - Popup',
+					script: 'popup.js',
+				},
+				filename: 'popup.html',
+				inject: false,
+			}),
+			new plugins.html({
+				template: './src/templates/main.pug',
+				templateParameters: {
+					title: 'Universal Trakt Scrobbler - History',
+					script: 'history.js',
+				},
+				filename: 'history.html',
+				inject: false,
+			}),
+			new plugins.html({
+				template: './src/templates/main.pug',
+				templateParameters: {
+					title: 'Universal Trakt Scrobbler - Options',
+					script: 'options.js',
+				},
+				filename: 'options.html',
+				inject: false,
+			}),
 			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env, config))]),
 		],
 		resolve: {

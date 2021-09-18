@@ -13,10 +13,10 @@ import {
 import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
-import { Box } from '@material-ui/core';
 import { Item } from '@models/Item';
+import { Box } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RefCallback, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
@@ -41,7 +41,7 @@ const calculateTotalItems = (serviceId: string | null, store: SyncStore) => {
 	return store.data.items.length + (store.data.hasReachedEnd ? 1 : 0) + (serviceId ? 0 : 1);
 };
 
-export const HistoryList: React.FC = () => {
+export const HistoryList = (): JSX.Element => {
 	const history = useHistory();
 	const { serviceId, service, api, store } = useSync();
 
@@ -360,8 +360,21 @@ export const HistoryList: React.FC = () => {
 	}, []);
 
 	return (
-		<Box className="history-content">
-			<AutoSizer disableWidth style={{ width: '100%' }}>
+		<Box
+			sx={{
+				display: 'flex',
+				flex: 1,
+				justifyContent: 'center',
+				height: 1,
+				paddingLeft: ({ sizes }) => `${sizes.sidebar}px`,
+			}}
+		>
+			<AutoSizer
+				disableWidth
+				style={{
+					width: '100%',
+				}}
+			>
 				{({ height }) => (
 					<InfiniteLoader
 						isItemLoaded={isItemLoaded}
@@ -378,7 +391,7 @@ export const HistoryList: React.FC = () => {
 								onItemsRendered={onItemsRendered}
 								overscanCount={3}
 								ref={(list) => {
-									const infiniteLoaderRef = ref as React.RefCallback<
+									const infiniteLoaderRef = ref as RefCallback<
 										VariableSizeList<HistoryListItemProps>
 									>;
 									infiniteLoaderRef(list);

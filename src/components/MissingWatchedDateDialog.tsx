@@ -1,13 +1,15 @@
 import { Errors } from '@common/Errors';
 import { EventDispatcher, MissingWatchedDateDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestException } from '@common/Requests';
-import { UtsCenter } from '@components/UtsCenter';
-import MomentUtils from '@date-io/moment';
+import { Utils } from '@common/Utils';
+import { Center } from '@components/Center';
+import { CustomDialogRoot } from '@components/CustomDialogRoot';
+import { Item } from '@models/Item';
+import { DateTimePicker, LocalizationProvider } from '@mui/lab';
+import DateAdapter from '@mui/lab/AdapterDateFns';
 import {
 	Button,
 	CircularProgress,
-	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogContentText,
@@ -15,25 +17,23 @@ import {
 	FormControlLabel,
 	Radio,
 	RadioGroup,
-} from '@material-ui/core';
-import { KeyboardDateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { Item } from '@models/Item';
-import moment from 'moment';
-import React from 'react';
+	TextField,
+} from '@mui/material';
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
 	items: Item[];
 	dateType: MissingWatchedDateType | null;
-	date: moment.Moment | null;
-	dateError: React.ReactNode | null;
+	date: number | null;
+	dateError: ReactNode | null;
 }
 
 export type MissingWatchedDateType = 'release-date' | 'current-date' | 'custom-date';
 
-export const MissingWatchedDateDialog: React.FC = () => {
-	const [dialog, setDialog] = React.useState<MissingWatchedDateDialogState>({
+export const MissingWatchedDateDialog = (): JSX.Element => {
+	const [dialog, setDialog] = useState<MissingWatchedDateDialogState>({
 		isOpen: false,
 		isLoading: false,
 		items: [],
@@ -49,7 +49,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateTypeChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+	const onDateTypeChange = (event: ChangeEvent<HTMLInputElement>): void => {
 		const { target } = event;
 		setDialog((prevDialog) => ({
 			...prevDialog,
@@ -57,14 +57,14 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateChange = (date: moment.Moment | null): void => {
+	const onDateChange = (date: number | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
 		}));
 	};
 
-	const onDateAccept = (date: moment.Moment | null): void => {
+	const onDateAccept = (date: number | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
@@ -72,7 +72,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	const onDateError = (err: React.ReactNode): void => {
+	const onDateError = (err: ReactNode): void => {
 		if (err !== dialog.dateError) {
 			setDialog((prevDialog) => ({
 				...prevDialog,
@@ -99,23 +99,27 @@ export const MissingWatchedDateDialog: React.FC = () => {
 						if (!releaseDate) {
 							throw new Error('Missing release date');
 						}
-						item.watchedAt = releaseDate.clone();
+						item.watchedAt = releaseDate;
 					}
 					break;
 				}
-				case 'current-date':
+				case 'current-date': {
+					const now = Utils.unix();
 					for (const item of newItems) {
-						item.watchedAt = moment();
+						item.watchedAt = now;
 					}
 					break;
-				case 'custom-date':
+				}
+				case 'custom-date': {
 					if (!dialog.date || !!dialog.dateError) {
 						throw new Error('Missing date or invalid date');
 					}
+					const customDate = Utils.unix(dialog.date);
 					for (const item of newItems) {
-						item.watchedAt = dialog.date;
+						item.watchedAt = customDate;
 					}
 					break;
+				}
 				// no-default
 			}
 			for (const item of newItems) {
@@ -128,7 +132,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				newItems,
 			});
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to add missing watched date.', err);
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'addMissingWatchedDateFailed',
@@ -142,7 +146,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 		}));
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
 		};
@@ -170,8 +174,7 @@ export const MissingWatchedDateDialog: React.FC = () => {
 	const invalidDateLabel = I18N.translate('missingWatchedDateDialogInvalidDateLabel');
 
 	return (
-		<Dialog
-			classes={{ paper: 'missing-watched-date-dialog' }}
+		<CustomDialogRoot
 			open={dialog.isOpen}
 			aria-labelledby="missing-watched-date-item-dialog-title"
 			onClose={closeDialog}
@@ -180,9 +183,9 @@ export const MissingWatchedDateDialog: React.FC = () => {
 				{I18N.translate('missingWatchedDate')}
 			</DialogTitle>
 			{dialog.isLoading || dialog.items.length === 0 ? (
-				<UtsCenter>
+				<Center>
 					<CircularProgress />
-				</UtsCenter>
+				</Center>
 			) : (
 				<>
 					<DialogContent>
@@ -226,32 +229,28 @@ export const MissingWatchedDateDialog: React.FC = () => {
 							/>
 						</RadioGroup>
 						{dialog.dateType === 'custom-date' && (
-							<MuiPickersUtilsProvider utils={MomentUtils}>
-								<KeyboardDateTimePicker
-									label={dateLabel}
-									invalidDateMessage={invalidDateLabel}
-									maxDateMessage={invalidDateLabel}
-									minDateMessage={invalidDateLabel}
+							<LocalizationProvider dateAdapter={DateAdapter}>
+								<DateTimePicker
 									value={dialog.date}
-									ampm={false}
-									autoOk
-									disableFuture
-									format="YYYY/MM/DD HH:mm"
-									margin="normal"
-									KeyboardButtonProps={{ 'aria-label': dateLabel }}
+									inputFormat="yyyy/MM/dd HH:mm"
+									maxDateTime={Date.now()}
 									onChange={onDateChange}
 									onAccept={onDateAccept}
 									onError={onDateError}
+									renderInput={(props) => (
+										<TextField
+											label={dialog.dateError ? invalidDateLabel : dateLabel}
+											error={!!dialog.dateError}
+											{...props}
+										/>
+									)}
 								/>
-							</MuiPickersUtilsProvider>
+							</LocalizationProvider>
 						)}
 					</DialogContent>
 					<DialogActions>
-						<Button color="default" onClick={closeDialog}>
-							{I18N.translate('cancel')}
-						</Button>
+						<Button onClick={closeDialog}>{I18N.translate('cancel')}</Button>
 						<Button
-							color="primary"
 							disabled={
 								!dialog.dateType ||
 								(dialog.dateType === 'custom-date' && (!dialog.date || !!dialog.dateError))
@@ -264,6 +263,6 @@ export const MissingWatchedDateDialog: React.FC = () => {
 					</DialogActions>
 				</>
 			)}
-		</Dialog>
+		</CustomDialogRoot>
 	);
 };

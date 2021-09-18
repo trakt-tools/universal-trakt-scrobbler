@@ -1,9 +1,9 @@
 import { ViaplayService } from '@/viaplay/ViaplayService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
-import moment from 'moment';
 
 export interface ViaplayAuthResponse {
 	success: boolean;
@@ -166,7 +166,7 @@ class _ViaplayApi extends ServiceApi {
 	isNewHistoryItem(historyItem: ViaplayProduct, lastSync: number, lastSyncId: string) {
 		return (
 			!!historyItem.user.progress?.updated &&
-			Math.trunc(historyItem.user.progress?.updated / 1e3) > lastSync
+			Utils.unix(historyItem.user.progress.updated) > lastSync
 		);
 	}
 
@@ -185,7 +185,7 @@ class _ViaplayApi extends ServiceApi {
 		const year = product.content.production.year;
 		const progressInfo = product.user.progress;
 		const progress = progressInfo?.elapsedPercent || 0;
-		const watchedAt = progressInfo ? moment(progressInfo.updated) : undefined;
+		const watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		const id = product.system.guid;
 		if (product.type === 'episode') {
 			const content = product.content;
@@ -234,7 +234,7 @@ class _ViaplayApi extends ServiceApi {
 				(JSON.parse(responseText) as ViaplayProductQuery)._embedded['viaplay:product']
 			);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

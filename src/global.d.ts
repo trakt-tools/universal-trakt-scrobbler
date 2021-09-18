@@ -21,3 +21,21 @@ declare type ReverseMap<T extends Record<keyof T, T[keyof T]>> = {
 		[K in keyof T]: T[K] extends P ? K : never;
 	}[keyof T];
 };
+
+declare interface WithChildren {
+	children?: React.ReactNode;
+}
+
+declare interface WithSx {
+	sx?: import('@mui/system').SxProps<import('@mui/material').Theme>;
+}
+
+declare module '*.jpg' {
+	const url: string;
+	export default url;
+}
+
+declare module '*.png' {
+	const url: string;
+	export default url;
+}

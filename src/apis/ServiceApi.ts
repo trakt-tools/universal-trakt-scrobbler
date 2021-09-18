@@ -5,7 +5,6 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache, CacheItems } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
-import { RequestException } from '@common/Requests';
 import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
@@ -76,10 +75,10 @@ export abstract class ServiceApi {
 			newItems = await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to load Trakt history.', err);
 				await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
+					error: err,
 				});
 			}
 		}
@@ -242,10 +241,10 @@ export abstract class ServiceApi {
 			caches.history.set(this.id, historyCache);
 			await Cache.set(caches);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to load history.', err);
 				await EventDispatcher.dispatch('SERVICE_HISTORY_LOAD_ERROR', null, {
-					error: err as Error,
+					error: err,
 				});
 			}
 			throw err;

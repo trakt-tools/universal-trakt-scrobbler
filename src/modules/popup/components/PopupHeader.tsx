@@ -2,21 +2,23 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Tabs } from '@common/Tabs';
-import { UtsLeftRight } from '@components/UtsLeftRight';
+import { LeftRight } from '@components/LeftRight';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSession } from '@contexts/SessionContext';
-import { AppBar, IconButton, Toolbar, Tooltip } from '@material-ui/core';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import HistoryIcon from '@material-ui/icons/History';
-import HomeIcon from '@material-ui/icons/Home';
-import InfoIcon from '@material-ui/icons/Info';
-import SettingsIcon from '@material-ui/icons/Settings';
-import SyncIcon from '@material-ui/icons/Sync';
-import React from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import {
+	ExitToApp as ExitToAppIcon,
+	History as HistoryIcon,
+	Home as HomeIcon,
+	Info as InfoIcon,
+	Settings as SettingsIcon,
+	Sync as SyncIcon,
+} from '@mui/icons-material';
+import { AppBar, IconButton, Toolbar, Tooltip } from '@mui/material';
+import { useEffect, useState } from 'react';
+import browser from 'webextension-polyfill';
 
-export const PopupHeader: React.FC = () => {
-	const [syncButton, setSyncButton] = React.useState({
+export const PopupHeader = (): JSX.Element => {
+	const [syncButton, setSyncButton] = useState({
 		isEnabled: false,
 		hasError: false,
 	});
@@ -36,7 +38,7 @@ export const PopupHeader: React.FC = () => {
 		await Session.logout();
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const checkAutoSync = async () => {
 			const { syncCache } = await BrowserStorage.get('syncCache');
 			if (syncCache && syncCache.items.length > 0) {
@@ -51,9 +53,14 @@ export const PopupHeader: React.FC = () => {
 	}, []);
 
 	return (
-		<AppBar className="popup-header" position="sticky">
+		<AppBar
+			position="sticky"
+			sx={{
+				color: '#fff',
+			}}
+		>
 			<Toolbar>
-				<UtsLeftRight
+				<LeftRight
 					centerVertically={true}
 					left={
 						<>

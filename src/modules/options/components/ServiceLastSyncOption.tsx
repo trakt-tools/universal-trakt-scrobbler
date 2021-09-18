@@ -1,14 +1,11 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Shared } from '@common/Shared';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear';
-import ErrorIcon from '@material-ui/icons/Error';
+import { Utils } from '@common/Utils';
 import { Service } from '@models/Service';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import { memo } from 'react';
 
 interface ServiceLastSyncOptionProps {
 	service: Service;
@@ -17,12 +14,12 @@ interface ServiceLastSyncOptionProps {
 	lastSync: number;
 }
 
-const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
+const _ServiceLastSyncOption = ({
 	service,
 	sync,
 	autoSync,
 	lastSync,
-}: ServiceLastSyncOptionProps) => {
+}: ServiceLastSyncOptionProps): JSX.Element => {
 	const onClearLastSyncClick = async () => {
 		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearLastSyncTitle', service.name),
@@ -47,7 +44,11 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 
 	return sync && autoSync && lastSync === 0 ? (
 		<Tooltip title={I18N.translate('autoSyncNotActivated')}>
-			<Box ml={0.5}>
+			<Box
+				sx={{
+					marginLeft: 0.5,
+				}}
+			>
 				<ErrorIcon color="error" fontSize="small" />
 			</Box>
 		</Tooltip>
@@ -60,13 +61,13 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 						<>
 							<br />
 							<br />
-							{I18N.translate('lastSync')}: {moment(lastSync * 1e3).format(Shared.dateFormat)}
+							{I18N.translate('lastSync')}: {Utils.timestamp(lastSync)}
 						</>
 					)}
 				</>
 			}
 		>
-			<span>
+			<Box component="span">
 				<IconButton
 					color="secondary"
 					disabled={!sync || !autoSync}
@@ -75,16 +76,9 @@ const _ServiceLastSyncOption: React.FC<ServiceLastSyncOptionProps> = ({
 				>
 					<ClearIcon fontSize="small" />
 				</IconButton>
-			</span>
+			</Box>
 		</Tooltip>
 	);
 };
 
-_ServiceLastSyncOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	lastSync: PropTypes.number.isRequired,
-};
-
-export const ServiceLastSyncOption = React.memo(_ServiceLastSyncOption);
+export const ServiceLastSyncOption = memo(_ServiceLastSyncOption);

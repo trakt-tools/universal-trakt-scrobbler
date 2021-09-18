@@ -5,9 +5,9 @@ import {
 	SearchErrorData,
 	StorageOptionsChangeData,
 } from '@common/Events';
-import { RequestException } from '@common/Requests';
+import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import React from 'react';
+import { ErrorInfo } from 'react';
 import Rollbar from 'rollbar';
 
 class _Errors {
@@ -66,22 +66,26 @@ class _Errors {
 		}
 	}
 
-	log(message: Error | string, details: Error | RequestException | React.ErrorInfo): void {
+	log(message: Error | string, details: Error | ErrorInfo): void {
 		console.log(`[UTS] ${message.toString()}`, details);
 	}
 
-	warning(message: string, details: Error | RequestException): void {
+	warning(message: string, details: Error): void {
 		console.warn(`[UTS] ${message}`, details);
 		if (this.rollbar) {
-			this.rollbar.warning(message, 'message' in details ? { message: details.message } : details);
+			this.rollbar.warning(message, details.message);
 		}
 	}
 
-	error(message: string, details: Error | RequestException): void {
+	error(message: string, details: Error): void {
 		console.error(`[UTS] ${message}`, details);
 		if (this.rollbar) {
-			this.rollbar.error(message, 'message' in details ? { message: details.message } : details);
+			this.rollbar.error(message, details.message);
 		}
+	}
+
+	validate(err: unknown): err is Error {
+		return (err instanceof RequestError && !err.isCanceled) || err instanceof Error;
 	}
 }
 

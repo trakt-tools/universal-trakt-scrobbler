@@ -2,21 +2,20 @@ import { BrowserStorage } from '@common/BrowserStorage';
 import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { CorrectionDialog } from '@components/CorrectionDialog';
+import { CustomSnackbar } from '@components/CustomSnackbar';
 import { PopupInfo } from '@components/PopupInfo';
+import { PopupOverlay } from '@components/PopupOverlay';
 import { TmdbImage } from '@components/TmdbImage';
-import { UtsSnackbar } from '@components/UtsSnackbar';
-import { Box, Button, LinearProgress, Tooltip, Typography } from '@material-ui/core';
-import PauseIcon from '@material-ui/icons/Pause';
 import { Item } from '@models/Item';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Pause as PauseIcon } from '@mui/icons-material';
+import { Box, Button, LinearProgress, Tooltip, Typography } from '@mui/material';
 
-export interface IPopupWatching {
+export interface PopupWatchingProps {
 	item: Item;
 	isPaused: boolean;
 }
 
-export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
+export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Element => {
 	const openCorrectionDialog = async () => {
 		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			item,
@@ -28,7 +27,16 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 		<>
 			<Box>
 				<TmdbImage imageUrl={item.imageUrl} />
-				<Box className="popup-watching--content">
+				<Box
+					sx={{
+						position: 'relative',
+						height: 1,
+
+						'& > *': {
+							height: 1,
+						},
+					}}
+				>
 					<PopupInfo>
 						<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>
 						{item.trakt?.type === 'show' ? (
@@ -57,9 +65,15 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 						{item.progress > 0.0 && (
 							<Tooltip title={I18N.translate('progress', item.progress.toString())}>
 								<LinearProgress
-									classes={{ root: 'popup-watching-progress' }}
 									value={item.progress}
 									variant="determinate"
+									sx={{
+										position: 'absolute',
+										bottom: 0,
+										left: 0,
+										width: 1,
+										height: ({ spacing }) => spacing(1),
+									}}
 								/>
 							</Tooltip>
 						)}
@@ -67,19 +81,12 @@ export const PopupWatching: React.FC<IPopupWatching> = ({ item, isPaused }) => {
 				</Box>
 			</Box>
 			{isPaused && (
-				<>
-					<Box className="popup-container--overlay-color">
-						<PauseIcon />
-					</Box>
-				</>
+				<PopupOverlay>
+					<PauseIcon />
+				</PopupOverlay>
 			)}
 			<CorrectionDialog />
-			<UtsSnackbar />
+			<CustomSnackbar />
 		</>
 	);
-};
-
-PopupWatching.propTypes = {
-	item: PropTypes.instanceOf(Item).isRequired,
-	isPaused: PropTypes.bool.isRequired,
 };

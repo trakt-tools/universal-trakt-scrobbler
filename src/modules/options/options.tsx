@@ -3,10 +3,7 @@ import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
-import '@options/options.html';
-import '@options/options.scss';
 import { OptionsApp } from '@options/OptionsApp';
-import React from 'react';
 import ReactDOM from 'react-dom';
 
 const init = async () => {

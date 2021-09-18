@@ -43,7 +43,7 @@ class _AutoSync {
 			window.clearTimeout(this.checkTimeoutId);
 		}
 
-		const now = Math.trunc(Date.now() / 1e3);
+		const now = Utils.unix();
 		const servicesToSync = getServices().filter((service) => {
 			const value = BrowserStorage.options.services[service.id];
 			return (
@@ -62,7 +62,9 @@ class _AutoSync {
 				await BrowserAction.setTitle(I18N.translate('autoSyncing'));
 				await this.sync(servicesToSync, now);
 			} catch (err) {
-				Errors.error('Failed to automatically sync history.', err);
+				if (Errors.validate(err)) {
+					Errors.error('Failed to automatically sync history.', err);
+				}
 			}
 			await BrowserAction.setTitle();
 			await BrowserAction.setStaticIcon();
@@ -123,7 +125,9 @@ class _AutoSync {
 				}
 			} catch (err) {
 				syncCache.failed = true;
-				Errors.log(`Failed to auto sync ${service.id}`, err);
+				if (Errors.validate(err)) {
+					Errors.log(`Failed to auto sync ${service.id}`, err);
+				}
 			}
 
 			const partialServiceValue = partialOptions.services?.[service.id] || {};

@@ -1,8 +1,7 @@
 import { I18N } from '@common/I18N';
-import { AppBar, Toolbar, Typography } from '@material-ui/core';
-import React from 'react';
+import { AppBar, Toolbar, Typography } from '@mui/material';
 
-export const OptionsHeader: React.FC = () => {
+export const OptionsHeader = (): JSX.Element => {
 	return (
 		<AppBar position="sticky">
 			<Toolbar>

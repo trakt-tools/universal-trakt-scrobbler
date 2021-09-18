@@ -1,20 +1,23 @@
-import { UtsCenter } from '@components/UtsCenter';
-import { Box } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Center } from '@components/Center';
+import { Box } from '@mui/material';
 
-interface HistoryInfoProps {
-	children?: React.ReactNode;
-}
+interface HistoryInfoProps extends WithChildren {}
 
-export const HistoryInfo: React.FC<HistoryInfoProps> = ({ children }) => {
+export const HistoryInfo = ({ children }: HistoryInfoProps): JSX.Element => {
 	return (
-		<UtsCenter>
-			<Box className="history-info">{children}</Box>
-		</UtsCenter>
-	);
-};
+		<Center>
+			<Box
+				sx={{
+					textAlign: 'center',
 
-HistoryInfo.propTypes = {
-	children: PropTypes.node,
+					'& > *': {
+						marginY: 1,
+						marginX: 0,
+					},
+				}}
+			>
+				{children}
+			</Box>
+		</Center>
+	);
 };

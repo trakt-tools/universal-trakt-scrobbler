@@ -1,8 +1,7 @@
-import { TextField } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import { TextField } from '@mui/material';
+import { ChangeEvent, useEffect, useState } from 'react';
 
-interface BaseTextFieldOptionProps<T extends string | number> {
+interface BaseTextFieldOptionProps<T extends string | number> extends WithSx {
 	id: string;
 	label: string;
 	value: T;
@@ -11,7 +10,6 @@ interface BaseTextFieldOptionProps<T extends string | number> {
 	minValue?: number;
 	maxValue?: number;
 	step?: number;
-	style?: React.CSSProperties;
 	handleChange: (id: string, newValue: T) => void;
 }
 
@@ -24,12 +22,12 @@ const BaseTextFieldOption = <T extends string | number>({
 	minValue = 0,
 	maxValue,
 	step = 1,
-	style,
 	handleChange,
-}: BaseTextFieldOptionProps<T>): React.ReactElement => {
+	sx = {},
+}: BaseTextFieldOptionProps<T>): JSX.Element => {
 	const [value, setValue] = useState<T | null>(initialValue);
 
-	const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const onChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const targetValue = event.target.value;
 		let newValue;
 		if (typeof value === 'string') {
@@ -64,6 +62,7 @@ const BaseTextFieldOption = <T extends string | number>({
 		<TextField
 			disabled={isDisabled}
 			label={label}
+			margin="normal"
 			size="small"
 			type={typeof value}
 			value={value !== null ? value : ''}
@@ -77,29 +76,16 @@ const BaseTextFieldOption = <T extends string | number>({
 					  }
 					: {}
 			}
-			style={style}
 			onChange={onChange}
+			sx={sx}
 		/>
 	);
 };
 
-BaseTextFieldOption.propTypes = {
-	id: PropTypes.string.isRequired,
-	label: PropTypes.string.isRequired,
-	value: PropTypes.oneOf([PropTypes.string, PropTypes.number]).isRequired,
-	isDisabled: PropTypes.bool.isRequired,
-	isFloat: PropTypes.bool,
-	maxValue: PropTypes.number,
-	minValue: PropTypes.number,
-	step: PropTypes.number,
-	width: PropTypes.number,
-	handleChange: PropTypes.func.isRequired,
-};
-
-export const TextFieldOption: React.FC<BaseTextFieldOptionProps<string>> = (props) => {
+export const TextFieldOption = (props: BaseTextFieldOptionProps<string>) => {
 	return BaseTextFieldOption(props);
 };
 
-export const NumericTextFieldOption: React.FC<BaseTextFieldOptionProps<number>> = (props) => {
+export const NumericTextFieldOption = (props: BaseTextFieldOptionProps<number>) => {
 	return BaseTextFieldOption(props);
 };

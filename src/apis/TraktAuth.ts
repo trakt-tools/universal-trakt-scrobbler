@@ -4,7 +4,8 @@ import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
-import { browser } from 'webextension-polyfill-ts';
+import { Utils } from '@common/Utils';
+import browser from 'webextension-polyfill';
 
 export type TraktManualAuth = {
 	callback?: PromiseResolve<TraktAuthDetails>;
@@ -53,7 +54,7 @@ class _TraktAuth extends TraktApi {
 	}
 
 	hasTokenExpired(auth: TraktAuthDetails): boolean {
-		const now = Date.now() / 1e3;
+		const now = Utils.unix();
 		return auth.created_at + auth.expires_in < now;
 	}
 

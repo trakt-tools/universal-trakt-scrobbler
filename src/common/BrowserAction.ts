@@ -1,7 +1,7 @@
 import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
-import { browser } from 'webextension-polyfill-ts';
+import browser, { Action as WebExtAction } from 'webextension-polyfill';
 
 export interface BrowserActionRotating {
 	image: HTMLImageElement | null;
@@ -116,7 +116,12 @@ class _BrowserAction {
 		context.drawImage(image, -(image.width / 2), -(image.height / 2));
 
 		await browser.browserAction.setIcon({
-			imageData: context.getImageData(0, 0, image.width, image.height),
+			imageData: context.getImageData(
+				0,
+				0,
+				image.width,
+				image.height
+			) as WebExtAction.ImageDataType,
 		});
 
 		this.rotating.degrees += 15;

@@ -1,10 +1,9 @@
 import { I18N } from '@common/I18N';
 import { Tabs } from '@common/Tabs';
 import { PopupInfo } from '@components/PopupInfo';
-import { Button, Typography } from '@material-ui/core';
-import React from 'react';
+import { Button, Typography } from '@mui/material';
 
-export const AboutPage: React.FC = () => {
+export const AboutPage = (): JSX.Element => {
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
 	};

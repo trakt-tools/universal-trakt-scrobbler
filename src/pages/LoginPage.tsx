@@ -2,12 +2,12 @@ import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
-import { UtsCenter } from '@components/UtsCenter';
+import { Center } from '@components/Center';
 import { useHistory } from '@contexts/HistoryContext';
-import { Button, CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import { Button, CircularProgress } from '@mui/material';
+import { useEffect, useState } from 'react';
 
-export const LoginPage: React.FC = () => {
+export const LoginPage = (): JSX.Element => {
 	const history = useHistory();
 	const [isLoading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export const LoginPage: React.FC = () => {
 	}, []);
 
 	return (
-		<UtsCenter>
+		<Center>
 			{isLoading ? (
 				<CircularProgress color="secondary" />
 			) : (
@@ -61,6 +61,6 @@ export const LoginPage: React.FC = () => {
 					{I18N.translate('login')}
 				</Button>
 			)}
-		</UtsCenter>
+		</Center>
 	);
 };

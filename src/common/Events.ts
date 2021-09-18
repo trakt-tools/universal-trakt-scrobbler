@@ -7,12 +7,12 @@ import {
 } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { DispatchEventMessage, Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { Color } from '@material-ui/lab';
 import { Item, SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
+import { AlertColor } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
+import { ReactNode } from 'react';
 import { PartialDeep } from 'type-fest';
 
 export interface EventData {
@@ -71,7 +71,7 @@ export interface ScrobbleSuccessData {
 }
 
 export type ScrobbleErrorData = ScrobbleSuccessData & {
-	error: RequestException;
+	error: Error;
 };
 
 export interface SearchSuccessData {
@@ -79,12 +79,12 @@ export interface SearchSuccessData {
 }
 
 export interface SearchErrorData {
-	error: RequestException;
+	error: Error;
 }
 
 export interface DialogShowData {
-	title: string | React.ReactNode;
-	message: string | React.ReactNode;
+	title: string | ReactNode;
+	message: string | ReactNode;
 	onConfirm?: () => void;
 	onDeny?: () => void;
 }
@@ -92,7 +92,7 @@ export interface DialogShowData {
 export interface SnackbarShowData {
 	messageName: MessageName;
 	messageArgs?: string[];
-	severity: Color;
+	severity: AlertColor;
 }
 
 export interface MissingWatchedDateDialogShowData {
@@ -267,7 +267,9 @@ class _EventDispatcher {
 			try {
 				await listener(data);
 			} catch (err) {
-				Errors.log('Failed to dispatch.', err);
+				if (Errors.validate(err)) {
+					Errors.log('Failed to dispatch.', err);
+				}
 				throw err;
 			}
 		}

@@ -4,7 +4,7 @@ import { Event, EventData, EventDispatcher } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
-import { browser, Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
+import browser, { Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill';
 
 export type MessageRequest = MessageRequests[keyof MessageRequests];
 

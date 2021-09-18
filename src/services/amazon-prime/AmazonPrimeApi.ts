@@ -2,11 +2,10 @@ import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
-import moment from 'moment';
 import { SetOptional } from 'type-fest';
 
 export interface AmazonPrimeSession extends ServiceApiSession, AmazonPrimeData {}
@@ -237,7 +236,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				for (const historyResponseItem of historyResponseItems) {
 					partialHistoryItems.push({
 						id: historyResponseItem.gti,
-						watchedAt: Math.trunc(historyResponseItem.time / 1e3),
+						watchedAt: Utils.unix(historyResponseItem.time),
 					});
 				}
 
@@ -302,7 +301,7 @@ class _AmazonPrimeApi extends ServiceApi {
 			const item = await this.getItem(historyItem.id);
 			if (item) {
 				item.progress = historyItem.progress;
-				item.watchedAt = moment(historyItem.watchedAt * 1e3);
+				item.watchedAt = Utils.unix(historyItem.watchedAt);
 				items.push(item);
 			}
 		}
@@ -333,7 +332,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0].titleId ??
 				'';
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

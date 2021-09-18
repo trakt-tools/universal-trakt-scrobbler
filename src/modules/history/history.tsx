@@ -4,10 +4,8 @@ import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
-import '@history/history.html';
-import '@history/history.scss';
 import { HistoryApp } from '@history/HistoryApp';
-import React from 'react';
+import { GlobalStyles } from '@mui/material';
 import ReactDOM from 'react-dom';
 
 const init = async () => {
@@ -19,6 +17,23 @@ const init = async () => {
 	const root = document.querySelector('#root');
 	ReactDOM.render(
 		<AppWrapper usesHistory={true} usesSession={true}>
+			<GlobalStyles
+				styles={{
+					html: {
+						height: '100%',
+					},
+
+					body: {
+						height: '100%',
+					},
+
+					'#root': {
+						display: 'flex',
+						flexDirection: 'column',
+						height: '100%',
+					},
+				}}
+			/>
 			<HistoryApp />
 		</AppWrapper>,
 		root

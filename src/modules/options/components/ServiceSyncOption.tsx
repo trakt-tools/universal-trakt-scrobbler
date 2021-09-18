@@ -1,13 +1,12 @@
 import { I18N } from '@common/I18N';
 import { Tabs } from '@common/Tabs';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { SwitchOption } from '@components/SwitchOption';
-import { Grid, IconButton, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
-import LaunchIcon from '@material-ui/icons/Launch';
 import { Service } from '@models/Service';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import { Block as BlockIcon, Launch as LaunchIcon } from '@mui/icons-material';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import { memo } from 'react';
+import browser from 'webextension-polyfill';
 
 interface ServiceSyncOptionProps {
 	service: Service;
@@ -15,18 +14,22 @@ interface ServiceSyncOptionProps {
 	handleChange: (optionId: string, newValue: boolean) => void;
 }
 
-const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, handleChange }) => {
+const _ServiceSyncOption = ({
+	service,
+	sync,
+	handleChange,
+}: ServiceSyncOptionProps): JSX.Element => {
 	const onLinkClick = async (url: string): Promise<void> => {
 		await Tabs.open(url);
 	};
 
 	return (
-		<Grid item className="options-grid-item--centered" xs={1}>
+		<CenteredGrid item xs={1}>
 			{service.hasSync ? (
 				<>
 					<SwitchOption id="sync" value={sync} isDisabled={false} handleChange={handleChange} />
 					<Tooltip title={I18N.translate('goToHistoryPage')}>
-						<span>
+						<Box component="span">
 							<IconButton
 								color="inherit"
 								disabled={!sync}
@@ -35,7 +38,7 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 							>
 								<LaunchIcon fontSize="small" />
 							</IconButton>
-						</span>
+						</Box>
 					</Tooltip>
 				</>
 			) : (
@@ -43,14 +46,8 @@ const _ServiceSyncOption: React.FC<ServiceSyncOptionProps> = ({ service, sync, h
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 
-_ServiceSyncOption.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	handleChange: PropTypes.func.isRequired,
-};
-
-export const ServiceSyncOption = React.memo(_ServiceSyncOption);
+export const ServiceSyncOption = memo(_ServiceSyncOption);

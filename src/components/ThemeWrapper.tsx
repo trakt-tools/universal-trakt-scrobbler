@@ -1,27 +1,37 @@
 import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
 import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
-import { CssBaseline, useMediaQuery } from '@material-ui/core';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import React from 'react';
+import '@fonts';
+import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
+import { useEffect, useState } from 'react';
 
-interface ThemeWrapperProps {
-	children: React.ReactNode;
-}
+interface ThemeWrapperProps extends WithChildren {}
 
 export interface ThemeDetails {
 	value: ThemeValue;
 	palette: 'light' | 'dark';
 }
 
-export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWrapperProps) => {
-	const [themeDetails, setThemeDetails] = React.useState<ThemeDetails>({
+export interface CustomTheme {
+	sizes: {
+		sidebar: number;
+	};
+}
+
+declare module '@mui/material/styles' {
+	interface Theme extends CustomTheme {}
+
+	interface ThemeOptions extends CustomTheme {}
+}
+
+export const ThemeWrapper = ({ children }: ThemeWrapperProps): JSX.Element => {
+	const [themeDetails, setThemeDetails] = useState<ThemeDetails>({
 		value: 'system',
 		palette: 'light',
 	});
 	const prefersLightMode = useMediaQuery('(prefers-color-scheme: light)', { noSsr: true });
 	const systemPalette = prefersLightMode ? 'light' : 'dark';
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const updateSystemPalette = () => {
 			if (themeDetails.value === 'system' && themeDetails.palette !== systemPalette) {
 				setThemeDetails({
@@ -34,7 +44,7 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 		updateSystemPalette();
 	}, [systemPalette]);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const startListeners = () => {
 			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
@@ -68,9 +78,25 @@ export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }: ThemeWra
 		return stopListeners;
 	}, []);
 
-	const theme = createMuiTheme({
+	const theme = createTheme({
+		components: {
+			MuiCssBaseline: {
+				styleOverrides: {
+					'*:focus': {
+						outline: 'none',
+					},
+
+					body: {
+						margin: 0,
+					},
+				},
+			},
+		},
 		palette: {
-			type: themeDetails.palette,
+			mode: themeDetails.palette,
+		},
+		sizes: {
+			sidebar: 300,
 		},
 	});
 

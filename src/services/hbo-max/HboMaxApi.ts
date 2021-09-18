@@ -2,11 +2,10 @@ import { HboMaxService } from '@/hbo-max/HboMaxService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
-import moment from 'moment';
 
 export interface HboMaxAuthObj {
 	accessToken: string;
@@ -101,7 +100,7 @@ export interface HboMaxHistoryResponseItem {
 	position: number;
 	runtime: number;
 
-	/** Format: YYYY-MM-DDTHH:mm:ssZ */
+	/** Format: yyyy-MM-ddTHH:mm:ssZ */
 	created: string;
 }
 
@@ -160,7 +159,7 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		try {
-			const now = Math.trunc(Date.now() / 1e3);
+			const now = Utils.unix();
 
 			const servicesData = await Cache.get('servicesData');
 			let cache = servicesData.get(this.id) as HboMaxData | undefined;
@@ -310,7 +309,7 @@ class _HboMaxApi extends ServiceApi {
 				id: historyResponseItem.id,
 				progress:
 					Math.round((historyResponseItem.position / historyResponseItem.runtime) * 10000) / 100,
-				watchedAt: moment(historyResponseItem.created).unix(),
+				watchedAt: Utils.unix(historyResponseItem.created),
 			});
 		}
 
@@ -334,7 +333,7 @@ class _HboMaxApi extends ServiceApi {
 			const item = await this.getItem(historyItem.id);
 			if (item) {
 				item.progress = historyItem.progress;
-				item.watchedAt = moment(historyItem.watchedAt * 1e3);
+				item.watchedAt = Utils.unix(historyItem.watchedAt);
 				items.push(item);
 			}
 		}
@@ -403,7 +402,7 @@ class _HboMaxApi extends ServiceApi {
 				item = this.parseItemMetadata(id, itemMetadata);
 			}
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}
@@ -427,7 +426,7 @@ class _HboMaxApi extends ServiceApi {
 					session.auth = {
 						accessToken: authObj.accessToken,
 						refreshToken: authObj.refreshToken,
-						expiresAt: authObj.accessExpiration / 1e3,
+						expiresAt: Utils.unix(authObj.accessExpiration),
 					};
 				}
 

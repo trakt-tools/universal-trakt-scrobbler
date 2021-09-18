@@ -1,11 +1,11 @@
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { useHistory } from '@contexts/HistoryContext';
-import PropTypes from 'prop-types';
-import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-export const LoginWrapper: React.FC = ({ children }) => {
+export interface LoginWrapperProps extends WithChildren {}
+
+export const LoginWrapper = ({ children }: LoginWrapperProps): JSX.Element => {
 	const history = useHistory();
 
 	if (Session.isLoggedIn) {
@@ -14,8 +14,4 @@ export const LoginWrapper: React.FC = ({ children }) => {
 
 	Shared.redirectPath = history.location.pathname;
 	return <Redirect to="/login" />;
-};
-
-LoginWrapper.propTypes = {
-	children: PropTypes.node.isRequired,
 };

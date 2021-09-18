@@ -1,7 +1,7 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
-import { browser, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
+import browser, { Tabs as WebExtTabs } from 'webextension-polyfill';
 
 export interface TabProperties {
 	active?: boolean;

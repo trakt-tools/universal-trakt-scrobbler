@@ -1,12 +1,12 @@
 import { I18N } from '@common/I18N';
+import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceAutoSyncDaysOption } from '@components/ServiceAutoSyncDaysOption';
 import { ServiceAutoSyncOption } from '@components/ServiceAutoSyncOption';
 import { ServiceLastSyncOption } from '@components/ServiceLastSyncOption';
-import { Grid, Tooltip } from '@material-ui/core';
-import BlockIcon from '@material-ui/icons/Block';
 import { Service } from '@models/Service';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { Block as BlockIcon } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
+import { memo } from 'react';
 
 interface ServiceAutoSyncOptionsProps {
 	service: Service;
@@ -17,16 +17,16 @@ interface ServiceAutoSyncOptionsProps {
 	handleChange: (optionId: string, newValue: unknown) => void;
 }
 
-export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
+export const _ServiceAutoSyncOptions = ({
 	service,
 	sync,
 	autoSync,
 	autoSyncDays,
 	lastSync,
 	handleChange,
-}) => {
+}: ServiceAutoSyncOptionsProps): JSX.Element => {
 	return (
-		<Grid item className="options-grid-item--centered" xs={2}>
+		<CenteredGrid item xs={2}>
 			{service.hasSync && service.hasAutoSync ? (
 				<>
 					<ServiceAutoSyncOption sync={sync} autoSync={autoSync} handleChange={handleChange} />
@@ -48,17 +48,8 @@ export const _ServiceAutoSyncOptions: React.FC<ServiceAutoSyncOptionsProps> = ({
 					<BlockIcon fontSize="small" />
 				</Tooltip>
 			)}
-		</Grid>
+		</CenteredGrid>
 	);
 };
 
-_ServiceAutoSyncOptions.propTypes = {
-	service: PropTypes.instanceOf(Service).isRequired,
-	sync: PropTypes.bool.isRequired,
-	autoSync: PropTypes.bool.isRequired,
-	autoSyncDays: PropTypes.number.isRequired,
-	lastSync: PropTypes.number.isRequired,
-	handleChange: PropTypes.func.isRequired,
-};
-
-export const ServiceAutoSyncOptions = React.memo(_ServiceAutoSyncOptions);
+export const ServiceAutoSyncOptions = memo(_ServiceAutoSyncOptions);

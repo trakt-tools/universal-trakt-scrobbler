@@ -1,10 +1,10 @@
 import { NetflixService } from '@/netflix/NetflixService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
+import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
-import moment from 'moment';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -173,7 +173,9 @@ class _NetflixApi extends ServiceApi {
 				this.isActivated = true;
 			}
 		} catch (err) {
-			Errors.log(`Failed to activate ${this.id} API`, err);
+			if (Errors.validate(err)) {
+				Errors.log(`Failed to activate ${this.id} API`, err);
+			}
 			throw new Error('Failed to activate API');
 		}
 	}
@@ -204,7 +206,7 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number, lastSyncId: string) {
-		return historyItem.date > 0 && Math.trunc(historyItem.date / 1e3) > lastSync;
+		return historyItem.date > 0 && Utils.unix(historyItem.date) > lastSync;
 	}
 
 	getHistoryItemId(historyItem: NetflixHistoryItem) {
@@ -258,7 +260,7 @@ class _NetflixApi extends ServiceApi {
 		const id = historyItem.movieID.toString();
 		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
-		const watchedAt = moment(historyItem.date);
+		const watchedAt = Utils.unix(historyItem.date);
 		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
@@ -313,7 +315,7 @@ class _NetflixApi extends ServiceApi {
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

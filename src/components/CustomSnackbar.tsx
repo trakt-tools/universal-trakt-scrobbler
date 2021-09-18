@@ -1,16 +1,15 @@
 import { EventDispatcher, SnackbarShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { Snackbar } from '@material-ui/core';
-import { Alert, Color } from '@material-ui/lab';
-import React, { useEffect, useState } from 'react';
+import { Alert, AlertColor, Snackbar } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 interface SnackBarState {
 	isOpen: boolean;
 	message: string;
-	severity: Color;
+	severity: AlertColor;
 }
 
-export const UtsSnackbar: React.FC = () => {
+export const CustomSnackbar = (): JSX.Element => {
 	const [snackbar, setSnackbar] = useState<SnackBarState>({
 		isOpen: false,
 		message: '',

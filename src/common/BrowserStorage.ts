@@ -13,7 +13,7 @@ import { getService, getServices } from '@models/Service';
 import { SavedTraktItem } from '@models/TraktItem';
 import '@services';
 import { PartialDeep } from 'type-fest';
-import { browser, Manifest as WebExtManifest } from 'webextension-polyfill-ts';
+import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
 export type StorageValues = StorageValuesV7;
 export type StorageValuesOptions = StorageValuesOptionsV3;
