@@ -53,7 +53,7 @@ specifiers:
   jsonlint: ^1.6.3
   lint-staged: ^11.1.2
   npm-run-all: ^4.1.5
-  prettier: ^2.3.1
+  prettier: ^2.4.1
   pug: ^3.0.2
   pug-loader: ^2.4.0
   react: ^17.0.2
@@ -129,7 +129,7 @@ devDependencies:
   eslint-plugin-i18n-json: 3.1.0_eslint@7.32.0
   eslint-plugin-mui: 0.1.0_eslint@7.32.0
   eslint-plugin-prefer-arrow: 1.2.3_eslint@7.32.0
-  eslint-plugin-prettier: 4.0.0_9431cd5af5c6bd50b6ebd049418c16f8
+  eslint-plugin-prettier: 4.0.0_6e975bd57c7acf028c1a9ddbbf60c898
   eslint-plugin-react: 7.25.2_eslint@7.32.0
   fs-extra: 10.0.0
   html-webpack-plugin: 5.3.2_webpack@5.53.0
@@ -137,7 +137,7 @@ devDependencies:
   jsonlint: 1.6.3
   lint-staged: 11.1.2
   npm-run-all: 4.1.5
-  prettier: 2.3.1
+  prettier: 2.4.1
   pug: 3.0.2
   pug-loader: 2.4.0_pug@3.0.2
   string-replace-loader: 3.0.3_webpack@5.53.0
@@ -4936,7 +4936,7 @@ packages:
       eslint: 7.32.0
     dev: true
 
-  /eslint-plugin-prettier/4.0.0_9431cd5af5c6bd50b6ebd049418c16f8:
+  /eslint-plugin-prettier/4.0.0_6e975bd57c7acf028c1a9ddbbf60c898:
     resolution:
       {
         integrity: sha512-98MqmCJ7vJodoQK359bqQWaxOE0CS8paAz/GgjaZLyex4TTk3g9HugoO89EqWCrFiOqn9EVvcoo7gZzONCWVwQ==,
@@ -4952,7 +4952,7 @@ packages:
     dependencies:
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
-      prettier: 2.3.1
+      prettier: 2.4.1
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -7099,6 +7099,15 @@ packages:
     resolution:
       {
         integrity: sha512-p+vNbgpLjif/+D+DwAZAbndtRrR0md0MwfmOVN9N+2RgyACMT+7tfaRnT+WDPkqnuVwleyuBIG2XBxKDme3hPA==,
+      }
+    engines: { node: '>=10.13.0' }
+    hasBin: true
+    dev: true
+
+  /prettier/2.4.1:
+    resolution:
+      {
+        integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==,
       }
     engines: { node: '>=10.13.0' }
     hasBin: true
