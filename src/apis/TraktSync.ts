@@ -2,7 +2,7 @@ import { TraktApi } from '@apis/TraktApi';
 import { Cache, CacheItem } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { SyncStore } from '@stores/SyncStore';
@@ -155,10 +155,10 @@ class _TraktSync extends TraktApi {
 				added: responseJson.added,
 			});
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to sync history.', err);
 				await store.update(newItems, true);
-				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err as Error });
+				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err });
 			}
 		}
 	}

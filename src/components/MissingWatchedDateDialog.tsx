@@ -1,7 +1,6 @@
 import { Errors } from '@common/Errors';
 import { EventDispatcher, MissingWatchedDateDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestException } from '@common/Requests';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
@@ -133,7 +132,7 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 				newItems,
 			});
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to add missing watched date.', err);
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'addMissingWatchedDateFailed',

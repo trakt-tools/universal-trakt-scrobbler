@@ -62,7 +62,9 @@ class _AutoSync {
 				await BrowserAction.setTitle(I18N.translate('autoSyncing'));
 				await this.sync(servicesToSync, now);
 			} catch (err) {
-				Errors.error('Failed to automatically sync history.', err);
+				if (Errors.validate(err)) {
+					Errors.error('Failed to automatically sync history.', err);
+				}
 			}
 			await BrowserAction.setTitle();
 			await BrowserAction.setStaticIcon();
@@ -123,7 +125,9 @@ class _AutoSync {
 				}
 			} catch (err) {
 				syncCache.failed = true;
-				Errors.log(`Failed to auto sync ${service.id}`, err);
+				if (Errors.validate(err)) {
+					Errors.log(`Failed to auto sync ${service.id}`, err);
+				}
 			}
 
 			const partialServiceValue = partialOptions.services?.[service.id] || {};

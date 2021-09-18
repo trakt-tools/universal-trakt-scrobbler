@@ -1,6 +1,5 @@
 import { TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 interface BaseTextFieldOptionProps<T extends string | number> extends WithSx {
 	id: string;

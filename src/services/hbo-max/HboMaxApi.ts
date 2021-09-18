@@ -2,7 +2,7 @@ import { HboMaxService } from '@/hbo-max/HboMaxService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -402,7 +402,7 @@ class _HboMaxApi extends ServiceApi {
 				item = this.parseItemMetadata(id, itemMetadata);
 			}
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

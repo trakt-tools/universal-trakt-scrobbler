@@ -27,11 +27,13 @@ export const OptionsActions = (): JSX.Element => {
 					await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
 					void updateCachesSize();
 				} catch (err) {
-					Errors.error('Failed to clear storage.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'clearStorageFailed',
-						severity: 'error',
-					});
+					if (Errors.validate(err)) {
+						Errors.error('Failed to clear storage.', err);
+						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+							messageName: 'clearStorageFailed',
+							severity: 'error',
+						});
+					}
 				}
 			},
 		});
@@ -50,11 +52,13 @@ export const OptionsActions = (): JSX.Element => {
 					});
 					void updateCachesSize();
 				} catch (err) {
-					Errors.error('Failed to clear caches.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
-						messageName: 'clearCachesFailed',
-						severity: 'error',
-					});
+					if (Errors.validate(err)) {
+						Errors.error('Failed to clear caches.', err);
+						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+							messageName: 'clearCachesFailed',
+							severity: 'error',
+						});
+					}
 				}
 			},
 		});

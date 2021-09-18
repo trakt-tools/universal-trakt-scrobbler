@@ -5,7 +5,6 @@ import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
 import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestException } from '@common/Requests';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { Item } from '@models/Item';
@@ -149,7 +148,7 @@ export const CorrectionDialog = (): JSX.Element => {
 				}
 			);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to correct item.', err);
 				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'correctItemFailed',

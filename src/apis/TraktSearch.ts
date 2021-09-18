@@ -1,8 +1,9 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
+import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
-import { RequestException, Requests } from '@common/Requests';
+import { RequestError, Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -137,8 +138,8 @@ class _TraktSearch extends TraktApi {
 				await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
 			}
 		} catch (err) {
-			if (Shared.pageType === 'content') {
-				await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err as RequestException });
+			if (Shared.pageType === 'content' && Errors.validate(err)) {
+				await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err });
 			}
 			throw err;
 		}
@@ -211,11 +212,13 @@ class _TraktSearch extends TraktApi {
 			}
 		}
 		if (!searchItem) {
-			throw {
-				request: { item },
+			throw new RequestError({
 				status: 404,
 				text: responseText,
-			};
+				extra: {
+					item: Item.save(item),
+				},
+			});
 		}
 		return searchItem;
 	}
@@ -299,11 +302,14 @@ class _TraktSearch extends TraktApi {
 					this.formatEpisodeTitle(item.title).includes(this.formatEpisodeTitle(x.show.title)))
 		);
 		if (!searchItem) {
-			throw {
-				request: { item, showItem },
+			throw new RequestError({
 				status: 404,
 				text: 'Episode not found.',
-			};
+				extra: {
+					item: Item.save(item),
+					showItem,
+				},
+			});
 		}
 		return searchItem;
 	}

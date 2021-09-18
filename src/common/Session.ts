@@ -2,7 +2,6 @@ import { TraktAuth } from '@apis/TraktAuth';
 import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
 
 class _Session {
 	isLoggedIn: boolean;
@@ -22,7 +21,9 @@ class _Session {
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
+			if (Errors.validate(err)) {
+				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err });
+			}
 		}
 	}
 
@@ -37,9 +38,9 @@ class _Session {
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to log in.', err);
-				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err as Error });
+				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err });
 			}
 		}
 	}
@@ -51,9 +52,9 @@ class _Session {
 			await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
 		} catch (err) {
 			this.isLoggedIn = true;
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to log out.', err);
-				await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err as Error });
+				await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err });
 			}
 		}
 	}

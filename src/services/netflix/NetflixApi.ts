@@ -1,7 +1,7 @@
 import { NetflixService } from '@/netflix/NetflixService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -173,7 +173,9 @@ class _NetflixApi extends ServiceApi {
 				this.isActivated = true;
 			}
 		} catch (err) {
-			Errors.log(`Failed to activate ${this.id} API`, err);
+			if (Errors.validate(err)) {
+				Errors.log(`Failed to activate ${this.id} API`, err);
+			}
 			throw new Error('Failed to activate API');
 		}
 	}
@@ -313,7 +315,7 @@ class _NetflixApi extends ServiceApi {
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

@@ -9,7 +9,7 @@ import {
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
+import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import browser from 'webextension-polyfill';
 
@@ -73,25 +73,28 @@ class _Notifications {
 		await this.show(title, message);
 	};
 
-	async getTitleFromException(err: RequestException): Promise<string> {
-		let title = '';
-		if (err) {
-			if (err.status === 404) {
-				title = I18N.translate('errorNotificationNotFound');
-			} else if (err.status === 0) {
-				const { auth } = await BrowserStorage.get('auth');
-				if (auth?.access_token) {
-					title = I18N.translate('errorNotificationServers');
-				} else {
-					title = I18N.translate('errorNotificationLogin');
-				}
-			} else {
-				title = I18N.translate('errorNotificationServers');
-			}
-		} else {
-			title = I18N.translate('errorNotification');
+	async getTitleFromException(err: Error): Promise<string> {
+		if (!err) {
+			return I18N.translate('errorNotification');
 		}
-		return title;
+
+		if (err instanceof RequestError) {
+			if (err.status === 404) {
+				return I18N.translate('errorNotificationNotFound');
+			}
+
+			if (err.status === 0) {
+				const { auth } = await BrowserStorage.get('auth');
+
+				if (auth?.access_token) {
+					return I18N.translate('errorNotificationServers');
+				}
+
+				return I18N.translate('errorNotificationLogin');
+			}
+		}
+
+		return I18N.translate('errorNotificationServers');
 	}
 
 	async show(title: string, message: string): Promise<void> {

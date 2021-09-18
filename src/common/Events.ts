@@ -7,7 +7,6 @@ import {
 } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { DispatchEventMessage, Messaging } from '@common/Messaging';
-import { RequestException } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
@@ -72,7 +71,7 @@ export interface ScrobbleSuccessData {
 }
 
 export type ScrobbleErrorData = ScrobbleSuccessData & {
-	error: RequestException;
+	error: Error;
 };
 
 export interface SearchSuccessData {
@@ -80,7 +79,7 @@ export interface SearchSuccessData {
 }
 
 export interface SearchErrorData {
-	error: RequestException;
+	error: Error;
 }
 
 export interface DialogShowData {
@@ -268,7 +267,9 @@ class _EventDispatcher {
 			try {
 				await listener(data);
 			} catch (err) {
-				Errors.log('Failed to dispatch.', err);
+				if (Errors.validate(err)) {
+					Errors.log('Failed to dispatch.', err);
+				}
 				throw err;
 			}
 		}

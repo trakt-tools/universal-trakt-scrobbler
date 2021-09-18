@@ -1,7 +1,8 @@
 import { TraktApi } from '@apis/TraktApi';
 import { BrowserStorage } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import { EventDispatcher } from '@common/Events';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
@@ -119,11 +120,13 @@ class _TraktScrobble extends TraktApi {
 				scrobbleType,
 			});
 		} catch (err) {
-			await EventDispatcher.dispatch('SCROBBLE_ERROR', null, {
-				item: TraktItem.save(item),
-				scrobbleType,
-				error: err as RequestException,
-			});
+			if (Errors.validate(err)) {
+				await EventDispatcher.dispatch('SCROBBLE_ERROR', null, {
+					item: TraktItem.save(item),
+					scrobbleType,
+					error: err,
+				});
+			}
 		}
 	}
 }

@@ -1,7 +1,7 @@
 import { ViaplayService } from '@/viaplay/ViaplayService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Errors } from '@common/Errors';
-import { RequestException, Requests } from '@common/Requests';
+import { Requests } from '@common/Requests';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 
@@ -234,7 +234,7 @@ class _ViaplayApi extends ServiceApi {
 				(JSON.parse(responseText) as ViaplayProductQuery)._embedded['viaplay:product']
 			);
 		} catch (err) {
-			if (!(err as RequestException).canceled) {
+			if (Errors.validate(err)) {
 				Errors.error('Failed to get item.', err);
 			}
 		}

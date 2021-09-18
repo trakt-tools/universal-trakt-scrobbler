@@ -7,12 +7,31 @@ import { getServices } from '@models/Service';
 import axios, { AxiosResponse, CancelTokenSource, Method } from 'axios';
 import browser, { WebRequest as WebExtWebRequest } from 'webextension-polyfill';
 
-export type RequestException = {
-	request: RequestDetails;
-	status: number;
-	text: string;
-	canceled: boolean;
-};
+export interface RequestErrorOptions {
+	request?: RequestDetails;
+	status?: number;
+	text?: string;
+	isCanceled?: boolean;
+	extra?: Record<string, unknown>;
+}
+
+export class RequestError extends Error {
+	request?: RequestDetails;
+	status?: number;
+	text?: string;
+	isCanceled?: boolean;
+	extra?: Record<string, unknown>;
+
+	constructor(options: RequestErrorOptions) {
+		super(JSON.stringify(options));
+
+		this.request = options.request;
+		this.status = options.status;
+		this.text = options.text;
+		this.isCanceled = options.isCanceled;
+		this.extra = options.extra;
+	}
+}
 
 export type RequestDetails = {
 	url: string;
@@ -125,12 +144,12 @@ class _Requests {
 				throw responseText;
 			}
 		} catch (err) {
-			throw {
+			throw new RequestError({
 				request,
 				status: responseStatus,
 				text: responseText,
-				canceled: err instanceof axios.Cancel,
-			};
+				isCanceled: err instanceof axios.Cancel,
+			});
 		}
 		return responseText;
 	}
