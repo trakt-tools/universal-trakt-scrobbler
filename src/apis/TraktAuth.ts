@@ -5,7 +5,7 @@ import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 export type TraktManualAuth = {
 	callback?: PromiseResolve<TraktAuthDetails>;

@@ -11,7 +11,7 @@ import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
 import { RequestException } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 class _Notifications {
 	messageNames: Record<number, MessageName>;

@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
-import { Manifest as WebExtManifest } from 'webextension-polyfill-ts';
+import { Manifest as WebExtManifest } from 'webextension-polyfill';
 import webpack, { ProgressPlugin } from 'webpack';
 import configJson = require('./config.json');
 import packageJson = require('./package.json');

@@ -9,7 +9,7 @@ import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { getServices } from '@models/Service';
-import { browser, Manifest as WebExtManifest, Tabs as WebExtTabs } from 'webextension-polyfill-ts';
+import browser, { Manifest as WebExtManifest, Tabs as WebExtTabs } from 'webextension-polyfill';
 
 export interface ScriptInjectorMessage {
 	serviceId: string;

@@ -6,7 +6,7 @@ import { Service } from '@models/Service';
 import { Block as BlockIcon, Launch as LaunchIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { memo } from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 interface ServiceSyncOptionProps {
 	service: Service;

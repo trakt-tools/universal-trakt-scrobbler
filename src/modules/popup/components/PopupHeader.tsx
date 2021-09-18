@@ -15,7 +15,7 @@ import {
 } from '@mui/icons-material';
 import { AppBar, IconButton, Toolbar, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 export const PopupHeader = (): JSX.Element => {
 	const [syncButton, setSyncButton] = useState({

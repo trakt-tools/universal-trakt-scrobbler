@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 class _I18N {
 	translate(name: MessageName, substitutions?: string | string[]): string {

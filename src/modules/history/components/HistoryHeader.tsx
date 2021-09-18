@@ -12,7 +12,7 @@ import {
 	Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Toolbar, Tooltip, Typography } from '@mui/material';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 export const HistoryHeader = (): JSX.Element => {
 	const history = useHistory();

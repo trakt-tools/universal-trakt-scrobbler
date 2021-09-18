@@ -29,6 +29,7 @@ specifiers:
   '@types/react-virtualized-auto-sizer': ^1.0.1
   '@types/react-window': ^1.8.4
   '@types/react-window-infinite-loader': ^1.0.4
+  '@types/webextension-polyfill': ^0.8.0
   '@typescript-eslint/eslint-plugin': ^4.27.0
   '@typescript-eslint/parser': ^4.27.0
   archiver: ^5.3.0
@@ -69,7 +70,7 @@ specifiers:
   tsconfig-paths-webpack-plugin: ^3.5.1
   type-fest: ^2.3.3
   typescript: ^4.3.2
-  webextension-polyfill-ts: ^0.26.0
+  webextension-polyfill: ^0.8.0
   webpack: ^5.53.0
   webpack-cli: ^4.7.2
 
@@ -93,7 +94,7 @@ dependencies:
   react-window-infinite-loader: 1.0.7_react-dom@17.0.2+react@17.0.2
   rollbar: 2.24.0
   type-fest: 2.3.3
-  webextension-polyfill-ts: 0.26.0
+  webextension-polyfill: 0.8.0
 
 devDependencies:
   '@babel/core': 7.14.6
@@ -117,6 +118,7 @@ devDependencies:
   '@types/react-virtualized-auto-sizer': 1.0.1
   '@types/react-window': 1.8.4
   '@types/react-window-infinite-loader': 1.0.4
+  '@types/webextension-polyfill': 0.8.0
   '@typescript-eslint/eslint-plugin': 4.27.0_1c5b48a1f115d929d137a72df737d54c
   '@typescript-eslint/parser': 4.27.0_eslint@7.28.0+typescript@4.3.2
   archiver: 5.3.0
@@ -2791,6 +2793,13 @@ packages:
       }
     dependencies:
       source-map: 0.6.1
+    dev: true
+
+  /@types/webextension-polyfill/0.8.0:
+    resolution:
+      {
+        integrity: sha512-usmQx2snpNkVl2VoOGZCdrPnfHL+CjuSFy84ZdTwQ2b2cvyygF/zGW5YI6Zywk+bfq9zmYpORO9lmdN7DknpRw==,
+      }
     dev: true
 
   /@types/webpack-sources/2.1.0:
@@ -8481,15 +8490,6 @@ packages:
     dependencies:
       defaults: 1.0.3
     dev: true
-
-  /webextension-polyfill-ts/0.26.0:
-    resolution:
-      {
-        integrity: sha512-XEFL+aYVEsm/d4RajVwP75g56c/w2aSHnPwgtUv8/nCzbLNSzRQIix6aj1xqFkA5yr7OIDkk3OD/QTnPp8ThYA==,
-      }
-    dependencies:
-      webextension-polyfill: 0.8.0
-    dev: false
 
   /webextension-polyfill/0.8.0:
     resolution:
