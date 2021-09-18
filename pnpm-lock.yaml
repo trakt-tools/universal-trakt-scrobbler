@@ -62,7 +62,7 @@ specifiers:
   react-virtualized-auto-sizer: ^1.0.6
   react-window: ^1.8.6
   react-window-infinite-loader: ^1.0.7
-  rollbar: ^2.22.0
+  rollbar: ^2.24.0
   string-replace-loader: ^3.0.2
   style-loader: ^2.0.0
   ts-node: ^10.0.0
@@ -91,7 +91,7 @@ dependencies:
   react-virtualized-auto-sizer: 1.0.6_react-dom@17.0.2+react@17.0.2
   react-window: 1.8.6_react-dom@17.0.2+react@17.0.2
   react-window-infinite-loader: 1.0.7_react-dom@17.0.2+react@17.0.2
-  rollbar: 2.22.0
+  rollbar: 2.24.0
   type-fest: 1.2.2
   webextension-polyfill-ts: 0.26.0
 
@@ -7526,10 +7526,10 @@ packages:
       glob: 7.1.7
     dev: true
 
-  /rollbar/2.22.0:
+  /rollbar/2.24.0:
     resolution:
       {
-        integrity: sha512-fMTKtzSnoE2ODnMAqzH/Soocb/o7Qy7U5tdRjzljKoz1vMRKkMYbW7E0s0Qraoo3xaTzd5UxDNP3c8jmrlWgug==,
+        integrity: sha512-cjAGDeTOUH5Bc4qzXlrp2D3eTO51adMWMxzOrr079t/nZidrO8ISBFM8SnazJVv5fOjIX5VbB/4a+gwbn9l4rw==,
       }
     dependencies:
       async: 1.2.1
