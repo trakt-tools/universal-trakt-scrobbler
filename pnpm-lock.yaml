@@ -49,9 +49,9 @@ specifiers:
   fs-extra: ^10.0.0
   history: ^4.10.1
   html-webpack-plugin: ^5.3.2
-  husky: ^6.0.0
+  husky: ^7.0.2
   jsonlint: ^1.6.3
-  lint-staged: ^11.0.0
+  lint-staged: ^11.1.2
   npm-run-all: ^4.1.5
   prettier: ^2.3.1
   pug: ^3.0.2
@@ -133,9 +133,9 @@ devDependencies:
   eslint-plugin-react: 7.25.2_eslint@7.32.0
   fs-extra: 10.0.0
   html-webpack-plugin: 5.3.2_webpack@5.53.0
-  husky: 6.0.0
+  husky: 7.0.2
   jsonlint: 1.6.3
-  lint-staged: 11.0.0
+  lint-staged: 11.1.2
   npm-run-all: 4.1.5
   prettier: 2.3.1
   pug: 3.0.2
@@ -4568,10 +4568,6 @@ packages:
     dev: false
     optional: true
 
-  /dedent/0.7.0:
-    resolution: { integrity: sha1-JJXduvbrh0q7Dhvp3yLS5aVEMmw= }
-    dev: true
-
   /deep-is/0.1.3:
     resolution: { integrity: sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ= }
     dev: true
@@ -5633,11 +5629,12 @@ packages:
     engines: { node: '>=10.17.0' }
     dev: true
 
-  /husky/6.0.0:
+  /husky/7.0.2:
     resolution:
       {
-        integrity: sha512-SQS2gDTB7tBN486QSoKPKQItZw97BMOd+Kdb6ghfpBc0yXyzrddI0oDV5MkDAbuB4X2mO3/nj60TRMcYxwzZeQ==,
+        integrity: sha512-8yKEWNX4z2YsofXAMT7KvA1g8p+GxtB1ffV8XtpAEGuXNAbCV5wdNKH+qTpw8SM9fh4aMPDR+yQuKfgnreyZlg==,
       }
+    engines: { node: '>=12' }
     hasBin: true
     dev: true
 
@@ -6200,10 +6197,10 @@ packages:
   /lines-and-columns/1.1.6:
     resolution: { integrity: sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA= }
 
-  /lint-staged/11.0.0:
+  /lint-staged/11.1.2:
     resolution:
       {
-        integrity: sha512-3rsRIoyaE8IphSUtO1RVTFl1e0SLBtxxUOPBtHxQgBHS5/i6nqvjcUfNioMa4BU9yGnPzbO+xkfLtXtxBpCzjw==,
+        integrity: sha512-6lYpNoA9wGqkL6Hew/4n1H6lRqF3qCsujVT0Oq5Z4hiSAM7S6NksPJ3gnr7A7R52xCtiZMcEUNNQ6d6X5Bvh9w==,
       }
     hasBin: true
     dependencies:
@@ -6212,7 +6209,6 @@ packages:
       commander: 7.2.0
       cosmiconfig: 7.0.0
       debug: 4.3.1
-      dedent: 0.7.0
       enquirer: 2.3.6
       execa: 5.1.1
       listr2: 3.10.0_enquirer@2.3.6
@@ -6236,7 +6232,7 @@ packages:
       enquirer: '>= 2.3.0 < 3'
     dependencies:
       cli-truncate: 2.1.0
-      colorette: 1.2.2
+      colorette: 1.4.0
       enquirer: 2.3.6
       log-update: 4.0.0
       p-map: 4.0.0
