@@ -5,11 +5,17 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 export interface SessionProviderProps extends WithChildren {}
 
-const initialValue = {
-	isLoggedIn: Session.isLoggedIn,
+export interface SessionContextValue {
+	isLoggedIn: boolean;
+}
+
+const getInitialValue = (): SessionContextValue => {
+	return {
+		isLoggedIn: Session.isLoggedIn,
+	};
 };
 
-export const SessionContext = createContext(initialValue);
+export const SessionContext = createContext(getInitialValue());
 
 export const useSession = () => {
 	const sessionContext = useContext(SessionContext);
@@ -20,7 +26,7 @@ export const useSession = () => {
 };
 
 export const SessionProvider = ({ children }: SessionProviderProps): JSX.Element => {
-	const [value, setValue] = useState(initialValue);
+	const [value, setValue] = useState(getInitialValue());
 
 	const history = useHistory();
 
