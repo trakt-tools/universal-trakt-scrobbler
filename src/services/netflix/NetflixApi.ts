@@ -385,12 +385,12 @@ class _NetflixApi extends ServiceApi {
 
 	extractSession(text: string): NetflixSession | null {
 		let session: NetflixSession | null = null;
-		const authUrlRegex = /"authURL":"(.*?)"/;
-		const buildIdentifierRegex = /"BUILD_IDENTIFIER":"(.*?)"/;
-		const profileNameRegex = /"userInfo":\{"name":"(.*?)"/;
-		const authUrl = authUrlRegex.exec(text)?.[1];
-		const buildIdentifier = buildIdentifierRegex.exec(text)?.[1];
-		const profileName = profileNameRegex.exec(text)?.[1] || null;
+		const authUrlRegex = /"authURL":"(?<authUrl>.*?)"/;
+		const buildIdentifierRegex = /"BUILD_IDENTIFIER":"(?<buildIdentifier>.*?)"/;
+		const profileNameRegex = /"userInfo":\{"name":"(?<profileName>.*?)"/;
+		const { authUrl } = authUrlRegex.exec(text)?.groups ?? {};
+		const { buildIdentifier } = buildIdentifierRegex.exec(text)?.groups ?? {};
+		const { profileName = null } = profileNameRegex.exec(text)?.groups ?? {};
 		if (authUrl && buildIdentifier) {
 			session = { authUrl, buildIdentifier, profileName };
 		}

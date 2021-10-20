@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _StreamzBeParser extends ScrobbleParser {
 	constructor() {
 		super(StreamzBeApi, {
-			watchingUrlRegex: /\/afspelen\/(.+)/, // https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096 => e870cbdf1-77f7-4b06-8dce-2437686eb096
+			watchingUrlRegex: /\/afspelen\/(?<id>.+)/, // https://www.streamz.be/streamz/afspelen/e870cbdf1-77f7-4b06-8dce-2437686eb096 => e870cbdf1-77f7-4b06-8dce-2437686eb096
 		});
 	}
 
@@ -19,10 +19,12 @@ class _StreamzBeParser extends ScrobbleParser {
 		let subTitle: string | undefined = undefined;
 
 		// Shows get a title like this (dutch example): "Raised by Wolves S1 A1 Aflevering 1"
-		const matches = /(.+) S(\d+) A(\d+) (.+)/.exec(titleElement?.textContent ?? '');
+		const matches = /(?<showTitle>.+) S(?<seasonId>\d+) A(?<episodeId>\d+) (?<subTitle>.+)/.exec(
+			titleElement?.textContent ?? ''
+		);
 
-		if (matches) {
-			[, showTitle, seasonId, episodeId, subTitle] = matches;
+		if (matches?.groups) {
+			({ showTitle, seasonId, episodeId, subTitle } = matches.groups);
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';

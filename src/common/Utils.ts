@@ -89,7 +89,7 @@ class _Utils {
 	/**
 	 * Replaces placeholders in a string with values from a replacement object.
 	 */
-	replace(string: string, replaceObj: unknown, regex = /\{(.+?)}/g) {
+	replace(string: string, replaceObj: unknown, regex = /\{(?<placeholder>.+?)}/g) {
 		return string.replace(regex, (_, key: string) => (replaceObj as Record<string, string>)[key]);
 	}
 }

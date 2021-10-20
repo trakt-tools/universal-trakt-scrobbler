@@ -75,16 +75,17 @@ const loadServices = () => {
 		const serviceDir = path.resolve(servicesDir, serviceId);
 		const servicePath = path.resolve(serviceDir, `${serviceKey}Service.ts`);
 		const serviceFile = fs.readFileSync(servicePath, 'utf-8');
-		const serviceMatches = /Service\(([\S\s]+?)\)/m.exec(serviceFile);
-		if (!serviceMatches) {
+		const { serviceDefinition } =
+			/Service\((?<serviceDefinition>[\S\s]+?)\)/m.exec(serviceFile)?.groups ?? {};
+		if (!serviceDefinition) {
 			throw new Error(`No service matches for ${serviceId}`);
 		}
 		const service = JSON.parse(
-			serviceMatches[1]
+			serviceDefinition
 				.replace(/\r?\n|\r|\t/g, '')
-				.replace(/([{,])(\w+?):/g, '$1"$2":')
+				.replace(/(?<begin>[{,])(?<end>\w+?):/g, '$<begin>"$<end>":')
 				.replace(/'/g, '"')
-				.replace(/,([\]}])/g, '$1')
+				.replace(/,(?<end>[\]}])/g, '$<end>')
 		) as ServiceValues;
 		services[service.id] = service;
 
@@ -160,7 +161,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					loader: 'pug-loader',
 				},
 				{
-					test: /\.(jpg|png)$/,
+					test: /\.(?:jpg|png)$/,
 					type: 'asset/resource',
 					generator: {
 						filename: 'images/[name][ext]',
@@ -171,8 +172,8 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 					use: [loaders.style, loaders.css],
 				},
 				{
-					test: /\.(t|j)sx?$/,
-					exclude: /(node_modules|bower_components)/,
+					test: /\.(?:t|j)sx?$/,
+					exclude: /(?:node_modules|bower_components)/,
 					loader: 'babel-loader',
 					options: {
 						envName: env.test ? 'test' : mode,

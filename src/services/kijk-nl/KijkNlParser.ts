@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _KijkNlParser extends ScrobbleParser {
 	constructor() {
 		super(KijkNlApi, {
-			watchingUrlRegex: /\/films|programmas\/.+\/(.+)/, // https://www.kijk.nl/programmas/steenrijk-straatarm/AaELSZ6dksV
+			watchingUrlRegex: /\/films|programmas\/.+\/(?<id>.+)/, // https://www.kijk.nl/programmas/steenrijk-straatarm/AaELSZ6dksV
 		});
 	}
 
@@ -18,10 +18,12 @@ class _KijkNlParser extends ScrobbleParser {
 		let episodeId: string | null = null;
 
 		// Shows get a title like this (dutch example): "Steenrijk, straatarm - seizoen 2 aflevering 1"
-		const matches = /(.+) - seizoen (\d+) aflevering (\d+)/.exec(titleElement?.textContent ?? '');
+		const matches = /(?<showTitle>.+) - seizoen (?<seasonId>\d+) aflevering (?<episodeId>\d+)/.exec(
+			titleElement?.textContent ?? ''
+		);
 
-		if (matches) {
-			[, showTitle, seasonId, episodeId] = matches;
+		if (matches?.groups) {
+			({ showTitle, seasonId, episodeId } = matches.groups);
 		}
 
 		const title = showTitle?.split(' - ')[0] ?? titleElement?.textContent ?? '';

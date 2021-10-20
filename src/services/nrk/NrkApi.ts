@@ -218,34 +218,35 @@ class _NrkApi extends ServiceApi {
 			watchedAt,
 		};
 
-		if (type === 'show') {
-			/* Known formats:
-			 * S2 / 7. Episode Title
-			 * S1 / 9. episode        (no title)
-			 * 23.10.2020             (airdate is the only information)
-			 */
-			const regExp = /S([0-9]) [/] ([0-9]+)[.] (.+)/g; //This captures Season number, episode number, and episode title.
-			const capturedEpisodeData = [...titleInfo.subtitle.matchAll(regExp)];
-			let episodeTitle;
-			let extraInfo;
-			if (capturedEpisodeData.length) {
-				const epInfo = capturedEpisodeData[0];
-				episodeTitle = epInfo[3] === 'episode' ? epInfo[0] : epInfo[3]; //If title is not present, use the whole string.
-				extraInfo = {
-					season: Number.parseInt(epInfo[1]),
-					episode: Number.parseInt(epInfo[2]),
-				};
-			} else {
-				episodeTitle = titleInfo.subtitle;
-			}
-			return new Item({
-				...baseItem,
-				episodeTitle,
-				...extraInfo,
-			});
-		} else {
+		if (type === 'movie') {
 			return new Item(baseItem);
 		}
+
+		/* Known formats:
+		 * S2 / 7. Episode Title
+		 * S1 / 9. episode        (no title)
+		 * 23.10.2020             (airdate is the only information)
+		 */
+		const regExp =
+			/(?<fullStr>S(?<seasonStr>[0-9]) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
+		const [matches] = [...titleInfo.subtitle.matchAll(regExp)];
+		let episodeTitle;
+		let extraInfo;
+		if (matches?.groups) {
+			const { fullStr, seasonStr, episodeStr, partialEpisodeTitle } = matches.groups;
+			episodeTitle = partialEpisodeTitle === 'episode' ? fullStr : partialEpisodeTitle; //If title is not present, use the whole string.
+			extraInfo = {
+				season: seasonStr ? Number.parseInt(seasonStr) : 0,
+				episode: episodeStr ? Number.parseInt(episodeStr) : 0,
+			};
+		} else {
+			episodeTitle = titleInfo.subtitle;
+		}
+		return new Item({
+			...baseItem,
+			episodeTitle,
+			...extraInfo,
+		});
 	}
 
 	getTitle(programPage: NrkProgramPage) {
@@ -283,26 +284,28 @@ class _NrkApi extends ServiceApi {
 			title,
 			year: programPage.moreInformation.productionYear,
 		};
-		if (type === 'show') {
-			let { title: episodeTitle } = programPage.programInformation.titles;
-			const capturedEpisodeData = [...episodeTitle.matchAll(/([0-9]+)[.] (.+)/g)];
-			let extraInfo;
-			if (capturedEpisodeData.length) {
-				const epInfo = capturedEpisodeData[0];
-				episodeTitle = epInfo[2] === 'episode' ? epInfo[0] : epInfo[2]; //If title is not present, use the whole string.
-				extraInfo = {
-					season: Number.parseInt(programPage._links.season.name),
-					episode: Number.parseInt(epInfo[1]),
-				};
-			}
-			return new Item({
-				...baseItem,
-				episodeTitle,
-				...extraInfo,
-			});
-		} else {
+		if (type === 'movie') {
 			return new Item(baseItem);
 		}
+
+		let { title: episodeTitle } = programPage.programInformation.titles;
+		const [matches] = [
+			...episodeTitle.matchAll(/(?<fullStr>(?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g),
+		];
+		let extraInfo;
+		if (matches?.groups) {
+			const { fullStr, episodeStr, partialEpisodeTitle } = matches.groups;
+			episodeTitle = (partialEpisodeTitle === 'episode' ? fullStr : partialEpisodeTitle) ?? ''; //If title is not present, use the whole string.
+			extraInfo = {
+				season: Number.parseInt(programPage._links.season.name),
+				episode: episodeStr ? Number.parseInt(episodeStr) : 0,
+			};
+		}
+		return new Item({
+			...baseItem,
+			episodeTitle,
+			...extraInfo,
+		});
 	}
 }
 

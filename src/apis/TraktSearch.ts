@@ -331,7 +331,7 @@ class _TraktSearch extends TraktApi {
 	formatEpisodeTitle(title: string): string {
 		return title
 			.toLowerCase()
-			.replace(/(^|\s)(a|an|the)(\s)/g, '$1$3')
+			.replace(/(?<begin>^|\s)(?:a|an|the)(?<end>\s)/g, '$<begin>$<end>')
 			.replace(/\s/g, '');
 	}
 }
