@@ -1,5 +1,6 @@
 import { Shared } from '@common/Shared';
-import { format as dateFnsFormat } from 'date-fns';
+import { format as dateFnsFormat, formatISO } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import merge from 'deepmerge';
 import { PartialDeep } from 'type-fest';
 
@@ -64,6 +65,17 @@ class _Utils {
 			unix = Math.trunc(dateParam.getTime() / 1e3);
 		}
 		return unix;
+	}
+
+	/**
+	 * Converts for required format for trakt api
+	 */
+	convertToUtcDatetime(unixDate: number | undefined) {
+		if (!unixDate) {
+			return;
+		}
+		const UTCDate = zonedTimeToUtc(unixDate * 1e3, 'UTC');
+		return UTCDate.toISOString();
 	}
 
 	/**

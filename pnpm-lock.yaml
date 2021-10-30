@@ -36,6 +36,7 @@ specifiers:
   cross-env: ^7.0.3
   css-loader: ^6.3.0
   date-fns: ^2.24.0
+  date-fns-tz: ^1.1.6
   deepmerge: ^4.2.2
   eslint: ^7.32.0
   eslint-config-prettier: ^8.3.0
@@ -80,6 +81,7 @@ dependencies:
   '@mui/system': 5.0.0_5330f53cb26527a90bb080bb5d7370b8
   axios: 0.21.4
   date-fns: 2.24.0
+  date-fns-tz: 1.1.6_date-fns@2.24.0
   deepmerge: 4.2.2
   history: 4.10.1
   react: 17.0.2
@@ -4447,6 +4449,17 @@ packages:
       {
         integrity: sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==,
       }
+
+  /date-fns-tz/1.1.6_date-fns@2.24.0:
+    resolution:
+      {
+        integrity: sha512-nyy+URfFI3KUY7udEJozcoftju+KduaqkVfwyTIE0traBiVye09QnyWKLZK7drRr5h9B7sPJITmQnS3U6YOdQg==,
+      }
+    peerDependencies:
+      date-fns: '>=2.0.0-alpha.13'
+    dependencies:
+      date-fns: 2.24.0
+    dev: false
 
   /date-fns/2.24.0:
     resolution:
