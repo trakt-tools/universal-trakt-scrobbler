@@ -70,12 +70,11 @@ class _Utils {
 	/**
 	 * Converts for required format for trakt api
 	 */
-	convertToUtcDatetime(unixDate: number | undefined) {
+	convertToISOString(unixDate: number | undefined) {
 		if (!unixDate) {
 			return;
 		}
-		const UTCDate = zonedTimeToUtc(unixDate * 1e3, 'UTC');
-		return UTCDate.toISOString();
+		return new Date(unixDate * 1e3).toISOString();
 	}
 
 	/**
