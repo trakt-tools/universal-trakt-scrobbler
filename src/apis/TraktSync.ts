@@ -116,13 +116,13 @@ class _TraktSync extends TraktApi {
 					.filter((item) => item.type === 'show')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: item.getWatchedDate(),
+						watched_at: Utils.convertToISOString(item.getWatchedDate()),
 					})),
 				movies: items
 					.filter((item) => item.type === 'movie')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
-						watched_at: item.getWatchedDate(),
+						watched_at: Utils.convertToISOString(item.getWatchedDate()),
 					})),
 			};
 			const responseText = await Requests.send({

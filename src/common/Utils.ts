@@ -67,6 +67,16 @@ class _Utils {
 	}
 
 	/**
+	 * Converts for required format for trakt api
+	 */
+	convertToISOString(unixDate: number | undefined) {
+		if (!unixDate) {
+			return;
+		}
+		return new Date(unixDate * 1e3).toISOString();
+	}
+
+	/**
 	 * Deeply merges the objects into a new object for immutability.
 	 */
 	mergeObjs<T extends Record<string, unknown>, U extends PartialDeep<T>[]>(
