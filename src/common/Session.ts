@@ -17,7 +17,7 @@ class _Session {
 				this.isLoggedIn = true;
 				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
 			} else {
-				throw auth;
+				throw new Error(JSON.stringify(auth));
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
@@ -34,7 +34,7 @@ class _Session {
 				this.isLoggedIn = true;
 				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
 			} else {
-				throw auth;
+				throw new Error(JSON.stringify(auth));
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
