@@ -27,7 +27,9 @@ class _WakanimTvParser extends ScrobbleParser {
 		// "Deep Insanity THE LOST CHILD Saison 1 - VOSTFR Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
 		// "Ranking of Kings Staffel 1 - Cour 2 (OmU) Folge 12 (OmU.) - Schaue legal auf Wakanim.TV"
 		// "Ranking of Kings Saison 1 - Cour 2 - VOSTFR Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
-		const matches = /(.+) (?:Staffel|Saison|Season) (\d+).+(?:Episode|Folge) (\d+) .+/.exec(titleElement?.textContent ?? '');
+		const matches = /(.+) (?:Staffel|Saison|Season) (\d+).+(?:Episode|Folge) (\d+) .+/.exec(
+			titleElement?.textContent ?? ''
+		);
 
 		if (matches) {
 			[, showTitle, seasonId, episodeId] = matches;
