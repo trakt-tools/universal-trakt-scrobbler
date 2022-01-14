@@ -20,15 +20,13 @@ class _PlayerPlParser extends ScrobbleParser {
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const titleElement = document.querySelector('.seo-visible h1');
-		const episodeTitleElement = document.querySelector('' +
-			'span[data-test-id="nuvi-asset-info-box-title"]'
+		const episodeTitleElement = document.querySelector(
+			'' + 'span[data-test-id="nuvi-asset-info-box-title"]'
 		);
 		const episodeElement = document.querySelector(
 			'span[data-test-id="nuvi-asset-info-box-episode"]'
 		);
-		const seasonElement = document.querySelector(
-			'span[data-test-id="nuvi-asset-info-box-season"]'
-		);
+		const seasonElement = document.querySelector('span[data-test-id="nuvi-asset-info-box-season"]');
 		const id = this.parseItemIdFromUrl();
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
