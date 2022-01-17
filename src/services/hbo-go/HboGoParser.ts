@@ -26,7 +26,7 @@ class _HboGoParser extends ScrobbleParser {
 		const episodeTitle = '';
 		const season = parseInt(seasonId ?? '') || 0;
 		const episode = parseInt(episodeId ?? '') || 0;
-		const id = (titleElement?.textContent ?? '') + '-' + season + '-' + episode;
+		const id = (titleElement?.textContent ?? '') + '-' + String(season) + '-' + String(episode);
 		const type = seasonId ? 'show' : 'movie';
 
 		if (!titleElement) {
