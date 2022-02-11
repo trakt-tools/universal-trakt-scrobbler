@@ -32,6 +32,7 @@ export interface SavedItem extends ItemBase {
 	trakt?: Omit<SavedTraktItem, ''> | null;
 	suggestions?: Omit<Suggestion, ''>[] | null;
 	imageUrl?: string | null;
+	index?: number;
 }
 
 export interface ItemBase {
@@ -103,6 +104,7 @@ export class Item implements IItem {
 			trakt: item.trakt && TraktItem.save(item.trakt),
 			suggestions: item.suggestions,
 			imageUrl: item.imageUrl,
+			index: item.index,
 		};
 	}
 
