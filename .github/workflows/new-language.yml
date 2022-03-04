@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     container: node:lts-alpine
     steps:
-      - name: Install git
-        run: apk add --no-cache git
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install dependencies

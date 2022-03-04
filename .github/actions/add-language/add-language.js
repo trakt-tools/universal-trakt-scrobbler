@@ -1,9 +1,6 @@
 const { getInput, setFailed } = require('@actions/core');
 const { context, getOctokit } = require('@actions/github');
 const axios = require('axios');
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
 const packageJson = require('../../../package.json');
 
 const defaultParams = {
@@ -180,11 +177,16 @@ const addLanguage = async () => {
 		const project = /** @type {CrowdinData<CrowdinProject>} */ (projectResponse.data);
 
 		if (project.data.targetLanguageIds.includes(language.id)) {
+			console.log('Creating comment');
+
 			await octokit.rest.issues.createComment({
 				...defaultParams,
 				issue_number: payload.issue.number,
 				body: `Language already exists: https://crowdin.com/project/universal-trakt-scrobbler/${language.id}`,
 			});
+
+			console.log('Closing issue');
+
 			await octokit.rest.issues.update({
 				...defaultParams,
 				issue_number: payload.issue.number,
@@ -193,44 +195,6 @@ const addLanguage = async () => {
 
 			return;
 		}
-
-		const localesPath = path.resolve(__dirname, '../../../src/_locales');
-		const localePath = path.resolve(localesPath, language.id);
-		fs.mkdirSync(localePath);
-		fs.copyFileSync(
-			path.resolve(localesPath, 'en', 'messages.json'),
-			path.resolve(localePath, 'messages.json')
-		);
-
-		const branchName = `new-language-${language.id}`;
-		const commitName = `Add new language: ${language.name}`;
-
-		console.log('Performing git commands');
-
-		execSync('git config --global user.email "trakt.tools.bot@gmail.com"');
-		execSync('git config --global user.name "trakt-tools-bot"');
-		execSync(`git checkout -B ${branchName}`);
-		execSync('git add .');
-		execSync(`git commit -m "${commitName}"`);
-		execSync(`git push -u origin ${branchName}`);
-
-		console.log('Creating PR');
-
-		await octokit.rest.pulls.create({
-			...defaultParams,
-			base: 'master',
-			head: branchName,
-			title: commitName,
-			body: `Fixes #${payload.issue.number}`,
-		});
-
-		console.log('Creating comment');
-
-		await octokit.rest.issues.createComment({
-			...defaultParams,
-			issue_number: payload.issue.number,
-			body: `The language is being added. Once it's done, go to https://crowdin.com/project/universal-trakt-scrobbler/${language.id} to translate the messages.`,
-		});
 
 		console.log('Adding language on Crowdin');
 
@@ -252,6 +216,22 @@ const addLanguage = async () => {
 		}
 
 		await api.patch(projectUrl, data);
+
+		console.log('Creating comment');
+
+		await octokit.rest.issues.createComment({
+			...defaultParams,
+			issue_number: payload.issue.number,
+			body: `Language added! Go to https://crowdin.com/project/universal-trakt-scrobbler/${language.id} to translate the messages.`,
+		});
+
+		console.log('Closing issue');
+
+		await octokit.rest.issues.update({
+			...defaultParams,
+			issue_number: payload.issue.number,
+			state: 'closed',
+		});
 	}
 };
 
