@@ -1,0 +1,28 @@
+name: New language
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  add_language:
+    name: Add new language
+    if: ${{ startsWith(github.event.issue.title, 'Add new language') }}
+    runs-on: ubuntu-latest
+    container: node:lts-alpine
+    steps:
+      - name: Install git
+        run: apk add --no-cache git
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          apk add --no-cache curl
+          curl -L https://unpkg.com/@pnpm/self-installer | node
+          pnpm install
+      - name: Add language
+        uses: ./.github/actions/add-language
+        with:
+          trakt-tools-bot-token: '${{ secrets.TRAKT_TOOLS_BOT_TOKEN }}'
+          crowdin-api-key: '${{ secrets.CROWDIN_API_KEY }}'
+          crowdin-project-id: '${{ secrets.CROWDIN_PROJECT_ID }}'

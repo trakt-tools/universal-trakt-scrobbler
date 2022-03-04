@@ -1,6 +1,8 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@actions/core': ^1.6.0
+  '@actions/github': ^5.0.0
   '@babel/core': ^7.15.5
   '@babel/plugin-transform-runtime': ^7.15.0
   '@babel/preset-env': ^7.15.6
@@ -93,6 +95,8 @@ dependencies:
   webextension-polyfill: 0.8.0
 
 devDependencies:
+  '@actions/core': 1.6.0
+  '@actions/github': 5.0.0
   '@babel/core': 7.15.5
   '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.5
   '@babel/preset-env': 7.15.6_@babel+core@7.15.5
@@ -143,6 +147,36 @@ devDependencies:
   webpack-cli: 4.8.0_webpack@5.53.0
 
 packages:
+  /@actions/core/1.6.0:
+    resolution:
+      {
+        integrity: sha512-NB1UAZomZlCV/LmJqkLhNTqtKfFXJZAUPcfl/zqG7EfsQdeUJtaWO98SGbuQ3pydJ3fHl2CvI/51OKYlCYYcaw==,
+      }
+    dependencies:
+      '@actions/http-client': 1.0.11
+    dev: true
+
+  /@actions/github/5.0.0:
+    resolution:
+      {
+        integrity: sha512-QvE9eAAfEsS+yOOk0cylLBIO/d6WyWIOvsxxzdrPFaud39G6BOkUwScXZn1iBzQzHyu9SBkkLSWlohDWdsasAQ==,
+      }
+    dependencies:
+      '@actions/http-client': 1.0.11
+      '@octokit/core': 3.5.1
+      '@octokit/plugin-paginate-rest': 2.16.3_@octokit+core@3.5.1
+      '@octokit/plugin-rest-endpoint-methods': 5.10.4_@octokit+core@3.5.1
+    dev: true
+
+  /@actions/http-client/1.0.11:
+    resolution:
+      {
+        integrity: sha512-VRYHGQV1rqnROJqdMvGUbY/Kn8vriQe/F9HR2AlYHzmKuM/p3kjNuXhmdBfcVgsvRWTz5C5XW5xvndZrVBuAYg==,
+      }
+    dependencies:
+      tunnel: 0.0.6
+    dev: true
+
   /@babel/code-frame/7.12.11:
     resolution:
       {
@@ -8426,6 +8460,14 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 4.4.3
+    dev: true
+
+  /tunnel/0.0.6:
+    resolution:
+      {
+        integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==,
+      }
+    engines: { node: '>=0.6.11 <=0.7.0 || >=0.7.3' }
     dev: true
 
   /type-check/0.4.0:

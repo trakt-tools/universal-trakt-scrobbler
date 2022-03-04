@@ -39,18 +39,6 @@ const getJsOverride = () => {
 					allowTemplateLiterals: false,
 				},
 			],
-			'no-restricted-imports': [
-				'error',
-				{
-					patterns: [
-						{
-							group: ['.*'],
-							message:
-								'Please use aliases instead of relative paths for imports (see tsconfig.json).',
-						},
-					],
-				},
-			],
 			'no-shadow': [
 				'error',
 				{
@@ -60,6 +48,25 @@ const getJsOverride = () => {
 			'react/jsx-uses-react': 'off',
 			'react/react-in-jsx-scope': 'off',
 		},
+		overrides: [
+			{
+				files: ['**/src/**/*.{js,jsx,ts,tsx}'],
+				rules: {
+					'no-restricted-imports': [
+						'error',
+						{
+							patterns: [
+								{
+									group: ['.*'],
+									message:
+										'Please use aliases instead of relative paths for imports (see tsconfig.json).',
+								},
+							],
+						},
+					],
+				},
+			},
+		],
 	};
 };
 

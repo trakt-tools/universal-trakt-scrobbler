@@ -1,0 +1,15 @@
+name: 'Add language'
+description: 'Adds a language to Crowdin'
+inputs:
+  trakt-tools-bot-token:
+    description: 'Token for creating comments under the trakt-tools-bot account'
+    required: true
+  crowdin-api-key:
+    description: 'API key for interacting with Crowdin API'
+    required: true
+  crowdin-project-id:
+    description: 'Project ID on Crowdin'
+    required: true
+runs:
+  using: 'node16'
+  main: 'add-language.js'

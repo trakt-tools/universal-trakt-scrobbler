@@ -60,6 +60,8 @@
 		"eslint-plugin-react": "v7.25.2 has a breaking bug"
 	},
 	"devDependencies": {
+		"@actions/core": "^1.6.0",
+		"@actions/github": "^5.0.0",
 		"@babel/core": "^7.15.5",
 		"@babel/plugin-transform-runtime": "^7.15.0",
 		"@babel/preset-env": "^7.15.6",
