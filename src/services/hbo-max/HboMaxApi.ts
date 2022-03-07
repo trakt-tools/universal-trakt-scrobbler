@@ -410,8 +410,8 @@ class _HboMaxApi extends ServiceApi {
 		return item;
 	}
 
-	getSession(): Promise<Partial<HboMaxSession> | null> {
-		return ScriptInjector.inject<Partial<HboMaxSession>, { clientId: string }>(
+	async getSession(): Promise<Partial<HboMaxSession> | null> {
+		const result = await ScriptInjector.inject<Partial<HboMaxSession>, { clientId: string }>(
 			this.id,
 			'session',
 			this.HOST_URL,
@@ -426,7 +426,7 @@ class _HboMaxApi extends ServiceApi {
 					session.auth = {
 						accessToken: authObj.accessToken,
 						refreshToken: authObj.refreshToken,
-						expiresAt: Utils.unix(authObj.accessExpiration),
+						expiresAt: authObj.accessExpiration,
 					};
 				}
 
@@ -441,6 +441,10 @@ class _HboMaxApi extends ServiceApi {
 			},
 			{ clientId: this.CLIENT_ID }
 		);
+		if (result?.auth) {
+			result.auth.expiresAt = Utils.unix(result.auth.expiresAt);
+		}
+		return result;
 	}
 }
 
