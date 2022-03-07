@@ -57,7 +57,9 @@ class _ScriptInjector {
 	updateContentScripts() {
 		this.contentScripts = getServices()
 			.filter(
-				(service) => service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble
+				(service) =>
+					(service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble) ||
+					(service.hasSync && BrowserStorage.options.services[service.id].sync)
 			)
 			.map((service) => ({
 				matches: service.hostPatterns.map((hostPattern) =>
@@ -69,12 +71,14 @@ class _ScriptInjector {
 	}
 
 	checkTabListener() {
-		const scrobblerEnabled = getServices().some(
-			(service) => service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble
+		const shouldInject = getServices().some(
+			(service) =>
+				(service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble) ||
+				(service.hasSync && BrowserStorage.options.services[service.id].sync)
 		);
-		if (scrobblerEnabled && !browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
+		if (shouldInject && !browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
 			browser.tabs.onUpdated.addListener(this.onTabUpdated);
-		} else if (!scrobblerEnabled && browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
+		} else if (!shouldInject && browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
 			browser.tabs.onUpdated.removeListener(this.onTabUpdated);
 		}
 	}

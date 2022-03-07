@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _VtmgoBeParser extends ScrobbleParser {
 	constructor() {
 		super(VtmgoBeApi, {
-			watchingUrlRegex: /\/afspelen\/(.+)/, // https://vtm.be/vtmgo/afspelen/eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d => eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d
+			watchingUrlRegex: /\/afspelen\/(?<id>.+)/, // https://vtm.be/vtmgo/afspelen/eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d => eabdf5ee5-66a7-46dd-b0d2-24d6e2cf513d
 		});
 	}
 
@@ -19,10 +19,12 @@ class _VtmgoBeParser extends ScrobbleParser {
 		let subTitle: string | undefined = undefined;
 
 		// Shows get a title like this (dutch example): "Huis Gesmaakt met Gert Voorjans S1 A1 Aflevering 1"
-		const matches = /(.+) S(\d+) A(\d+) (.+)/.exec(titleElement?.textContent ?? '');
+		const matches = /(?<showTitle>.+) S(?<seasonId>\d+) A(?<episodeId>\d+) (?<subTitle>.+)/.exec(
+			titleElement?.textContent ?? ''
+		);
 
-		if (matches) {
-			[, showTitle, seasonId, episodeId, subTitle] = matches;
+		if (matches?.groups) {
+			({ showTitle, seasonId, episodeId, subTitle } = matches.groups);
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';

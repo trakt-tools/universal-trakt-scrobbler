@@ -10,7 +10,7 @@ class _HboMaxParser extends ScrobbleParser {
 			 * - Episode: https://play.hbomax.com/episode/urn:hbo:episode:XXXXXXXXXXXXXXXXXXXX
 			 * - Movie: https://play.hbomax.com/feature/urn:hbo:feature:XXXXXXXXXXXXXXXXXXXX
 			 */
-			watchingUrlRegex: /\/episode\/(.+)|\/feature\/(.+)/,
+			watchingUrlRegex: /\/(?:episode|feature)\/(?<id>.+)/,
 		});
 	}
 }

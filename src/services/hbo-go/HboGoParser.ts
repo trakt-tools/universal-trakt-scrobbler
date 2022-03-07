@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _HboGoParser extends ScrobbleParser {
 	constructor() {
 		super(HboGoApi, {
-			watchingUrlRegex: /\.+\/(.+)\/.+/, // https://hbogo.pl/series/euphoria/season-2 --> no id in the url!
+			watchingUrlRegex: /\.+\/(?<id>.+)\/.+/, // https://hbogo.pl/series/euphoria/season-2 --> no id in the url!
 		});
 	}
 
@@ -16,10 +16,12 @@ class _HboGoParser extends ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 
-		const matches = /.+ (\d+) .+ (\d+)/.exec(subTitleElement?.textContent ?? '');
+		const matches = /.+ (?<seasonId>\d+) .+ (?<episodeId>\d+)/.exec(
+			subTitleElement?.textContent ?? ''
+		);
 
-		if (matches) {
-			[, seasonId, episodeId] = matches;
+		if (matches?.groups) {
+			({ seasonId, episodeId } = matches.groups);
 		}
 
 		const title = titleElement?.textContent ?? '';

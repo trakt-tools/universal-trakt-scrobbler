@@ -163,7 +163,7 @@ export const CorrectionDialog = (): JSX.Element => {
 	};
 
 	const validUrlRegex =
-		/\/shows\/([\w-]+)\/seasons\/([\w-]+)\/episodes\/([\w-]+)|\/movies\/([\w-]+)/;
+		/\/shows\/(?<show>[\w-]+)\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
 
 	const isValidUrl = (url: string): boolean => {
 		return !!validUrlRegex.exec(url);
@@ -171,13 +171,17 @@ export const CorrectionDialog = (): JSX.Element => {
 
 	const cleanUrl = (url: string): string => {
 		const matches = validUrlRegex.exec(url);
-		if (!matches) {
+		if (!matches?.groups) {
 			return '';
 		}
-		const [, showOrMovie, season, episode] = matches;
-		return season
-			? `/shows/${showOrMovie}/seasons/${season}/episodes/${episode}`
-			: `/movies/${showOrMovie}`;
+		const { show, season, episode, movie } = matches.groups;
+		if (show && season && episode) {
+			return `/shows/${show}/seasons/${season}/episodes/${episode}`;
+		}
+		if (movie) {
+			return `/movies/${movie}`;
+		}
+		return '';
 	};
 
 	useEffect(() => {

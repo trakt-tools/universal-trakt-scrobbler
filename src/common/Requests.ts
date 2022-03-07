@@ -207,11 +207,11 @@ class _Requests {
 		if (!BrowserStorage.options.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;
 		}
-		const domainMatches = /https?:\/\/(www\.)?(.+?)(\/.*)?$/.exec(request.url);
-		if (!domainMatches) {
+		const domainMatches = /https?:\/\/(?:www\.)?(?:.+?)(?<domain>\/.*)?$/.exec(request.url);
+		if (!domainMatches?.groups) {
 			return;
 		}
-		const [, , domain] = domainMatches;
+		const { domain } = domainMatches.groups;
 		const tab = await browser.tabs.get(tabId);
 		const cookies = await browser.cookies.getAll({
 			domain,
