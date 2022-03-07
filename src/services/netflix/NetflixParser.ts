@@ -4,7 +4,7 @@ import { ScrobbleParser } from '@common/ScrobbleParser';
 class _NetflixParser extends ScrobbleParser {
 	constructor() {
 		super(NetflixApi, {
-			watchingUrlRegex: /\/watch\/(\d+)/,
+			watchingUrlRegex: /\/watch\/(?<id>\d+)/,
 		});
 	}
 }

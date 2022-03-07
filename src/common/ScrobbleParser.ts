@@ -11,7 +11,7 @@ export interface ScrobbleParserOptions {
 	videoPlayerSelector: string | null;
 
 	/**
-	 * The URL regex to detect if the user is watching something, if possible. If the item ID can be extracted from the URL, make sure that it's the first capture group.
+	 * The URL regex to detect if the user is watching something, if possible. If the item ID can be extracted from the URL, make sure that it's in a named capture group called "id".
 	 *
 	 * *Default:* `null`
 	 */
@@ -285,7 +285,7 @@ export abstract class ScrobbleParser {
 	}
 
 	protected parseItemIdFromUrl() {
-		const id = this.options.watchingUrlRegex?.exec(this.getLocation())?.[1] ?? null;
+		const { id = null } = this.options.watchingUrlRegex?.exec(this.getLocation())?.groups ?? {};
 		return id;
 	}
 

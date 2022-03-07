@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _GoplayBeParser extends ScrobbleParser {
 	constructor() {
 		super(GoplayBeApi, {
-			watchingUrlRegex: /\/video\/.+\/([^#]+)/, // https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-1#autoplay => hetisingewikkeld-s2-aflevering-1
+			watchingUrlRegex: /\/video\/.+\/(?<id>[^#]+)/, // https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-1#autoplay => hetisingewikkeld-s2-aflevering-1
 		});
 	}
 
@@ -18,10 +18,12 @@ class _GoplayBeParser extends ScrobbleParser {
 		let episodeId: string | null = null;
 
 		// Shows get a title like this (dutch example): "#hetisingewikkeld - S2 - Aflevering 1"
-		const matches = /(.+) - S(\d+) - Aflevering (\d+)/.exec(titleElement?.textContent ?? '');
+		const matches = /(?<showTitle>.+) - S(?<seasonId>\d+) - Aflevering (?<episodeId>\d+)/.exec(
+			titleElement?.textContent ?? ''
+		);
 
-		if (matches) {
-			[, showTitle, seasonId, episodeId] = matches;
+		if (matches?.groups) {
+			({ showTitle, seasonId, episodeId } = matches.groups);
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';

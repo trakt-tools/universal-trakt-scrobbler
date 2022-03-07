@@ -6,7 +6,7 @@ class _PlayerPlParser extends ScrobbleParser {
 	constructor() {
 		super(PlayerPlApi, {
 			videoPlayerSelector: 'video', // This is the default option, so it doesn't need to be specified
-			watchingUrlRegex: /\/.+-online\/(.+)/,
+			watchingUrlRegex: /\/.+-online\/(?<id>.+)/,
 			// https://player.pl/programy-online/top-model-odcinki,132
 			// https://player.pl/seriale-online/pulapka-odcinki,13643
 			// https://player.pl/programy-online/kuchenne-rewolucje-odcinki,114
@@ -31,12 +31,12 @@ class _PlayerPlParser extends ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 
-		const matches = /Sezon (\d+),.+dcinek (\d+)/.exec(
+		const matches = /Sezon (?<seasonId>\d+),.+dcinek (?<episodeId>\d+)/.exec(
 			(seasonElement?.textContent ?? '') + (episodeElement?.textContent ?? '')
 		);
 
-		if (matches) {
-			[, seasonId, episodeId] = matches;
+		if (matches?.groups) {
+			({ seasonId, episodeId } = matches.groups);
 		}
 
 		const title = titleElement?.textContent ?? '';

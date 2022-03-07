@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _DisneyplusParser extends ScrobbleParser {
 	constructor() {
 		super(DisneyplusApi, {
-			watchingUrlRegex: /\/video\/(.+)/, // https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d => f3f11053-d810-4b92-9c95-567bef5f215d
+			watchingUrlRegex: /\/video\/(?<id>.+)/, // https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d => f3f11053-d810-4b92-9c95-567bef5f215d
 		});
 	}
 
@@ -23,10 +23,13 @@ class _DisneyplusParser extends ScrobbleParser {
 		let subTitle: string | undefined = undefined;
 
 		// Shows get a subtitle like this (dutch example): "S1: afl. 6 One World, One People"
-		const matches = /(.+?(\d+).+?(\d+) )?(.+)/.exec(subTitleElement?.textContent ?? '');
+		const matches =
+			/(?<seasonAndEpisode>.+?(?<seasonStr>\d+).+?(?<episodeStr>\d+) )?(?<subTitle>.+)/.exec(
+				subTitleElement?.textContent ?? ''
+			);
 
-		if (matches) {
-			[, seasonAndEpisode, seasonStr, episodeStr, subTitle] = matches;
+		if (matches?.groups) {
+			({ seasonAndEpisode, seasonStr, episodeStr, subTitle } = matches.groups);
 		}
 
 		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;

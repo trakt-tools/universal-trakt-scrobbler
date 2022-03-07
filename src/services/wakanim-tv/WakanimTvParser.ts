@@ -5,7 +5,7 @@ import { Item } from '@models/Item';
 class _WakanimTvParser extends ScrobbleParser {
 	constructor() {
 		super(WakanimTvApi, {
-			watchingUrlRegex: /\/.+\/episode\/(\d+)/,
+			watchingUrlRegex: /\/.+\/episode\/(?<id>\d+)/,
 			// https://www.wakanim.tv/fr/v2/catalogue/episode/34687/ranking-of-kings-saison-1-cour-2-vostfr-episode-12
 			// https://www.wakanim.tv/fr/v2/catalogue/episode/38334/police-in-a-pod-saison-1-episode-1-vostfr
 			// https://www.wakanim.tv/fr/v2/catalogue/episode/34941/ancient-girls-frame-saison-1-episode-12-vostfr
@@ -27,12 +27,13 @@ class _WakanimTvParser extends ScrobbleParser {
 		// "Deep Insanity THE LOST CHILD Saison 1 - VOSTFR Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
 		// "Ranking of Kings Staffel 1 - Cour 2 (OmU) Folge 12 (OmU.) - Schaue legal auf Wakanim.TV"
 		// "Ranking of Kings Saison 1 - Cour 2 - VOSTFR Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
-		const matches = /(.+) (?:Staffel|Saison|Season) (\d+).+(?:Episode|Folge) (\d+) .+/.exec(
-			titleElement?.textContent ?? ''
-		);
+		const matches =
+			/(?<showTitle>.+) (?:Staffel|Saison|Season) (?<seasonId>\d+).+(?:Episode|Folge) (?<episodeId>\d+) .+/.exec(
+				titleElement?.textContent ?? ''
+			);
 
-		if (matches) {
-			[, showTitle, seasonId, episodeId] = matches;
+		if (matches?.groups) {
+			({ showTitle, seasonId, episodeId } = matches.groups);
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';
