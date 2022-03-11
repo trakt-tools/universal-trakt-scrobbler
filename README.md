@@ -87,9 +87,17 @@ If you find any other problems or have suggestions or questions, feel free to [o
 
 ### Help Translate
 
-Help us translate the extension through Crowdin at https://crowdin.com/project/universal-trakt-scrobbler. You'll need to create a Crowdin account (you can sign in with your GitHub account). Then select the language you wish to contribute to and start translating (don't forget to save your translations). If a language isn't available yet, open an issue requesting it to be added.
+Help us translate the extension through Crowdin at https://crowdin.com/project/universal-trakt-scrobbler. You'll need to create a Crowdin account (you can sign in with your GitHub account). Then select the language you wish to contribute to and start translating (don't forget to save your translations). If a language isn't available yet, open an issue [here](https://github.com/trakt-tools/universal-trakt-scrobbler/issues/new?assignees=trakt-tools-bot&labels=new+language&template=new-language.md&title=Add+new+language%3A+%5BLANGUAGE%5D).
 
 You can also vote for translations, which helps confirm good translations and flag inaccurate ones.
+
+If you want to get credit on GitHub for the translations, make sure your Crowdin username is the same as the GitHub one, or similar, so we know it's you. Once the PR is merged, you'll appear as one of the contributors in the commit. Example:
+
+![Screenshot 2022-03-11 100844](https://user-images.githubusercontent.com/25509361/157872624-e5f70050-8e29-4f21-b0b6-0e2e274c3ce2.png)
+
+**For reviewers:**
+
+Never delete the `translations` branch after merging PRs from Crowdin, as Crowdin uses it to sync changes. When merging PRs, make sure to change the generic "New Crowdin updates" title to a more specific title detailing exactly which languages were updated.
 
 ### Development
 
