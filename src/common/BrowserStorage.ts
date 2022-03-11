@@ -15,9 +15,13 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV7;
+export type StorageValues = StorageValuesV8;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
+
+export type StorageValuesV8 = Omit<StorageValuesV7, 'version'> & {
+	version?: 8;
+};
 
 export type StorageValuesV7 = Omit<StorageValuesV6, 'version' | 'hboGoApiParams'> & {
 	version?: 7;
@@ -211,7 +215,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 7;
+	readonly currentVersion = 8;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -349,6 +353,18 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 8 && this.currentVersion >= 8) {
+			console.log('Upgrading to v8...');
+
+			const { options } = await this.get('options');
+
+			if (options?.services && 'telia-play' in options.services) {
+				delete options.services['telia-play'];
+
+				await this.doSet({ options }, true);
+			}
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -359,6 +375,10 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 7 && this.currentVersion <= 7) {
+			console.log('Downgrading to v7...');
+		}
+
 		if (version > 6 && this.currentVersion <= 6) {
 			console.log('Downgrading to v6...');
 		}
