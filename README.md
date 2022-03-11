@@ -66,7 +66,6 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |      Netflix      |    ✔️    |  ✔️  | -           |
 |        NRK        |    ✔️    |  ✔️  | -           |
 |    Streamz BE     |    ✔️    |  ❌  | -           |
-|    Telia Play     |    ❌    |  ✔️  | -           |
 |      Viaplay      |    ✔️    |  ✔️  | -           |
 |     VRTNu BE      |    ✔️    |  ❌  | -           |
 |     VTMGo BE      |    ✔️    |  ❌  | -           |
