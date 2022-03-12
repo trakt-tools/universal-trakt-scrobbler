@@ -7,6 +7,7 @@ import { Errors } from '@common/Errors';
 import { Messaging } from '@common/Messaging';
 import { Notifications } from '@common/Notifications';
 import { Requests } from '@common/Requests';
+import { RequestsManager } from '@common/RequestsManager';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
@@ -23,7 +24,7 @@ const init = async () => {
 	BrowserAction.init();
 	Errors.init();
 	Notifications.init();
-	Requests.init();
+	RequestsManager.init();
 	ScriptInjector.init();
 	Cache.init();
 	AutoSync.init();
