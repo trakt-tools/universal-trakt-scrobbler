@@ -1,7 +1,7 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TmdbApi } from '@apis/TmdbApi';
-import { BrowserStorage, ScrobblingDetails } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
+import { ScrobblingDetails } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { PopupNotWatching } from '@components/PopupNotWatching';
 import { PopupWatching } from '@components/PopupWatching';
@@ -26,7 +26,7 @@ export const HomePage = (): JSX.Element => {
 
 	useEffect(() => {
 		const getScrobblingItem = async (): Promise<void> => {
-			const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			setContent({
 				isLoading: false,
 				scrobblingItem: scrobblingDetails?.item ? Item.load(scrobblingDetails.item) : null,
@@ -39,17 +39,17 @@ export const HomePage = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SCROBBLE_START', null, onScrobbleStart);
-			EventDispatcher.subscribe('SCROBBLE_PAUSE', null, onScrobblePause);
-			EventDispatcher.subscribe('SCROBBLE_STOP', null, onScrobbleStop);
-			EventDispatcher.subscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
+			Shared.events.subscribe('SCROBBLE_START', null, onScrobbleStart);
+			Shared.events.subscribe('SCROBBLE_PAUSE', null, onScrobblePause);
+			Shared.events.subscribe('SCROBBLE_STOP', null, onScrobbleStop);
+			Shared.events.subscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SCROBBLE_START', null, onScrobbleStart);
-			EventDispatcher.unsubscribe('SCROBBLE_PAUSE', null, onScrobblePause);
-			EventDispatcher.unsubscribe('SCROBBLE_STOP', null, onScrobbleStop);
-			EventDispatcher.unsubscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
+			Shared.events.unsubscribe('SCROBBLE_START', null, onScrobbleStart);
+			Shared.events.unsubscribe('SCROBBLE_PAUSE', null, onScrobblePause);
+			Shared.events.unsubscribe('SCROBBLE_STOP', null, onScrobbleStop);
+			Shared.events.unsubscribe('SCROBBLE_PROGRESS', null, onScrobbleProgress);
 		};
 
 		const onScrobbleStart = (data: ScrobblingDetails) => {
@@ -102,14 +102,14 @@ export const HomePage = (): JSX.Element => {
 		const loadData = async () => {
 			if (
 				!content.scrobblingItem ||
-				(BrowserStorage.options.sendReceiveSuggestions &&
+				(Shared.storage.options.sendReceiveSuggestions &&
 					typeof content.scrobblingItem.suggestions !== 'undefined') ||
 				typeof content.scrobblingItem.imageUrl !== 'undefined'
 			) {
 				return;
 			}
 			let newItem = content.scrobblingItem;
-			if (BrowserStorage.options.sendReceiveSuggestions) {
+			if (Shared.storage.options.sendReceiveSuggestions) {
 				[newItem] = await CorrectionApi.loadSuggestions([newItem]);
 			}
 			[newItem] = await TmdbApi.loadImages([newItem]);

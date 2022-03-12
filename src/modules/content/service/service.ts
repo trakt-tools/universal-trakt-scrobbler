@@ -1,5 +1,6 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { RequestsManager } from '@common/RequestsManager';
 import { ScriptInjector } from '@common/ScriptInjector';
@@ -11,6 +12,7 @@ export const init = async (serviceId: string) => {
 	Shared.pageType = 'content';
 	await BrowserStorage.init();
 	Errors.init();
+	EventDispatcher.init();
 	RequestsManager.init();
 	ScriptInjector.init();
 	getScrobbleController(serviceId).init();

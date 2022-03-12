@@ -1,9 +1,9 @@
 import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
-import { Errors } from '@common/Errors';
 import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { SetOptional } from 'type-fest';
@@ -332,8 +332,8 @@ class _AmazonPrimeApi extends ServiceApi {
 				nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0].titleId ??
 				'';
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to get item.', err);
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to get item.', err);
 			}
 		}
 		return item;

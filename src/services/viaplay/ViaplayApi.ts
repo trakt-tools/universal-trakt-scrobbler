@@ -1,7 +1,7 @@
 import { ViaplayService } from '@/viaplay/ViaplayService';
 import { ServiceApi } from '@apis/ServiceApi';
-import { Errors } from '@common/Errors';
 import { Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 
@@ -234,8 +234,8 @@ class _ViaplayApi extends ServiceApi {
 				(JSON.parse(responseText) as ViaplayProductQuery)._embedded['viaplay:product']
 			);
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to get item.', err);
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to get item.', err);
 			}
 		}
 		return item;

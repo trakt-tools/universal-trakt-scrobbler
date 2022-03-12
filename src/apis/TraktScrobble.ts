@@ -1,7 +1,4 @@
 import { TraktApi } from '@apis/TraktApi';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
@@ -47,7 +44,7 @@ class _TraktScrobble extends TraktApi {
 			return;
 		}
 		await this.send(item.trakt, this.START);
-		let { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+		let { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (scrobblingDetails) {
 			scrobblingDetails.isPaused = false;
 		} else {
@@ -57,8 +54,8 @@ class _TraktScrobble extends TraktApi {
 				isPaused: false,
 			};
 		}
-		await BrowserStorage.set({ scrobblingDetails }, false);
-		await EventDispatcher.dispatch('SCROBBLE_START', null, scrobblingDetails);
+		await Shared.storage.set({ scrobblingDetails }, false);
+		await Shared.events.dispatch('SCROBBLE_START', null, scrobblingDetails);
 	}
 
 	async pause(item: Item): Promise<void> {
@@ -66,16 +63,16 @@ class _TraktScrobble extends TraktApi {
 			return;
 		}
 		await this.send(item.trakt, this.PAUSE);
-		const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+		const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (scrobblingDetails) {
 			scrobblingDetails.isPaused = true;
-			await BrowserStorage.set({ scrobblingDetails }, false);
-			await EventDispatcher.dispatch('SCROBBLE_PAUSE', null, scrobblingDetails);
+			await Shared.storage.set({ scrobblingDetails }, false);
+			await Shared.events.dispatch('SCROBBLE_PAUSE', null, scrobblingDetails);
 		}
 	}
 
 	async stop(item?: Item): Promise<void> {
-		const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+		const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (!scrobblingDetails) {
 			return;
 		}
@@ -88,8 +85,8 @@ class _TraktScrobble extends TraktApi {
 		if (item.trakt) {
 			await this.send(item.trakt, this.STOP);
 		}
-		await BrowserStorage.remove('scrobblingDetails', false);
-		await EventDispatcher.dispatch('SCROBBLE_STOP', null, scrobblingDetails);
+		await Shared.storage.remove('scrobblingDetails', false);
+		await Shared.events.dispatch('SCROBBLE_STOP', null, scrobblingDetails);
 	}
 
 	async send(item: TraktItem, scrobbleType: number): Promise<void> {
@@ -115,13 +112,13 @@ class _TraktScrobble extends TraktApi {
 				method: 'POST',
 				body: data,
 			});
-			await EventDispatcher.dispatch('SCROBBLE_SUCCESS', null, {
+			await Shared.events.dispatch('SCROBBLE_SUCCESS', null, {
 				item: TraktItem.save(item),
 				scrobbleType,
 			});
 		} catch (err) {
-			if (Errors.validate(err)) {
-				await EventDispatcher.dispatch('SCROBBLE_ERROR', null, {
+			if (Shared.errors.validate(err)) {
+				await Shared.events.dispatch('SCROBBLE_ERROR', null, {
 					item: TraktItem.save(item),
 					scrobbleType,
 					error: err,

@@ -1,5 +1,4 @@
 import { TraktAuth } from '@apis/TraktAuth';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
@@ -166,7 +165,7 @@ class _Requests {
 		if (tabId === null) {
 			return;
 		}
-		if (!BrowserStorage.options.grantCookies || !browser.cookies || !browser.webRequest) {
+		if (!Shared.storage.options.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;
 		}
 		const domainMatches = /https?:\/\/(?:www\.)?(?:.+?)(?<domain>\/.*)?$/.exec(request.url);

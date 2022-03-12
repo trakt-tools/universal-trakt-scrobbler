@@ -1,8 +1,6 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
 import { RequestError, Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
@@ -135,11 +133,11 @@ class _TraktSearch extends TraktApi {
 				});
 			}
 			if (Shared.pageType === 'content') {
-				await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
+				await Shared.events.dispatch('SEARCH_SUCCESS', null, { searchItem });
 			}
 		} catch (err) {
-			if (Shared.pageType === 'content' && Errors.validate(err)) {
-				await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err });
+			if (Shared.pageType === 'content' && Shared.errors.validate(err)) {
+				await Shared.events.dispatch('SEARCH_ERROR', null, { error: err });
 			}
 			throw err;
 		}

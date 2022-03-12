@@ -1,4 +1,7 @@
 import browser from 'webextension-polyfill';
+import type { BrowserStorage } from '@common/BrowserStorage';
+import type { Errors } from '@common/Errors';
+import type { EventDispatcher } from '@common/Events';
 
 export interface SharedValues {
 	DATABASE_URL: string;
@@ -14,6 +17,10 @@ export interface SharedValues {
 	tabId: number | null;
 	redirectPath?: string;
 	dateFormat: string;
+
+	storage: typeof BrowserStorage;
+	errors: typeof Errors;
+	events: typeof EventDispatcher;
 }
 
 export type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
@@ -44,4 +51,8 @@ export const Shared: SharedValues = {
 	pageType: 'content',
 	tabId: null,
 	dateFormat: 'EEE d MMM yyyy, H:mm:ss',
+
+	storage: {} as typeof BrowserStorage,
+	errors: {} as typeof Errors,
+	events: {} as typeof EventDispatcher,
 };

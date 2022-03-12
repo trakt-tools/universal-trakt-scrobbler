@@ -1,8 +1,7 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Cache, CacheItem } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
 import { Requests } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { SyncStore } from '@stores/SyncStore';
@@ -151,14 +150,14 @@ class _TraktSync extends TraktApi {
 			}
 			await Cache.set({ traktHistoryItems: traktHistoryItemsCache });
 			await store.update(newItems, true);
-			await EventDispatcher.dispatch('HISTORY_SYNC_SUCCESS', null, {
+			await Shared.events.dispatch('HISTORY_SYNC_SUCCESS', null, {
 				added: responseJson.added,
 			});
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to sync history.', err);
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to sync history.', err);
 				await store.update(newItems, true);
-				await EventDispatcher.dispatch('HISTORY_SYNC_ERROR', null, { error: err });
+				await Shared.events.dispatch('HISTORY_SYNC_ERROR', null, { error: err });
 			}
 		}
 	}

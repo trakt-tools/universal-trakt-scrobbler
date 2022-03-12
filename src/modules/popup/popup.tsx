@@ -1,5 +1,6 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
@@ -11,6 +12,7 @@ const init = async () => {
 	Shared.pageType = 'popup';
 	await BrowserStorage.init();
 	Errors.init();
+	EventDispatcher.init();
 	RequestsManager.init();
 	Messaging.init();
 	const root = document.querySelector('#root');

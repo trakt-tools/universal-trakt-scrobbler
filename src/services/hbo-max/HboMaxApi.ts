@@ -1,9 +1,9 @@
 import { HboMaxService } from '@/hbo-max/HboMaxService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
-import { Errors } from '@common/Errors';
 import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 
@@ -402,8 +402,8 @@ class _HboMaxApi extends ServiceApi {
 				item = this.parseItemMetadata(id, itemMetadata);
 			}
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to get item.', err);
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to get item.', err);
 			}
 		}
 

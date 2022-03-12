@@ -1,4 +1,4 @@
-import { Errors } from '@common/Errors';
+import { Shared } from '@common/Shared';
 import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface ErrorBoundaryProps extends WithChildren {}
@@ -16,7 +16,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 	}
 
 	componentDidCatch(error: Error, info: ErrorInfo): void {
-		Errors.log(error, info);
+		Shared.errors.log(error, info);
 		this.setState({
 			hasError: true,
 		});

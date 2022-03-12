@@ -1,5 +1,6 @@
-import { DialogShowData, EventDispatcher } from '@common/Events';
+import { DialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import {
 	Button,
@@ -34,11 +35,11 @@ export const CustomDialog = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('DIALOG_SHOW', null, showDialog);
+			Shared.events.subscribe('DIALOG_SHOW', null, showDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('DIALOG_SHOW', null, showDialog);
+			Shared.events.unsubscribe('DIALOG_SHOW', null, showDialog);
 		};
 
 		const showDialog = (data: DialogShowData) => {

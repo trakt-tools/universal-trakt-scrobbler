@@ -1,8 +1,8 @@
 import { ServiceApi } from '@apis/ServiceApi';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { StorageOptionsChangeData } from '@common/Events';
 import { getScrobbleController, ScrobbleController } from '@common/ScrobbleController';
 import { ScrobbleParser } from '@common/ScrobbleParser';
+import { Shared } from '@common/Shared';
 
 export interface ScrobbleEventsOptions {
 	/**
@@ -61,7 +61,7 @@ export class ScrobbleEvents {
 
 	init() {
 		this.checkListeners();
-		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
 	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -72,7 +72,7 @@ export class ScrobbleEvents {
 	};
 
 	checkListeners() {
-		const { scrobble } = BrowserStorage.options.services[this.api.id];
+		const { scrobble } = Shared.storage.options.services[this.api.id];
 		if (scrobble && !this.hasAddedListeners) {
 			void this.checkForChanges();
 			if (this.parser.onClick) {

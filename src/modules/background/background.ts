@@ -4,6 +4,7 @@ import { BrowserAction } from '@common/BrowserAction';
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
 import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Notifications } from '@common/Notifications';
 import { Requests } from '@common/Requests';
@@ -23,6 +24,7 @@ const init = async () => {
 	await BrowserStorage.init();
 	BrowserAction.init();
 	Errors.init();
+	EventDispatcher.init();
 	Notifications.init();
 	RequestsManager.init();
 	ScriptInjector.init();

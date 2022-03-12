@@ -1,4 +1,4 @@
-import { BrowserStorage } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { CustomDialog } from '@components/CustomDialog';
 import { CustomSnackbar } from '@components/CustomSnackbar';
 import { OptionsActions } from '@components/OptionsActions';
@@ -16,7 +16,7 @@ export const OptionsApp = (): JSX.Element => {
 					paddingBottom: '100px',
 				}}
 			>
-				<OptionsList details={BrowserStorage.optionsDetails} />
+				<OptionsList details={Shared.storage.optionsDetails} />
 				<OptionsActions />
 				<CustomDialog />
 				<CustomSnackbar />

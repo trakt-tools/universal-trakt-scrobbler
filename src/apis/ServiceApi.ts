@@ -1,10 +1,8 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache, CacheItems } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
+import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
@@ -58,7 +56,7 @@ export abstract class ServiceApi {
 				'traktHistoryItems',
 				'urlsToTraktItems',
 			]);
-			const { corrections } = await BrowserStorage.get('corrections');
+			const { corrections } = await Shared.storage.get('corrections');
 			const promises = [];
 			for (const item of newItems) {
 				if (
@@ -75,9 +73,9 @@ export abstract class ServiceApi {
 			newItems = await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to load Trakt history.', err);
-				await EventDispatcher.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to load Trakt history.', err);
+				await Shared.events.dispatch('TRAKT_HISTORY_LOAD_ERROR', null, {
 					error: err,
 				});
 			}
@@ -241,9 +239,9 @@ export abstract class ServiceApi {
 			caches.history.set(this.id, historyCache);
 			await Cache.set(caches);
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to load history.', err);
-				await EventDispatcher.dispatch('SERVICE_HISTORY_LOAD_ERROR', null, {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to load history.', err);
+				await Shared.events.dispatch('SERVICE_HISTORY_LOAD_ERROR', null, {
 					error: err,
 				});
 			}

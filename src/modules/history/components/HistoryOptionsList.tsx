@@ -1,7 +1,6 @@
-import { BrowserStorage, StorageValuesSyncOptions } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
+import { StorageValuesSyncOptions } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
 import { useSync } from '@contexts/SyncContext';
 import { Box, Button, ButtonGroup, Drawer, FormGroup, InputLabel, Toolbar } from '@mui/material';
@@ -13,24 +12,25 @@ export const HistoryOptionsList = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+			Shared.events.subscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
+			Shared.events.unsubscribe('SYNC_OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesSyncOptions>) => {
-			return BrowserStorage.saveSyncOptions(partialOptions)
+			return Shared.storage
+				.saveSyncOptions(partialOptions)
 				.then(async () => {
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
 					});
 				})
 				.catch(async (err) => {
-					Errors.error('Failed to save option.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					Shared.errors.error('Failed to save option.', err);
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',
 					});
@@ -67,7 +67,7 @@ export const HistoryOptionsList = (): JSX.Element => {
 					},
 				}}
 			>
-				{Object.values(BrowserStorage.syncOptionsDetails).map((option) => (
+				{Object.values(Shared.storage.syncOptionsDetails).map((option) => (
 					<HistoryOptionsListItem key={option.id} option={option} />
 				))}
 				<Box

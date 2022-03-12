@@ -1,10 +1,9 @@
 import { CorrectionApi, Suggestion } from '@apis/CorrectionApi';
 import { ExactItemDetails, TraktSearch } from '@apis/TraktSearch';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { CorrectionDialogShowData, EventDispatcher } from '@common/Events';
+import { CorrectionDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { Item } from '@models/Item';
@@ -132,14 +131,14 @@ export const CorrectionDialog = (): JSX.Element => {
 				};
 			}
 			const databaseId = newItem.getDatabaseId();
-			let { corrections } = await BrowserStorage.get('corrections');
+			let { corrections } = await Shared.storage.get('corrections');
 			if (!corrections) {
 				corrections = {};
 			}
 			corrections[databaseId] = suggestion;
-			await BrowserStorage.set({ corrections }, true);
+			await Shared.storage.set({ corrections }, true);
 			await CorrectionApi.saveSuggestion(newItem, suggestion);
-			await EventDispatcher.dispatch(
+			await Shared.events.dispatch(
 				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
 				null,
 				{
@@ -148,9 +147,9 @@ export const CorrectionDialog = (): JSX.Element => {
 				}
 			);
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to correct item.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to correct item.', err);
+				await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'correctItemFailed',
 					severity: 'error',
 				});
@@ -186,11 +185,11 @@ export const CorrectionDialog = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
+			Shared.events.subscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
+			Shared.events.unsubscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
 
 		const openDialog = (data: CorrectionDialogShowData) => {

@@ -1,7 +1,6 @@
 import { TraktAuth } from '@apis/TraktAuth';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
+import { Shared } from '@common/Shared';
 
 class _Session {
 	isLoggedIn: boolean;
@@ -15,14 +14,14 @@ class _Session {
 			const auth = await TraktAuth.validateToken();
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
-				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
+				await Shared.events.dispatch('LOGIN_SUCCESS', null, { auth });
 			} else {
 				throw new Error(JSON.stringify(auth));
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
-			if (Errors.validate(err)) {
-				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err });
+			if (Shared.errors.validate(err)) {
+				await Shared.events.dispatch('LOGIN_ERROR', null, { error: err });
 			}
 		}
 	}
@@ -32,15 +31,15 @@ class _Session {
 			const auth = await Messaging.toExtension({ action: 'login' });
 			if (auth && auth.access_token) {
 				this.isLoggedIn = true;
-				await EventDispatcher.dispatch('LOGIN_SUCCESS', null, { auth });
+				await Shared.events.dispatch('LOGIN_SUCCESS', null, { auth });
 			} else {
 				throw new Error(JSON.stringify(auth));
 			}
 		} catch (err) {
 			this.isLoggedIn = false;
-			if (Errors.validate(err)) {
-				Errors.error('Failed to log in.', err);
-				await EventDispatcher.dispatch('LOGIN_ERROR', null, { error: err });
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to log in.', err);
+				await Shared.events.dispatch('LOGIN_ERROR', null, { error: err });
 			}
 		}
 	}
@@ -49,12 +48,12 @@ class _Session {
 		try {
 			await Messaging.toExtension({ action: 'logout' });
 			this.isLoggedIn = false;
-			await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
+			await Shared.events.dispatch('LOGOUT_SUCCESS', null, {});
 		} catch (err) {
 			this.isLoggedIn = true;
-			if (Errors.validate(err)) {
-				Errors.error('Failed to log out.', err);
-				await EventDispatcher.dispatch('LOGOUT_ERROR', null, { error: err });
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to log out.', err);
+				await Shared.events.dispatch('LOGOUT_ERROR', null, { error: err });
 			}
 		}
 	}

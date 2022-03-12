@@ -1,5 +1,5 @@
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
@@ -28,7 +28,7 @@ export const ServiceLoginWrapper = ({ children }: ServiceLoginWrapperProps): JSX
 				setLoading(false);
 			} catch (err) {
 				history.push('/home');
-				await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+				await Shared.events.dispatch('DIALOG_SHOW', null, {
 					title: I18N.translate('notLoggedIn'),
 					message: (
 						<>

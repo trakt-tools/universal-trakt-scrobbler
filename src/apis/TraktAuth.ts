@@ -1,5 +1,4 @@
 import { TraktApi } from '@apis/TraktApi';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
@@ -62,7 +61,7 @@ class _TraktAuth extends TraktApi {
 		let promise: Promise<TraktAuthDetails>;
 		let requiresCookies = false;
 		if (Shared.browser === 'firefox') {
-			requiresCookies = !!BrowserStorage.options.grantCookies;
+			requiresCookies = !!Shared.storage.options.grantCookies;
 		}
 		if (this.isIdentityAvailable && !requiresCookies) {
 			promise = this.startIdentityAuth();
@@ -131,16 +130,16 @@ class _TraktAuth extends TraktApi {
 				body: data,
 			});
 			auth = JSON.parse(responseText) as TraktAuthDetails;
-			await BrowserStorage.set({ auth }, true);
+			await Shared.storage.set({ auth }, true);
 		} catch (err) {
-			await BrowserStorage.remove('auth', true);
+			await Shared.storage.remove('auth', true);
 			throw err;
 		}
 		return auth;
 	}
 
 	async revokeToken(): Promise<void> {
-		const values = await BrowserStorage.get('auth');
+		const values = await Shared.storage.get('auth');
 		await Requests.send({
 			url: this.REVOKE_TOKEN_URL,
 			method: 'POST',
@@ -150,7 +149,7 @@ class _TraktAuth extends TraktApi {
 				client_secret: Shared.clientSecret,
 			},
 		});
-		await BrowserStorage.remove('auth', true);
+		await Shared.storage.remove('auth', true);
 	}
 
 	async validateToken(): Promise<TraktAuthDetails | null> {
@@ -158,7 +157,7 @@ class _TraktAuth extends TraktApi {
 			return Messaging.toExtension({ action: 'validate-trakt-token' });
 		}
 		let auth: TraktAuthDetails | null = null;
-		const values = await BrowserStorage.get('auth');
+		const values = await Shared.storage.get('auth');
 		if (values.auth) {
 			if (values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
 				auth = await this.refreshToken(values.auth.refresh_token);

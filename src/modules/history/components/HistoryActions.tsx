@@ -1,6 +1,5 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { useSync } from '@contexts/SyncContext';
 import { Box, Button, Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -15,7 +14,7 @@ export const HistoryActions = (): JSX.Element => {
 	const onSyncClick = async () => {
 		const selectedItems = store.data.items.filter((item) => item.isSelected);
 		if (selectedItems.length === 0) {
-			return EventDispatcher.dispatch('DIALOG_SHOW', null, {
+			return Shared.events.dispatch('DIALOG_SHOW', null, {
 				title: I18N.translate('cannotSync'),
 				message: I18N.translate('noItemsSelected'),
 			});
@@ -23,13 +22,13 @@ export const HistoryActions = (): JSX.Element => {
 
 		const missingWatchedDate = selectedItems.some((item) => item.isMissingWatchedDate());
 		if (missingWatchedDate) {
-			return EventDispatcher.dispatch('DIALOG_SHOW', null, {
+			return Shared.events.dispatch('DIALOG_SHOW', null, {
 				title: I18N.translate('cannotSync'),
 				message: I18N.translate('itemsMissingWatchedDate'),
 			});
 		}
 
-		await EventDispatcher.dispatch('SYNC_DIALOG_SHOW', null, {
+		await Shared.events.dispatch('SYNC_DIALOG_SHOW', null, {
 			store,
 			serviceId,
 			items: selectedItems,
@@ -37,29 +36,29 @@ export const HistoryActions = (): JSX.Element => {
 	};
 
 	const onClearSyncCacheClick = async () => {
-		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+		await Shared.events.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearSyncCacheTitle'),
 			message: I18N.translate('confirmClearSyncCacheMessage'),
 			onConfirm: async () => {
-				await BrowserStorage.remove('syncCache');
+				await Shared.storage.remove('syncCache');
 				await store.resetData();
 			},
 		});
 	};
 
 	const onAddDateClick = async () => {
-		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
+		await Shared.events.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
 			items: store.data.items.filter((item) => item.isMissingWatchedDate()),
 		});
 	};
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.subscribe('ITEMS_LOAD', null, onItemsLoad);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
 		};
 
 		const onItemsLoad = () => {

@@ -1,5 +1,5 @@
 import { Suggestion } from '@apis/CorrectionApi';
-import { BrowserStorage } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { SavedTraktItem, TraktItem } from '@models/TraktItem';
 
 // We use this to correct known wrong titles.
@@ -146,8 +146,8 @@ export class Item implements IItem {
 
 	doHide() {
 		return (
-			(BrowserStorage.syncOptions.hideSynced && this.trakt && !!this.trakt.watchedAt) ||
-			this.progress < BrowserStorage.syncOptions.minPercentageWatched
+			(Shared.storage.syncOptions.hideSynced && this.trakt && !!this.trakt.watchedAt) ||
+			this.progress < Shared.storage.syncOptions.minPercentageWatched
 		);
 	}
 
@@ -156,7 +156,7 @@ export class Item implements IItem {
 	}
 
 	isMissingWatchedDate() {
-		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		const { addWithReleaseDate, addWithReleaseDateMissing } = Shared.storage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
 				return !this.watchedAt && !this.trakt?.releaseDate;
@@ -167,7 +167,7 @@ export class Item implements IItem {
 	}
 
 	getWatchedDate() {
-		const { addWithReleaseDate, addWithReleaseDateMissing } = BrowserStorage.syncOptions;
+		const { addWithReleaseDate, addWithReleaseDateMissing } = Shared.storage.syncOptions;
 		if (addWithReleaseDate) {
 			if (addWithReleaseDateMissing) {
 				return this.watchedAt ?? this.trakt?.releaseDate;

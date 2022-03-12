@@ -1,6 +1,6 @@
 import { Suggestion } from '@apis/CorrectionApi';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
@@ -114,7 +114,7 @@ export const HistoryListItemCard = ({
 								<Button color="secondary" disabled={isLoading} onClick={openCorrectionDialog}>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
-										{BrowserStorage.options.sendReceiveSuggestions ? (
+										{Shared.storage.options.sendReceiveSuggestions ? (
 											typeof suggestions === 'undefined' ? (
 												<>({I18N.translate('loadingSuggestions')}...)</>
 											) : suggestions && suggestions.length > 0 ? (

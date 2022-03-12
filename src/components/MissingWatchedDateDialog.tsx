@@ -1,6 +1,6 @@
-import { Errors } from '@common/Errors';
-import { EventDispatcher, MissingWatchedDateDialogShowData } from '@common/Events';
+import { MissingWatchedDateDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
@@ -127,14 +127,14 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 					delete item.trakt.watchedAt;
 				}
 			}
-			await EventDispatcher.dispatch('MISSING_WATCHED_DATE_ADDED', null, {
+			await Shared.events.dispatch('MISSING_WATCHED_DATE_ADDED', null, {
 				oldItems,
 				newItems,
 			});
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to add missing watched date.', err);
-				await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to add missing watched date.', err);
+				await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'addMissingWatchedDateFailed',
 					severity: 'error',
 				});
@@ -148,11 +148,11 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
+			Shared.events.subscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
+			Shared.events.unsubscribe('MISSING_WATCHED_DATE_DIALOG_SHOW', null, openDialog);
 		};
 
 		const openDialog = (data: MissingWatchedDateDialogShowData) => {

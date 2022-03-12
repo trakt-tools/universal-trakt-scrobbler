@@ -1,6 +1,5 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
-import { Errors } from '@common/Errors';
-import { Event, EventData, EventDispatcher } from '@common/Events';
+import { Event, EventData } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
@@ -141,7 +140,7 @@ class _Messaging {
 	 */
 	private messageHandlers: MessageHandlers = {
 		'dispatch-event': (message) =>
-			EventDispatcher.dispatch(message.eventType, message.eventSpecifier, message.data, true),
+			Shared.events.dispatch(message.eventType, message.eventSpecifier, message.data, true),
 	};
 
 	ports = new Map<number, WebExtRuntime.Port>();
@@ -162,11 +161,11 @@ class _Messaging {
 		}
 
 		this.ports.set(tabId, port);
-		void EventDispatcher.dispatch('CONTENT_SCRIPT_CONNECT', null, { tabId });
+		void Shared.events.dispatch('CONTENT_SCRIPT_CONNECT', null, { tabId });
 
 		port.onDisconnect.addListener(() => {
 			this.ports.delete(tabId);
-			void EventDispatcher.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
+			void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
 		});
 	};
 
@@ -185,7 +184,7 @@ class _Messaging {
 			return;
 		}
 		return Promise.resolve(executingAction).catch((err: Error) => {
-			Errors.log('Failed to execute action.', err);
+			Shared.errors.log('Failed to execute action.', err);
 			throw err.message;
 		});
 	};

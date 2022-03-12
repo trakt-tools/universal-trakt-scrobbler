@@ -1,5 +1,4 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, RequestsCancelData, StorageOptionsChangeData } from '@common/Events';
+import { RequestsCancelData, StorageOptionsChangeData } from '@common/Events';
 import { Shared } from '@common/Shared';
 import { getServices } from '@models/Service';
 import { CancelTokenSource } from 'axios';
@@ -13,9 +12,9 @@ class _RequestsManager {
 	init() {
 		if (Shared.pageType === 'background') {
 			this.checkWebRequestListener();
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 		}
-		EventDispatcher.subscribe('REQUESTS_CANCEL', null, this.onRequestsCancel);
+		Shared.events.subscribe('REQUESTS_CANCEL', null, this.onRequestsCancel);
 	}
 
 	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -29,7 +28,7 @@ class _RequestsManager {
 			return;
 		}
 
-		const { grantCookies } = BrowserStorage.options;
+		const { grantCookies } = Shared.storage.options;
 		if (
 			grantCookies &&
 			!browser.webRequest.onBeforeSendHeaders.hasListener(this.onBeforeSendHeaders)

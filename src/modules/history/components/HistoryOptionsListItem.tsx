@@ -1,6 +1,7 @@
-import { BrowserStorage, OptionDetails, StorageValuesSyncOptions } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { OptionDetails, StorageValuesSyncOptions } from '@common/BrowserStorage';
+import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { SwitchOption } from '@components/SwitchOption';
 import { NumericTextFieldOption } from '@components/TextFieldOption';
 import { useSync } from '@contexts/SyncContext';
@@ -14,27 +15,27 @@ export const HistoryOptionsListItem = ({ option }: HistoryOptionsListItemProps):
 	const { store } = useSync();
 
 	const [isDisabled, setDisabled] = useState(
-		store.data.isLoading || BrowserStorage.checkSyncOptionDisabled(option)
+		store.data.isLoading || Shared.storage.checkSyncOptionDisabled(option)
 	);
 	const [value, setValue] = useState(option.value);
 
 	const handleChange = (optionId: string, newValue: unknown) => {
-		void EventDispatcher.dispatch('SYNC_OPTIONS_CHANGE', null, {
+		void Shared.events.dispatch('SYNC_OPTIONS_CHANGE', null, {
 			[optionId]: newValue,
 		});
 	};
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
-			EventDispatcher.subscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
-			EventDispatcher.subscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
+			Shared.events.subscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
-			EventDispatcher.unsubscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
-			EventDispatcher.unsubscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('SYNC_STORE_LOADING_START', null, checkDisabled);
+			Shared.events.unsubscribe('SYNC_STORE_LOADING_STOP', null, checkDisabled);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -56,7 +57,7 @@ export const HistoryOptionsListItem = ({ option }: HistoryOptionsListItemProps):
 		};
 
 		const checkDisabled = () => {
-			setDisabled(store.data.isLoading || BrowserStorage.checkSyncOptionDisabled(option));
+			setDisabled(store.data.isLoading || Shared.storage.checkSyncOptionDisabled(option));
 		};
 
 		startListeners();

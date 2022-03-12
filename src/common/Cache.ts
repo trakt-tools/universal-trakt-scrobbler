@@ -2,7 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TmdbApiConfig } from '@apis/TmdbApi';
 import { TraktSettingsResponse } from '@apis/TraktSettings';
 import { TraktHistoryItem } from '@apis/TraktSync';
-import { BrowserStorage } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { SavedItem } from '@models/Item';
 import { SavedTraktItem } from '@models/TraktItem';
@@ -115,7 +115,7 @@ class _Cache {
 		const now = Utils.unix();
 		for (const [key, ttl] of Object.entries(this.ttl) as [keyof CacheValues, number][]) {
 			const storageKey = `${key}Cache` as const;
-			const storage = await BrowserStorage.get(storageKey);
+			const storage = await Shared.storage.get(storageKey);
 			const cache = storage[storageKey];
 			if (!cache) {
 				continue;
@@ -125,7 +125,7 @@ class _Cache {
 					delete cache[subKey];
 				}
 			}
-			await BrowserStorage.set({ [storageKey]: cache }, false);
+			await Shared.storage.set({ [storageKey]: cache }, false);
 		}
 
 		// Check again every hour
@@ -144,7 +144,7 @@ class _Cache {
 		const caches = {} as CacheItems<T>;
 		const keys = Array.isArray(keyOrKeys) ? keyOrKeys : [keyOrKeys];
 		const storageKeys = keys.map((key) => `${key}Cache` as const);
-		const storage = await BrowserStorage.get(storageKeys);
+		const storage = await Shared.storage.get(storageKeys);
 		for (const key of keys) {
 			const storageKey = `${key}Cache` as const;
 			caches[key] = new CacheItem(storage[storageKey] || {}) as never;
@@ -156,7 +156,7 @@ class _Cache {
 		const caches: Partial<CacheStorageValues> = {};
 		const keys = Object.keys(items) as (keyof CacheItems<T>)[];
 		const storageKeys = keys.map((key) => `${key}Cache` as const);
-		const storage = await BrowserStorage.get(storageKeys);
+		const storage = await Shared.storage.get(storageKeys);
 		for (const key of keys) {
 			const storageKey = `${key}Cache` as const;
 			caches[storageKey] = {
@@ -164,7 +164,7 @@ class _Cache {
 				...(items[key]?.cache || {}),
 			} as never;
 		}
-		await BrowserStorage.set(caches, false);
+		await Shared.storage.set(caches, false);
 	}
 }
 

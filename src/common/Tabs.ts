@@ -1,4 +1,3 @@
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import browser, { Tabs as WebExtTabs } from 'webextension-polyfill';
@@ -34,7 +33,7 @@ class _Tabs {
 			url,
 			...extraProperties,
 		};
-		if (BrowserStorage.options.grantCookies && browser.cookies) {
+		if (Shared.storage.options.grantCookies && browser.cookies) {
 			tabProperties.cookieStoreId = tabs[0].cookieStoreId;
 		}
 		return browser.tabs.create(tabProperties);
