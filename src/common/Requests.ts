@@ -218,7 +218,7 @@ export const withHeaders = (headers: Record<string, string>, instance = Requests
 	return new Proxy(instance, {
 		get: (target, prop, receiver) => {
 			if (prop === 'withHeaders') {
-				return headers;
+				return { ...instance.withHeaders, ...headers };
 			}
 			return Reflect.get(target, prop, receiver) as unknown;
 		},
@@ -232,7 +232,7 @@ export const withRateLimit = (rateLimit: RateLimitConfig, instance = Requests) =
 	return new Proxy(instance, {
 		get: (target, prop, receiver) => {
 			if (prop === 'withRateLimit') {
-				return rateLimit;
+				return { ...instance.withRateLimit, ...rateLimit };
 			}
 			return Reflect.get(target, prop, receiver) as unknown;
 		},
