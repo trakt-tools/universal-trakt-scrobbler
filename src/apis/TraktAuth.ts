@@ -1,6 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Messaging } from '@common/Messaging';
-import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
@@ -29,13 +28,6 @@ class _TraktAuth extends TraktApi {
 
 		this.isIdentityAvailable = !!browser.identity;
 		this.manualAuth = {};
-	}
-
-	getHeaders(): Record<string, unknown> {
-		return {
-			'trakt-api-key': Shared.clientId,
-			'trakt-api-version': this.API_VERSION,
-		};
 	}
 
 	getAuthorizeUrl(): string {
@@ -124,7 +116,8 @@ class _TraktAuth extends TraktApi {
 	async requestToken(data: Record<string, unknown>): Promise<TraktAuthDetails> {
 		let auth: TraktAuthDetails;
 		try {
-			const responseText = await Requests.send({
+			await this.activate();
+			const responseText = await this.requests.send({
 				url: this.REQUEST_TOKEN_URL,
 				method: 'POST',
 				body: data,
@@ -140,7 +133,8 @@ class _TraktAuth extends TraktApi {
 
 	async revokeToken(): Promise<void> {
 		const values = await Shared.storage.get('auth');
-		await Requests.send({
+		await this.activate();
+		await this.requests.send({
 			url: this.REVOKE_TOKEN_URL,
 			method: 'POST',
 			body: {

@@ -1,6 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Cache, CacheItem } from '@common/Cache';
-import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -50,7 +49,8 @@ class _TraktSync extends TraktApi {
 		const databaseId = item.trakt.getDatabaseId();
 		let historyItems = forceRefresh ? null : traktHistoryItemsCache.get(databaseId);
 		if (!historyItems) {
-			const responseText = await Requests.send({
+			await this.activate();
+			const responseText = await this.requests.send({
 				url: this.getUrl(item),
 				method: 'GET',
 				cancelKey: forceRefresh ? 'sync' : 'default',
@@ -83,7 +83,8 @@ class _TraktSync extends TraktApi {
 		if (!item.trakt?.syncId) {
 			return;
 		}
-		await Requests.send({
+		await this.activate();
+		await this.requests.send({
 			url: `${this.SYNC_URL}/remove`,
 			method: 'POST',
 			body: {
@@ -124,7 +125,8 @@ class _TraktSync extends TraktApi {
 						watched_at: Utils.convertToISOString(item.getWatchedDate()),
 					})),
 			};
-			const responseText = await Requests.send({
+			await this.activate();
+			const responseText = await this.requests.send({
 				url: this.SYNC_URL,
 				method: 'POST',
 				body: data,

@@ -1,4 +1,3 @@
-import { TraktAuth } from '@apis/TraktAuth';
 import { Messaging } from '@common/Messaging';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
@@ -147,13 +146,6 @@ class _Requests {
 				typeof request.body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json',
 			...(request.headers || {}),
 		};
-		if (request.url.includes('trakt.tv')) {
-			Object.assign(headers, TraktAuth.getHeaders());
-			const values = await BrowserStorage.get('auth');
-			if (values.auth && values.auth.access_token) {
-				headers['Authorization'] = `Bearer ${values.auth.access_token}`;
-			}
-		}
 		const cookies = await this.getCookies(request, tabId);
 		if (cookies) {
 			headers['UTS-Cookie'] = cookies;

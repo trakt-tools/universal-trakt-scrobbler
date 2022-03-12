@@ -1,6 +1,6 @@
 import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
-import { Requests } from '@common/Requests';
+import { Requests, withHeaders } from '@common/Requests';
 import { Utils } from '@common/Utils';
 import { IItem, Item } from '@models/Item';
 
@@ -126,6 +126,8 @@ class _NrkApi extends ServiceApi {
 	token: string;
 	isActivated: boolean;
 
+	authRequests = Requests;
+
 	constructor() {
 		super(NrkService.id);
 
@@ -153,6 +155,9 @@ class _NrkApi extends ServiceApi {
 			profileName: userData.name,
 		};
 		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
+		this.authRequests = withHeaders({
+			Authorization: `Bearer ${this.token}`,
+		});
 		this.isActivated = true;
 	}
 
@@ -167,12 +172,9 @@ class _NrkApi extends ServiceApi {
 		if (!this.isActivated) {
 			await this.activate();
 		}
-		const responseText = await Requests.send({
+		const responseText = await this.authRequests.send({
 			url: this.nextHistoryUrl,
 			method: 'GET',
-			headers: {
-				Authorization: 'Bearer ' + this.token,
-			},
 		});
 		const responseJson = JSON.parse(responseText) as NrkProgressResponse;
 		const responseItems = responseJson.progresses;

@@ -1,7 +1,7 @@
 import { HboMaxService } from '@/hbo-max/HboMaxService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
-import { Requests } from '@common/Requests';
+import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
@@ -146,6 +146,9 @@ class _HboMaxApi extends ServiceApi {
 	CLIENT_ID = '585b02c8-dbe1-432f-b1bb-11cf670fbeb0';
 	CONTRACT = 'hadron:1.1.2.0';
 
+	requests = Requests;
+	authRequests = Requests;
+
 	isActivated = false;
 	session?: HboMaxSession | null;
 
@@ -178,12 +181,13 @@ class _HboMaxApi extends ServiceApi {
 					};
 				}
 
-				const globalAuthResponseText = await Requests.send({
+				this.requests = withHeaders({
+					'x-hbo-client-version': this.CLIENT_VERSION,
+				});
+
+				const globalAuthResponseText = await this.requests.send({
 					url: this.GLOBAL_AUTH_URL,
 					method: 'POST',
-					headers: {
-						'x-hbo-client-version': this.CLIENT_VERSION,
-					},
 					body: {
 						client_id: this.CLIENT_ID,
 						client_secret: this.CLIENT_ID,
@@ -194,13 +198,16 @@ class _HboMaxApi extends ServiceApi {
 				});
 				const globalAuthResponse = JSON.parse(globalAuthResponseText) as HboMaxAuthResponse;
 
-				const configResponseText = await Requests.send({
+				this.authRequests = withHeaders(
+					{
+						Authorization: `Bearer ${globalAuthResponse.access_token}`,
+					},
+					this.requests
+				);
+
+				const configResponseText = await this.authRequests.send({
 					url: this.CONFIG_URL,
 					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${globalAuthResponse.access_token}`,
-						'x-hbo-client-version': this.CLIENT_VERSION,
-					},
 					body: {
 						contract: this.CONTRACT,
 						preferredLanguages: ['en-us'],
@@ -211,13 +218,9 @@ class _HboMaxApi extends ServiceApi {
 				cache.subdomain = configResponse.routeKeys.userSubdomain;
 
 				if (cache.auth.expiresAt < now) {
-					const localAuthResponseText = await Requests.send({
+					const localAuthResponseText = await this.authRequests.send({
 						url: Utils.replace(this.LOCAL_AUTH_URL, cache),
 						method: 'POST',
-						headers: {
-							Authorization: `Bearer ${globalAuthResponse.access_token}`,
-							'x-hbo-client-version': this.CLIENT_VERSION,
-						},
 						body: {
 							refresh_token: cache.auth.refreshToken,
 							grant_type: 'refresh_token',
@@ -239,6 +242,17 @@ class _HboMaxApi extends ServiceApi {
 				...cache,
 				profileName: null,
 			};
+
+			this.requests = withHeaders({
+				'x-hbo-client-version': this.CLIENT_VERSION,
+			});
+			this.authRequests = withHeaders(
+				{
+					Authorization: `Bearer ${this.session.auth.accessToken}`,
+				},
+				this.requests
+			);
+
 			this.isActivated = true;
 		} catch (err) {
 			this.session = null;
@@ -250,13 +264,9 @@ class _HboMaxApi extends ServiceApi {
 
 		try {
 			const profileResponseId = 'urn:hbo:profiles:mine';
-			const profileResponseText = await Requests.send({
+			const profileResponseText = await this.authRequests.send({
 				url: Utils.replace(this.CONTENT_URL, this.session),
 				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${this.session.auth.accessToken}`,
-					'x-hbo-client-version': this.CLIENT_VERSION,
-				},
 				body: [{ id: profileResponseId }],
 			});
 			const profileResponse = JSON.parse(profileResponseText) as HboMaxProfileResponse;
@@ -294,13 +304,9 @@ class _HboMaxApi extends ServiceApi {
 
 		const historyItems: HboMaxHistoryItem[] = [];
 
-		const historyResponseText = await Requests.send({
+		const historyResponseText = await this.authRequests.send({
 			url: Utils.replace(this.HISTORY_URL, this.session),
 			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${this.session.auth.accessToken}`,
-				'x-hbo-client-version': this.CLIENT_VERSION,
-			},
 		});
 		const historyResponse = JSON.parse(historyResponseText) as HboMaxHistoryResponse;
 

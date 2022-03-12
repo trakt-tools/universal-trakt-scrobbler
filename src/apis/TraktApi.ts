@@ -1,3 +1,6 @@
+import { withHeaders, withRateLimit } from '@common/Requests';
+import { Shared } from '@common/Shared';
+
 export class TraktApi {
 	API_VERSION: string;
 	HOST_URL: string;
@@ -12,6 +15,20 @@ export class TraktApi {
 	SYNC_URL: string;
 	SETTINGS_URL: string;
 
+	requests = withRateLimit({
+		id: 'trakt-api',
+
+		/**
+		 * @see https://trakt.docs.apiary.io/#introduction/rate-limiting
+		 */
+		maxRPS: {
+			'*': 1,
+			GET: 3,
+		},
+	});
+
+	isActivated = false;
+
 	constructor() {
 		this.API_VERSION = '2';
 		this.HOST_URL = 'https://trakt.tv';
@@ -25,5 +42,24 @@ export class TraktApi {
 		this.SCROBBLE_URL = `${this.API_URL}/scrobble`;
 		this.SYNC_URL = `${this.API_URL}/sync/history`;
 		this.SETTINGS_URL = `${this.API_URL}/users/settings`;
+	}
+
+	async activate() {
+		if (this.isActivated) {
+			return;
+		}
+
+		const headers: Record<string, string> = {
+			'trakt-api-key': Shared.clientId,
+			'trakt-api-version': this.API_VERSION,
+		};
+		const values = await Shared.storage.get('auth');
+		if (values.auth?.access_token) {
+			headers['Authorization'] = `Bearer ${values.auth.access_token}`;
+		}
+
+		this.requests = withHeaders(headers, this.requests);
+
+		this.isActivated = true;
 	}
 }

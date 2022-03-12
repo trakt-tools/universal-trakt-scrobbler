@@ -1,5 +1,4 @@
 import { TraktApi } from '@apis/TraktApi';
-import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
@@ -107,7 +106,8 @@ class _TraktScrobble extends TraktApi {
 				};
 			}
 			data.progress = item.progress;
-			await Requests.send({
+			await this.activate();
+			await this.requests.send({
 				url: `${this.SCROBBLE_URL}${path}`,
 				method: 'POST',
 				body: data,
