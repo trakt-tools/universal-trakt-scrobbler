@@ -4,6 +4,7 @@ import { HistoryContainer } from '@components/HistoryContainer';
 import { HistoryHeader } from '@components/HistoryHeader';
 import { LoginWrapper } from '@components/LoginWrapper';
 import { ServiceLoginWrapper } from '@components/ServiceLoginWrapper';
+import { SyncDialog } from '@components/SyncDialog';
 import { useHistory } from '@contexts/HistoryContext';
 import { SyncProvider } from '@contexts/SyncContext';
 import { getServices } from '@models/Service';
@@ -20,6 +21,8 @@ export const HistoryApp = (): JSX.Element => {
 
 	return (
 		<>
+			<CustomDialog />
+			<CustomSnackbar />
 			<Router history={history}>
 				<Switch>
 					<Route
@@ -64,6 +67,7 @@ export const HistoryApp = (): JSX.Element => {
 								render={() => (
 									<LoginWrapper>
 										<SyncProvider serviceId={service.id}>
+											<SyncDialog />
 											<ServiceLoginWrapper>
 												<HistoryHeader />
 												<HistoryContainer isSync={true} disableGutters={true} maxWidth={false}>
@@ -91,8 +95,6 @@ export const HistoryApp = (): JSX.Element => {
 					<Redirect to="/login" />
 				</Switch>
 			</Router>
-			<CustomDialog />
-			<CustomSnackbar />
 		</>
 	);
 };
