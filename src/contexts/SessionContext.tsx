@@ -1,5 +1,5 @@
-import { EventDispatcher } from '@common/Events';
 import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
 import { useHistory } from '@contexts/HistoryContext';
 import { createContext, useContext, useEffect, useState } from 'react';
 
@@ -32,13 +32,13 @@ export const SessionProvider = ({ children }: SessionProviderProps): JSX.Element
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLogin);
-			EventDispatcher.subscribe('LOGOUT_SUCCESS', null, onLogout);
+			Shared.events.subscribe('LOGIN_SUCCESS', null, onLogin);
+			Shared.events.subscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLogin);
-			EventDispatcher.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
+			Shared.events.unsubscribe('LOGIN_SUCCESS', null, onLogin);
+			Shared.events.unsubscribe('LOGOUT_SUCCESS', null, onLogout);
 		};
 
 		const onLogin = () => {

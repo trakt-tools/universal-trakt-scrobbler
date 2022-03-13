@@ -1,10 +1,5 @@
 import { TraktScrobble } from '@apis/TraktScrobble';
-import { BrowserStorage } from '@common/BrowserStorage';
-import {
-	ContentScriptConnectData,
-	EventDispatcher,
-	StorageOptionsChangeData,
-} from '@common/Events';
+import { ContentScriptConnectData, StorageOptionsChangeData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
@@ -27,8 +22,8 @@ class _ScriptInjector {
 		if (Shared.pageType === 'background') {
 			this.updateContentScripts();
 			this.checkTabListener();
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
-			EventDispatcher.subscribe('CONTENT_SCRIPT_DISCONNECT', null, this.onContentScriptDisconnect);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+			Shared.events.subscribe('CONTENT_SCRIPT_DISCONNECT', null, this.onContentScriptDisconnect);
 		}
 	}
 
@@ -48,7 +43,7 @@ class _ScriptInjector {
 		if (this.injectedContentScriptTabs.has(data.tabId)) {
 			this.injectedContentScriptTabs.delete(data.tabId);
 		}
-		const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+		const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (scrobblingDetails && data.tabId === scrobblingDetails.tabId) {
 			await TraktScrobble.stop();
 		}
@@ -58,8 +53,8 @@ class _ScriptInjector {
 		this.contentScripts = getServices()
 			.filter(
 				(service) =>
-					(service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble) ||
-					(service.hasSync && BrowserStorage.options.services[service.id].sync)
+					(service.hasScrobbler && Shared.storage.options.services[service.id].scrobble) ||
+					(service.hasSync && Shared.storage.options.services[service.id].sync)
 			)
 			.map((service) => ({
 				matches: service.hostPatterns.map((hostPattern) =>
@@ -73,8 +68,8 @@ class _ScriptInjector {
 	checkTabListener() {
 		const shouldInject = getServices().some(
 			(service) =>
-				(service.hasScrobbler && BrowserStorage.options.services[service.id].scrobble) ||
-				(service.hasSync && BrowserStorage.options.services[service.id].sync)
+				(service.hasScrobbler && Shared.storage.options.services[service.id].scrobble) ||
+				(service.hasSync && Shared.storage.options.services[service.id].sync)
 		);
 		if (shouldInject && !browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
 			browser.tabs.onUpdated.addListener(this.onTabUpdated);
@@ -196,10 +191,10 @@ class _ScriptInjector {
 				void browser.tabs.remove(tabId);
 				resolve(value as T | null);
 
-				EventDispatcher.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+				Shared.events.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
 			};
 
-			EventDispatcher.subscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+			Shared.events.subscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
 
 			Tabs.open(url, { active: false })
 				.then((tab) => (tabId = tab?.id))

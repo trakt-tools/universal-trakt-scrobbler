@@ -1,5 +1,6 @@
 import { ServiceValues } from '@models/Service';
 import archiver from 'archiver';
+import CircularDependencyPlugin from 'circular-dependency-plugin';
 import fs from 'fs-extra';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
@@ -53,6 +54,7 @@ class RunAfterBuildPlugin {
 }
 
 const plugins = {
+	circularDependency: CircularDependencyPlugin,
 	html: HtmlWebpackPlugin,
 	progress: ProgressPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
@@ -214,6 +216,11 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 				},
 				filename: 'options.html',
 				inject: false,
+			}),
+			new plugins.circularDependency({
+				exclude: /node_modules/,
+				include: /src/,
+				failOnError: true,
 			}),
 			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env, config))]),
 		],

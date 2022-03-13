@@ -1,10 +1,10 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { TraktSearch } from '@apis/TraktSearch';
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
-import { EventDispatcher, ItemCorrectedData, StorageOptionsChangeData } from '@common/Events';
+import { ItemCorrectedData, StorageOptionsChangeData } from '@common/Events';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
+import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
 
@@ -37,7 +37,7 @@ export class ScrobbleController {
 
 	init() {
 		this.checkListeners();
-		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
 	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -48,12 +48,12 @@ export class ScrobbleController {
 	};
 
 	checkListeners() {
-		const { scrobble } = BrowserStorage.options?.services?.[this.api.id];
+		const { scrobble } = Shared.storage.options?.services?.[this.api.id];
 		if (scrobble && !this.hasAddedListeners) {
-			EventDispatcher.subscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
+			Shared.events.subscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
 			this.hasAddedListeners = true;
 		} else if (!scrobble && this.hasAddedListeners) {
-			EventDispatcher.unsubscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
+			Shared.events.unsubscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
 			this.hasAddedListeners = false;
 		}
 	}
@@ -67,7 +67,7 @@ export class ScrobbleController {
 		this.progress = 0.0;
 		if (typeof item.trakt === 'undefined') {
 			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
-			const { corrections } = await BrowserStorage.get(['corrections']);
+			const { corrections } = await Shared.storage.get(['corrections']);
 			const databaseId = item.getDatabaseId();
 			const correction = corrections?.[databaseId];
 			try {
@@ -117,11 +117,11 @@ export class ScrobbleController {
 		if (!this.reachedScrobbleThreshold && item.trakt.progress > this.scrobbleThreshold) {
 			// Update the stored progress after reaching the scrobble threshold to make sure that the item is scrobbled on tab close.
 			this.reachedScrobbleThreshold = true;
-			const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			if (scrobblingDetails) {
 				scrobblingDetails.item = Item.save(item);
-				await BrowserStorage.set({ scrobblingDetails }, false);
-				await EventDispatcher.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
+				await Shared.storage.set({ scrobblingDetails }, false);
+				await Shared.events.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
 			}
 		} else if (
 			item.progress < this.progress ||
@@ -130,11 +130,11 @@ export class ScrobbleController {
 		) {
 			// Update the scrobbling item once the progress reaches 1% and then every time it increases by 10%
 			this.progress = item.progress;
-			const { scrobblingDetails } = await BrowserStorage.get('scrobblingDetails');
+			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			if (scrobblingDetails) {
 				scrobblingDetails.item = Item.save(item);
-				await BrowserStorage.set({ scrobblingDetails }, false);
-				await EventDispatcher.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
+				await Shared.storage.set({ scrobblingDetails }, false);
+				await Shared.events.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
 			}
 		}
 	}

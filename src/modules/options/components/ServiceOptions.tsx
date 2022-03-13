@@ -1,6 +1,6 @@
 import { CustomOptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { CenteredGrid } from '@components/CenteredGrid';
 import { ServiceOption } from '@components/ServiceOption';
 import {
@@ -19,7 +19,7 @@ interface ServiceOptionsProps {
 
 export const ServiceOptions = ({ option }: ServiceOptionsProps): JSX.Element => {
 	const onSelectAllClick = async () => {
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+		await Shared.events.dispatch('OPTIONS_CHANGE', null, {
 			services: Object.fromEntries(
 				Object.keys(option.value).map((id) => [
 					id,
@@ -33,7 +33,7 @@ export const ServiceOptions = ({ option }: ServiceOptionsProps): JSX.Element => 
 	};
 
 	const onSelectNoneClick = async () => {
-		await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+		await Shared.events.dispatch('OPTIONS_CHANGE', null, {
 			services: Object.fromEntries(
 				Object.keys(option.value).map((id) => [
 					id,

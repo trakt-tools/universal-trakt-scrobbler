@@ -1,7 +1,8 @@
 import { BrowserStorage } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
+import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
-import { Requests } from '@common/Requests';
+import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
 import { HistoryApp } from '@history/HistoryApp';
@@ -12,7 +13,8 @@ const init = async () => {
 	Shared.pageType = 'popup';
 	await BrowserStorage.init();
 	Errors.init();
-	Requests.init();
+	EventDispatcher.init();
+	RequestsManager.init();
 	Messaging.init();
 	const root = document.querySelector('#root');
 	ReactDOM.render(

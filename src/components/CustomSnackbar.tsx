@@ -1,5 +1,6 @@
-import { EventDispatcher, SnackbarShowData } from '@common/Events';
+import { SnackbarShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Alert, AlertColor, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
 
@@ -25,11 +26,11 @@ export const CustomSnackbar = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SNACKBAR_SHOW', null, showSnackbar);
+			Shared.events.subscribe('SNACKBAR_SHOW', null, showSnackbar);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SNACKBAR_SHOW', null, showSnackbar);
+			Shared.events.unsubscribe('SNACKBAR_SHOW', null, showSnackbar);
 		};
 
 		const showSnackbar = (data: SnackbarShowData) => {

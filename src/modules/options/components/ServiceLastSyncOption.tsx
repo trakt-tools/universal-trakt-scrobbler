@@ -1,6 +1,5 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Service } from '@models/Service';
 import { Clear as ClearIcon, Error as ErrorIcon } from '@mui/icons-material';
@@ -21,16 +20,16 @@ const _ServiceLastSyncOption = ({
 	lastSync,
 }: ServiceLastSyncOptionProps): JSX.Element => {
 	const onClearLastSyncClick = async () => {
-		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+		await Shared.events.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearLastSyncTitle', service.name),
 			message: I18N.translate('confirmClearLastSyncMessage'),
 			onConfirm: async () => {
-				const { syncCache } = await BrowserStorage.get('syncCache');
+				const { syncCache } = await Shared.storage.get('syncCache');
 				if (syncCache) {
 					syncCache.items = syncCache.items.filter((item) => item.serviceId !== service.id);
-					await BrowserStorage.set({ syncCache }, false);
+					await Shared.storage.set({ syncCache }, false);
 				}
-				await EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+				await Shared.events.dispatch('OPTIONS_CHANGE', null, {
 					services: {
 						[service.id]: {
 							lastSync: 0,

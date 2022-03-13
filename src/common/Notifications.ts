@@ -1,7 +1,5 @@
 import { TraktScrobble } from '@apis/TraktScrobble';
-import { BrowserStorage } from '@common/BrowserStorage';
 import {
-	EventDispatcher,
 	ScrobbleErrorData,
 	ScrobbleSuccessData,
 	SearchErrorData,
@@ -27,7 +25,7 @@ class _Notifications {
 
 	init() {
 		this.checkListeners();
-		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
 	private onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -37,16 +35,16 @@ class _Notifications {
 	};
 
 	checkListeners() {
-		const { showNotifications } = BrowserStorage.options;
+		const { showNotifications } = Shared.storage.options;
 		if (showNotifications && !this.hasAddedListeners) {
-			EventDispatcher.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
-			EventDispatcher.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
-			EventDispatcher.subscribe('SEARCH_ERROR', null, this.onSearchError);
+			Shared.events.subscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
+			Shared.events.subscribe('SCROBBLE_ERROR', null, this.onScrobble);
+			Shared.events.subscribe('SEARCH_ERROR', null, this.onSearchError);
 			this.hasAddedListeners = true;
 		} else if (!showNotifications && this.hasAddedListeners) {
-			EventDispatcher.unsubscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
-			EventDispatcher.unsubscribe('SCROBBLE_ERROR', null, this.onScrobble);
-			EventDispatcher.unsubscribe('SEARCH_ERROR', null, this.onSearchError);
+			Shared.events.unsubscribe('SCROBBLE_SUCCESS', null, this.onScrobble);
+			Shared.events.unsubscribe('SCROBBLE_ERROR', null, this.onScrobble);
+			Shared.events.unsubscribe('SEARCH_ERROR', null, this.onSearchError);
 			this.hasAddedListeners = false;
 		}
 	}
@@ -84,7 +82,7 @@ class _Notifications {
 			}
 
 			if (err.status === 0) {
-				const { auth } = await BrowserStorage.get('auth');
+				const { auth } = await Shared.storage.get('auth');
 
 				if (auth?.access_token) {
 					return I18N.translate('errorNotificationServers');

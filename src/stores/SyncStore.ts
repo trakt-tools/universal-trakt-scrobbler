@@ -1,4 +1,4 @@
-import { EventDispatcher } from '@common/Events';
+import { Shared } from '@common/Shared';
 import { Item } from '@models/Item';
 
 export interface SyncStoreData {
@@ -111,7 +111,7 @@ export class SyncStore {
 
 	async resetData(): Promise<SyncStore> {
 		this.data = SyncStore.getInitialData();
-		await EventDispatcher.dispatch('SYNC_STORE_RESET', null, {});
+		await Shared.events.dispatch('SYNC_STORE_RESET', null, {});
 		return this;
 	}
 
@@ -136,7 +136,7 @@ export class SyncStore {
 		for (const newItem of newItems) {
 			eventData[newItem.index] = newItem;
 		}
-		await EventDispatcher.dispatch('ITEMS_LOAD', null, {
+		await Shared.events.dispatch('ITEMS_LOAD', null, {
 			items: eventData,
 		});
 		return this;

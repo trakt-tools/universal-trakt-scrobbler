@@ -1,6 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Cache } from '@common/Cache';
-import { Requests } from '@common/Requests';
 
 export interface TraktSettingsResponse {
 	account: TraktAccount;
@@ -23,7 +22,8 @@ class _TraktSettings extends TraktApi {
 			const cache = await Cache.get('traktSettings');
 			let settings = cache.get('default');
 			if (!settings) {
-				const responseText = await Requests.send({
+				await this.activate();
+				const responseText = await this.requests.send({
 					url: this.SETTINGS_URL,
 					method: 'GET',
 				});

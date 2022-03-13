@@ -1,4 +1,4 @@
-import { BrowserStorage } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { useSync } from '@contexts/SyncContext';
 import { Item } from '@models/Item';
 import { SyncPage } from '@pages/SyncPage';
@@ -11,7 +11,7 @@ export const AutoSyncPage = (): JSX.Element => {
 
 	useEffect(() => {
 		const loadCache = async () => {
-			const { syncCache } = await BrowserStorage.get('syncCache');
+			const { syncCache } = await Shared.storage.get('syncCache');
 			if (syncCache && syncCache.items.length > 0) {
 				const items = syncCache.items.map((savedItem) => Item.load(savedItem));
 				await store.setData({ items, hasReachedEnd: true });

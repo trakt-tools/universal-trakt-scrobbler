@@ -1,7 +1,7 @@
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, SyncDialogShowData } from '@common/Events';
+import { SyncDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
@@ -18,17 +18,17 @@ export const SyncDialog = (): JSX.Element => {
 	};
 
 	const cancelSync = async () => {
-		await EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'sync' });
+		await Shared.events.dispatch('REQUESTS_CANCEL', null, { key: 'sync' });
 		closeDialog();
 	};
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SYNC_DIALOG_SHOW', null, openDialog);
+			Shared.events.subscribe('SYNC_DIALOG_SHOW', null, openDialog);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SYNC_DIALOG_SHOW', null, openDialog);
+			Shared.events.unsubscribe('SYNC_DIALOG_SHOW', null, openDialog);
 		};
 
 		const openDialog = (data: SyncDialogShowData) => {
@@ -46,8 +46,8 @@ export const SyncDialog = (): JSX.Element => {
 				await TraktSync.sync(store, items);
 				if (serviceId) {
 					const lastSync = items[0].watchedAt ?? Utils.unix();
-					if (lastSync > BrowserStorage.options.services[serviceId].lastSync) {
-						await BrowserStorage.saveOptions({
+					if (lastSync > Shared.storage.options.services[serviceId].lastSync) {
+						await Shared.storage.saveOptions({
 							services: {
 								[serviceId]: {
 									lastSync,
@@ -57,7 +57,7 @@ export const SyncDialog = (): JSX.Element => {
 						});
 					}
 				} else {
-					await BrowserStorage.remove('syncCache');
+					await Shared.storage.remove('syncCache');
 					await store.resetData();
 				}
 			} catch (err) {

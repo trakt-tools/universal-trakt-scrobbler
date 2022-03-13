@@ -2,14 +2,13 @@ import { CorrectionApi } from '@apis/CorrectionApi';
 import { ServiceApi } from '@apis/ServiceApi';
 import { TmdbApi } from '@apis/TmdbApi';
 import { TraktSync } from '@apis/TraktSync';
-import { BrowserStorage } from '@common/BrowserStorage';
 import {
-	EventDispatcher,
 	HistorySyncSuccessData,
 	ItemCorrectedData,
 	MissingWatchedDateAddedData,
 	StorageOptionsChangeData,
 } from '@common/Events';
+import { Shared } from '@common/Shared';
 import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
@@ -50,7 +49,7 @@ export const HistoryList = (): JSX.Element => {
 
 	const listRef = useRef<VariableSizeList<HistoryListItemProps> | null>(null);
 	if (service && !lastSyncValues[service.id]) {
-		const serviceOptions = BrowserStorage.options.services[service.id];
+		const serviceOptions = Shared.storage.options.services[service.id];
 		lastSyncValues[service.id] =
 			service.hasAutoSync && serviceOptions?.autoSync && serviceOptions.autoSyncDays > 0
 				? {
@@ -71,7 +70,7 @@ export const HistoryList = (): JSX.Element => {
 
 	const startLoading = async (items: Item[]) => {
 		store.data.isLoading = true;
-		await EventDispatcher.dispatch('SYNC_STORE_LOADING_START', null, {});
+		await Shared.events.dispatch('SYNC_STORE_LOADING_START', null, {});
 		const newItems = items.map((item) => {
 			const newItem = item.clone();
 			newItem.isLoading = true;
@@ -83,7 +82,7 @@ export const HistoryList = (): JSX.Element => {
 
 	const stopLoading = async (items: Item[]) => {
 		store.data.isLoading = false;
-		await EventDispatcher.dispatch('SYNC_STORE_LOADING_STOP', null, {});
+		await Shared.events.dispatch('SYNC_STORE_LOADING_STOP', null, {});
 		const newItems = items.map((item) => {
 			const newItem = item.clone();
 			newItem.isLoading = false;
@@ -95,7 +94,7 @@ export const HistoryList = (): JSX.Element => {
 
 	const checkEnd = async () => {
 		if (store.data.hasReachedEnd) {
-			await EventDispatcher.dispatch('ITEMS_LOAD', null, {
+			await Shared.events.dispatch('ITEMS_LOAD', null, {
 				items: {
 					[store.data.items.length]: null,
 				},
@@ -235,41 +234,41 @@ export const HistoryList = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
-			EventDispatcher.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
-			EventDispatcher.subscribe('MISSING_WATCHED_DATE_ADDED', null, onMissingWatchedDateAdded);
-			EventDispatcher.subscribe('ITEM_CORRECTED', null, onItemCorrected);
-			EventDispatcher.subscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
-			EventDispatcher.subscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
-			EventDispatcher.subscribe('ITEMS_LOAD', null, onItemsLoad);
-			EventDispatcher.subscribe('SYNC_STORE_RESET', null, checkEnd);
+			Shared.events.subscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			Shared.events.subscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			Shared.events.subscribe('MISSING_WATCHED_DATE_ADDED', null, onMissingWatchedDateAdded);
+			Shared.events.subscribe('ITEM_CORRECTED', null, onItemCorrected);
+			Shared.events.subscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
+			Shared.events.subscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.subscribe('SYNC_STORE_RESET', null, checkEnd);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
-			EventDispatcher.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
-			EventDispatcher.unsubscribe('MISSING_WATCHED_DATE_ADDED', null, onMissingWatchedDateAdded);
-			EventDispatcher.unsubscribe('ITEM_CORRECTED', null, onItemCorrected);
-			EventDispatcher.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
-			EventDispatcher.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
-			EventDispatcher.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
-			EventDispatcher.unsubscribe('SYNC_STORE_RESET', null, checkEnd);
+			Shared.events.unsubscribe('SERVICE_HISTORY_LOAD_ERROR', null, onHistoryLoadError);
+			Shared.events.unsubscribe('TRAKT_HISTORY_LOAD_ERROR', null, onTraktHistoryLoadError);
+			Shared.events.unsubscribe('MISSING_WATCHED_DATE_ADDED', null, onMissingWatchedDateAdded);
+			Shared.events.unsubscribe('ITEM_CORRECTED', null, onItemCorrected);
+			Shared.events.unsubscribe('HISTORY_SYNC_SUCCESS', null, onHistorySyncSuccess);
+			Shared.events.unsubscribe('HISTORY_SYNC_ERROR', null, onHistorySyncError);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.unsubscribe('SYNC_STORE_RESET', null, checkEnd);
 
-			void EventDispatcher.dispatch('REQUESTS_CANCEL', null, { key: 'default' });
+			void Shared.events.dispatch('REQUESTS_CANCEL', null, { key: 'default' });
 		};
 
 		const onHistoryLoadError = async () => {
 			history.push('/home');
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'loadHistoryError',
 				severity: 'error',
 			});
 		};
 
 		const onTraktHistoryLoadError = async () => {
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'loadTraktHistoryError',
 				severity: 'error',
 			});
@@ -300,7 +299,7 @@ export const HistoryList = (): JSX.Element => {
 		};
 
 		const onHistorySyncSuccess = async (data: HistorySyncSuccessData) => {
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 				messageArgs: [data.added.episodes.toString(), data.added.movies.toString()],
 				messageName: 'historySyncSuccess',
 				severity: 'success',
@@ -308,7 +307,7 @@ export const HistoryList = (): JSX.Element => {
 		};
 
 		const onHistorySyncError = async () => {
-			await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+			await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 				messageName: 'historySyncError',
 				severity: 'error',
 			});

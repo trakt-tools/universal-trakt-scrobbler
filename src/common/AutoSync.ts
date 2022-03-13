@@ -1,10 +1,10 @@
 import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TraktSync } from '@apis/TraktSync';
 import { BrowserAction } from '@common/BrowserAction';
-import { BrowserStorage, StorageValuesOptions } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { StorageValuesOptions } from '@common/BrowserStorage';
+import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { getServices, Service } from '@models/Service';
@@ -18,7 +18,7 @@ class _AutoSync {
 
 	init() {
 		void this.check();
-		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
 	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -45,7 +45,7 @@ class _AutoSync {
 
 		const now = Utils.unix();
 		const servicesToSync = getServices().filter((service) => {
-			const value = BrowserStorage.options.services[service.id];
+			const value = Shared.storage.options.services[service.id];
 			return (
 				service.hasSync &&
 				service.hasAutoSync &&
@@ -62,8 +62,8 @@ class _AutoSync {
 				await BrowserAction.setTitle(I18N.translate('autoSyncing'));
 				await this.sync(servicesToSync, now);
 			} catch (err) {
-				if (Errors.validate(err)) {
-					Errors.error('Failed to automatically sync history.', err);
+				if (Shared.errors.validate(err)) {
+					Shared.errors.error('Failed to automatically sync history.', err);
 				}
 			}
 			await BrowserAction.setTitle();
@@ -77,7 +77,7 @@ class _AutoSync {
 	}
 
 	private async sync(services: Service[], now: number) {
-		let { syncCache } = await BrowserStorage.get('syncCache');
+		let { syncCache } = await Shared.storage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
 				items: [],
@@ -87,7 +87,7 @@ class _AutoSync {
 		let partialOptions: PartialDeep<StorageValuesOptions> = {};
 
 		for (const service of services) {
-			const serviceValue = BrowserStorage.options.services[service.id];
+			const serviceValue = Shared.storage.options.services[service.id];
 			let items: Item[] = [];
 
 			try {
@@ -98,7 +98,7 @@ class _AutoSync {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
 				items = store.data.items.filter(
-					(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
+					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
 					items = await ServiceApi.loadTraktHistory(items);
@@ -115,7 +115,7 @@ class _AutoSync {
 					}
 
 					items = store.data.items.filter(
-						(item) => item.progress >= BrowserStorage.syncOptions.minPercentageWatched
+						(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
 					);
 
 					const missingWatchedDate = items.some((item) => item.isMissingWatchedDate());
@@ -125,8 +125,8 @@ class _AutoSync {
 				}
 			} catch (err) {
 				syncCache.failed = true;
-				if (Errors.validate(err)) {
-					Errors.log(`Failed to auto sync ${service.id}`, err);
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log(`Failed to auto sync ${service.id}`, err);
 				}
 			}
 
@@ -143,8 +143,8 @@ class _AutoSync {
 			syncCache.items.unshift(...items.map((item) => Item.save(item)));
 		}
 
-		await BrowserStorage.saveOptions(partialOptions);
-		await BrowserStorage.set({ syncCache }, false);
+		await Shared.storage.saveOptions(partialOptions);
+		await Shared.storage.set({ syncCache }, false);
 	}
 }
 

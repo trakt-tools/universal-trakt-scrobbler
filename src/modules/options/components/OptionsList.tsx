@@ -1,6 +1,5 @@
-import { BrowserStorage, OptionsDetails, StorageValuesOptions } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
+import { OptionsDetails, StorageValuesOptions } from '@common/BrowserStorage';
+import { Shared } from '@common/Shared';
 import { OptionsListItem } from '@components/OptionsListItem';
 import { ServiceOptions } from '@components/ServiceOptions';
 import { List } from '@mui/material';
@@ -14,24 +13,25 @@ interface OptionsListProps {
 export const OptionsList = ({ details }: OptionsListProps): JSX.Element => {
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('OPTIONS_CHANGE', null, onOptionsChange);
+			Shared.events.subscribe('OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('OPTIONS_CHANGE', null, onOptionsChange);
+			Shared.events.unsubscribe('OPTIONS_CHANGE', null, onOptionsChange);
 		};
 
 		const onOptionsChange = (partialOptions: PartialDeep<StorageValuesOptions>) => {
-			return BrowserStorage.saveOptions(partialOptions)
+			return Shared.storage
+				.saveOptions(partialOptions)
 				.then(async () => {
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionSuccess',
 						severity: 'success',
 					});
 				})
 				.catch(async (err) => {
-					Errors.error('Failed to save option.', err);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					Shared.errors.error('Failed to save option.', err);
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',
 					});
@@ -48,7 +48,7 @@ export const OptionsList = ({ details }: OptionsListProps): JSX.Element => {
 			{Object.values(details)
 				.filter((option) => option.doShow)
 				.map((option) =>
-					BrowserStorage.isOption(option, 'services', 'custom') ? (
+					Shared.storage.isOption(option, 'services', 'custom') ? (
 						<ServiceOptions key={option.id} option={option} />
 					) : (
 						<OptionsListItem key={option.id} option={option} />

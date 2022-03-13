@@ -1,9 +1,7 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
-import { RequestError, Requests } from '@common/Requests';
+import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -135,11 +133,11 @@ class _TraktSearch extends TraktApi {
 				});
 			}
 			if (Shared.pageType === 'content') {
-				await EventDispatcher.dispatch('SEARCH_SUCCESS', null, { searchItem });
+				await Shared.events.dispatch('SEARCH_SUCCESS', null, { searchItem });
 			}
 		} catch (err) {
-			if (Shared.pageType === 'content' && Errors.validate(err)) {
-				await EventDispatcher.dispatch('SEARCH_ERROR', null, { error: err });
+			if (Shared.pageType === 'content' && Shared.errors.validate(err)) {
+				await Shared.events.dispatch('SEARCH_ERROR', null, { error: err });
 			}
 			throw err;
 		}
@@ -166,7 +164,8 @@ class _TraktSearch extends TraktApi {
 			'id' in details
 				? `/search/trakt/${details.id.toString()}?type=${details.type}&extended=full`
 				: `${details.url}?extended=full`;
-		const searchItemResponse = await Requests.send({
+		await this.activate();
+		const searchItemResponse = await this.requests.send({
 			url: `${this.API_URL}${url}`,
 			method: 'GET',
 		});
@@ -187,7 +186,8 @@ class _TraktSearch extends TraktApi {
 
 	async findItem(item: Item): Promise<TraktSearchItem> {
 		let searchItem: TraktSearchItem | undefined;
-		const responseText = await Requests.send({
+		await this.activate();
+		const responseText = await this.requests.send({
 			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}&extended=full`,
 			method: 'GET',
 		});
@@ -238,7 +238,8 @@ class _TraktSearch extends TraktApi {
 			if (itemOrUrl instanceof Item) {
 				show = ((await this.findItem(itemOrUrl)) as TraktSearchShowItem).show;
 			} else {
-				const showResponse = await Requests.send({
+				await this.activate();
+				const showResponse = await this.requests.send({
 					url: `${this.API_URL}${showUrl}`,
 					method: 'GET',
 				});
@@ -273,7 +274,8 @@ class _TraktSearch extends TraktApi {
 	): Promise<TraktSearchEpisodeItem> {
 		let episodeItem: TraktEpisodeItem;
 		const showItem = await this.findShow(item, caches);
-		const responseText = await Requests.send({
+		await this.activate();
+		const responseText = await this.requests.send({
 			url: this.getEpisodeUrl(item, showItem.show.ids.trakt),
 			method: 'GET',
 		});

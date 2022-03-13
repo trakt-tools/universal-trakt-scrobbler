@@ -1,9 +1,9 @@
 import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Cache } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { Requests } from '@common/Requests';
+import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
 import { SetOptional } from 'type-fest';
@@ -134,6 +134,10 @@ class _AmazonPrimeApi extends ServiceApi {
 	 */
 	DEVICE_TYPE_ID = 'AOAGZA014O5RE';
 
+	requests = withHeaders({
+		'x-requested-with': 'XMLHttpRequest',
+	});
+
 	isActivated = false;
 	session?: AmazonPrimeSession | null;
 	nextIndex = 0;
@@ -182,12 +186,9 @@ class _AmazonPrimeApi extends ServiceApi {
 		}
 
 		try {
-			const profileResponseText = await Requests.send({
+			const profileResponseText = await this.requests.send({
 				url: this.PROFILE_URL,
 				method: 'GET',
-				headers: {
-					'x-requested-with': 'XMLHttpRequest',
-				},
 			});
 			const profileResponse = JSON.parse(profileResponseText) as AmazonPrimeProfileResponse;
 			const profile = profileResponse.profiles.find((currentProfile) => currentProfile.isSelected);
@@ -213,12 +214,9 @@ class _AmazonPrimeApi extends ServiceApi {
 
 		const historyItems: AmazonPrimeHistoryItem[] = [];
 
-		const historyResponseText = await Requests.send({
+		const historyResponseText = await this.requests.send({
 			url: Utils.replace(this.HISTORY_URL, { index: this.nextIndex }),
 			method: 'GET',
-			headers: {
-				'x-requested-with': 'XMLHttpRequest',
-			},
 		});
 		const historyResponse = JSON.parse(historyResponseText) as AmazonPrimeHistoryResponse;
 
@@ -240,16 +238,13 @@ class _AmazonPrimeApi extends ServiceApi {
 					});
 				}
 
-				const enrichmentsResponseText = await Requests.send({
+				const enrichmentsResponseText = await this.requests.send({
 					url: Utils.replace(this.ENRICHMENTS_URL, {
 						ids: partialHistoryItems
 							.map((partialHistoryItem) => `%22${partialHistoryItem.id}%22`)
 							.join('%2C'),
 					}),
 					method: 'GET',
-					headers: {
-						'x-requested-with': 'XMLHttpRequest',
-					},
 				});
 				const enrichmentsResponse = JSON.parse(
 					enrichmentsResponseText
@@ -332,8 +327,8 @@ class _AmazonPrimeApi extends ServiceApi {
 				nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0].titleId ??
 				'';
 		} catch (err) {
-			if (Errors.validate(err)) {
-				Errors.error('Failed to get item.', err);
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to get item.', err);
 			}
 		}
 		return item;

@@ -1,6 +1,7 @@
-import { BrowserStorage, OptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { OptionDetails, StorageValuesOptions } from '@common/BrowserStorage';
+import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { OptionsListItemRoot } from '@components/OptionsListItemRoot';
 import { SelectOption } from '@components/SelectOption';
 import { SwitchOption } from '@components/SwitchOption';
@@ -12,22 +13,22 @@ interface OptionsListItemProps {
 }
 
 export const OptionsListItem = ({ option }: OptionsListItemProps): JSX.Element => {
-	const [isDisabled, setDisabled] = useState(BrowserStorage.checkDisabledOption(option));
+	const [isDisabled, setDisabled] = useState(Shared.storage.checkDisabledOption(option));
 	const [value, setValue] = useState(option.value);
 
 	const handleChange = (optionId: string, newValue: unknown) => {
-		void EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+		void Shared.events.dispatch('OPTIONS_CHANGE', null, {
 			[optionId]: newValue,
 		});
 	};
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -43,7 +44,7 @@ export const OptionsListItem = ({ option }: OptionsListItemProps): JSX.Element =
 					(dependency) => data.options && dependency in data.options
 				);
 				if (hasDependenciesChanged) {
-					setDisabled(BrowserStorage.checkDisabledOption(option));
+					setDisabled(Shared.storage.checkDisabledOption(option));
 				}
 			}
 		};

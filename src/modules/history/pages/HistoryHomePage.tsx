@@ -1,6 +1,6 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { HistoryInfo } from '@components/HistoryInfo';
 import { useHistory } from '@contexts/HistoryContext';
 import { getServices, Service } from '@models/Service';
@@ -17,11 +17,11 @@ export const HomePage = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -31,7 +31,7 @@ export const HomePage = (): JSX.Element => {
 		};
 
 		const checkEnabledServices = () => {
-			const serviceOptions = BrowserStorage.options.services;
+			const serviceOptions = Shared.storage.options.services;
 			const enabledServices = getServices().filter(
 				(service) => service.hasSync && serviceOptions[service.id].sync
 			);

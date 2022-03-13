@@ -1,8 +1,6 @@
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
-import { Errors } from '@common/Errors';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { Box, Button, Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
 
@@ -10,26 +8,26 @@ export const OptionsActions = (): JSX.Element => {
 	const [cacheSize, setCacheSize] = useState('0 B');
 
 	const updateCachesSize = async () => {
-		setCacheSize(await BrowserStorage.getSize(Cache.storageKeys));
+		setCacheSize(await Shared.storage.getSize(Cache.storageKeys));
 	};
 
 	const onClearStorageClick = async () => {
-		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+		await Shared.events.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearStorageTitle'),
 			message: I18N.translate('confirmClearStorageMessage'),
 			onConfirm: async () => {
 				try {
-					await BrowserStorage.clear(true);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					await Shared.storage.clear(true);
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'clearStorageSuccess',
 						severity: 'success',
 					});
-					await EventDispatcher.dispatch('LOGOUT_SUCCESS', null, {});
+					await Shared.events.dispatch('LOGOUT_SUCCESS', null, {});
 					void updateCachesSize();
 				} catch (err) {
-					if (Errors.validate(err)) {
-						Errors.error('Failed to clear storage.', err);
-						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					if (Shared.errors.validate(err)) {
+						Shared.errors.error('Failed to clear storage.', err);
+						await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 							messageName: 'clearStorageFailed',
 							severity: 'error',
 						});
@@ -40,21 +38,21 @@ export const OptionsActions = (): JSX.Element => {
 	};
 
 	const onClearCachesClick = async () => {
-		await EventDispatcher.dispatch('DIALOG_SHOW', null, {
+		await Shared.events.dispatch('DIALOG_SHOW', null, {
 			title: I18N.translate('confirmClearCachesTitle'),
 			message: I18N.translate('confirmClearCachesMessage'),
 			onConfirm: async () => {
 				try {
-					await BrowserStorage.remove(Cache.storageKeys);
-					await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					await Shared.storage.remove(Cache.storageKeys);
+					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'clearCachesSuccess',
 						severity: 'success',
 					});
 					void updateCachesSize();
 				} catch (err) {
-					if (Errors.validate(err)) {
-						Errors.error('Failed to clear caches.', err);
-						await EventDispatcher.dispatch('SNACKBAR_SHOW', null, {
+					if (Shared.errors.validate(err)) {
+						Shared.errors.error('Failed to clear caches.', err);
+						await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 							messageName: 'clearCachesFailed',
 							severity: 'error',
 						});

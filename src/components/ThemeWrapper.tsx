@@ -1,5 +1,6 @@
-import { BrowserStorage, ThemeValue } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { ThemeValue } from '@common/BrowserStorage';
+import { StorageOptionsChangeData } from '@common/Events';
+import { Shared } from '@common/Shared';
 import '@fonts';
 import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -46,11 +47,11 @@ export const ThemeWrapper = ({ children }: ThemeWrapperProps): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {
@@ -60,7 +61,7 @@ export const ThemeWrapper = ({ children }: ThemeWrapperProps): JSX.Element => {
 		};
 
 		const setTheme = () => {
-			const themeValue = BrowserStorage.options.theme;
+			const themeValue = Shared.storage.options.theme;
 			setThemeDetails((prevThemeDetails) => {
 				if (prevThemeDetails.value === themeValue) {
 					return prevThemeDetails;

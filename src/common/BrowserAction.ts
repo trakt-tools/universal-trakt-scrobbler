@@ -1,4 +1,3 @@
-import { EventDispatcher } from '@common/Events';
 import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import browser, { Action as WebExtAction } from 'webextension-polyfill';
@@ -16,9 +15,9 @@ class _BrowserAction {
 	rotating: BrowserActionRotating | null = null;
 
 	init() {
-		EventDispatcher.subscribe('SCROBBLE_START', null, this.onScrobbleActive);
-		EventDispatcher.subscribe('SCROBBLE_PAUSE', null, this.onScrobbleInactive);
-		EventDispatcher.subscribe('SCROBBLE_STOP', null, this.onScrobbleInactive);
+		Shared.events.subscribe('SCROBBLE_START', null, this.onScrobbleActive);
+		Shared.events.subscribe('SCROBBLE_PAUSE', null, this.onScrobbleInactive);
+		Shared.events.subscribe('SCROBBLE_STOP', null, this.onScrobbleInactive);
 	}
 
 	onScrobbleActive = () => {

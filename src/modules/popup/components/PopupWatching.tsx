@@ -1,6 +1,5 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { CorrectionDialog } from '@components/CorrectionDialog';
 import { CustomSnackbar } from '@components/CustomSnackbar';
 import { PopupInfo } from '@components/PopupInfo';
@@ -17,7 +16,7 @@ export interface PopupWatchingProps {
 
 export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Element => {
 	const openCorrectionDialog = async () => {
-		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
+		await Shared.events.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			item,
 			isScrobblingItem: true,
 		});
@@ -51,7 +50,7 @@ export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Eleme
 						<Button color="secondary" onClick={openCorrectionDialog}>
 							<Typography variant="caption">
 								{I18N.translate('isThisWrong')}{' '}
-								{BrowserStorage.options.sendReceiveSuggestions ? (
+								{Shared.storage.options.sendReceiveSuggestions ? (
 									typeof item.suggestions === 'undefined' ? (
 										<>({I18N.translate('loadingSuggestions')}...)</>
 									) : item.suggestions && item.suggestions.length > 0 ? (

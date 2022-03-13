@@ -1,5 +1,6 @@
 import { ServiceValue } from '@common/BrowserStorage';
-import { EventDispatcher, StorageOptionsChangeData } from '@common/Events';
+import { StorageOptionsChangeData } from '@common/Events';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { ServiceOptionRow } from '@components/ServiceOptionRow';
 import { getService } from '@models/Service';
@@ -16,7 +17,7 @@ export const ServiceOption = ({ serviceId, initialValue }: ServiceOptionProps): 
 	const service = getService(serviceId);
 
 	const handleChange = useCallback((optionId: string, newValue: unknown) => {
-		void EventDispatcher.dispatch('OPTIONS_CHANGE', null, {
+		void Shared.events.dispatch('OPTIONS_CHANGE', null, {
 			services: {
 				[serviceId]: {
 					[optionId]: newValue,
@@ -27,11 +28,11 @@ export const ServiceOption = ({ serviceId, initialValue }: ServiceOptionProps): 
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
+			Shared.events.unsubscribe('STORAGE_OPTIONS_CHANGE', null, onStorageOptionsChange);
 		};
 
 		const onStorageOptionsChange = (data: StorageOptionsChangeData) => {

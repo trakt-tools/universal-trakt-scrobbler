@@ -1,6 +1,6 @@
-import { BrowserStorage } from '@common/BrowserStorage';
 import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
+import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { LeftRight } from '@components/LeftRight';
 import { useHistory } from '@contexts/HistoryContext';
@@ -40,7 +40,7 @@ export const PopupHeader = (): JSX.Element => {
 
 	useEffect(() => {
 		const checkAutoSync = async () => {
-			const { syncCache } = await BrowserStorage.get('syncCache');
+			const { syncCache } = await Shared.storage.get('syncCache');
 			if (syncCache && syncCache.items.length > 0) {
 				setSyncButton({
 					isEnabled: true,

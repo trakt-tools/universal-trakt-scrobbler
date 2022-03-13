@@ -1,11 +1,9 @@
 import { TraktSearchItem } from '@apis/TraktSearch';
 import {
-	BrowserStorage,
 	ScrobblingDetails,
 	StorageValuesOptions,
 	StorageValuesSyncOptions,
 } from '@common/BrowserStorage';
-import { Errors } from '@common/Errors';
 import { DispatchEventMessage, Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
@@ -182,6 +180,10 @@ class _EventDispatcher {
 		this.listeners = {};
 	}
 
+	init() {
+		// Do nothing
+	}
+
 	subscribe<K extends Event>(
 		eventType: K,
 		eventSpecifier: string | null,
@@ -226,10 +228,10 @@ class _EventDispatcher {
 		if (isExternal && eventType === 'STORAGE_OPTIONS_CHANGE') {
 			const { options, syncOptions } = data as StorageOptionsChangeData;
 			if (options) {
-				BrowserStorage.updateOptions(options);
+				Shared.storage.updateOptions(options);
 			}
 			if (syncOptions) {
-				BrowserStorage.updateSyncOptions(syncOptions);
+				Shared.storage.updateSyncOptions(syncOptions);
 			}
 		}
 
@@ -267,8 +269,8 @@ class _EventDispatcher {
 			try {
 				await listener(data);
 			} catch (err) {
-				if (Errors.validate(err)) {
-					Errors.log('Failed to dispatch.', err);
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log('Failed to dispatch.', err);
 				}
 				throw err;
 			}
@@ -277,3 +279,5 @@ class _EventDispatcher {
 }
 
 export const EventDispatcher = new _EventDispatcher();
+
+Shared.events = EventDispatcher;

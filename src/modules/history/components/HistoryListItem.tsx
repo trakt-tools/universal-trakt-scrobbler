@@ -1,5 +1,6 @@
-import { EventDispatcher, ItemsLoadData } from '@common/Events';
+import { ItemsLoadData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { Shared } from '@common/Shared';
 import { HistoryListItemCard } from '@components/HistoryListItemCard';
 import { HistoryListItemMessage } from '@components/HistoryListItemMessage';
 import { useSync } from '@contexts/SyncContext';
@@ -43,7 +44,7 @@ const _HistoryListItem = ({
 		if (!item) {
 			return;
 		}
-		await EventDispatcher.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
+		await Shared.events.dispatch('MISSING_WATCHED_DATE_DIALOG_SHOW', null, {
 			items: [item],
 		});
 	};
@@ -52,7 +53,7 @@ const _HistoryListItem = ({
 		if (!item) {
 			return;
 		}
-		await EventDispatcher.dispatch('CORRECTION_DIALOG_SHOW', null, {
+		await Shared.events.dispatch('CORRECTION_DIALOG_SHOW', null, {
 			item,
 			isScrobblingItem: false,
 		});
@@ -60,11 +61,11 @@ const _HistoryListItem = ({
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.subscribe('ITEMS_LOAD', null, onItemsLoad);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
+			Shared.events.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
 		};
 
 		const onItemsLoad = (eventData: ItemsLoadData) => {

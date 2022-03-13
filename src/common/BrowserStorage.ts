@@ -2,7 +2,6 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { TraktSettings } from '@apis/TraktSettings';
 import { CacheStorageValues } from '@common/Cache';
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
 import { Session } from '@common/Session';
@@ -532,11 +531,11 @@ class _BrowserStorage {
 		await browser.storage.local.clear();
 		await this.set({ version: this.currentVersion }, true);
 		await this.reset();
-		void EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {
+		void Shared.events.dispatch('STORAGE_OPTIONS_CHANGE', null, {
 			options: this.options,
 			syncOptions: this.syncOptions,
 		});
-		void EventDispatcher.dispatch('STORAGE_OPTIONS_CLEAR', null, {});
+		void Shared.events.dispatch('STORAGE_OPTIONS_CLEAR', null, {});
 	}
 
 	async reset() {
@@ -733,7 +732,7 @@ class _BrowserStorage {
 			if (isSuccessArr.every((isSuccess) => isSuccess)) {
 				await this.doSet({ options }, true);
 				this.updateOptions(partialOptions);
-				void EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {
+				void Shared.events.dispatch('STORAGE_OPTIONS_CHANGE', null, {
 					options: partialOptions,
 				});
 			} else {
@@ -813,7 +812,7 @@ class _BrowserStorage {
 		const syncOptions = Utils.mergeObjs(this.syncOptions, partialOptions);
 		await this.doSet({ syncOptions }, true);
 		this.updateSyncOptions(partialOptions);
-		void EventDispatcher.dispatch('STORAGE_OPTIONS_CHANGE', null, {
+		void Shared.events.dispatch('STORAGE_OPTIONS_CHANGE', null, {
 			syncOptions: partialOptions,
 		});
 	}
@@ -828,15 +827,17 @@ class _BrowserStorage {
 
 	checkDisabledOption(option: OptionDetails<StorageValuesOptions>) {
 		const isDisabled =
-			option.dependencies?.some((dependency) => !BrowserStorage.options[dependency]) ?? false;
+			option.dependencies?.some((dependency) => !this.options[dependency]) ?? false;
 		return isDisabled;
 	}
 
 	checkSyncOptionDisabled(option: OptionDetails<StorageValuesSyncOptions>) {
 		const isDisabled =
-			option.dependencies?.some((dependency) => !BrowserStorage.syncOptions[dependency]) ?? false;
+			option.dependencies?.some((dependency) => !this.syncOptions[dependency]) ?? false;
 		return isDisabled;
 	}
 }
 
 export const BrowserStorage = new _BrowserStorage();
+
+Shared.storage = BrowserStorage;

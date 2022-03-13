@@ -1,10 +1,4 @@
-import { BrowserStorage } from '@common/BrowserStorage';
-import {
-	EventDispatcher,
-	ScrobbleErrorData,
-	SearchErrorData,
-	StorageOptionsChangeData,
-} from '@common/Events';
+import { ScrobbleErrorData, SearchErrorData, StorageOptionsChangeData } from '@common/Events';
 import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { ErrorInfo } from 'react';
@@ -15,11 +9,11 @@ class _Errors {
 
 	init() {
 		this.checkRollbar();
-		EventDispatcher.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
-		EventDispatcher.subscribe('SCROBBLE_ERROR', null, (data: ScrobbleErrorData) =>
+		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
+		Shared.events.subscribe('SCROBBLE_ERROR', null, (data: ScrobbleErrorData) =>
 			this.onItemError(data, 'scrobble')
 		);
-		EventDispatcher.subscribe('SEARCH_ERROR', null, (data: SearchErrorData) =>
+		Shared.events.subscribe('SEARCH_ERROR', null, (data: SearchErrorData) =>
 			this.onItemError(data, 'find')
 		);
 	}
@@ -31,7 +25,7 @@ class _Errors {
 	};
 
 	checkRollbar() {
-		const { allowRollbar } = BrowserStorage.options;
+		const { allowRollbar } = Shared.storage.options;
 		if (allowRollbar && !this.rollbar) {
 			this.rollbar = new Rollbar({
 				accessToken: Shared.rollbarToken,
@@ -57,7 +51,7 @@ class _Errors {
 		type: 'scrobble' | 'find'
 	): Promise<void> {
 		if (data.error) {
-			const values = await BrowserStorage.get('auth');
+			const values = await Shared.storage.get('auth');
 			if (values.auth && values.auth.access_token) {
 				this.error(`Failed to ${type} item.`, data.error);
 			} else {
@@ -90,3 +84,5 @@ class _Errors {
 }
 
 export const Errors = new _Errors();
+
+Shared.errors = Errors;

@@ -1,4 +1,3 @@
-import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
@@ -45,7 +44,7 @@ class _CorrectionApi {
 	 * If all suggestions have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
 	 */
 	async loadSuggestions(items: Item[]): Promise<Item[]> {
-		if (!BrowserStorage.options.sendReceiveSuggestions) {
+		if (!Shared.storage.options.sendReceiveSuggestions) {
 			return items;
 		}
 		const hasLoadedSuggestions = !items.some((item) => typeof item.suggestions === 'undefined');
@@ -110,7 +109,7 @@ class _CorrectionApi {
 	 * Saves a suggestion for an item in the database.
 	 */
 	async saveSuggestion(item: Item, suggestion: Suggestion): Promise<void> {
-		if (!BrowserStorage.options.sendReceiveSuggestions) {
+		if (!Shared.storage.options.sendReceiveSuggestions) {
 			return;
 		}
 		await Requests.send({

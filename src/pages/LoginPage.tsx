@@ -1,4 +1,3 @@
-import { EventDispatcher } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
@@ -18,13 +17,13 @@ export const LoginPage = (): JSX.Element => {
 
 	useEffect(() => {
 		const startListeners = () => {
-			EventDispatcher.subscribe('LOGIN_SUCCESS', null, onLoginSuccess);
-			EventDispatcher.subscribe('LOGIN_ERROR', null, onLoginError);
+			Shared.events.subscribe('LOGIN_SUCCESS', null, onLoginSuccess);
+			Shared.events.subscribe('LOGIN_ERROR', null, onLoginError);
 		};
 
 		const stopListeners = () => {
-			EventDispatcher.unsubscribe('LOGIN_SUCCESS', null, onLoginSuccess);
-			EventDispatcher.unsubscribe('LOGIN_ERROR', null, onLoginError);
+			Shared.events.unsubscribe('LOGIN_SUCCESS', null, onLoginSuccess);
+			Shared.events.unsubscribe('LOGIN_ERROR', null, onLoginError);
 		};
 
 		const onLoginSuccess = () => {
