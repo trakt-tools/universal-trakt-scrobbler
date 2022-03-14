@@ -250,6 +250,14 @@ export abstract class ServiceApi {
 		return items;
 	}
 
+	reset() {
+		this.leftoverHistoryItems = [];
+		this.hasCheckedHistoryCache = false;
+		this.hasReachedHistoryEnd = false;
+		this.nextHistoryPage = 0;
+		this.nextHistoryUrl = '';
+	}
+
 	/**
 	 * This method is responsible for loading more history items. It should set `hasReachedHistoryEnd` to true when there are no more history items to load.
 	 *
