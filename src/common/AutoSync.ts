@@ -90,11 +90,13 @@ class _AutoSync {
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: Item[] = [];
 
-			try {
-				const api = getServiceApi(service.id);
-				const store = getSyncStore(service.id);
-				await store.resetData();
+			const api = getServiceApi(service.id);
+			const store = getSyncStore(service.id);
 
+			api.reset();
+			await store.resetData();
+
+			try {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
 				items = store.data.items.filter(
@@ -129,6 +131,9 @@ class _AutoSync {
 					Shared.errors.log(`Failed to auto sync ${service.id}`, err);
 				}
 			}
+
+			api.reset();
+			await store.resetData();
 
 			const partialServiceValue = partialOptions.services?.[service.id] || {};
 			partialServiceValue.lastSync = now;
