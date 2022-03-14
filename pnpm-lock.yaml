@@ -17,6 +17,7 @@ specifiers:
   '@mui/material': ^5.0.0
   '@mui/system': ^5.0.0
   '@octokit/rest': ^18.10.0
+  '@rafaelgomesxyz/axios-rate-limit': ^1.3.1
   '@trakt-tools/cli': ^0.3.2
   '@types/archiver': ^5.1.1
   '@types/circular-dependency-plugin': ^5.0.5
@@ -33,8 +34,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^4.31.1
   '@typescript-eslint/parser': ^4.31.1
   archiver: ^5.3.0
-  axios: ^0.21.4
-  axios-rate-limit: ^1.3.0
+  axios: ^0.26.1
   babel-loader: ^8.2.2
   babel-preset-minify: ^0.5.1
   circular-dependency-plugin: ^5.2.2
@@ -83,8 +83,8 @@ dependencies:
   '@mui/lab': 5.0.0-alpha.47_d401d0038f9f7437a66272bfb4bf6c2b
   '@mui/material': 5.0.0_60d91b3d3c32f4c9d710d21ae461153c
   '@mui/system': 5.0.0_5330f53cb26527a90bb080bb5d7370b8
-  axios: 0.21.4
-  axios-rate-limit: 1.3.0_axios@0.21.4
+  '@rafaelgomesxyz/axios-rate-limit': 1.3.1_axios@0.26.1
+  axios: 0.26.1
   date-fns: 2.24.0
   deepmerge: 4.2.2
   history: 4.10.1
@@ -2731,6 +2731,17 @@ packages:
       }
     dev: false
 
+  /@rafaelgomesxyz/axios-rate-limit/1.3.1_axios@0.26.1:
+    resolution:
+      {
+        integrity: sha512-eSLiUDBvaR93CS23pWCy4elPzWV9w6W65IJFrNT3Pg4ay8XYAxo45goBl3fxV0fKcXGglIKl/2z1osspKMGHwg==,
+      }
+    peerDependencies:
+      axios: '*'
+    dependencies:
+      axios: 0.26.1
+    dev: false
+
   /@trakt-tools/cli/0.3.2:
     resolution:
       {
@@ -3614,24 +3625,13 @@ packages:
       }
     dev: true
 
-  /axios-rate-limit/1.3.0_axios@0.21.4:
+  /axios/0.26.1:
     resolution:
       {
-        integrity: sha512-cKR5wTbU/CeeyF1xVl5hl6FlYsmzDVqxlN4rGtfO5x7J83UxKDckudsW0yW21/ZJRcO0Qrfm3fUFbhEbWTLayw==,
-      }
-    peerDependencies:
-      axios: '*'
-    dependencies:
-      axios: 0.21.4
-    dev: false
-
-  /axios/0.21.4:
-    resolution:
-      {
-        integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==,
+        integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==,
       }
     dependencies:
-      follow-redirects: 1.14.1
+      follow-redirects: 1.14.9
     transitivePeerDependencies:
       - debug
     dev: false
@@ -5320,10 +5320,10 @@ packages:
       }
     dev: true
 
-  /follow-redirects/1.14.1:
+  /follow-redirects/1.14.9:
     resolution:
       {
-        integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==,
+        integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==,
       }
     engines: { node: '>=4.0' }
     peerDependencies:
