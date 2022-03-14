@@ -17,6 +17,7 @@ specifiers:
   '@mui/material': ^5.0.0
   '@mui/system': ^5.0.0
   '@octokit/rest': ^18.10.0
+  '@rafaelgomesxyz/axios-rate-limit': ^1.3.1
   '@trakt-tools/cli': ^0.3.2
   '@types/archiver': ^5.1.1
   '@types/circular-dependency-plugin': ^5.0.5
@@ -34,7 +35,6 @@ specifiers:
   '@typescript-eslint/parser': ^4.31.1
   archiver: ^5.3.0
   axios: ^0.26.1
-  axios-rate-limit: ^1.3.0
   babel-loader: ^8.2.2
   babel-preset-minify: ^0.5.1
   circular-dependency-plugin: ^5.2.2
@@ -83,8 +83,8 @@ dependencies:
   '@mui/lab': 5.0.0-alpha.47_d401d0038f9f7437a66272bfb4bf6c2b
   '@mui/material': 5.0.0_60d91b3d3c32f4c9d710d21ae461153c
   '@mui/system': 5.0.0_5330f53cb26527a90bb080bb5d7370b8
+  '@rafaelgomesxyz/axios-rate-limit': 1.3.1_axios@0.26.1
   axios: 0.26.1
-  axios-rate-limit: 1.3.0_axios@0.21.4
   date-fns: 2.24.0
   deepmerge: 4.2.2
   history: 4.10.1
@@ -2731,6 +2731,17 @@ packages:
       }
     dev: false
 
+  /@rafaelgomesxyz/axios-rate-limit/1.3.1_axios@0.26.1:
+    resolution:
+      {
+        integrity: sha512-eSLiUDBvaR93CS23pWCy4elPzWV9w6W65IJFrNT3Pg4ay8XYAxo45goBl3fxV0fKcXGglIKl/2z1osspKMGHwg==,
+      }
+    peerDependencies:
+      axios: '*'
+    dependencies:
+      axios: 0.26.1
+    dev: false
+
   /@trakt-tools/cli/0.3.2:
     resolution:
       {
@@ -3613,17 +3624,6 @@ packages:
         integrity: sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==,
       }
     dev: true
-
-  /axios-rate-limit/1.3.0_axios@0.21.4:
-    resolution:
-      {
-        integrity: sha512-cKR5wTbU/CeeyF1xVl5hl6FlYsmzDVqxlN4rGtfO5x7J83UxKDckudsW0yW21/ZJRcO0Qrfm3fUFbhEbWTLayw==,
-      }
-    peerDependencies:
-      axios: '*'
-    dependencies:
-      axios: 0.21.4
-    dev: false
 
   /axios/0.26.1:
     resolution:
