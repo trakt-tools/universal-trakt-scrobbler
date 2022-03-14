@@ -1,5 +1,5 @@
 import { ScrobbleErrorData, SearchErrorData, StorageOptionsChangeData } from '@common/Events';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { ErrorInfo } from 'react';
 import Rollbar from 'rollbar';
@@ -79,7 +79,11 @@ class _Errors {
 	}
 
 	validate(err: unknown): err is Error {
-		return (err instanceof RequestError && !err.isCanceled) || err instanceof Error;
+		if (err instanceof RequestError) {
+			return !err.isCanceled;
+		}
+
+		return err instanceof Error;
 	}
 }
 

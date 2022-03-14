@@ -1,35 +1,10 @@
 import { Messaging } from '@common/Messaging';
+import { RequestError } from '@common/RequestError';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
 import axiosRateLimit from '@rafaelgomesxyz/axios-rate-limit';
 import axios, { AxiosResponse, Method } from 'axios';
 import browser from 'webextension-polyfill';
-
-export interface RequestErrorOptions {
-	request?: RequestDetails;
-	status?: number;
-	text?: string;
-	isCanceled?: boolean;
-	extra?: Record<string, unknown>;
-}
-
-export class RequestError extends Error {
-	request?: RequestDetails;
-	status?: number;
-	text?: string;
-	isCanceled?: boolean;
-	extra?: Record<string, unknown>;
-
-	constructor(options: RequestErrorOptions) {
-		super(JSON.stringify(options));
-
-		this.request = options.request;
-		this.status = options.status;
-		this.text = options.text;
-		this.isCanceled = options.isCanceled;
-		this.extra = options.extra;
-	}
-}
 
 export type RequestDetails = {
 	url: string;
