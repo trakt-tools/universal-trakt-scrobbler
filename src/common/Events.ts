@@ -171,6 +171,7 @@ class _EventDispatcher {
 		'STORAGE_OPTIONS_CHANGE',
 		'CONTENT_SCRIPT_CONNECT',
 		'CONTENT_SCRIPT_DISCONNECT',
+		'REQUESTS_CANCEL',
 	];
 
 	globalSpecifier = 'all';
