@@ -101,7 +101,7 @@ class _AutoSync {
 					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
-					items = await ServiceApi.loadTraktHistory(items);
+					items = await ServiceApi.loadTraktHistory(items, undefined, 'autoSync');
 
 					const foundItems = items.filter((item) => item.trakt);
 					const itemsToSync = foundItems.filter(
@@ -111,7 +111,7 @@ class _AutoSync {
 						for (const itemToSync of itemsToSync) {
 							itemToSync.isSelected = true;
 						}
-						await TraktSync.sync(store, itemsToSync);
+						await TraktSync.sync(store, itemsToSync, 'autoSync');
 					}
 
 					items = store.data.items.filter(

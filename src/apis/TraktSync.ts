@@ -41,7 +41,8 @@ class _TraktSync extends TraktApi {
 	async loadHistory(
 		item: Item,
 		traktHistoryItemsCache: CacheItem<'traktHistoryItems'>,
-		forceRefresh = false
+		forceRefresh = false,
+		cancelKey = 'default'
 	): Promise<void> {
 		const watchedAt = item.trakt?.watchedAt || item.getWatchedDate();
 		if (!item.trakt || !watchedAt) {
@@ -54,7 +55,7 @@ class _TraktSync extends TraktApi {
 			const responseText = await this.requests.send({
 				url: this.getUrl(item),
 				method: 'GET',
-				cancelKey: forceRefresh ? 'sync' : 'default',
+				cancelKey,
 				priority: RequestPriority.HIGH,
 			});
 			historyItems = JSON.parse(responseText) as TraktHistoryItem[];
@@ -110,7 +111,7 @@ class _TraktSync extends TraktApi {
 		return url;
 	}
 
-	async sync(store: SyncStore, items: Item[]) {
+	async sync(store: SyncStore, items: Item[], cancelKey = 'sync') {
 		const newItems: Item[] = [];
 		try {
 			const data = {
@@ -132,7 +133,7 @@ class _TraktSync extends TraktApi {
 				url: this.SYNC_URL,
 				method: 'POST',
 				body: data,
-				cancelKey: 'sync',
+				cancelKey,
 			});
 			const responseJson = JSON.parse(responseText) as TraktSyncResponse;
 			const notFoundItems = {
@@ -147,7 +148,7 @@ class _TraktSync extends TraktApi {
 						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))
 				) {
 					const newItem = item.clone();
-					await TraktSync.loadHistory(newItem, traktHistoryItemsCache, true);
+					await TraktSync.loadHistory(newItem, traktHistoryItemsCache, true, cancelKey);
 					newItem.isSelected = false;
 					newItems.push(newItem);
 				}
