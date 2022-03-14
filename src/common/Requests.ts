@@ -42,6 +42,12 @@ export type RequestDetails = {
 	withRateLimit?: RateLimitConfig;
 };
 
+export interface RequestOptions {
+	method: RequestInit['method'];
+	headers: Record<string, string>;
+	body: RequestInit['body'];
+}
+
 export interface RateLimit {
 	id: string;
 	maxRPS: number;
@@ -107,10 +113,10 @@ class _Requests {
 	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> {
 		const options = await this.getOptions(request, tabId);
 		const cancelKey = request.cancelKey || 'default';
-		if (!RequestsManager.cancelTokens.has(cancelKey)) {
-			RequestsManager.cancelTokens.set(cancelKey, axios.CancelToken.source());
+		if (!RequestsManager.abortControllers.has(cancelKey)) {
+			RequestsManager.abortControllers.set(cancelKey, new AbortController());
 		}
-		const cancelToken = RequestsManager.cancelTokens.get(cancelKey)?.token;
+		const signal = RequestsManager.abortControllers.get(cancelKey)?.signal;
 
 		const rateLimit = request.rateLimit ?? this.getRateLimit(request);
 		let instance = RequestsManager.instances.get(rateLimit.id);
@@ -125,12 +131,12 @@ class _Requests {
 			headers: options.headers,
 			data: options.body,
 			responseType: 'text',
-			cancelToken,
+			signal,
 			transformResponse: (res: string) => res,
 		});
 	}
 
-	async getOptions(request: RequestDetails, tabId = Shared.tabId): Promise<RequestInit> {
+	async getOptions(request: RequestDetails, tabId = Shared.tabId): Promise<RequestOptions> {
 		return {
 			method: request.method,
 			headers: await this.getHeaders(request, tabId),
@@ -138,8 +144,8 @@ class _Requests {
 		};
 	}
 
-	async getHeaders(request: RequestDetails, tabId = Shared.tabId): Promise<HeadersInit> {
-		const headers: HeadersInit = {
+	async getHeaders(request: RequestDetails, tabId = Shared.tabId): Promise<Record<string, string>> {
+		const headers: Record<string, string> = {
 			...this.withHeaders,
 			...(request.withHeaders || {}),
 			'Content-Type':
