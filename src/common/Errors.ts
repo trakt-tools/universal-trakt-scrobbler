@@ -1,5 +1,5 @@
 import { ScrobbleErrorData, SearchErrorData, StorageOptionsChangeData } from '@common/Events';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { ErrorInfo } from 'react';
 import Rollbar from 'rollbar';
