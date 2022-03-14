@@ -79,7 +79,11 @@ class _Errors {
 	}
 
 	validate(err: unknown): err is Error {
-		return (err instanceof RequestError && !err.isCanceled) || err instanceof Error;
+		if (err instanceof RequestError) {
+			return !err.isCanceled;
+		}
+
+		return err instanceof Error;
 	}
 }
 
