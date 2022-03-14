@@ -1,6 +1,7 @@
 import { TraktAuthDetails } from '@apis/TraktAuth';
 import { Event, EventData } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
+import { RequestError, RequestErrorOptions } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
 import browser, { Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill';
@@ -134,6 +135,18 @@ export type MessageHandlers = {
 	) => Promisable<ReturnType<MessageRequests[K]>> | undefined;
 };
 
+export type MessagingError =
+	| {
+			instance: 'Error';
+			data: {
+				message: string;
+			};
+	  }
+	| {
+			instance: 'RequestError';
+			data: RequestErrorOptions;
+	  };
+
 class _Messaging {
 	/**
 	 * Returning undefined from a message handler means that the response will not be sent back. This is useful for situations where a message is received in multiple places (background, popup, ...) but only one of them is responsible for responding, while the others simply receive the message and do something with it.
@@ -185,7 +198,30 @@ class _Messaging {
 		}
 		return Promise.resolve(executingAction).catch((err: Error) => {
 			Shared.errors.log('Failed to execute action.', err);
-			throw err.message;
+
+			if (err instanceof RequestError) {
+				throw new Error(
+					JSON.stringify({
+						instance: 'RequestError',
+						data: {
+							request: err.request,
+							status: err.status,
+							text: err.text,
+							isCanceled: err.isCanceled,
+							extra: err.extra,
+						},
+					})
+				);
+			}
+
+			throw new Error(
+				JSON.stringify({
+					instance: 'Error',
+					data: {
+						message: err.message,
+					},
+				})
+			);
 		});
 	};
 
@@ -204,7 +240,16 @@ class _Messaging {
 		try {
 			response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
 		} catch (err) {
-			// Do nothing
+			if (err instanceof Error) {
+				const messagingError = JSON.parse(err.message) as MessagingError;
+				switch (messagingError.instance) {
+					case 'Error':
+						throw new Error(messagingError.data.message);
+
+					case 'RequestError':
+						throw new RequestError(messagingError.data);
+				}
+			}
 		}
 		return response;
 	}

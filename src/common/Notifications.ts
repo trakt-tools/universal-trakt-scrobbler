@@ -7,7 +7,7 @@ import {
 } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Messaging } from '@common/Messaging';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import browser from 'webextension-polyfill';
 

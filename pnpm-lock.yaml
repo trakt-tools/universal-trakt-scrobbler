@@ -44,7 +44,6 @@ specifiers:
   deepmerge: ^4.2.2
   eslint: ^7.32.0
   eslint-config-prettier: ^8.3.0
-  eslint-plugin-i18n-json: ^3.1.0
   eslint-plugin-mui: ^0.1.0
   eslint-plugin-prefer-arrow: ^1.2.3
   eslint-plugin-prettier: ^4.0.0
@@ -131,7 +130,6 @@ devDependencies:
   css-loader: 6.3.0_webpack@5.53.0
   eslint: 7.32.0
   eslint-config-prettier: 8.3.0_eslint@7.32.0
-  eslint-plugin-i18n-json: 3.1.0_eslint@7.32.0
   eslint-plugin-mui: 0.1.0_eslint@7.32.0
   eslint-plugin-prefer-arrow: 1.2.3_eslint@7.32.0
   eslint-plugin-prettier: 4.0.0_6e975bd57c7acf028c1a9ddbbf60c898
@@ -2260,25 +2258,6 @@ packages:
       }
     dev: false
 
-  /@formatjs/ecma402-abstract/1.4.0:
-    resolution:
-      {
-        integrity: sha512-Mv027hcLFjE45K8UJ8PjRpdDGfR0aManEFj1KzoN8zXNveHGEygpZGfFf/FTTMl+QEVSrPAUlyxaCApvmv47AQ==,
-      }
-    dependencies:
-      tslib: 2.3.0
-    dev: true
-
-  /@formatjs/intl-numberformat/5.7.6:
-    resolution:
-      {
-        integrity: sha512-ZlZfYtvbVHYZY5OG3RXizoCwxKxEKOrzEe2YOw9wbzoxF3PmFn0SAgojCFGLyNXkkR6xVxlylhbuOPf1dkIVNg==,
-      }
-    dependencies:
-      '@formatjs/ecma402-abstract': 1.4.0
-      tslib: 2.3.0
-    dev: true
-
   /@humanwhocodes/config-array/0.5.0:
     resolution:
       {
@@ -3351,10 +3330,6 @@ packages:
       }
     dev: true
 
-  /JSV/4.0.2:
-    resolution: { integrity: sha1-0Hf2glVx+CEy+d/67Vh7QCn+/1c= }
-    dev: true
-
   /acorn-import-assertions/1.7.6_acorn@8.5.0:
     resolution:
       {
@@ -3472,22 +3447,12 @@ packages:
     engines: { node: '>=0.10.0' }
     dev: true
 
-  /ansi-regex/3.0.0:
-    resolution: { integrity: sha1-7QMXwyIGT3lGbAKWa922Bas32Zg= }
-    engines: { node: '>=4' }
-    dev: true
-
   /ansi-regex/5.0.0:
     resolution:
       {
         integrity: sha512-bY6fj56OUQ0hU1KjFNDQuJFezqKdrAyFdIevADiqrWHwSlbmBNMHp5ak2f40Pm8JTFyM2mqxkG6ngkHO11f/lg==,
       }
     engines: { node: '>=8' }
-    dev: true
-
-  /ansi-styles/1.0.0:
-    resolution: { integrity: sha1-yxAt8cVvUSPquLZ817mAJ6AnkXg= }
-    engines: { node: '>=0.8.0' }
     dev: true
 
   /ansi-styles/3.2.1:
@@ -4086,15 +4051,6 @@ packages:
       }
     dev: true
 
-  /chalk/0.4.0:
-    resolution: { integrity: sha1-UZmj3c0MHv4jvAjBsCewYXbgxk8= }
-    engines: { node: '>=0.8.0' }
-    dependencies:
-      ansi-styles: 1.0.0
-      has-color: 0.1.7
-      strip-ansi: 0.1.1
-    dev: true
-
   /chalk/2.4.2:
     resolution:
       {
@@ -4588,14 +4544,6 @@ packages:
       }
     dev: true
 
-  /diff/3.5.0:
-    resolution:
-      {
-        integrity: sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==,
-      }
-    engines: { node: '>=0.3.1' }
-    dev: true
-
   /diff/4.0.2:
     resolution:
       {
@@ -4871,30 +4819,6 @@ packages:
       eslint: '>=7.0.0'
     dependencies:
       eslint: 7.32.0
-    dev: true
-
-  /eslint-plugin-i18n-json/3.1.0_eslint@7.32.0:
-    resolution:
-      {
-        integrity: sha512-CoV38uQfD+fg09Mq7mYcvVQEGetjNB0cxX7cFbt3jaa0o/iu9cv7Pmlllrw1HQy0XpJ/u4gCFNfi0dnekx0vuA==,
-      }
-    engines: { node: '>=6.0.0' }
-    peerDependencies:
-      eslint: '>=4.0.0'
-    dependencies:
-      chalk: 2.4.2
-      eslint: 7.32.0
-      indent-string: 3.2.0
-      intl-messageformat-parser: 5.5.1
-      jest-diff: 22.4.3
-      jsonlint: 1.6.3
-      lodash.get: 4.4.2
-      lodash.isequal: 4.5.0
-      lodash.isplainobject: 4.0.6
-      lodash.set: 4.3.2
-      log-symbols: 2.2.0
-      plur: 2.1.2
-      pretty-format: 22.4.3
     dev: true
 
   /eslint-plugin-mui/0.1.0_eslint@7.32.0:
@@ -5478,11 +5402,6 @@ packages:
       }
     dev: true
 
-  /has-color/0.1.7:
-    resolution: { integrity: sha1-ZxRKUmDDT8PMpnfQQdr1L+e3iy8= }
-    engines: { node: '>=0.10.0' }
-    dev: true
-
   /has-flag/3.0.0:
     resolution: { integrity: sha1-tdRU3CGZriJWmfNGfloH87lVuv0= }
     engines: { node: '>=4' }
@@ -5695,11 +5614,6 @@ packages:
     engines: { node: '>=0.8.19' }
     dev: true
 
-  /indent-string/3.2.0:
-    resolution: { integrity: sha1-Sl/W0nzDMvN+VBmlBNu4NxBckok= }
-    engines: { node: '>=4' }
-    dev: true
-
   /indent-string/4.0.0:
     resolution:
       {
@@ -5763,21 +5677,6 @@ packages:
         integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==,
       }
     engines: { node: '>= 0.10' }
-    dev: true
-
-  /intl-messageformat-parser/5.5.1:
-    resolution:
-      {
-        integrity: sha512-TvB3LqF2VtP6yI6HXlRT5TxX98HKha6hCcrg9dwlPwNaedVNuQA9KgBdtWKgiyakyCTYHQ+KJeFEstNKfZr64w==,
-      }
-    deprecated: We've written a new parser that's 6x faster and is backwards compatible. Please use @formatjs/icu-messageformat-parser
-    dependencies:
-      '@formatjs/intl-numberformat': 5.7.6
-    dev: true
-
-  /irregular-plurals/1.4.0:
-    resolution: { integrity: sha1-LKmwM2UREYVUEvFr5dd8YqRYp2Y= }
-    engines: { node: '>=0.10.0' }
     dev: true
 
   /is-arrayish/0.2.1:
@@ -5990,25 +5889,6 @@ packages:
     engines: { node: '>=0.10.0' }
     dev: true
 
-  /jest-diff/22.4.3:
-    resolution:
-      {
-        integrity: sha512-/QqGvCDP5oZOF6PebDuLwrB2BMD8ffJv6TAGAdEVuDx1+uEgrHpSFrfrOiMRx2eJ1hgNjlQrOQEHetVwij90KA==,
-      }
-    dependencies:
-      chalk: 2.4.2
-      diff: 3.5.0
-      jest-get-type: 22.4.3
-      pretty-format: 22.4.3
-    dev: true
-
-  /jest-get-type/22.4.3:
-    resolution:
-      {
-        integrity: sha512-/jsz0Y+V29w1chdXVygEKSz2nBoHoYqNShPe+QgxSNjAuP1i8+k4LbQNrfoliKej0P45sivkSCh7yiD6ubHS3w==,
-      }
-    dev: true
-
   /jest-worker/27.0.2:
     resolution:
       {
@@ -6121,18 +6001,6 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.6
-    dev: true
-
-  /jsonlint/1.6.3:
-    resolution:
-      {
-        integrity: sha512-jMVTMzP+7gU/IyC6hvKyWpUU8tmTkK5b3BPNuMI9U8Sit+YAWLlZwB6Y6YrdCxfg2kNz05p3XY3Bmm4m26Nv3A==,
-      }
-    engines: { node: '>= 0.6' }
-    hasBin: true
-    dependencies:
-      JSV: 4.0.2
-      nomnom: 1.8.1
     dev: true
 
   /jstransformer/1.0.0:
@@ -6298,14 +6166,6 @@ packages:
     resolution: { integrity: sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8= }
     dev: true
 
-  /lodash.get/4.4.2:
-    resolution: { integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk= }
-    dev: true
-
-  /lodash.isequal/4.5.0:
-    resolution: { integrity: sha1-QVxEePK8wwEgwizhDtMib30+GOA= }
-    dev: true
-
   /lodash.isplainobject/4.0.6:
     resolution: { integrity: sha1-fFJqUtibRcRcxpC4gWO+BJf1UMs= }
     dev: true
@@ -6315,10 +6175,6 @@ packages:
       {
         integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==,
       }
-    dev: true
-
-  /lodash.set/4.3.2:
-    resolution: { integrity: sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM= }
     dev: true
 
   /lodash.truncate/4.4.2:
@@ -6334,16 +6190,6 @@ packages:
       {
         integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==,
       }
-    dev: true
-
-  /log-symbols/2.2.0:
-    resolution:
-      {
-        integrity: sha512-VeIAFslyIerEJLXHziedo2basKbMKtTw3vfn5IzG0XTjhAVEJyNHnL2p7vc+wBDSdQuUpNw3M2u6xb9QsAY5Eg==,
-      }
-    engines: { node: '>=4' }
-    dependencies:
-      chalk: 2.4.2
     dev: true
 
   /log-symbols/4.1.0:
@@ -6585,14 +6431,6 @@ packages:
       {
         integrity: sha512-Qe5OUajvqrqDSy6wrWFmMwfJ0jVgwiw4T3KqmbTcZ62qW0gQkheXYhcFM1+lOVcGUoRxcEcfyvFMAnDgaF1VWw==,
       }
-    dev: true
-
-  /nomnom/1.8.1:
-    resolution: { integrity: sha1-IVH3Ikcrp55Qp2/BJbuMjy5Nwqc= }
-    deprecated: Package no longer supported. Contact support@npmjs.com for more info.
-    dependencies:
-      chalk: 0.4.0
-      underscore: 1.6.0
     dev: true
 
   /normalize-package-data/2.5.0:
@@ -6972,13 +6810,6 @@ packages:
       semver-compare: 1.0.0
     dev: true
 
-  /plur/2.1.2:
-    resolution: { integrity: sha1-dIJFLBoPUI4+NE6uwxLJHCncZVo= }
-    engines: { node: '>=0.10.0' }
-    dependencies:
-      irregular-plurals: 1.4.0
-    dev: true
-
   /postcss-modules-extract-imports/3.0.0_postcss@8.3.4:
     resolution:
       {
@@ -7106,16 +6937,6 @@ packages:
     dependencies:
       lodash: 4.17.21
       renderkid: 2.0.7
-    dev: true
-
-  /pretty-format/22.4.3:
-    resolution:
-      {
-        integrity: sha512-S4oT9/sT6MN7/3COoOy+ZJeA92VmOnveLHgrwBE3Z1W5N9S2A1QGNYiE1z75DAENbJrXXUb+OWXhpJcg05QKQQ==,
-      }
-    dependencies:
-      ansi-regex: 3.0.0
-      ansi-styles: 3.2.1
     dev: true
 
   /printj/1.1.2:
@@ -8185,12 +8006,6 @@ packages:
       is-regexp: 1.0.0
     dev: true
 
-  /strip-ansi/0.1.1:
-    resolution: { integrity: sha1-OeipjQRNFQZgq+SmgIrPcLt7yZE= }
-    engines: { node: '>=0.8.0' }
-    hasBin: true
-    dev: true
-
   /strip-ansi/3.0.1:
     resolution: { integrity: sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8= }
     engines: { node: '>=0.10.0' }
@@ -8476,13 +8291,6 @@ packages:
       }
     dev: true
 
-  /tslib/2.3.0:
-    resolution:
-      {
-        integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==,
-      }
-    dev: true
-
   /tslib/2.3.1:
     resolution:
       {
@@ -8564,10 +8372,6 @@ packages:
       has-bigints: 1.0.1
       has-symbols: 1.0.2
       which-boxed-primitive: 1.0.2
-    dev: true
-
-  /underscore/1.6.0:
-    resolution: { integrity: sha1-izixDKze9jM3uLJOT/htRa6lKag= }
     dev: true
 
   /unicode-canonical-property-names-ecmascript/1.0.4:
