@@ -1,8 +1,8 @@
 import { Messaging } from '@common/Messaging';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
+import axiosRateLimit from '@rafaelgomesxyz/axios-rate-limit';
 import axios, { AxiosResponse, Method } from 'axios';
-import axiosRateLimit from 'axios-rate-limit';
 import browser from 'webextension-polyfill';
 
 export interface RequestErrorOptions {
@@ -38,6 +38,7 @@ export type RequestDetails = {
 	rateLimit?: RateLimit;
 	body?: unknown;
 	cancelKey?: string;
+	priority?: RequestPriority;
 	withHeaders?: Record<string, string>;
 	withRateLimit?: RateLimitConfig;
 };
@@ -51,6 +52,11 @@ export interface RequestOptions {
 export interface RateLimit {
 	id: string;
 	maxRPS: number;
+}
+
+export enum RequestPriority {
+	NORMAL,
+	HIGH,
 }
 
 export interface RateLimitConfig {
@@ -133,6 +139,9 @@ class _Requests {
 			responseType: 'text',
 			signal,
 			transformResponse: (res: string) => res,
+
+			// @ts-expect-error Custom prop
+			priority: request.priority || RequestPriority.NORMAL,
 		});
 	}
 
