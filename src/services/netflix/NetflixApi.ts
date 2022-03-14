@@ -267,8 +267,7 @@ class _NetflixApi extends ServiceApi {
 			let season;
 			let episode;
 			const isCollection = !historyItem.seasonDescriptor.includes('Season');
-			if (!isCollection) {
-				// TODO: Some items don't have a summary response (see Friends pilot).
+			if (!isCollection && historyItem.summary) {
 				season = historyItem.summary.season;
 				episode = historyItem.summary.episode;
 			}

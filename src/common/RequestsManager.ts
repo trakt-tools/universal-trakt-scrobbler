@@ -1,13 +1,12 @@
 import { RequestsCancelData, StorageOptionsChangeData } from '@common/Events';
 import { Shared } from '@common/Shared';
 import { getServices } from '@models/Service';
-import { CancelTokenSource } from 'axios';
-import { RateLimitedAxiosInstance } from 'axios-rate-limit';
+import { AxiosInstance } from 'axios';
 import browser, { WebRequest as WebExtWebRequest } from 'webextension-polyfill';
 
 class _RequestsManager {
-	cancelTokens = new Map<string, CancelTokenSource>();
-	instances = new Map<string, RateLimitedAxiosInstance>();
+	abortControllers = new Map<string, AbortController>();
+	instances = new Map<string, AxiosInstance>();
 
 	init() {
 		if (Shared.pageType === 'background') {
@@ -77,10 +76,10 @@ class _RequestsManager {
 	};
 
 	cancelRequests(key: string) {
-		const cancelToken = this.cancelTokens.get(key);
-		if (cancelToken) {
-			cancelToken.cancel();
-			this.cancelTokens.delete(key);
+		const abortController = this.abortControllers.get(key);
+		if (abortController) {
+			abortController.abort();
+			this.abortControllers.delete(key);
 		}
 	}
 }
