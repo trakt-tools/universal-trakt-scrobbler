@@ -2,6 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { Cache, CacheItems } from '@common/Cache';
+import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
@@ -85,6 +86,7 @@ export abstract class ServiceApi {
 					error: err,
 				});
 			}
+			throw err;
 		}
 		return newItems;
 	}
@@ -119,6 +121,9 @@ export abstract class ServiceApi {
 			}
 			if (processItem) {
 				item = await processItem(item.clone());
+			}
+			if (err instanceof RequestError && err.isCanceled) {
+				throw err;
 			}
 		}
 		return item;

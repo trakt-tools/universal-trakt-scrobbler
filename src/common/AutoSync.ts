@@ -4,6 +4,7 @@ import { BrowserAction } from '@common/BrowserAction';
 import { StorageValuesOptions } from '@common/BrowserStorage';
 import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { RequestError } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -87,6 +88,8 @@ class _AutoSync {
 		let partialOptions: PartialDeep<StorageValuesOptions> = {};
 
 		for (const service of services) {
+			let wasCanceled = false;
+
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: Item[] = [];
 
@@ -124,23 +127,27 @@ class _AutoSync {
 					}
 				}
 			} catch (err) {
-				syncCache.failed = true;
 				if (Shared.errors.validate(err)) {
+					syncCache.failed = true;
 					Shared.errors.log(`Failed to auto sync ${service.id}`, err);
+				} else if (err instanceof RequestError && err.isCanceled) {
+					wasCanceled = true;
 				}
 			}
 
-			const partialServiceValue = partialOptions.services?.[service.id] || {};
-			partialServiceValue.lastSync = now;
-			if (items[0]?.id) {
-				partialServiceValue.lastSyncId = items[0].id;
+			if (!wasCanceled) {
+				const partialServiceValue = partialOptions.services?.[service.id] || {};
+				partialServiceValue.lastSync = now;
+				if (items[0]?.id) {
+					partialServiceValue.lastSyncId = items[0].id;
+				}
+				partialOptions = Utils.mergeObjs(partialOptions, {
+					services: {
+						[service.id]: partialServiceValue,
+					},
+				});
+				syncCache.items.unshift(...items.map((item) => Item.save(item)));
 			}
-			partialOptions = Utils.mergeObjs(partialOptions, {
-				services: {
-					[service.id]: partialServiceValue,
-				},
-			});
-			syncCache.items.unshift(...items.map((item) => Item.save(item)));
 		}
 
 		await Shared.storage.saveOptions(partialOptions);
