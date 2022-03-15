@@ -1,0 +1,9 @@
+name: 'Deploy beta'
+description: 'Deploys a beta version'
+inputs:
+  trakt-tools-bot-token:
+    description: 'Token for generating the release'
+    required: true
+runs:
+  using: 'node16'
+  main: 'deploy-beta.js'

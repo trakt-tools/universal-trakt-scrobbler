@@ -1,0 +1,34 @@
+name: Deploy beta
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy_beta:
+    name: Deploy a beta version
+    runs-on: ubuntu-latest
+    container: node:lts-alpine
+    env:
+      TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+      TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+      ROLLBAR_TOKEN: ${{ secrets.ROLLBAR_TOKEN }}
+      TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+      CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+      CHROME_EXTENSION_KEY: ${{ secrets.CHROME_EXTENSION_KEY }}
+      FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          apk add --no-cache curl
+          curl -L https://unpkg.com/@pnpm/self-installer | node
+          pnpm install
+      - name: Build
+        run: npm run build
+      - name: Deploy version
+        uses: ./.github/actions/deploy-beta
+        with:
+          trakt-tools-bot-token: '${{ secrets.TRAKT_TOOLS_BOT_TOKEN }}'

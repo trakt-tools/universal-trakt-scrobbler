@@ -301,10 +301,15 @@ const runFinalSteps = async (env: Environment) => {
 		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(browser));
 
 		if (env.production) {
+			const distPath = path.resolve(BASE_PATH, 'dist');
+			if (!fs.existsSync(distPath)) {
+				fs.mkdirSync(distPath);
+			}
+
 			const archive = archiver('zip', { zlib: { level: 9 } });
 			await new Promise((resolve, reject) => {
 				archive
-					.pipe(fs.createWriteStream(path.resolve(BASE_PATH, 'dist', `${browser}.zip`)))
+					.pipe(fs.createWriteStream(path.resolve(distPath, `${browser}.zip`)))
 					.on('finish', () => resolve(null))
 					.on('error', (err) => reject(err));
 				archive.directory(path.resolve(BASE_PATH, `./build/${browser}`), false);
