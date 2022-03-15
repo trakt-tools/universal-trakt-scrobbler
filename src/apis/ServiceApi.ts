@@ -2,6 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { Cache, CacheItems } from '@common/Cache';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
@@ -39,7 +40,11 @@ export abstract class ServiceApi {
 		registerServiceApi(this.id, this);
 	}
 
-	static async loadTraktHistory(items: Item[], processItem?: (item: Item) => Promise<Item>) {
+	static async loadTraktHistory(
+		items: Item[],
+		processItem?: (item: Item) => Promise<Item>,
+		cancelKey = 'default'
+	) {
 		const hasLoadedTraktHistory = !items.some(
 			(item) =>
 				typeof item.trakt === 'undefined' ||
@@ -65,7 +70,9 @@ export abstract class ServiceApi {
 				) {
 					const databaseId = item.getDatabaseId();
 					const correction = corrections?.[databaseId];
-					promises.push(ServiceApi.loadTraktItemHistory(item, caches, correction, processItem));
+					promises.push(
+						ServiceApi.loadTraktItemHistory(item, caches, correction, processItem, cancelKey)
+					);
 				} else {
 					promises.push(Promise.resolve(item));
 				}
@@ -79,6 +86,7 @@ export abstract class ServiceApi {
 					error: err,
 				});
 			}
+			throw err;
 		}
 		return newItems;
 	}
@@ -89,17 +97,18 @@ export abstract class ServiceApi {
 			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
 		>,
 		correction?: Suggestion,
-		processItem?: (item: Item) => Promise<Item>
+		processItem?: (item: Item) => Promise<Item>,
+		cancelKey = 'default'
 	) {
 		try {
 			if (!item.trakt) {
-				item.trakt = await TraktSearch.find(item, caches, correction);
+				item.trakt = await TraktSearch.find(item, caches, correction, cancelKey);
 				if (processItem) {
 					item = await processItem(item.clone());
 				}
 			}
 			if (item.trakt && typeof item.trakt.watchedAt === 'undefined') {
-				await TraktSync.loadHistory(item, caches.traktHistoryItems);
+				await TraktSync.loadHistory(item, caches.traktHistoryItems, false, cancelKey);
 				if (processItem) {
 					item = await processItem(item.clone());
 				}
@@ -112,6 +121,9 @@ export abstract class ServiceApi {
 			}
 			if (processItem) {
 				item = await processItem(item.clone());
+			}
+			if (err instanceof RequestError && err.isCanceled) {
+				throw err;
 			}
 		}
 		return item;

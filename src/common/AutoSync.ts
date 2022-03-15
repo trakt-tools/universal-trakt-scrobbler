@@ -4,6 +4,7 @@ import { BrowserAction } from '@common/BrowserAction';
 import { StorageValuesOptions } from '@common/BrowserStorage';
 import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -87,6 +88,8 @@ class _AutoSync {
 		let partialOptions: PartialDeep<StorageValuesOptions> = {};
 
 		for (const service of services) {
+			let wasCanceled = false;
+
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: Item[] = [];
 
@@ -103,7 +106,7 @@ class _AutoSync {
 					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
-					items = await ServiceApi.loadTraktHistory(items);
+					items = await ServiceApi.loadTraktHistory(items, undefined, 'autoSync');
 
 					const foundItems = items.filter((item) => item.trakt);
 					const itemsToSync = foundItems.filter(
@@ -113,7 +116,7 @@ class _AutoSync {
 						for (const itemToSync of itemsToSync) {
 							itemToSync.isSelected = true;
 						}
-						await TraktSync.sync(store, itemsToSync);
+						await TraktSync.sync(store, itemsToSync, 'autoSync');
 					}
 
 					items = store.data.items.filter(
@@ -126,26 +129,30 @@ class _AutoSync {
 					}
 				}
 			} catch (err) {
-				syncCache.failed = true;
 				if (Shared.errors.validate(err)) {
+					syncCache.failed = true;
 					Shared.errors.log(`Failed to auto sync ${service.id}`, err);
+				} else if (err instanceof RequestError && err.isCanceled) {
+					wasCanceled = true;
 				}
 			}
 
 			api.reset();
 			await store.resetData();
 
-			const partialServiceValue = partialOptions.services?.[service.id] || {};
-			partialServiceValue.lastSync = now;
-			if (items[0]?.id) {
-				partialServiceValue.lastSyncId = items[0].id;
+			if (!wasCanceled) {
+				const partialServiceValue = partialOptions.services?.[service.id] || {};
+				partialServiceValue.lastSync = now;
+				if (items[0]?.id) {
+					partialServiceValue.lastSyncId = items[0].id;
+				}
+				partialOptions = Utils.mergeObjs(partialOptions, {
+					services: {
+						[service.id]: partialServiceValue,
+					},
+				});
+				syncCache.items.unshift(...items.map((item) => Item.save(item)));
 			}
-			partialOptions = Utils.mergeObjs(partialOptions, {
-				services: {
-					[service.id]: partialServiceValue,
-				},
-			});
-			syncCache.items.unshift(...items.map((item) => Item.save(item)));
 		}
 
 		await Shared.storage.saveOptions(partialOptions);

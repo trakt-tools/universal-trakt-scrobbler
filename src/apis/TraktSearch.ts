@@ -72,7 +72,8 @@ class _TraktSearch extends TraktApi {
 	async find(
 		item: Item,
 		caches: CacheItems<['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']>,
-		exactItemDetails?: ExactItemDetails
+		exactItemDetails?: ExactItemDetails,
+		cancelKey = 'default'
 	): Promise<TraktItem | null> {
 		let traktItem: TraktItem | null = null;
 		const databaseId = item.getDatabaseId();
@@ -89,11 +90,11 @@ class _TraktSearch extends TraktApi {
 		try {
 			let searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem;
 			if (exactItemDetails) {
-				searchItem = await this.findExactItem(exactItemDetails, caches);
+				searchItem = await this.findExactItem(exactItemDetails, caches, cancelKey);
 			} else if (item.type === 'show') {
-				searchItem = await this.findEpisode(item, caches);
+				searchItem = await this.findEpisode(item, caches, cancelKey);
 			} else {
-				searchItem = (await this.findItem(item)) as TraktSearchMovieItem;
+				searchItem = (await this.findItem(item, cancelKey)) as TraktSearchMovieItem;
 			}
 			if ('episode' in searchItem) {
 				const id = searchItem.episode.ids.trakt;
@@ -158,7 +159,8 @@ class _TraktSearch extends TraktApi {
 
 	async findExactItem(
 		details: ExactItemDetails,
-		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
+		cancelKey = 'default'
 	): Promise<TraktSearchEpisodeItem | TraktSearchMovieItem> {
 		const url =
 			'id' in details
@@ -168,6 +170,7 @@ class _TraktSearch extends TraktApi {
 		const searchItemResponse = await this.requests.send({
 			url: `${this.API_URL}${url}`,
 			method: 'GET',
+			cancelKey,
 		});
 		const searchItem = JSON.parse(searchItemResponse) as
 			| TraktSearchEpisodeItem[]
@@ -177,19 +180,20 @@ class _TraktSearch extends TraktApi {
 			return searchItem[0];
 		} else if ('season' in searchItem) {
 			const showUrl = url.replace(/\/seasons\/.*/, '');
-			const show = await this.findShow(showUrl, caches);
+			const show = await this.findShow(showUrl, caches, cancelKey);
 			return { episode: searchItem, show: show.show };
 		} else {
 			return { movie: searchItem };
 		}
 	}
 
-	async findItem(item: Item): Promise<TraktSearchItem> {
+	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {
 		let searchItem: TraktSearchItem | undefined;
 		await this.activate();
 		const responseText = await this.requests.send({
 			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}&extended=full`,
 			method: 'GET',
+			cancelKey,
 		});
 		const searchItems = JSON.parse(responseText) as TraktSearchItem[];
 		if (searchItems.length === 1) {
@@ -225,7 +229,8 @@ class _TraktSearch extends TraktApi {
 
 	async findShow(
 		itemOrUrl: Item | string,
-		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
+		cancelKey = 'default'
 	): Promise<TraktSearchShowItem> {
 		const showUrl =
 			itemOrUrl instanceof Item
@@ -236,12 +241,13 @@ class _TraktSearch extends TraktApi {
 		if (!cacheItem) {
 			let show;
 			if (itemOrUrl instanceof Item) {
-				show = ((await this.findItem(itemOrUrl)) as TraktSearchShowItem).show;
+				show = ((await this.findItem(itemOrUrl, cancelKey)) as TraktSearchShowItem).show;
 			} else {
 				await this.activate();
 				const showResponse = await this.requests.send({
 					url: `${this.API_URL}${showUrl}`,
 					method: 'GET',
+					cancelKey,
 				});
 				show = JSON.parse(showResponse) as TraktSearchShowItemShow;
 			}
@@ -270,14 +276,16 @@ class _TraktSearch extends TraktApi {
 
 	async findEpisode(
 		item: Item,
-		caches: CacheItems<['traktItems', 'urlsToTraktItems']>
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
+		cancelKey = 'default'
 	): Promise<TraktSearchEpisodeItem> {
 		let episodeItem: TraktEpisodeItem;
-		const showItem = await this.findShow(item, caches);
+		const showItem = await this.findShow(item, caches, cancelKey);
 		await this.activate();
 		const responseText = await this.requests.send({
 			url: this.getEpisodeUrl(item, showItem.show.ids.trakt),
 			method: 'GET',
+			cancelKey,
 		});
 		if (item.episode) {
 			episodeItem = {
