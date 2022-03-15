@@ -12,6 +12,7 @@ import {
 	Card,
 	CardContent,
 	LinearProgress,
+	Link,
 	Skeleton,
 	Tooltip,
 	Typography,
@@ -37,30 +38,60 @@ export const HistoryListItemCard = ({
 	openCorrectionDialog,
 }: HistoryListItemCardProps): JSX.Element => {
 	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
-	const watchedAtComponent = item ? (
-		item instanceof TraktItem && typeof watchedAt === 'undefined' ? (
-			<Typography variant="overline">{I18N.translate('loadingHistory')}...</Typography>
-		) : watchedAt ? (
-			<Typography variant="overline">
-				{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
+	let watchedAtComponent;
+	if (item) {
+		if (watchedAt) {
+			if (item instanceof Item) {
+				watchedAtComponent = (
+					<Typography variant="overline">
+						{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
+					</Typography>
+				);
+			} else {
+				watchedAtComponent = (
+					<Typography variant="overline">
+						<Link
+							href={item.getHistoryUrl()}
+							target="_blank"
+							rel="noreferrer"
+							sx={{
+								color: 'inherit',
+								textDecorationColor: 'inherit',
+								textDecorationStyle: 'dotted',
+							}}
+						>
+							{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
+						</Link>
+					</Typography>
+				);
+			}
+		} else if (item instanceof TraktItem && typeof watchedAt === 'undefined') {
+			watchedAtComponent = (
+				<Typography variant="overline">{I18N.translate('loadingHistory')}...</Typography>
+			);
+		} else if (openMissingWatchedDateDialog) {
+			watchedAtComponent = (
+				<Button color="secondary" disabled={isLoading} onClick={openMissingWatchedDateDialog}>
+					<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
+				</Button>
+			);
+		} else {
+			watchedAtComponent = (
+				<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
+			);
+		}
+	} else {
+		watchedAtComponent = (
+			<Typography
+				variant="overline"
+				sx={{
+					width: 0.75,
+				}}
+			>
+				<Skeleton variant="text" />
 			</Typography>
-		) : openMissingWatchedDateDialog ? (
-			<Button color="secondary" disabled={isLoading} onClick={openMissingWatchedDateDialog}>
-				<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
-			</Button>
-		) : (
-			<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
-		)
-	) : (
-		<Typography
-			variant="overline"
-			sx={{
-				width: 0.75,
-			}}
-		>
-			<Skeleton variant="text" />
-		</Typography>
-	);
+		);
+	}
 
 	const hasImage = item instanceof TraktItem || item === null;
 	return (
