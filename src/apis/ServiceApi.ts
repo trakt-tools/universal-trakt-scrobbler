@@ -2,7 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { Cache, CacheItems } from '@common/Cache';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Item, SavedItem } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
@@ -260,6 +260,14 @@ export abstract class ServiceApi {
 			throw err;
 		}
 		return items;
+	}
+
+	reset() {
+		this.leftoverHistoryItems = [];
+		this.hasCheckedHistoryCache = false;
+		this.hasReachedHistoryEnd = false;
+		this.nextHistoryPage = 0;
+		this.nextHistoryUrl = '';
 	}
 
 	/**

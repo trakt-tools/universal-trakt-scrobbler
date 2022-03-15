@@ -4,7 +4,7 @@ import { BrowserAction } from '@common/BrowserAction';
 import { StorageValuesOptions } from '@common/BrowserStorage';
 import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
@@ -93,11 +93,13 @@ class _AutoSync {
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: Item[] = [];
 
-			try {
-				const api = getServiceApi(service.id);
-				const store = getSyncStore(service.id);
-				await store.resetData();
+			const api = getServiceApi(service.id);
+			const store = getSyncStore(service.id);
 
+			api.reset();
+			await store.resetData();
+
+			try {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
 
 				items = store.data.items.filter(
@@ -134,6 +136,9 @@ class _AutoSync {
 					wasCanceled = true;
 				}
 			}
+
+			api.reset();
+			await store.resetData();
 
 			if (!wasCanceled) {
 				const partialServiceValue = partialOptions.services?.[service.id] || {};

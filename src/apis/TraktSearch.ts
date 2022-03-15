@@ -1,7 +1,7 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
 import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
-import { RequestError } from '@common/Requests';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Item } from '@models/Item';
