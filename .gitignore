@@ -2,7 +2,7 @@ node_modules
 build
 dist
 .vscode
-config.json
+.env
 *.log
 /.idea/
 /universal-trakt-scrobbler.iml

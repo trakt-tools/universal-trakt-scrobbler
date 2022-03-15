@@ -21,5 +21,4 @@ jobs:
           apk add --no-cache curl
           curl -L https://unpkg.com/@pnpm/self-installer | node
           pnpm install
-          cp config.dev.json config.json
           pnpm run check

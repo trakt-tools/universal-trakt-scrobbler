@@ -9,8 +9,8 @@
 		"url": "git://github.com/trakt-tools/universal-trakt-scrobbler.git"
 	},
 	"scripts": {
-		"build": "webpack --env production",
-		"build-dev": "webpack --env development",
+		"build": "cross-env ENV=production webpack --env production",
+		"build-dev": "cross-env ENV=development webpack --env development",
 		"generate-release": "node ./scripts/generateRelease.js",
 		"start": "webpack --env development --env watch",
 		"prettier": "prettier \"**/*.{js,jsx,ts,tsx}\"",
@@ -73,6 +73,7 @@
 		"@trakt-tools/cli": "^0.3.2",
 		"@types/archiver": "^5.1.1",
 		"@types/circular-dependency-plugin": "^5.0.5",
+		"@types/dotenv-webpack": "^7.0.3",
 		"@types/fs-extra": "^9.0.12",
 		"@types/history": "^4.7.9",
 		"@types/node": "^16.9.2",
@@ -91,6 +92,8 @@
 		"circular-dependency-plugin": "^5.2.2",
 		"cross-env": "^7.0.3",
 		"css-loader": "^6.3.0",
+		"dotenv": "^16.0.0",
+		"dotenv-webpack": "^7.1.0",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-mui": "^0.1.0",

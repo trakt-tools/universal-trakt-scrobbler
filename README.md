@@ -104,10 +104,10 @@ Never delete the `translations` branch after merging PRs from Crowdin, as Crowdi
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
 2. In `Redirect uri:`, put `https://trakt.tv/apps`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
-4. Copy the `config.dev.json` example file and change the Trakt.tv credentials.
+4. Copy the `.env.example` example file and change the Trakt.tv credentials.
 
 ```bash
-cp config.dev.json config.json
+cp .env.example .env
 ```
 
 5. Use [nvm](https://github.com/creationix/nvm) to run the correct version of Node.js.

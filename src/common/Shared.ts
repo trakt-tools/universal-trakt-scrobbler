@@ -41,11 +41,11 @@ const browserPrefix = browser
 export const Shared: SharedValues = {
 	DATABASE_URL: 'https://uts.rafaelgomes.xyz/api',
 
-	environment: '@@environment',
-	clientId: '@@clientId',
-	clientSecret: '@@clientSecret',
-	rollbarToken: '@@rollbarToken',
-	tmdbApiKey: '@@tmdbApiKey',
+	environment: process.env.REACT_ENV || '',
+	clientId: process.env.TRAKT_CLIENT_ID || '',
+	clientSecret: process.env.TRAKT_CLIENT_SECRET || '',
+	rollbarToken: process.env.ROLLBAR_TOKEN || '',
+	tmdbApiKey: process.env.TMDB_API_KEY || '',
 
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',

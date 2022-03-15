@@ -21,6 +21,7 @@ specifiers:
   '@trakt-tools/cli': ^0.3.2
   '@types/archiver': ^5.1.1
   '@types/circular-dependency-plugin': ^5.0.5
+  '@types/dotenv-webpack': ^7.0.3
   '@types/fs-extra': ^9.0.12
   '@types/history': ^4.7.9
   '@types/node': ^16.9.2
@@ -42,6 +43,8 @@ specifiers:
   css-loader: ^6.3.0
   date-fns: ^2.24.0
   deepmerge: ^4.2.2
+  dotenv: ^16.0.0
+  dotenv-webpack: ^7.1.0
   eslint: ^7.32.0
   eslint-config-prettier: ^8.3.0
   eslint-plugin-mui: ^0.1.0
@@ -110,6 +113,7 @@ devDependencies:
   '@trakt-tools/cli': 0.3.2
   '@types/archiver': 5.1.1
   '@types/circular-dependency-plugin': 5.0.5_webpack-cli@4.8.0
+  '@types/dotenv-webpack': 7.0.3_webpack-cli@4.8.0
   '@types/fs-extra': 9.0.12
   '@types/history': 4.7.9
   '@types/node': 16.9.2
@@ -128,6 +132,8 @@ devDependencies:
   circular-dependency-plugin: 5.2.2_webpack@5.53.0
   cross-env: 7.0.3
   css-loader: 6.3.0_webpack@5.53.0
+  dotenv: 16.0.0
+  dotenv-webpack: 7.1.0_webpack@5.53.0
   eslint: 7.32.0
   eslint-config-prettier: 8.3.0_eslint@7.32.0
   eslint-plugin-mui: 0.1.0_eslint@7.32.0
@@ -2782,6 +2788,19 @@ packages:
       - webpack-cli
     dev: true
 
+  /@types/dotenv-webpack/7.0.3_webpack-cli@4.8.0:
+    resolution:
+      {
+        integrity: sha512-NGmfRWp/5hTnnhl4glRbgQhtpJeVN8EUafxvOjVSEKiq8WCcfCH4MyiwRYHspwbIL9Ke+bptp3uTfBHiYIhEWw==,
+      }
+    dependencies:
+      '@types/node': 16.9.2
+      tapable: 2.2.1
+      webpack: 5.53.0_webpack-cli@4.8.0
+    transitivePeerDependencies:
+      - webpack-cli
+    dev: true
+
   /@types/eslint-scope/3.7.0:
     resolution:
       {
@@ -4652,6 +4671,44 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.3.1
+    dev: true
+
+  /dotenv-defaults/2.0.2:
+    resolution:
+      {
+        integrity: sha512-iOIzovWfsUHU91L5i8bJce3NYK5JXeAwH50Jh6+ARUdLiiGlYWfGw6UkzsYqaXZH/hjE/eCd/PlfM/qqyK0AMg==,
+      }
+    dependencies:
+      dotenv: 8.6.0
+    dev: true
+
+  /dotenv-webpack/7.1.0_webpack@5.53.0:
+    resolution:
+      {
+        integrity: sha512-+aUOe+nqgLerA/n611oyC15fY79BIkGm2fOxJAcHDonMZ7AtDpnzv/Oe591eHAenIE0t6w03UyxDnLs/YUxx5Q==,
+      }
+    engines: { node: '>=10' }
+    peerDependencies:
+      webpack: ^4 || ^5
+    dependencies:
+      dotenv-defaults: 2.0.2
+      webpack: 5.53.0_webpack-cli@4.8.0
+    dev: true
+
+  /dotenv/16.0.0:
+    resolution:
+      {
+        integrity: sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==,
+      }
+    engines: { node: '>=12' }
+    dev: true
+
+  /dotenv/8.6.0:
+    resolution:
+      {
+        integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==,
+      }
+    engines: { node: '>=10' }
     dev: true
 
   /electron-to-chromium/1.3.752:

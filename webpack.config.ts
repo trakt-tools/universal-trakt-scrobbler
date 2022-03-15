@@ -1,13 +1,14 @@
+import 'dotenv/config';
 import { ServiceValues } from '@models/Service';
 import archiver from 'archiver';
 import CircularDependencyPlugin from 'circular-dependency-plugin';
+import DotenvPlugin from 'dotenv-webpack';
 import fs from 'fs-extra';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import { Manifest as WebExtManifest } from 'webextension-polyfill';
 import webpack, { ProgressPlugin } from 'webpack';
-import configJson = require('./config.json');
 import packageJson = require('./package.json');
 
 interface Environment {
@@ -15,16 +16,6 @@ interface Environment {
 	production: boolean;
 	test: boolean;
 	watch: boolean;
-}
-
-interface Config {
-	clientId: string;
-	clientSecret: string;
-	rollbarToken: string;
-	tmdbApiKey: string;
-	chromeExtensionId?: string;
-	chromeExtensionKey?: string;
-	firefoxExtensionId?: string;
 }
 
 const BASE_PATH = process.cwd();
@@ -55,6 +46,7 @@ class RunAfterBuildPlugin {
 
 const plugins = {
 	circularDependency: CircularDependencyPlugin,
+	dotenv: DotenvPlugin,
 	html: HtmlWebpackPlugin,
 	progress: ProgressPlugin,
 	runAfterBuild: RunAfterBuildPlugin,
@@ -108,7 +100,6 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 	} else {
 		mode = 'development';
 	}
-	const config = configJson[mode];
 	return {
 		devtool: env.production ? false : 'source-map',
 		entry: {
@@ -122,19 +113,6 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 		mode,
 		module: {
 			rules: [
-				{
-					test: /Shared\.ts$/,
-					loader: 'string-replace-loader',
-					options: {
-						multiple: [
-							{ search: '@@environment', replace: mode },
-							{ search: '@@clientId', replace: config.clientId },
-							{ search: '@@clientSecret', replace: config.clientSecret },
-							{ search: '@@rollbarToken', replace: config.rollbarToken },
-							{ search: '@@tmdbApiKey', replace: config.tmdbApiKey },
-						],
-					},
-				},
 				{
 					test: /apis\.ts$/,
 					loader: 'string-replace-loader',
@@ -222,7 +200,10 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 				include: /src/,
 				failOnError: true,
 			}),
-			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env, config))]),
+			new plugins.dotenv({
+				systemvars: true,
+			}),
+			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env))]),
 		],
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
@@ -237,7 +218,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 	};
 };
 
-const getManifest = (config: Config, browserName: string): string => {
+const getManifest = (browserName: string): string => {
 	const manifest: WebExtManifest.WebExtensionManifest & { key?: string } = {
 		manifest_version: 2,
 		name: 'Universal Trakt Scrobbler',
@@ -292,16 +273,16 @@ const getManifest = (config: Config, browserName: string): string => {
 	};
 	switch (browserName) {
 		case 'chrome': {
-			if (config.chromeExtensionKey) {
-				manifest.key = config.chromeExtensionKey;
+			if (process.env.CHROME_EXTENSION_KEY) {
+				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
 			break;
 		}
 		case 'firefox': {
-			if (config.firefoxExtensionId) {
+			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {
-						id: config.firefoxExtensionId,
+						id: process.env.FIREFOX_EXTENSION_ID,
 					},
 				};
 			}
@@ -311,13 +292,13 @@ const getManifest = (config: Config, browserName: string): string => {
 	return JSON.stringify(manifest, null, 2);
 };
 
-const runFinalSteps = async (env: Environment, config: Config) => {
+const runFinalSteps = async (env: Environment) => {
 	fs.copySync('./src/_locales', './build/output/_locales');
 
 	const browsers = ['chrome', 'firefox'];
 	for (const browser of browsers) {
 		fs.copySync('./build/output', `./build/${browser}`);
-		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(config, browser));
+		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(browser));
 
 		if (env.production) {
 			const archive = archiver('zip', { zlib: { level: 9 } });
