@@ -89,4 +89,12 @@ export class TraktItem implements ITraktItem {
 	clone() {
 		return new TraktItem(this);
 	}
+
+	getHistoryUrl() {
+		if (this.type === 'show') {
+			return `https://trakt.tv/users/me/history?episode=${this.id}`;
+		}
+
+		return `https://trakt.tv/users/me/history?movie=${this.id}`;
+	}
 }
