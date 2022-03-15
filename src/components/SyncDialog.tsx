@@ -75,7 +75,6 @@ export const SyncDialog = (): JSX.Element => {
 		<CustomDialogRoot
 			open={isOpen}
 			aria-labelledby="sync-dialog-title"
-			disableEscapeKeyDown={true}
 			onClose={() => {
 				// Do nothing
 			}}

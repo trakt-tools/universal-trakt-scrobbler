@@ -15,6 +15,8 @@ interface DialogState extends DialogShowData {
 	isOpen: boolean;
 }
 
+export type DialogCloseReason = 'escapeKeyDown' | 'backdropClick' | 'user';
+
 export const CustomDialog = (): JSX.Element => {
 	const [dialog, setDialog] = useState<DialogState>({
 		isOpen: false,
@@ -22,8 +24,13 @@ export const CustomDialog = (): JSX.Element => {
 		message: '',
 	});
 
-	const closeDialog = (didConfirm: boolean) => {
-		const callback = didConfirm ? dialog.onConfirm : dialog.onDeny;
+	const closeDialog = (reason: DialogCloseReason, didConfirm: boolean) => {
+		let callback;
+		if (didConfirm) {
+			callback = dialog.onConfirm;
+		} else if (reason === 'user') {
+			callback = dialog.onDeny;
+		}
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			isOpen: false,
@@ -57,17 +64,17 @@ export const CustomDialog = (): JSX.Element => {
 	}, []);
 
 	return (
-		<CustomDialogRoot onClose={() => closeDialog(false)} open={dialog.isOpen}>
+		<CustomDialogRoot onClose={(e, reason) => closeDialog(reason, false)} open={dialog.isOpen}>
 			<DialogTitle>{dialog.title}</DialogTitle>
 			<DialogContent>
 				<DialogContentText>{dialog.message}</DialogContentText>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => closeDialog(false)}>
+				<Button onClick={() => closeDialog('user', false)}>
 					{I18N.translate(dialog.onConfirm || dialog.onDeny ? 'no' : 'close')}
 				</Button>
 				{dialog.onConfirm && (
-					<Button onClick={() => closeDialog(true)} variant="contained">
+					<Button onClick={() => closeDialog('user', true)} variant="contained">
 						{I18N.translate('yes')}
 					</Button>
 				)}
