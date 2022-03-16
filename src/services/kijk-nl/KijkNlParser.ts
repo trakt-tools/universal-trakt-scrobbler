@@ -1,6 +1,6 @@
-import { ScrobbleParser } from '@common/ScrobbleParser';
 import { KijkNlApi } from '@/kijk-nl/KijkNlApi';
-import { Item } from '@models/Item';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _KijkNlParser extends ScrobbleParser {
 	constructor() {
@@ -17,6 +17,10 @@ class _KijkNlParser extends ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 
+		if (!titleElement) {
+			return null;
+		}
+
 		// Shows get a title like this (dutch example): "Steenrijk, straatarm - seizoen 2 aflevering 1"
 		const matches = /(?<showTitle>.+) - seizoen (?<seasonId>\d+) aflevering (?<episodeId>\d+)/.exec(
 			titleElement?.textContent ?? ''
@@ -27,23 +31,29 @@ class _KijkNlParser extends ScrobbleParser {
 		}
 
 		const title = showTitle?.split(' - ')[0] ?? titleElement?.textContent ?? '';
-		const episodeTitle = showTitle?.split(' - ')[1] ?? '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const type = seasonId ? 'show' : 'movie';
 
-		if (!titleElement) {
-			return null;
+		if (seasonId) {
+			const episodeTitle = showTitle?.split(' - ')[1] ?? '';
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: episodeTitle,
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

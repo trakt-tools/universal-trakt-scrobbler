@@ -7,7 +7,7 @@ const history = createHashHistory();
 
 export const HistoryContext = createContext(history);
 
-export const useHistory = () => {
+export const useHistory = (): typeof history => {
 	const historyContext = useContext(HistoryContext);
 	if (typeof historyContext === 'undefined') {
 		throw new Error('useHistory() must be called from <HistoryProvider/>');

@@ -1,6 +1,6 @@
-import { ScrobbleParser } from '@common/ScrobbleParser';
 import { PlayerPlApi } from '@/player-pl/PlayerPlApi';
-import { Item } from '@models/Item';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _PlayerPlParser extends ScrobbleParser {
 	constructor() {
@@ -20,6 +20,11 @@ class _PlayerPlParser extends ScrobbleParser {
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const titleElement = document.querySelector('.seo-visible h1');
+
+		if (!titleElement) {
+			return null;
+		}
+
 		const episodeTitleElement = document.querySelector(
 			'' + 'span[data-test-id="nuvi-asset-info-box-title"]'
 		);
@@ -40,23 +45,28 @@ class _PlayerPlParser extends ScrobbleParser {
 		}
 
 		const title = titleElement?.textContent ?? '';
-		const episodeTitle = episodeTitleElement?.textContent ?? '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const type = season > 0 ? 'show' : 'movie';
 
-		if (!titleElement) {
-			return null;
+		if (seasonId) {
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: episodeTitleElement?.textContent ?? '',
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

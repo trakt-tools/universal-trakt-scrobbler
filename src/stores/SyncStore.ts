@@ -1,17 +1,17 @@
 import { Shared } from '@common/Shared';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 
 export interface SyncStoreData {
 	isLoading: boolean;
 	loadQueue: number[];
-	items: Item[];
+	items: ScrobbleItem[];
 	hasReachedEnd: boolean;
 	hasReachedLastSyncDate: boolean;
 }
 
 const syncStores = new Map<string, SyncStore>();
 
-export const getSyncStore = (serviceId: string | null) => {
+export const getSyncStore = (serviceId: string | null): SyncStore => {
 	const storeId = serviceId || 'multiple';
 	if (!syncStores.has(storeId)) {
 		syncStores.set(storeId, new SyncStore(storeId));
@@ -43,7 +43,7 @@ export class SyncStore {
 	}
 
 	async selectAll(): Promise<SyncStore> {
-		const newItems: Item[] = [];
+		const newItems: ScrobbleItem[] = [];
 		for (const item of this.data.items) {
 			if (!item.isSelected && item.isSelectable()) {
 				const newItem = item.clone();
@@ -56,7 +56,7 @@ export class SyncStore {
 	}
 
 	async selectNone(): Promise<SyncStore> {
-		const newItems: Item[] = [];
+		const newItems: ScrobbleItem[] = [];
 		for (const item of this.data.items) {
 			if (item.isSelected) {
 				const newItem = item.clone();
@@ -69,7 +69,7 @@ export class SyncStore {
 	}
 
 	async toggleAll(): Promise<SyncStore> {
-		const newItems: Item[] = [];
+		const newItems: ScrobbleItem[] = [];
 		for (const item of this.data.items) {
 			if (item.isSelected || (!item.isSelected && item.isSelectable())) {
 				const newItem = item.clone();
@@ -81,7 +81,7 @@ export class SyncStore {
 		return this;
 	}
 
-	areItemsMissingWatchedDate() {
+	areItemsMissingWatchedDate(): boolean {
 		let missingCount = 0;
 		return this.data.items.some((item) => {
 			if (item.isMissingWatchedDate()) {
@@ -118,7 +118,7 @@ export class SyncStore {
 	/**
 	 * Updates items for immutability.
 	 */
-	async update(newItems: Item[], doDispatch: boolean): Promise<SyncStore> {
+	async update(newItems: ScrobbleItem[], doDispatch: boolean): Promise<SyncStore> {
 		for (const newItem of newItems) {
 			this.data.items[newItem.index] = newItem;
 		}
@@ -128,11 +128,11 @@ export class SyncStore {
 		return this;
 	}
 
-	async dispatchUpdate(newItems: Item[]): Promise<SyncStore> {
+	async dispatchUpdate(newItems: ScrobbleItem[]): Promise<SyncStore> {
 		if (newItems.length === 0) {
 			return this;
 		}
-		const eventData: Record<number, Item> = {};
+		const eventData: Record<number, ScrobbleItem> = {};
 		for (const newItem of newItems) {
 			eventData[newItem.index] = newItem;
 		}

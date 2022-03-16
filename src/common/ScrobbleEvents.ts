@@ -15,7 +15,7 @@ export interface ScrobbleEventsOptions {
 
 const scrobbleEvents = new Map<string, ScrobbleEvents>();
 
-export const getScrobbleEvents = (id: string) => {
+export const getScrobbleEvents = (id: string): ScrobbleEvents => {
 	if (!scrobbleEvents.has(id)) {
 		const controller = getScrobbleController(id);
 		scrobbleEvents.set(id, new ScrobbleEvents(controller));
@@ -59,19 +59,19 @@ export class ScrobbleEvents {
 		return window.location.href;
 	}
 
-	init() {
+	init(): void {
 		this.checkListeners();
 		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
-	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+	onStorageOptionsChange = (data: StorageOptionsChangeData): void => {
 		const serviceOption = data.options?.services?.[this.api.id];
 		if (serviceOption && 'scrobble' in serviceOption) {
 			this.checkListeners();
 		}
 	};
 
-	checkListeners() {
+	checkListeners(): void {
 		const { scrobble } = Shared.storage.options.services[this.api.id];
 		if (scrobble && !this.hasAddedListeners) {
 			void this.checkForChanges();

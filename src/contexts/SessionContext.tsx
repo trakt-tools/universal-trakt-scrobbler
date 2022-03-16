@@ -17,7 +17,7 @@ const getInitialValue = (): SessionContextValue => {
 
 export const SessionContext = createContext(getInitialValue());
 
-export const useSession = () => {
+export const useSession = (): SessionContextValue => {
 	const sessionContext = useContext(SessionContext);
 	if (typeof sessionContext === 'undefined') {
 		throw new Error('useSession() must be called from <SessionProvider/>');

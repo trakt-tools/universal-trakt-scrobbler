@@ -4,7 +4,7 @@ import { Shared } from '@common/Shared';
 import { HistoryListItemCard } from '@components/HistoryListItemCard';
 import { HistoryListItemMessage } from '@components/HistoryListItemMessage';
 import { useSync } from '@contexts/SyncContext';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { getService } from '@models/Service';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
@@ -28,7 +28,9 @@ const _HistoryListItem = ({
 	if (!serviceId) {
 		index -= 1;
 	}
-	const [item, setItem] = useState<Item | null | undefined>(store.data.items[index] ?? undefined);
+	const [item, setItem] = useState<ScrobbleItem | null | undefined>(
+		store.data.items[index] ?? undefined
+	);
 
 	const onCheckboxChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (!item) {

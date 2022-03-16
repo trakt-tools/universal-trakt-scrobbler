@@ -1,6 +1,6 @@
-import { ScrobbleParser } from '@common/ScrobbleParser';
 import { HboGoApi } from '@/hbo-go/HboGoApi';
-import { Item } from '@models/Item';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _HboGoParser extends ScrobbleParser {
 	constructor() {
@@ -16,6 +16,10 @@ class _HboGoParser extends ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 
+		if (!titleElement) {
+			return null;
+		}
+
 		const matches = /.+ (?<seasonId>\d+) .+ (?<episodeId>\d+)/.exec(
 			subTitleElement?.textContent ?? ''
 		);
@@ -25,24 +29,26 @@ class _HboGoParser extends ScrobbleParser {
 		}
 
 		const title = titleElement?.textContent ?? '';
-		const episodeTitle = '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const id = (titleElement?.textContent ?? '') + '-' + String(season) + '-' + String(episode);
-		const type = seasonId ? 'show' : 'movie';
 
-		if (!titleElement) {
-			return null;
+		if (seasonId) {
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				title: '',
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
-			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

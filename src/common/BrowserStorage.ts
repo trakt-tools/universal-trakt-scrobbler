@@ -7,16 +7,20 @@ import { Messaging } from '@common/Messaging';
 import { Session } from '@common/Session';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { SavedItem } from '@models/Item';
+import { ScrobbleItemValues } from '@models/Item';
 import { getService, getServices } from '@models/Service';
-import { SavedTraktItem } from '@models/TraktItem';
+import { TraktItemValues } from '@models/TraktItem';
 import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV8;
+export type StorageValues = StorageValuesV9;
 export type StorageValuesOptions = StorageValuesOptionsV3;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
+
+export type StorageValuesV9 = Omit<StorageValuesV8, 'version'> & {
+	version?: 9;
+};
 
 export type StorageValuesV8 = Omit<StorageValuesV7, 'version'> & {
 	version?: 8;
@@ -56,10 +60,10 @@ export type StorageValuesV2 = Omit<
 	version?: 2;
 	options?: StorageValuesOptionsV2;
 	syncOptions?: StorageValuesSyncOptionsV2;
-	traktCache?: Record<string, Omit<SavedTraktItem, ''>>;
+	traktCache?: Record<string, TraktItemValues>;
 	syncCache?: SyncCacheValue;
 	correctItems?: Partial<Record<string, Record<string, CorrectItem>>>;
-	scrobblingItem?: Omit<SavedItem, ''>;
+	scrobblingItem?: ScrobbleItemValues;
 };
 
 export type StorageValuesV1 = {
@@ -75,7 +79,7 @@ export type StorageValuesV1 = {
 };
 
 export interface ScrobblingDetails {
-	item: SavedItem;
+	item: ScrobbleItemValues;
 	tabId: number | null;
 	isPaused: boolean;
 }
@@ -126,7 +130,7 @@ export type StorageValuesSyncOptionsV1 = {
 };
 
 export type SyncCacheValue = {
-	items: Omit<SavedItem, ''>[];
+	items: ScrobbleItemValues[];
 	failed: boolean;
 };
 
@@ -214,7 +218,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 8;
+	readonly currentVersion = 9;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -364,6 +368,12 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 9 && this.currentVersion >= 9) {
+			console.log('Upgrading to v9...');
+
+			await this.doRemove(['itemsCache', 'syncCache', 'traktItemsCache'], true);
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -374,6 +384,12 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 8 && this.currentVersion <= 8) {
+			console.log('Downgrading to v8...');
+
+			await this.doRemove(['itemsCache', 'syncCache', 'traktItemsCache'], true);
+		}
+
 		if (version > 7 && this.currentVersion <= 7) {
 			console.log('Downgrading to v7...');
 		}

@@ -1,7 +1,7 @@
 import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 
 export interface Suggestion {
 	type: 'episode' | 'movie';
@@ -43,7 +43,7 @@ class _CorrectionApi {
 	 *
 	 * If all suggestions have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
 	 */
-	async loadSuggestions(items: Item[]): Promise<Item[]> {
+	async loadSuggestions(items: ScrobbleItem[]): Promise<ScrobbleItem[]> {
 		if (!Shared.storage.options.sendReceiveSuggestions) {
 			return items;
 		}
@@ -54,7 +54,7 @@ class _CorrectionApi {
 		const newItems = items.map((item) => item.clone());
 		const cache = await Cache.get('suggestions');
 		try {
-			const itemsToFetch: Item[] = [];
+			const itemsToFetch: ScrobbleItem[] = [];
 			for (const item of newItems) {
 				if (typeof item.suggestions !== 'undefined') {
 					continue;
@@ -108,7 +108,7 @@ class _CorrectionApi {
 	/**
 	 * Saves a suggestion for an item in the database.
 	 */
-	async saveSuggestion(item: Item, suggestion: Suggestion): Promise<void> {
+	async saveSuggestion(item: ScrobbleItem, suggestion: Suggestion): Promise<void> {
 		if (!Shared.storage.options.sendReceiveSuggestions) {
 			return;
 		}

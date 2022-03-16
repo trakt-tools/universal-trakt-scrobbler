@@ -23,6 +23,7 @@ export const HistoryContainer = ({
 							padding: 0,
 					  }
 					: {}),
+				...sx,
 			}}
 		>
 			{children}

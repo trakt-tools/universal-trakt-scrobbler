@@ -3,7 +3,7 @@ import { Cache, CacheItem } from '@common/Cache';
 import { RequestPriority } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { SyncStore } from '@stores/SyncStore';
 
 export interface TraktHistoryItem {
@@ -39,7 +39,7 @@ class _TraktSync extends TraktApi {
 	}
 
 	async loadHistory(
-		item: Item,
+		item: ScrobbleItem,
 		traktHistoryItemsCache: CacheItem<'traktHistoryItems'>,
 		forceRefresh = false,
 		cancelKey = 'default'
@@ -82,7 +82,7 @@ class _TraktSync extends TraktApi {
 		}
 	}
 
-	async removeHistory(item: Item): Promise<void> {
+	async removeHistory(item: ScrobbleItem): Promise<void> {
 		if (!item.trakt?.syncId) {
 			return;
 		}
@@ -98,12 +98,12 @@ class _TraktSync extends TraktApi {
 		item.trakt.watchedAt = undefined;
 	}
 
-	getUrl(item: Item): string {
+	getUrl(item: ScrobbleItem): string {
 		if (!item.trakt) {
 			return '';
 		}
 		let url = '';
-		if (item.trakt.type === 'show') {
+		if (item.trakt.type === 'episode') {
 			url = `${this.SYNC_URL}/episodes/${item.trakt.id}`;
 		} else {
 			url = `${this.SYNC_URL}/movies/${item.trakt.id}`;
@@ -111,12 +111,12 @@ class _TraktSync extends TraktApi {
 		return url;
 	}
 
-	async sync(store: SyncStore, items: Item[], cancelKey = 'sync') {
-		const newItems: Item[] = [];
+	async sync(store: SyncStore, items: ScrobbleItem[], cancelKey = 'sync') {
+		const newItems: ScrobbleItem[] = [];
 		try {
 			const data = {
 				episodes: items
-					.filter((item) => item.type === 'show')
+					.filter((item) => item.type === 'episode')
 					.map((item) => ({
 						ids: { trakt: item.trakt?.id },
 						watched_at: Utils.convertToISOString(item.getWatchedDate()),
@@ -144,7 +144,7 @@ class _TraktSync extends TraktApi {
 			for (const item of items) {
 				if (
 					item.trakt &&
-					((item.type === 'show' && !notFoundItems.episodes.includes(item.trakt.id)) ||
+					((item.type === 'episode' && !notFoundItems.episodes.includes(item.trakt.id)) ||
 						(item.type === 'movie' && !notFoundItems.movies.includes(item.trakt.id)))
 				) {
 					const newItem = item.clone();

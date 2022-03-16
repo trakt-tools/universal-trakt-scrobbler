@@ -6,8 +6,8 @@ import {
 } from '@common/BrowserStorage';
 import { DispatchEventMessage, Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
-import { Item, SavedItem } from '@models/Item';
-import { SavedTraktItem } from '@models/TraktItem';
+import { ScrobbleItem, ScrobbleItemValues } from '@models/Item';
+import { TraktItemValues } from '@models/TraktItem';
 import { AlertColor } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import { ReactNode } from 'react';
@@ -64,7 +64,7 @@ export interface LoginSuccessData {
 }
 
 export interface ScrobbleSuccessData {
-	item?: SavedTraktItem;
+	item?: TraktItemValues;
 	scrobbleType: number;
 }
 
@@ -94,22 +94,22 @@ export interface SnackbarShowData {
 }
 
 export interface MissingWatchedDateDialogShowData {
-	items: Item[];
+	items: ScrobbleItem[];
 }
 
 export interface MissingWatchedDateAddedData {
-	oldItems: Item[];
-	newItems: Item[];
+	oldItems: ScrobbleItem[];
+	newItems: ScrobbleItem[];
 }
 
 export interface CorrectionDialogShowData {
-	item?: Item;
+	item?: ScrobbleItem;
 	isScrobblingItem: boolean;
 }
 
 export interface ItemCorrectedData {
-	oldItem: SavedItem;
-	newItem: SavedItem;
+	oldItem: ScrobbleItemValues;
+	newItem: ScrobbleItemValues;
 }
 
 export interface HistorySyncSuccessData {
@@ -136,15 +136,11 @@ export interface ContentScriptConnectData {
 export interface SyncDialogShowData {
 	store: SyncStore;
 	serviceId: string | null;
-	items: Item[];
-}
-
-export interface ItemsUpdateData {
-	items: Item[];
+	items: ScrobbleItem[];
 }
 
 export interface ItemsLoadData {
-	items: Partial<Record<number, Item | null>>;
+	items: Partial<Record<number, ScrobbleItem | null>>;
 }
 
 export type EventDispatcherListeners = Record<

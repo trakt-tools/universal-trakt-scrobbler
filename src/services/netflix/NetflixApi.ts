@@ -4,7 +4,7 @@ import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -205,7 +205,7 @@ class _NetflixApi extends ServiceApi {
 		return responseItems;
 	}
 
-	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number) {
 		return historyItem.date > 0 && Utils.unix(historyItem.date) > lastSync;
 	}
 
@@ -255,41 +255,42 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	parseHistoryItem(historyItem: NetflixHistoryItemWithMetadata) {
-		let item: Item;
+		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const id = historyItem.movieID.toString();
-		const type = 'series' in historyItem ? 'show' : 'movie';
 		const year = historyItem.releaseYear;
 		const watchedAt = Utils.unix(historyItem.date);
 		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
-			let season;
-			let episode;
+			let season = 0;
+			let number = 0;
 			const isCollection = !historyItem.seasonDescriptor.includes('Season');
 			if (!isCollection && historyItem.summary) {
 				season = historyItem.summary.season;
-				episode = historyItem.summary.episode;
+				number = historyItem.summary.episode;
 			}
 			const episodeTitle = historyItem.episodeTitle.trim();
-			item = new Item({
+			item = new EpisodeItem({
 				serviceId,
 				id,
-				type,
-				title,
+				title: episodeTitle,
 				year,
 				season,
-				episode,
-				episodeTitle,
+				number,
 				watchedAt,
 				progress,
+				show: {
+					serviceId,
+					title,
+					year,
+				},
 			});
 		} else {
 			const title = historyItem.title.trim();
-			item = new Item({
+			item = new MovieItem({
 				serviceId,
 				id,
-				type,
 				title,
 				year,
 				watchedAt,
@@ -299,8 +300,8 @@ class _NetflixApi extends ServiceApi {
 		return item;
 	}
 
-	async getItem(id: string): Promise<Item | null> {
-		let item: Item | null = null;
+	async getItem(id: string): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -321,13 +322,13 @@ class _NetflixApi extends ServiceApi {
 		return item;
 	}
 
-	parseMetadata(metadata: NetflixSingleMetadataItem): Item {
-		let item: Item;
+	parseMetadata(metadata: NetflixSingleMetadataItem): ScrobbleItem {
+		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const { video } = metadata;
 		const id = video.id.toString();
 		const { type, title, year } = video;
-		if (video.type === 'show') {
+		if (type === 'show') {
 			let episodeInfo: NetflixMetadataShowEpisode | undefined;
 			const seasonInfo = video.seasons.find((currentSeason) =>
 				currentSeason.episodes.find((currentEpisode) => {
@@ -342,25 +343,32 @@ class _NetflixApi extends ServiceApi {
 				throw new Error('Could not find item');
 			}
 			const isCollection = seasonInfo.shortName.includes('C');
-			let season;
-			let episode;
+			let season = 0;
+			let number = 0;
 			if (!isCollection) {
 				season = seasonInfo.seq;
-				episode = episodeInfo.seq;
+				number = episodeInfo.seq;
 			}
 			const episodeTitle = episodeInfo.title;
-			item = new Item({
+			item = new EpisodeItem({
 				serviceId,
 				id,
-				type,
-				title,
+				title: episodeTitle,
 				year,
 				season,
-				episode,
-				episodeTitle,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
 			});
 		} else {
-			item = new Item({ serviceId, id, type, title, year });
+			item = new MovieItem({
+				serviceId,
+				id,
+				title,
+				year,
+			});
 		}
 		return item;
 	}

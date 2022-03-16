@@ -4,8 +4,8 @@ import { TraktSettingsResponse } from '@apis/TraktSettings';
 import { TraktHistoryItem } from '@apis/TraktSync';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { SavedItem } from '@models/Item';
-import { SavedTraktItem } from '@models/TraktItem';
+import { ScrobbleItemValues } from '@models/Item';
+import { TraktItemValues } from '@models/TraktItem';
 
 export type CacheItems<T extends (keyof CacheValues)[]> = {
 	[K in T[number]]: CacheItem<K>;
@@ -19,13 +19,13 @@ export interface CacheSubValues {
 	history: HistoryCache;
 	historyItemsToItems: string;
 	imageUrls: string | null;
-	items: SavedItem;
+	items: ScrobbleItemValues;
 	itemsToTraktItems: string;
 	servicesData: unknown;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
 	traktHistoryItems: TraktHistoryItem[];
-	traktItems: SavedTraktItem;
+	traktItems: TraktItemValues;
 	traktSettings: TraktSettingsResponse;
 	urlsToTraktItems: string;
 }

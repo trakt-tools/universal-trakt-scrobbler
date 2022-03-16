@@ -12,7 +12,7 @@ export interface SyncContextValue {
 
 export const SyncContext = createContext<SyncContextValue>({} as SyncContextValue);
 
-export const useSync = () => {
+export const useSync = (): SyncContextValue => {
 	const syncContext = useContext(SyncContext);
 	if (typeof syncContext === 'undefined') {
 		throw new Error('useSync() must be called from <SyncProvider/>');

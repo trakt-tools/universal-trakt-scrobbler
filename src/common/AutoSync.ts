@@ -7,7 +7,7 @@ import { I18N } from '@common/I18N';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { getServices, Service } from '@models/Service';
 import '@services-apis';
 import { getSyncStore } from '@stores/SyncStore';
@@ -91,7 +91,7 @@ class _AutoSync {
 			let wasCanceled = false;
 
 			const serviceValue = Shared.storage.options.services[service.id];
-			let items: Item[] = [];
+			let items: ScrobbleItem[] = [];
 
 			const api = getServiceApi(service.id);
 			const store = getSyncStore(service.id);
@@ -151,7 +151,7 @@ class _AutoSync {
 						[service.id]: partialServiceValue,
 					},
 				});
-				syncCache.items.unshift(...items.map((item) => Item.save(item)));
+				syncCache.items.unshift(...items.map((item) => item.save()));
 			}
 		}
 

@@ -1,6 +1,6 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { ScriptInjector } from '@common/ScriptInjector';
-import { Item, SavedItem } from '@models/Item';
+import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface ScrobbleParserOptions {
 	/**
@@ -27,11 +27,11 @@ export interface ScrobblePlayback {
 
 const scrobbleParsers = new Map<string, ScrobbleParser>();
 
-export const registerScrobbleParser = (id: string, parser: ScrobbleParser) => {
+export const registerScrobbleParser = (id: string, parser: ScrobbleParser): void => {
 	scrobbleParsers.set(id, parser);
 };
 
-export const getScrobbleParser = (id: string) => {
+export const getScrobbleParser = (id: string): ScrobbleParser => {
 	const parser = scrobbleParsers.get(id);
 	if (!parser) {
 		throw new Error(`Scrobble parser not registered for ${id}`);
@@ -42,7 +42,7 @@ export const getScrobbleParser = (id: string) => {
 export abstract class ScrobbleParser {
 	readonly api: ServiceApi;
 	readonly options: Readonly<ScrobbleParserOptions>;
-	protected item: Item | null = null;
+	protected item: ScrobbleItem | null = null;
 	protected videoPlayer: HTMLVideoElement | null = null;
 	private currentTime = 0.0;
 	private progress = 0.0;
@@ -198,10 +198,10 @@ export abstract class ScrobbleParser {
 	 *   3. **DOM:** specific method (requires override)
 	 *   4. **custom:** specific method (requires override)
 	 */
-	protected async parseItem(): Promise<Item | null> {
-		let item: Item | null = null;
+	protected async parseItem(): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
 
-		const methods: [string, () => Promisable<Item | null>][] = [
+		const methods: [string, () => Promisable<ScrobbleItem | null>][] = [
 			['API', () => this.parseItemFromApi()],
 			['injected script', () => this.parseItemFromInjectedScript()],
 			['DOM', () => this.parseItemFromDom()],
@@ -222,33 +222,33 @@ export abstract class ScrobbleParser {
 		return item;
 	}
 
-	protected async parseItemFromApi(): Promise<Item | null> {
+	protected async parseItemFromApi(): Promise<ScrobbleItem | null> {
 		const id = await this.parseItemId();
 		return id ? this.api.getItem(id) : null;
 	}
 
-	protected async parseItemFromInjectedScript(): Promise<Item | null> {
+	protected async parseItemFromInjectedScript(): Promise<ScrobbleItem | null> {
 		if (this.itemFnToInject) {
-			const savedItem = await ScriptInjector.inject<SavedItem>(
+			const savedItem = await ScriptInjector.inject<ScrobbleItemValues>(
 				this.api.id,
 				'item',
 				'',
 				this.itemFnToInject
 			);
 			if (savedItem) {
-				return Item.load(savedItem);
+				return createScrobbleItem(savedItem);
 			}
 		}
 		return null;
 	}
 
-	protected itemFnToInject: (() => SavedItem | null) | null = null;
+	protected itemFnToInject: (() => ScrobbleItemValues | null) | null = null;
 
-	protected parseItemFromDom(): Promisable<Item | null> {
+	protected parseItemFromDom(): Promisable<ScrobbleItem | null> {
 		return null;
 	}
 
-	protected parseItemFromCustom(): Promisable<Item | null> {
+	protected parseItemFromCustom(): Promisable<ScrobbleItem | null> {
 		return null;
 	}
 
@@ -284,7 +284,7 @@ export abstract class ScrobbleParser {
 		return id;
 	}
 
-	protected parseItemIdFromUrl() {
+	protected parseItemIdFromUrl(): string | null {
 		const { id = null } = this.options.watchingUrlRegex?.exec(this.getLocation())?.groups ?? {};
 		return id;
 	}
@@ -312,7 +312,7 @@ export abstract class ScrobbleParser {
 		return null;
 	}
 
-	getItem(): Item | null {
+	getItem(): ScrobbleItem | null {
 		return this.item;
 	}
 

@@ -5,8 +5,8 @@ import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
 import { TmdbImage } from '@components/TmdbImage';
-import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+import { isItem, ScrobbleItem } from '@models/Item';
+import { isTraktItem, TraktItem } from '@models/TraktItem';
 import {
 	Button,
 	Card,
@@ -20,7 +20,7 @@ import {
 
 interface HistoryListItemCardProps {
 	isLoading: boolean;
-	item?: Item | TraktItem | null;
+	item?: ScrobbleItem | TraktItem | null;
 	name: string;
 	suggestions?: Suggestion[] | null;
 	imageUrl?: string | null;
@@ -37,11 +37,11 @@ export const HistoryListItemCard = ({
 	openMissingWatchedDateDialog,
 	openCorrectionDialog,
 }: HistoryListItemCardProps): JSX.Element => {
-	const watchedAt = item instanceof Item ? item.getWatchedDate() : item?.watchedAt;
+	const watchedAt = isItem(item) ? item.getWatchedDate() : item?.watchedAt;
 	let watchedAtComponent;
 	if (item) {
 		if (watchedAt) {
-			if (item instanceof Item) {
+			if (isItem(item)) {
 				watchedAtComponent = (
 					<Typography variant="overline">
 						{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
@@ -65,7 +65,7 @@ export const HistoryListItemCard = ({
 					</Typography>
 				);
 			}
-		} else if (item instanceof TraktItem && typeof watchedAt === 'undefined') {
+		} else if (isTraktItem(item) && typeof watchedAt === 'undefined') {
 			watchedAtComponent = (
 				<Typography variant="overline">{I18N.translate('loadingHistory')}...</Typography>
 			);
@@ -93,7 +93,7 @@ export const HistoryListItemCard = ({
 		);
 	}
 
-	const hasImage = item instanceof TraktItem || item === null;
+	const hasImage = isTraktItem(item) || item === null;
 	return (
 		<Card
 			variant="outlined"
@@ -123,13 +123,13 @@ export const HistoryListItemCard = ({
 						<>
 							{item === null ? (
 								<Typography variant="h6">{I18N.translate('notFound')}</Typography>
-							) : item.type === 'show' ? (
+							) : item.type === 'episode' ? (
 								<>
-									{item.season && item.episode && (
-										<Typography variant="overline">{`S${item.season} E${item.episode}`}</Typography>
+									{item.season && item.number && (
+										<Typography variant="overline">{`S${item.season} E${item.number}`}</Typography>
 									)}
-									<Typography variant="h6">{item.episodeTitle}</Typography>
-									<Typography variant="subtitle2">{item.title}</Typography>
+									<Typography variant="h6">{item.title}</Typography>
+									<Typography variant="subtitle2">{item.show.title}</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>

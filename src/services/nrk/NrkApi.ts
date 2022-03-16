@@ -2,7 +2,7 @@ import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
 import { Utils } from '@common/Utils';
-import { IItem, Item } from '@models/Item';
+import { BaseItemValues, EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
@@ -186,7 +186,7 @@ class _NrkApi extends ServiceApi {
 		return responseItems;
 	}
 
-	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number) {
 		return !!historyItem.registeredAt && Utils.unix(historyItem.registeredAt) > lastSync;
 	}
 
@@ -199,7 +199,7 @@ class _NrkApi extends ServiceApi {
 		return Promise.all(promises);
 	}
 
-	async parseHistoryItem(historyItem: NrkProgressItem): Promise<Item> {
+	async parseHistoryItem(historyItem: NrkProgressItem): Promise<ScrobbleItem> {
 		const serviceId = this.id;
 		const id = historyItem.id;
 		const programInfo = historyItem._embedded.programs;
@@ -210,10 +210,9 @@ class _NrkApi extends ServiceApi {
 		const title = this.getTitle(programPage);
 		const watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
 
-		const baseItem: IItem = {
-			type,
-			id,
+		const baseItem: BaseItemValues = {
 			serviceId,
+			id,
 			title,
 			year: programPage.moreInformation.productionYear,
 			progress: historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
@@ -221,7 +220,7 @@ class _NrkApi extends ServiceApi {
 		};
 
 		if (type === 'movie') {
-			return new Item(baseItem);
+			return new MovieItem(baseItem);
 		}
 
 		/* Known formats:
@@ -233,21 +232,25 @@ class _NrkApi extends ServiceApi {
 			/(?<fullStr>S(?<seasonStr>[0-9]) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
 		const [matches] = [...titleInfo.subtitle.matchAll(regExp)];
 		let episodeTitle;
-		let extraInfo;
+		let season = 0;
+		let number = 0;
 		if (matches?.groups) {
 			const { fullStr, seasonStr, episodeStr, partialEpisodeTitle } = matches.groups;
 			episodeTitle = partialEpisodeTitle === 'episode' ? fullStr : partialEpisodeTitle; //If title is not present, use the whole string.
-			extraInfo = {
-				season: seasonStr ? Number.parseInt(seasonStr) : 0,
-				episode: episodeStr ? Number.parseInt(episodeStr) : 0,
-			};
+			season = seasonStr ? Number.parseInt(seasonStr) : 0;
+			number = episodeStr ? Number.parseInt(episodeStr) : 0;
 		} else {
 			episodeTitle = titleInfo.subtitle;
 		}
-		return new Item({
+		return new EpisodeItem({
 			...baseItem,
-			episodeTitle,
-			...extraInfo,
+			title: episodeTitle,
+			season,
+			number,
+			show: {
+				serviceId,
+				title: baseItem.title,
+			},
 		});
 	}
 
@@ -275,38 +278,41 @@ class _NrkApi extends ServiceApi {
 		return JSON.parse(response) as NrkProgramPage;
 	}
 
-	async getItem(id: string): Promise<Item | null> {
+	async getItem(id: string): Promise<ScrobbleItem | null> {
 		const programPage = await this.lookupNrkItem(this.PROGRAM_URL + id);
 		const title = this.getTitle(programPage);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
-		const baseItem: IItem = {
-			id,
+		const baseItem: BaseItemValues = {
 			serviceId: this.id,
-			type,
+			id,
 			title,
 			year: programPage.moreInformation.productionYear,
 		};
 		if (type === 'movie') {
-			return new Item(baseItem);
+			return new MovieItem(baseItem);
 		}
 
 		let { title: episodeTitle } = programPage.programInformation.titles;
 		const [matches] = [
 			...episodeTitle.matchAll(/(?<fullStr>(?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g),
 		];
-		let extraInfo;
+		let season = 0;
+		let number = 0;
 		if (matches?.groups) {
 			const { fullStr, episodeStr, partialEpisodeTitle } = matches.groups;
 			episodeTitle = (partialEpisodeTitle === 'episode' ? fullStr : partialEpisodeTitle) ?? ''; //If title is not present, use the whole string.
-			extraInfo = {
-				season: Number.parseInt(programPage._links.season.name),
-				episode: episodeStr ? Number.parseInt(episodeStr) : 0,
-			};
+			season = Number.parseInt(programPage._links.season.name);
+			number = episodeStr ? Number.parseInt(episodeStr) : 0;
 		}
-		return new Item({
+		return new EpisodeItem({
 			...baseItem,
-			episodeTitle,
-			...extraInfo,
+			title: episodeTitle,
+			season,
+			number,
+			show: {
+				serviceId: baseItem.serviceId,
+				title: baseItem.title,
+			},
 		});
 	}
 }

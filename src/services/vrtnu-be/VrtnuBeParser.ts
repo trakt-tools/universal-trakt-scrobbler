@@ -1,6 +1,6 @@
 import { VrtnuBeApi } from '@/vrtnu-be/VrtnuBeApi';
 import { ScrobbleParser } from '@common/ScrobbleParser';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _VrtnuBeParser extends ScrobbleParser {
 	constructor() {
@@ -29,26 +29,37 @@ class _VrtnuBeParser extends ScrobbleParser {
 			({ showTitle, seasonOrYear, id, seasonAndEpisode, seasonStr, episodeStr } = matches.groups);
 		}
 
-		const title = showTitle?.split('-').join(' ') ?? '';
-		const episodeTitle = '';
-		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
-		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
-		const type = seasonAndEpisode ? 'show' : 'movie';
-		const year = !seasonAndEpisode ? parseInt(seasonOrYear ?? '') : 0;
-
 		if (!id) {
 			return null;
 		}
 
-		return new Item({
+		const title = showTitle?.split('-').join(' ') ?? '';
+
+		if (seasonAndEpisode) {
+			const season = parseInt(seasonStr ?? '') || 0;
+			const number = parseInt(episodeStr ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: '',
+				season,
+				number,
+				show: {
+					serviceId,
+					id,
+					title,
+				},
+			});
+		}
+
+		const year = parseInt(seasonOrYear ?? '') || 0;
+
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
 			year,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }
