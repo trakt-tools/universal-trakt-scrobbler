@@ -256,7 +256,10 @@ export const HistoryList = (): JSX.Element => {
 			Shared.events.unsubscribe('ITEMS_LOAD', null, onItemsLoad);
 			Shared.events.unsubscribe('SYNC_STORE_RESET', null, checkEnd);
 
-			void Shared.events.dispatch('REQUESTS_CANCEL', null, { key: 'default' });
+			void Shared.events.dispatch('REQUESTS_CANCEL', null, {
+				tabId: Shared.tabId,
+				key: 'default',
+			});
 		};
 
 		const onHistoryLoadError = async () => {

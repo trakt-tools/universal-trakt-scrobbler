@@ -11,6 +11,7 @@ class _RequestsManager {
 	init() {
 		if (Shared.pageType === 'background') {
 			this.checkWebRequestListener();
+			this.checkTabListener();
 			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 		}
 		Shared.events.subscribe('REQUESTS_CANCEL', null, this.onRequestsCancel);
@@ -71,13 +72,33 @@ class _RequestsManager {
 		};
 	};
 
+	checkTabListener() {
+		if (!browser.tabs.onRemoved.hasListener(this.onTabRemoved)) {
+			browser.tabs.onRemoved.addListener(this.onTabRemoved);
+		}
+	}
+
+	onTabRemoved = (tabId: number) => {
+		this.cancelTabRequests(tabId);
+	};
+
 	onRequestsCancel = (data: RequestsCancelData) => {
-		this.cancelRequests(data.key);
+		this.cancelRequests(data.tabId !== null ? `${data.tabId}_${data.key}` : data.key);
 	};
 
 	cancelRequests(key: string) {
 		const abortController = this.abortControllers.get(key);
 		if (abortController) {
+			abortController.abort();
+			this.abortControllers.delete(key);
+		}
+	}
+
+	cancelTabRequests(tabId: number) {
+		const entries = [...this.abortControllers.entries()].filter(([key]) =>
+			key.startsWith(`${tabId}_`)
+		);
+		for (const [key, abortController] of entries) {
 			abortController.abort();
 			this.abortControllers.delete(key);
 		}

@@ -93,7 +93,7 @@ class _Requests {
 
 	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> {
 		const options = await this.getOptions(request, tabId);
-		const cancelKey = request.cancelKey || 'default';
+		const cancelKey = `${tabId !== null ? `${tabId}_` : ''}${request.cancelKey || 'default'}`;
 		if (!RequestsManager.abortControllers.has(cancelKey)) {
 			RequestsManager.abortControllers.set(cancelKey, new AbortController());
 		}

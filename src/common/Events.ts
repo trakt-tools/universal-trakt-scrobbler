@@ -120,6 +120,7 @@ export interface HistorySyncSuccessData {
 }
 
 export interface RequestsCancelData {
+	tabId: number | null;
 	key: string;
 }
 
