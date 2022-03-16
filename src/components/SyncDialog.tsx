@@ -18,7 +18,10 @@ export const SyncDialog = (): JSX.Element => {
 	};
 
 	const cancelSync = async () => {
-		await Shared.events.dispatch('REQUESTS_CANCEL', null, { key: 'sync' });
+		await Shared.events.dispatch('REQUESTS_CANCEL', null, {
+			tabId: Shared.tabId,
+			key: 'sync',
+		});
 		closeDialog();
 	};
 
