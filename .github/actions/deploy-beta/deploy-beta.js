@@ -42,12 +42,12 @@ const deployBeta = async () => {
 	const distPath = path.resolve(__dirname, '../../../dist');
 	const files = [
 		{
-			content: fs.readFileSync(path.resolve(distPath, 'chrome.zip'), 'utf-8'),
+			content: fs.readFileSync(path.resolve(distPath, 'chrome.zip')),
 			name: 'chrome.zip',
 			type: 'application/zip',
 		},
 		{
-			content: fs.readFileSync(path.resolve(distPath, 'firefox.zip'), 'utf-8'),
+			content: fs.readFileSync(path.resolve(distPath, 'firefox.zip')),
 			name: 'firefox.zip',
 			type: 'application/zip',
 		},
