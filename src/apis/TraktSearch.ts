@@ -4,7 +4,7 @@ import { CacheItems } from '@common/Cache';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { EpisodeItem, isItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, isItem, Item, ScrobbleItem } from '@models/Item';
 import {
 	createTraktScrobbleItem,
 	TraktEpisodeItem,
@@ -187,7 +187,7 @@ class _TraktSearch extends TraktApi {
 		}
 	}
 
-	async findItem(item: ScrobbleItem, cancelKey = 'default'): Promise<TraktSearchItem> {
+	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {
 		let searchItem: TraktSearchItem | undefined;
 		await this.activate();
 		const responseText = await this.requests.send({
@@ -242,7 +242,7 @@ class _TraktSearch extends TraktApi {
 		if (!cacheItem) {
 			let show;
 			if (isItem(itemOrUrl)) {
-				show = ((await this.findItem(itemOrUrl, cancelKey)) as TraktSearchShowItem).show;
+				show = ((await this.findItem(itemOrUrl.show, cancelKey)) as TraktSearchShowItem).show;
 			} else {
 				await this.activate();
 				const showResponse = await this.requests.send({
