@@ -113,10 +113,14 @@ class _ViaplayApi extends ServiceApi {
 			const response = await fetch(this.INITIAL_URL);
 			viaplayUrl = new URL(response.url);
 		}
+		console.log('viaplayURL', viaplayUrl);
 		const host = viaplayUrl.hostname;
+		console.log('host', host);
 		let { region = 'com' } = /\.(?<region>no|se|dk|fi|is|pl|ee|lv|lt)/.exec(host)?.groups ?? {};
 		if (region === 'com') {
+			console.log('pathname', viaplayUrl.pathname);
 			region = /(?<region>..)-/.exec(viaplayUrl.pathname)?.groups?.region || region;
+			console.log('region', region);
 		}
 		this.HOST_URL = `https://content.${host}/`;
 		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
