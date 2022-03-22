@@ -17,10 +17,6 @@ export interface TraktBaseItemValues {
 	progress?: number;
 }
 
-export type TraktEpisodeItemParams = Omit<TraktEpisodeItemValues, 'type' | 'show'> & {
-	show: Omit<TraktShowItemValues, 'type'>;
-};
-
 export interface TraktEpisodeItemValues extends TraktBaseItemValues {
 	type: 'episode';
 	season: number;
@@ -28,17 +24,21 @@ export interface TraktEpisodeItemValues extends TraktBaseItemValues {
 	show: TraktShowItemValues;
 }
 
-export type TraktShowItemParams = Omit<TraktShowItemValues, 'type'>;
+export type TraktEpisodeItemParams = Omit<TraktEpisodeItemValues, 'type' | 'show'> & {
+	show: Omit<TraktShowItemValues, 'type'>;
+};
 
 export interface TraktShowItemValues extends TraktBaseItemValues {
 	type: 'show';
 }
 
-export type TraktMovieItemParams = Omit<TraktMovieItemValues, 'type'>;
+export type TraktShowItemParams = Omit<TraktShowItemValues, 'type'>;
 
 export interface TraktMovieItemValues extends TraktBaseItemValues {
 	type: 'movie';
 }
+
+export type TraktMovieItemParams = Omit<TraktMovieItemValues, 'type'>;
 
 abstract class TraktBaseItem implements TraktBaseItemValues {
 	id: number;

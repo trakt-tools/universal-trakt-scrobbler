@@ -50,11 +50,6 @@ export interface BaseItemValues {
 	isLoading?: boolean;
 }
 
-export type EpisodeItemParams = Omit<EpisodeItemValues, 'type' | 'show' | 'trakt'> & {
-	show: Omit<ShowItemValues, 'type'>;
-	trakt?: TraktEpisodeItemParams | null;
-};
-
 export interface EpisodeItemValues extends BaseItemValues {
 	type: 'episode';
 	season: number;
@@ -63,8 +58,9 @@ export interface EpisodeItemValues extends BaseItemValues {
 	trakt?: TraktEpisodeItemValues | null;
 }
 
-export type ShowItemParams = Omit<ShowItemValues, 'type' | 'trakt'> & {
-	trakt?: TraktShowItemParams | null;
+export type EpisodeItemParams = Omit<EpisodeItemValues, 'type' | 'show' | 'trakt'> & {
+	show: Omit<ShowItemValues, 'type'>;
+	trakt?: TraktEpisodeItemParams | null;
 };
 
 export interface ShowItemValues extends BaseItemValues {
@@ -72,14 +68,18 @@ export interface ShowItemValues extends BaseItemValues {
 	trakt?: TraktShowItemValues | null;
 }
 
-export type MovieItemParams = Omit<MovieItemValues, 'type' | 'trakt'> & {
-	trakt?: TraktMovieItemParams | null;
+export type ShowItemParams = Omit<ShowItemValues, 'type' | 'trakt'> & {
+	trakt?: TraktShowItemParams | null;
 };
 
 export interface MovieItemValues extends BaseItemValues {
 	type: 'movie';
 	trakt?: TraktMovieItemValues | null;
 }
+
+export type MovieItemParams = Omit<MovieItemValues, 'type' | 'trakt'> & {
+	trakt?: TraktMovieItemParams | null;
+};
 
 abstract class BaseItem implements BaseItemValues {
 	serviceId: string;
