@@ -134,7 +134,7 @@ class _ViaplayApi extends ServiceApi {
 		});
 		const authResponse = JSON.parse(authResponseText) as ViaplayAuthResponse;
 		this.session = {
-			profileName: authResponse.userData?.firstName || null,
+			profileName: authResponse.userData?.firstName || authResponse.userData?.username || null,
 		};
 
 		this.isActivated = true;
