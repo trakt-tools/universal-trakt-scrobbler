@@ -125,7 +125,7 @@ export const HistoryListItemCard = ({
 								<Typography variant="h6">{I18N.translate('notFound')}</Typography>
 							) : item.type === 'episode' ? (
 								<>
-									{item.season && item.number && (
+									{item.season > 0 && item.number > 0 && (
 										<Typography variant="overline">{`S${item.season} E${item.number}`}</Typography>
 									)}
 									<Typography variant="h6">{item.title}</Typography>
