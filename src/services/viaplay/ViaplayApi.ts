@@ -94,7 +94,7 @@ export interface ViaplayProductUserInfo {
 }
 
 class _ViaplayApi extends ServiceApi {
-	INITIAL_URL = 'https://viaplay.com/';
+	INITIAL_URL = 'https://viaplay.com/requirements';
 	HOST_URL = '';
 	API_BASE_URL = '';
 	HISTORY_API_URL = '';
@@ -113,14 +113,15 @@ class _ViaplayApi extends ServiceApi {
 			const response = await fetch(this.INITIAL_URL);
 			viaplayUrl = new URL(response.url);
 		}
-		console.log('viaplayURL', viaplayUrl);
 		const host = viaplayUrl.hostname;
 		console.log('host', host);
 		let { region = 'com' } = /\.(?<region>no|se|dk|fi|is|pl|ee|lv|lt)/.exec(host)?.groups ?? {};
 		if (region === 'com') {
-			console.log('pathname', viaplayUrl.pathname);
+			//pathname should be something like /us-en/
 			region = /(?<region>..)-/.exec(viaplayUrl.pathname)?.groups?.region || region;
-			console.log('region', region);
+			if (region === 'com') {
+				Shared.errors.error('Unknown Viaplay region: ', new Error(viaplayUrl.href));
+			}
 		}
 		this.HOST_URL = `https://content.${host}/`;
 		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
