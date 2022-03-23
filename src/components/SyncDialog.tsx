@@ -5,7 +5,7 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { Button, CircularProgress, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import { useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ export const SyncDialog = (): JSX.Element => {
 			void startSync(data.store, data.serviceId, data.items);
 		};
 
-		const startSync = async (store: SyncStore, serviceId: string | null, items: Item[]) => {
+		const startSync = async (store: SyncStore, serviceId: string | null, items: ScrobbleItem[]) => {
 			if (!store || items.length === 0) {
 				closeDialog();
 				return;

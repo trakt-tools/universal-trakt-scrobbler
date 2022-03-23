@@ -1,6 +1,6 @@
-import { ScrobbleParser } from '@common/ScrobbleParser';
 import { PolsatboxgoPlApi } from '@/polsatboxgo-pl/PolsatboxgoPlApi';
-import { Item } from '@models/Item';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _PolsatboxgoPlParser extends ScrobbleParser {
 	constructor() {
@@ -34,23 +34,32 @@ class _PolsatboxgoPlParser extends ScrobbleParser {
 		}
 
 		const title = showTitle?.split('/')[0];
-		const episodeTitle = epiTitle ?? '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const type = seasonId ? 'show' : 'movie';
 
 		if (!title) {
 			return null;
 		}
 
-		return new Item({
+		if (seasonId) {
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: epiTitle ?? '',
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
+		}
+
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

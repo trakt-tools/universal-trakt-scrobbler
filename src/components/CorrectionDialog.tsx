@@ -6,7 +6,7 @@ import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import {
 	Button,
 	CircularProgress,
@@ -27,7 +27,7 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 interface CorrectionDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	item?: Item;
+	item?: ScrobbleItem;
 	isScrobblingItem: boolean;
 	url: string;
 }
@@ -124,7 +124,7 @@ export const CorrectionDialog = (): JSX.Element => {
 			}
 			if (!suggestion) {
 				suggestion = {
-					type: newItem.trakt.type === 'show' ? 'episode' : 'movie',
+					type: newItem.trakt.type,
 					id: newItem.trakt.id,
 					title: newItem.trakt.title,
 					count: 1,
@@ -142,8 +142,8 @@ export const CorrectionDialog = (): JSX.Element => {
 				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
 				null,
 				{
-					oldItem: Item.save(oldItem),
-					newItem: Item.save(newItem),
+					oldItem: oldItem.save(),
+					newItem: newItem.save(),
 				}
 			);
 		} catch (err) {
@@ -236,9 +236,9 @@ export const CorrectionDialog = (): JSX.Element => {
 									: 'correctionDialogContent',
 								dialog.item
 									? `${dialog.item.title} ${
-											dialog.item.type === 'show'
+											dialog.item.type === 'episode'
 												? `S${dialog.item.season?.toString() ?? '0'} E${
-														dialog.item.episode?.toString() ?? '0'
+														dialog.item.number?.toString() ?? '0'
 												  }`
 												: `(${dialog.item.year.toString()})`
 									  }`

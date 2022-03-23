@@ -5,13 +5,13 @@ import { Shared } from '@common/Shared';
 import { Center } from '@components/Center';
 import { PopupNotWatching } from '@components/PopupNotWatching';
 import { PopupWatching } from '@components/PopupWatching';
-import { Item } from '@models/Item';
+import { createScrobbleItem, ScrobbleItem } from '@models/Item';
 import { CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 interface IPopupHomeContent {
 	isLoading: boolean;
-	scrobblingItem: Item | null;
+	scrobblingItem: ScrobbleItem | null;
 	isPaused: boolean;
 }
 
@@ -29,7 +29,7 @@ export const HomePage = (): JSX.Element => {
 			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			setContent({
 				isLoading: false,
-				scrobblingItem: scrobblingDetails?.item ? Item.load(scrobblingDetails.item) : null,
+				scrobblingItem: scrobblingDetails?.item ? createScrobbleItem(scrobblingDetails.item) : null,
 				isPaused: scrobblingDetails?.isPaused ?? false,
 			});
 		};
@@ -56,7 +56,7 @@ export const HomePage = (): JSX.Element => {
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: data.item
-					? Item.load({
+					? createScrobbleItem({
 							...data.item,
 							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
@@ -85,7 +85,7 @@ export const HomePage = (): JSX.Element => {
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: data.item
-					? Item.load({
+					? createScrobbleItem({
 							...data.item,
 							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,

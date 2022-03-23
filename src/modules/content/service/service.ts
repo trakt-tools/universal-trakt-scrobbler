@@ -8,7 +8,7 @@ import { getScrobbleController } from '@common/ScrobbleController';
 import { getScrobbleEvents } from '@common/ScrobbleEvents';
 import { Shared } from '@common/Shared';
 
-export const init = async (serviceId: string) => {
+export const init = async (serviceId: string): Promise<void> => {
 	Shared.pageType = 'content';
 	await BrowserStorage.init();
 	Errors.init();

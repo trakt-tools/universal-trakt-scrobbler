@@ -5,12 +5,12 @@ import { CustomSnackbar } from '@components/CustomSnackbar';
 import { PopupInfo } from '@components/PopupInfo';
 import { PopupOverlay } from '@components/PopupOverlay';
 import { TmdbImage } from '@components/TmdbImage';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { Pause as PauseIcon } from '@mui/icons-material';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@mui/material';
 
 export interface PopupWatchingProps {
-	item: Item;
+	item: ScrobbleItem;
 	isPaused: boolean;
 }
 
@@ -38,11 +38,11 @@ export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Eleme
 				>
 					<PopupInfo>
 						<Typography variant="overline">{I18N.translate('nowScrobbling')}</Typography>
-						{item.trakt?.type === 'show' ? (
+						{item.trakt?.type === 'episode' ? (
 							<>
-								<Typography variant="h6">{item.trakt.episodeTitle}</Typography>
+								<Typography variant="h6">{item.trakt.title}</Typography>
 								<Typography variant="subtitle2">{I18N.translate('from')}</Typography>
-								<Typography variant="subtitle1">{item.trakt.title}</Typography>
+								<Typography variant="subtitle1">{item.trakt.show.title}</Typography>
 							</>
 						) : (
 							<Typography variant="h6">{item.trakt?.title}</Typography>

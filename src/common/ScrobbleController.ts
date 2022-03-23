@@ -5,12 +5,11 @@ import { Cache } from '@common/Cache';
 import { ItemCorrectedData, StorageOptionsChangeData } from '@common/Events';
 import { getScrobbleParser, ScrobbleParser } from '@common/ScrobbleParser';
 import { Shared } from '@common/Shared';
-import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+import { createTraktScrobbleItem } from '@models/TraktItem';
 
 const scrobbleControllers = new Map<string, ScrobbleController>();
 
-export const getScrobbleController = (id: string) => {
+export const getScrobbleController = (id: string): ScrobbleController => {
 	if (!scrobbleControllers.has(id)) {
 		const scrobbleParser = getScrobbleParser(id);
 		scrobbleControllers.set(id, new ScrobbleController(scrobbleParser));
@@ -35,19 +34,19 @@ export class ScrobbleController {
 		this.api = this.parser.api;
 	}
 
-	init() {
+	init(): void {
 		this.checkListeners();
 		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 	}
 
-	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
+	onStorageOptionsChange = (data: StorageOptionsChangeData): void => {
 		const serviceOption = data.options?.services?.[this.api.id];
 		if (serviceOption && 'scrobble' in serviceOption) {
 			this.checkListeners();
 		}
 	};
 
-	checkListeners() {
+	checkListeners(): void {
 		const { scrobble } = Shared.storage.options?.services?.[this.api.id];
 		if (scrobble && !this.hasAddedListeners) {
 			Shared.events.subscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
@@ -119,7 +118,7 @@ export class ScrobbleController {
 			this.reachedScrobbleThreshold = true;
 			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			if (scrobblingDetails) {
-				scrobblingDetails.item = Item.save(item);
+				scrobblingDetails.item = item.save();
 				await Shared.storage.set({ scrobblingDetails }, false);
 				await Shared.events.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
 			}
@@ -132,7 +131,7 @@ export class ScrobbleController {
 			this.progress = item.progress;
 			const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 			if (scrobblingDetails) {
-				scrobblingDetails.item = Item.save(item);
+				scrobblingDetails.item = item.save();
 				await Shared.storage.set({ scrobblingDetails }, false);
 				await Shared.events.dispatch('SCROBBLE_PROGRESS', null, scrobblingDetails);
 			}
@@ -149,7 +148,7 @@ export class ScrobbleController {
 		}
 		await this.updateProgress(0.0);
 		await this.stopScrobble();
-		item.trakt = TraktItem.load(data.newItem.trakt);
+		item.trakt = createTraktScrobbleItem(data.newItem.trakt);
 		await this.startScrobble();
 	};
 }

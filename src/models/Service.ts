@@ -11,11 +11,11 @@ export interface ServiceValues {
 
 const services = new Map<string, Service>();
 
-export const registerService = (id: string, service: Service) => {
+export const registerService = (id: string, service: Service): void => {
 	services.set(id, service);
 };
 
-export const getService = (id: string) => {
+export const getService = (id: string): Service => {
 	const service = services.get(id);
 	if (!service) {
 		throw new Error(`Service not registered for ${id}`);
@@ -23,7 +23,7 @@ export const getService = (id: string) => {
 	return service;
 };
 
-export const getServices = () => {
+export const getServices = (): Service[] => {
 	return Array.from(services.values());
 };
 
@@ -50,7 +50,7 @@ export class Service implements ServiceValues {
 		registerService(this.id, this);
 	}
 
-	get path() {
+	get path(): string {
 		return `/${this.id}`;
 	}
 }

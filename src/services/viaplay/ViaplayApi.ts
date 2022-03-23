@@ -3,7 +3,7 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
 export interface ViaplayAuthResponse {
 	success: boolean;
@@ -163,7 +163,7 @@ class _ViaplayApi extends ServiceApi {
 		return responseItems;
 	}
 
-	isNewHistoryItem(historyItem: ViaplayProduct, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: ViaplayProduct, lastSync: number) {
 		return (
 			!!historyItem.user.progress?.updated &&
 			Utils.unix(historyItem.user.progress.updated) > lastSync
@@ -179,8 +179,8 @@ class _ViaplayApi extends ServiceApi {
 		return items;
 	}
 
-	parseViaplayProduct(product: ViaplayProduct): Item {
-		let item: Item;
+	parseViaplayProduct(product: ViaplayProduct): ScrobbleItem {
+		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const year = product.content.production.year;
 		const progressInfo = product.user.progress;
@@ -189,28 +189,30 @@ class _ViaplayApi extends ServiceApi {
 		const id = product.system.guid;
 		if (product.type === 'episode') {
 			const content = product.content;
-			const title = content.originalTitle ?? content.series.title;
+			const showTitle = content.originalTitle ?? content.series.title;
 			const season = content.series.season.seasonNumber;
-			const episode = content.series.episodeNumber;
-			const episodeTitle = content.title !== title ? content.title : content.series.episodeTitle;
-			item = new Item({
+			const number = content.series.episodeNumber;
+			const title = content.title !== showTitle ? content.title : content.series.episodeTitle;
+			item = new EpisodeItem({
 				serviceId,
 				id,
-				type: 'show',
 				title,
 				year,
 				season,
-				episode,
-				episodeTitle,
+				number,
 				progress,
 				watchedAt,
+				show: {
+					serviceId,
+					title: showTitle,
+					year,
+				},
 			});
 		} else {
 			const title = product.content.title;
-			item = new Item({
+			item = new MovieItem({
 				serviceId,
 				id,
-				type: 'movie',
 				title,
 				year,
 				progress,
@@ -220,8 +222,8 @@ class _ViaplayApi extends ServiceApi {
 		return item;
 	}
 
-	async getItem(id: string): Promise<Item | null> {
-		let item: Item | null = null;
+	async getItem(id: string): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
 		if (!this.isActivated) {
 			await this.activate();
 		}

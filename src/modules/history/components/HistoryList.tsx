@@ -12,7 +12,7 @@ import { Shared } from '@common/Shared';
 import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
-import { Item } from '@models/Item';
+import { createScrobbleItem, ScrobbleItem } from '@models/Item';
 import { Box } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import { RefCallback, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -68,7 +68,7 @@ export const HistoryList = (): JSX.Element => {
 				lastSyncId: '',
 		  };
 
-	const startLoading = async (items: Item[]) => {
+	const startLoading = async (items: ScrobbleItem[]) => {
 		store.data.isLoading = true;
 		await Shared.events.dispatch('SYNC_STORE_LOADING_START', null, {});
 		const newItems = items.map((item) => {
@@ -80,7 +80,7 @@ export const HistoryList = (): JSX.Element => {
 		return newItems;
 	};
 
-	const stopLoading = async (items: Item[]) => {
+	const stopLoading = async (items: ScrobbleItem[]) => {
 		store.data.isLoading = false;
 		await Shared.events.dispatch('SYNC_STORE_LOADING_STOP', null, {});
 		const newItems = items.map((item) => {
@@ -116,7 +116,7 @@ export const HistoryList = (): JSX.Element => {
 		}
 
 		await startLoading([]);
-		let items: Item[] = [];
+		let items: ScrobbleItem[] = [];
 		try {
 			const { hasReachedLastSyncDate } = store.data;
 			if (hasReachedLastSyncDate) {
@@ -141,7 +141,7 @@ export const HistoryList = (): JSX.Element => {
 		}
 	};
 
-	const loadData = async (items: Item[]) => {
+	const loadData = async (items: ScrobbleItem[]) => {
 		items = await ServiceApi.loadTraktHistory(items, processItem);
 		items = await CorrectionApi.loadSuggestions(items);
 		await store.update(items, true);
@@ -150,7 +150,7 @@ export const HistoryList = (): JSX.Element => {
 		return items;
 	};
 
-	const processItem = async (item: Item) => {
+	const processItem = async (item: ScrobbleItem) => {
 		const [newItem] = await checkHiddenSelected([item]);
 		await store.update([newItem], true);
 		return newItem;
@@ -170,7 +170,7 @@ export const HistoryList = (): JSX.Element => {
 		setContinueLoading(true);
 	};
 
-	const addWithReleaseDate = async (items: Item[]): Promise<Item[]> => {
+	const addWithReleaseDate = async (items: ScrobbleItem[]): Promise<ScrobbleItem[]> => {
 		let newItems = await startLoading(items);
 		newItems = newItems.map((item) => {
 			const newItem = item.clone();
@@ -185,7 +185,7 @@ export const HistoryList = (): JSX.Element => {
 		return newItems;
 	};
 
-	const checkHiddenSelected = async (items: Item[]): Promise<Item[]> => {
+	const checkHiddenSelected = async (items: ScrobbleItem[]): Promise<ScrobbleItem[]> => {
 		let index = -1;
 
 		const newItems = [];
@@ -286,11 +286,11 @@ export const HistoryList = (): JSX.Element => {
 		};
 
 		const onItemCorrected = async (data: ItemCorrectedData): Promise<void> => {
-			let newItem = Item.load(data.newItem);
+			let newItem = createScrobbleItem(data.newItem);
 			[newItem] = await startLoading([newItem]);
 			try {
 				if (data.oldItem.trakt?.syncId) {
-					const oldItem = Item.load(data.oldItem);
+					const oldItem = createScrobbleItem(data.oldItem);
 					await TraktSync.removeHistory(oldItem);
 				}
 			} catch (err) {

@@ -1,6 +1,5 @@
-import { ServiceApi } from '@apis/ServiceApi';
-import { Item } from '@models/Item';
 import { HboGoService } from '@/hbo-go/HboGoService';
+import { ServiceApi } from '@apis/ServiceApi';
 
 class _HboGoApi extends ServiceApi {
 	constructor() {

@@ -5,7 +5,7 @@ import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 import { SetOptional } from 'type-fest';
 
 export interface AmazonPrimeSession extends ServiceApiSession, AmazonPrimeData {}
@@ -281,7 +281,7 @@ class _AmazonPrimeApi extends ServiceApi {
 			.flat();
 	}
 
-	isNewHistoryItem(historyItem: AmazonPrimeHistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: AmazonPrimeHistoryItem, lastSync: number) {
 		return historyItem.watchedAt > lastSync;
 	}
 
@@ -290,7 +290,7 @@ class _AmazonPrimeApi extends ServiceApi {
 	}
 
 	async convertHistoryItems(historyItems: AmazonPrimeHistoryItem[]) {
-		const items: Item[] = [];
+		const items: ScrobbleItem[] = [];
 
 		for (const historyItem of historyItems) {
 			const item = await this.getItem(historyItem.id);
@@ -304,8 +304,8 @@ class _AmazonPrimeApi extends ServiceApi {
 		return items;
 	}
 
-	async getItem(id: string): Promise<Item | null> {
-		let item: Item | null = null;
+	async getItem(id: string): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
 		try {
 			if (!this.isActivated) {
 				await this.activate();
@@ -334,36 +334,37 @@ class _AmazonPrimeApi extends ServiceApi {
 		return item;
 	}
 
-	parseMetadata(metadata: AmazonPrimeMetadataItem): Item {
-		let item: Item;
+	parseMetadata(metadata: AmazonPrimeMetadataItem): ScrobbleItem {
+		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
 		const type = entityType === 'TV Show' ? 'show' : 'movie';
 		if (type === 'show') {
 			let title = '';
-			let season;
+			let season = 0;
 			if (family) {
 				const [seasonInfo, showInfo] = family.tvAncestors;
 				title = showInfo.catalog.title;
 				season = seasonInfo.catalog.seasonNumber;
 			}
-			const { episodeNumber: episode, title: episodeTitle } = catalog;
-			item = new Item({
+			const { episodeNumber: number = 0, title: episodeTitle } = catalog;
+			item = new EpisodeItem({
 				serviceId,
 				id,
-				type,
-				title,
+				title: episodeTitle,
 				season,
-				episode,
-				episodeTitle,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
 			});
 		} else {
 			const { title } = catalog;
-			item = new Item({
+			item = new MovieItem({
 				serviceId,
 				id,
-				type,
 				title,
 			});
 		}

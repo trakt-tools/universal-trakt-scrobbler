@@ -4,7 +4,7 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { DateTimePicker, LocalizationProvider } from '@mui/lab';
 import DateAdapter from '@mui/lab/AdapterDateFns';
 import {
@@ -24,7 +24,7 @@ import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 interface MissingWatchedDateDialogState {
 	isOpen: boolean;
 	isLoading: boolean;
-	items: Item[];
+	items: ScrobbleItem[];
 	dateType: MissingWatchedDateType | null;
 	date: number | null;
 	dateError: ReactNode | null;
@@ -198,9 +198,9 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 								: I18N.translate(
 										'missingWatchedDateDialogContent',
 										`${dialog.items[0].title} ${
-											dialog.items[0].type === 'show'
+											dialog.items[0].type === 'episode'
 												? `S${dialog.items[0].season?.toString() ?? '0'} E${
-														dialog.items[0].episode?.toString() ?? '0'
+														dialog.items[0].number?.toString() ?? '0'
 												  }`
 												: `(${dialog.items[0].year.toString()})`
 										}`
