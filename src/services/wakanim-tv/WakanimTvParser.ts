@@ -1,6 +1,6 @@
-import { ScrobbleParser } from '@common/ScrobbleParser';
 import { WakanimTvApi } from '@/wakanim-tv/WakanimTvApi';
-import { Item } from '@models/Item';
+import { ScrobbleParser } from '@common/ScrobbleParser';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _WakanimTvParser extends ScrobbleParser {
 	constructor() {
@@ -23,6 +23,10 @@ class _WakanimTvParser extends ScrobbleParser {
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 
+		if (!titleElement) {
+			return null;
+		}
+
 		// "Drowning Sorrows in Raging Fire Saison 1 Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
 		// "Deep Insanity THE LOST CHILD Saison 1 - VOSTFR Episode 12 VOSTFR - Regardez officiellement sur Wakanim.TV"
 		// "Ranking of Kings Staffel 1 - Cour 2 (OmU) Folge 12 (OmU.) - Schaue legal auf Wakanim.TV"
@@ -37,23 +41,28 @@ class _WakanimTvParser extends ScrobbleParser {
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';
-		const episodeTitle = '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const type = seasonId ? 'show' : 'movie';
 
-		if (!titleElement) {
-			return null;
+		if (seasonId) {
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: '',
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

@@ -44,7 +44,7 @@ export class TraktApi {
 		this.SETTINGS_URL = `${this.API_URL}/users/settings`;
 	}
 
-	async activate() {
+	async activate(): Promise<void> {
 		if (this.isActivated) {
 			return;
 		}

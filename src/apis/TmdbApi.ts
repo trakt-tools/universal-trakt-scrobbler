@@ -1,12 +1,13 @@
 import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
-import { Item } from '@models/Item';
+import { ScrobbleItem } from '@models/Item';
 import { TraktItem } from '@models/TraktItem';
 
 export interface TmdbApiConfig {
 	baseUrl: string;
 	sizes: {
+		episode: string;
 		show: string;
 		movie: string;
 	};
@@ -60,15 +61,16 @@ class _TmdbApi {
 			const responseJson = JSON.parse(responseText) as TmdbConfigResponse;
 			const { images } = responseJson;
 			const baseUrl = images?.secure_base_url;
-			const showSize = images?.still_sizes?.[2]; // This should be 300px
+			const episodeSize = images?.still_sizes?.[2]; // This should be 300px
 			const movieSize = images?.poster_sizes?.[3]; // This should be 342px (closest to 300px)
-			if (!baseUrl || !showSize || !movieSize) {
+			if (!baseUrl || !episodeSize || !movieSize) {
 				throw new Error('Missing config');
 			}
 			this.config = {
 				baseUrl,
 				sizes: {
-					show: showSize,
+					episode: episodeSize,
+					show: movieSize,
 					movie: movieSize,
 				},
 			};
@@ -119,15 +121,24 @@ class _TmdbApi {
 	private getItemUrl(item: TraktItem): string {
 		let type = '';
 		let path = '';
-		if (item.type === 'show') {
-			type = 'tv';
-			path =
-				item.season && item.episode
-					? `${item.tmdbId.toString()}/season/${item.season.toString()}/episode/${item.episode.toString()}`
-					: item.tmdbId.toString();
-		} else {
-			type = 'movie';
-			path = item.tmdbId.toString();
+		switch (item.type) {
+			case 'episode':
+				type = 'tv';
+				path =
+					item.season && item.number
+						? `${item.show.tmdbId.toString()}/season/${item.season.toString()}/episode/${item.number.toString()}`
+						: item.show.tmdbId.toString();
+				break;
+
+			case 'show':
+				type = 'tv';
+				path = item.tmdbId.toString();
+				break;
+
+			case 'movie':
+				type = 'movie';
+				path = item.tmdbId.toString();
+				break;
 		}
 		return `${this.API_URL}/${type}/${path}/images?api_key=${Shared.tmdbApiKey}`;
 	}
@@ -137,7 +148,7 @@ class _TmdbApi {
 	 *
 	 * If all images have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
 	 */
-	async loadImages(items: Item[]): Promise<Item[]> {
+	async loadImages(items: ScrobbleItem[]): Promise<ScrobbleItem[]> {
 		const hasLoadedImages = !items.some((item) => typeof item.imageUrl === 'undefined');
 		if (hasLoadedImages) {
 			return items;
@@ -145,7 +156,7 @@ class _TmdbApi {
 		const newItems = items.map((item) => item.clone());
 		const cache = await Cache.get('imageUrls');
 		try {
-			const itemsToFetch: Item[] = [];
+			const itemsToFetch: ScrobbleItem[] = [];
 			for (const item of newItems) {
 				if (!item.trakt || typeof item.imageUrl !== 'undefined') {
 					continue;
@@ -166,11 +177,15 @@ class _TmdbApi {
 						url: this.IMAGES_DATABASE_URL,
 						body: {
 							items: itemsToFetch.map((item) => ({
-								type: item.trakt?.type === 'show' ? 'episode' : 'movie',
+								type: item.trakt?.type,
 								id: item.trakt?.id,
 								tmdbId: item.trakt?.tmdbId,
-								season: item.trakt?.season,
-								episode: item.trakt?.episode,
+								...(item.trakt?.type === 'episode'
+									? {
+											season: item.trakt?.season,
+											episode: item.trakt?.number,
+									  }
+									: {}),
 							})),
 						},
 					});

@@ -1,6 +1,6 @@
 import { DisneyplusApi } from '@/disneyplus/DisneyplusApi';
 import { ScrobbleParser } from '@common/ScrobbleParser';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _DisneyplusParser extends ScrobbleParser {
 	constructor() {
@@ -13,9 +13,13 @@ class _DisneyplusParser extends ScrobbleParser {
 		const serviceId = this.api.id;
 		const id = this.parseItemIdFromUrl();
 		const titleElement = document.querySelector('.title-field');
+
+		if (!titleElement) {
+			return null;
+		}
+
 		const title = titleElement?.textContent ?? '';
 		const subTitleElement = document.querySelector('.subtitle-field');
-		const type = subTitleElement?.textContent ? 'show' : 'movie';
 
 		let seasonAndEpisode: string | null = null;
 		let seasonStr: string | null = null;
@@ -32,22 +36,28 @@ class _DisneyplusParser extends ScrobbleParser {
 			({ seasonAndEpisode, seasonStr, episodeStr, subTitle } = matches.groups);
 		}
 
-		const season = seasonAndEpisode ? parseInt(seasonStr ?? '') : undefined;
-		const episode = seasonAndEpisode ? parseInt(episodeStr ?? '') : undefined;
-		const episodeTitle = subTitle ?? '';
+		if (seasonAndEpisode) {
+			const episodeTitle = subTitle ?? '';
+			const season = parseInt(seasonStr ?? '') || 0;
+			const number = parseInt(episodeStr ?? '') || 0;
 
-		if (!titleElement) {
-			return null;
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: episodeTitle,
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }

@@ -4,16 +4,16 @@ import { TraktSync } from '@apis/TraktSync';
 import { Cache, CacheItems } from '@common/Cache';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
-import { Item, SavedItem } from '@models/Item';
+import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
 
-export const registerServiceApi = (id: string, api: ServiceApi) => {
+export const registerServiceApi = (id: string, api: ServiceApi): void => {
 	serviceApis.set(id, api);
 };
 
-export const getServiceApi = (id: string) => {
+export const getServiceApi = (id: string): ServiceApi => {
 	const api = serviceApis.get(id);
 	if (!api) {
 		throw new Error(`API not registered for ${id}`);
@@ -41,10 +41,10 @@ export abstract class ServiceApi {
 	}
 
 	static async loadTraktHistory(
-		items: Item[],
-		processItem?: (item: Item) => Promise<Item>,
+		items: ScrobbleItem[],
+		processItem?: (item: ScrobbleItem) => Promise<ScrobbleItem>,
 		cancelKey = 'default'
-	) {
+	): Promise<ScrobbleItem[]> {
 		const hasLoadedTraktHistory = !items.some(
 			(item) =>
 				typeof item.trakt === 'undefined' ||
@@ -92,14 +92,14 @@ export abstract class ServiceApi {
 	}
 
 	static async loadTraktItemHistory(
-		item: Item,
+		item: ScrobbleItem,
 		caches: CacheItems<
 			['itemsToTraktItems', 'traktItems', 'traktHistoryItems', 'urlsToTraktItems']
 		>,
 		correction?: Suggestion,
-		processItem?: (item: Item) => Promise<Item>,
+		processItem?: (item: ScrobbleItem) => Promise<ScrobbleItem>,
 		cancelKey = 'default'
-	) {
+	): Promise<ScrobbleItem> {
 		try {
 			if (!item.trakt) {
 				item.trakt = await TraktSearch.find(item, caches, correction, cancelKey);
@@ -133,8 +133,12 @@ export abstract class ServiceApi {
 		return Promise.resolve(!!this.session && this.session.profileName !== null);
 	}
 
-	async loadHistory(itemsToLoad: number, lastSync: number, lastSyncId: string): Promise<Item[]> {
-		let items: Item[] = [];
+	async loadHistory(
+		itemsToLoad: number,
+		lastSync: number,
+		lastSyncId: string
+	): Promise<ScrobbleItem[]> {
+		let items: ScrobbleItem[] = [];
 		try {
 			const caches = await Cache.get(['history', 'historyItemsToItems', 'items']);
 			let historyCache = caches.history.get(this.id);
@@ -154,7 +158,7 @@ export abstract class ServiceApi {
 				} else if (!this.hasReachedHistoryEnd) {
 					responseItems = await this.loadHistoryItems();
 					if (!this.hasCheckedHistoryCache) {
-						let firstItem: SavedItem | null = null;
+						let firstItem: ScrobbleItemValues | null = null;
 						if (historyCache.items.length > 0) {
 							const historyItemId = `${this.id}_${this.getHistoryItemId(historyCache.items[0])}`;
 							const itemId = caches.historyItemsToItems.get(historyItemId);
@@ -203,7 +207,7 @@ export abstract class ServiceApi {
 				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
-				const tmpItems: (Item | null)[] = [];
+				const tmpItems: (ScrobbleItem | null)[] = [];
 				const historyItemsToConvert = [];
 
 				for (const historyItem of historyItems) {
@@ -212,7 +216,7 @@ export abstract class ServiceApi {
 					if (itemId) {
 						const item = caches.items.get(itemId);
 						if (item) {
-							tmpItems.push(Item.load(item));
+							tmpItems.push(createScrobbleItem(item));
 						} else {
 							tmpItems.push(null);
 							historyItemsToConvert.push(historyItem);
@@ -236,7 +240,7 @@ export abstract class ServiceApi {
 						return item;
 					});
 				} else {
-					items = tmpItems as Item[];
+					items = tmpItems as ScrobbleItem[];
 				}
 
 				for (const [index, historyItem] of historyItems.entries()) {
@@ -244,7 +248,7 @@ export abstract class ServiceApi {
 					const item = items[index];
 					const itemDatabaseId = item.getDatabaseId();
 					caches.historyItemsToItems.set(historyItemId, itemDatabaseId);
-					caches.items.set(itemDatabaseId, Item.save(item));
+					caches.items.set(itemDatabaseId, item.save());
 				}
 			}
 			await store.setData({ items, hasReachedEnd, hasReachedLastSyncDate });
@@ -262,7 +266,7 @@ export abstract class ServiceApi {
 		return items;
 	}
 
-	reset() {
+	reset(): void {
 		this.leftoverHistoryItems = [];
 		this.hasCheckedHistoryCache = false;
 		this.hasReachedHistoryEnd = false;
@@ -302,14 +306,14 @@ export abstract class ServiceApi {
 	 *
 	 * Should be overridden in the child class.
 	 */
-	convertHistoryItems(historyItems: unknown[]): Promisable<Item[]> {
+	convertHistoryItems(historyItems: unknown[]): Promisable<ScrobbleItem[]> {
 		return Promise.resolve([]);
 	}
 
 	/**
 	 * If an item can be retrieved from the API based on the ID, this method should be overridden in the child class.
 	 */
-	getItem(id: string): Promise<Item | null> {
+	getItem(id: string): Promise<ScrobbleItem | null> {
 		return Promise.resolve(null);
 	}
 }

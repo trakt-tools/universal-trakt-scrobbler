@@ -1,7 +1,7 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Shared } from '@common/Shared';
-import { Item } from '@models/Item';
-import { TraktItem } from '@models/TraktItem';
+import { createScrobbleItem, ScrobbleItem } from '@models/Item';
+import { TraktScrobbleItem } from '@models/TraktItem';
 
 export interface TraktScrobbleData {
 	movie?: {
@@ -38,7 +38,7 @@ class _TraktScrobble extends TraktApi {
 		};
 	}
 
-	async start(item: Item): Promise<void> {
+	async start(item: ScrobbleItem): Promise<void> {
 		if (!item.trakt) {
 			return;
 		}
@@ -48,7 +48,7 @@ class _TraktScrobble extends TraktApi {
 			scrobblingDetails.isPaused = false;
 		} else {
 			scrobblingDetails = {
-				item: Item.save(item),
+				item: item.save(),
 				tabId: Shared.tabId,
 				isPaused: false,
 			};
@@ -57,7 +57,7 @@ class _TraktScrobble extends TraktApi {
 		await Shared.events.dispatch('SCROBBLE_START', null, scrobblingDetails);
 	}
 
-	async pause(item: Item): Promise<void> {
+	async pause(item: ScrobbleItem): Promise<void> {
 		if (!item.trakt) {
 			return;
 		}
@@ -70,13 +70,13 @@ class _TraktScrobble extends TraktApi {
 		}
 	}
 
-	async stop(item?: Item): Promise<void> {
+	async stop(item?: ScrobbleItem): Promise<void> {
 		const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (!scrobblingDetails) {
 			return;
 		}
 		if (!item) {
-			item = Item.load(scrobblingDetails.item);
+			item = createScrobbleItem(scrobblingDetails.item);
 		}
 		if (!item) {
 			return;
@@ -88,24 +88,17 @@ class _TraktScrobble extends TraktApi {
 		await Shared.events.dispatch('SCROBBLE_STOP', null, scrobblingDetails);
 	}
 
-	async send(item: TraktItem, scrobbleType: number): Promise<void> {
+	async send(item: TraktScrobbleItem, scrobbleType: number): Promise<void> {
 		const path = this.paths[scrobbleType];
 		try {
-			const data = {} as TraktScrobbleData;
-			if (item.type === 'show') {
-				data.episode = {
+			const data: TraktScrobbleData = {
+				[item.type]: {
 					ids: {
 						trakt: item.id,
 					},
-				};
-			} else {
-				data.movie = {
-					ids: {
-						trakt: item.id,
-					},
-				};
-			}
-			data.progress = item.progress;
+				},
+				progress: item.progress,
+			};
 			await this.activate();
 			await this.requests.send({
 				url: `${this.SCROBBLE_URL}${path}`,
@@ -113,13 +106,13 @@ class _TraktScrobble extends TraktApi {
 				body: data,
 			});
 			await Shared.events.dispatch('SCROBBLE_SUCCESS', null, {
-				item: TraktItem.save(item),
+				item: item.save(),
 				scrobbleType,
 			});
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				await Shared.events.dispatch('SCROBBLE_ERROR', null, {
-					item: TraktItem.save(item),
+					item: item.save(),
 					scrobbleType,
 					error: err,
 				});

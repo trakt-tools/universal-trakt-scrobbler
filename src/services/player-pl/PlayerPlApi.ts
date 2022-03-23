@@ -1,6 +1,5 @@
-import { ServiceApi } from '@apis/ServiceApi';
-import { Item } from '@models/Item';
 import { PlayerPlService } from '@/player-pl/PlayerPlService';
+import { ServiceApi } from '@apis/ServiceApi';
 
 class _PlayerPlApi extends ServiceApi {
 	constructor() {

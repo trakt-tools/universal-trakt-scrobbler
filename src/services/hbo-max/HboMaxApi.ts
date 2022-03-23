@@ -5,7 +5,7 @@ import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
 export interface HboMaxAuthObj {
 	accessToken: string;
@@ -324,7 +324,7 @@ class _HboMaxApi extends ServiceApi {
 		return historyItems;
 	}
 
-	isNewHistoryItem(historyItem: HboMaxHistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: HboMaxHistoryItem, lastSync: number) {
 		return historyItem.watchedAt > lastSync;
 	}
 
@@ -333,7 +333,7 @@ class _HboMaxApi extends ServiceApi {
 	}
 
 	async convertHistoryItems(historyItems: HboMaxHistoryItem[]) {
-		const items: Item[] = [];
+		const items: ScrobbleItem[] = [];
 
 		for (const historyItem of historyItems) {
 			const item = await this.getItem(historyItem.id);
@@ -348,35 +348,35 @@ class _HboMaxApi extends ServiceApi {
 	}
 
 	parseItemMetadata(id: string, itemMetadata: HboMaxItemMetadata) {
-		let item: Item;
+		let item: ScrobbleItem;
 
 		const serviceId = this.id;
 		const { releaseYear: year } = itemMetadata;
 
 		if ('seriesTitles' in itemMetadata) {
-			const type = 'show';
 			const title = itemMetadata.seriesTitles.full.trim();
-			const { seasonNumber: season, numberInSeason: episode } = itemMetadata;
+			const { seasonNumber: season, numberInSeason: number } = itemMetadata;
 			const episodeTitle = itemMetadata.titles.full.trim();
 
-			item = new Item({
+			item = new EpisodeItem({
 				serviceId,
 				id,
-				type,
-				title,
+				title: episodeTitle,
 				year,
 				season,
-				episode,
-				episodeTitle,
+				number,
+				show: {
+					serviceId,
+					title,
+					year,
+				},
 			});
 		} else {
-			const type = 'movie';
 			const title = itemMetadata.titles.full.trim();
 
-			item = new Item({
+			item = new MovieItem({
 				serviceId,
 				id,
-				type,
 				title,
 				year,
 			});
@@ -385,8 +385,8 @@ class _HboMaxApi extends ServiceApi {
 		return item;
 	}
 
-	async getItem(id: string): Promise<Item | null> {
-		let item: Item | null = null;
+	async getItem(id: string): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
 
 		if (!this.isActivated) {
 			await this.activate();

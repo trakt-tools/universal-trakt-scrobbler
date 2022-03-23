@@ -1,6 +1,6 @@
 import { GoplayBeApi } from '@/goplay-be/GoplayBeApi';
 import { ScrobbleParser } from '@common/ScrobbleParser';
-import { Item } from '@models/Item';
+import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _GoplayBeParser extends ScrobbleParser {
 	constructor() {
@@ -12,6 +12,11 @@ class _GoplayBeParser extends ScrobbleParser {
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const titleElement = document.querySelector('title');
+
+		if (!titleElement) {
+			return null;
+		}
+
 		const id = this.parseItemIdFromUrl();
 		let showTitle: string | null = null;
 		let seasonId: string | null = null;
@@ -27,23 +32,28 @@ class _GoplayBeParser extends ScrobbleParser {
 		}
 
 		const title = showTitle ?? titleElement?.textContent ?? '';
-		const episodeTitle = '';
-		const season = parseInt(seasonId ?? '') || 0;
-		const episode = parseInt(episodeId ?? '') || 0;
-		const type = seasonId ? 'show' : 'movie';
 
-		if (!titleElement) {
-			return null;
+		if (seasonId) {
+			const season = parseInt(seasonId ?? '') || 0;
+			const number = parseInt(episodeId ?? '') || 0;
+
+			return new EpisodeItem({
+				serviceId,
+				id,
+				title: '',
+				season,
+				number,
+				show: {
+					serviceId,
+					title,
+				},
+			});
 		}
 
-		return new Item({
+		return new MovieItem({
 			serviceId,
 			id,
-			type,
 			title,
-			episodeTitle,
-			season,
-			episode,
 		});
 	}
 }
