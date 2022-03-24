@@ -105,22 +105,27 @@ class _ViaplayApi extends ServiceApi {
 		super(ViaplayService.id);
 	}
 
-	async activate() {
+	async activate(byFetch = false) {
 		let viaplayUrl: Location | URL;
 		if (location.hostname.includes('viaplay')) {
 			viaplayUrl = location;
 		} else {
 			const response = await fetch(this.INITIAL_URL);
 			viaplayUrl = new URL(response.url);
+			byFetch = true;
 		}
 		const host = viaplayUrl.hostname;
-		console.log('host', host);
 		let { region = 'com' } = /\.(?<region>no|se|dk|fi|is|pl|ee|lv|lt)/.exec(host)?.groups ?? {};
 		if (region === 'com') {
 			//pathname should be something like /us-en/
-			region = /(?<region>..)-/.exec(viaplayUrl.pathname)?.groups?.region || region;
+			region = /\/(?<region>..)-..\//.exec(viaplayUrl.pathname)?.groups?.region || region;
 			if (region === 'com') {
-				Shared.errors.error('Unknown Viaplay region: ', new Error(viaplayUrl.href));
+				if (byFetch) {
+					Shared.errors.error('Unknown Viaplay region: ', new Error(viaplayUrl.href));
+				} else {
+					await this.activate(true);
+					return;
+				}
 			}
 		}
 		this.HOST_URL = `https://content.${host}/`;
