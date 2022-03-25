@@ -107,7 +107,7 @@ class _ViaplayApi extends ServiceApi {
 
 	async activate(byFetch = false) {
 		let viaplayUrl: Location | URL;
-		if (location.hostname.includes('viaplay')) {
+		if (location.hostname.includes('viaplay') && !byFetch) {
 			viaplayUrl = location;
 		} else {
 			const response = await fetch(this.INITIAL_URL);
