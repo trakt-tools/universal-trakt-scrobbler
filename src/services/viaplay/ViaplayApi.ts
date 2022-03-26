@@ -94,7 +94,7 @@ export interface ViaplayProductUserInfo {
 }
 
 class _ViaplayApi extends ServiceApi {
-	INITIAL_URL = 'https://viaplay.com/';
+	INITIAL_URL = 'https://viaplay.com/requirements';
 	HOST_URL = '';
 	API_BASE_URL = '';
 	HISTORY_API_URL = '';
@@ -105,20 +105,33 @@ class _ViaplayApi extends ServiceApi {
 		super(ViaplayService.id);
 	}
 
-	async activate() {
-		let host;
-		if (location.hostname.includes('viaplay')) {
-			host = location.hostname + '/';
+	async activate(byFetch = false) {
+		let viaplayUrl: Location | URL;
+		if (location.hostname.includes('viaplay') && !byFetch) {
+			viaplayUrl = location;
 		} else {
 			const response = await fetch(this.INITIAL_URL);
-			host = response.url.split('//')[1];
+			viaplayUrl = new URL(response.url);
+			byFetch = true;
 		}
-		const { region = 'no' } = /(?<region>no|se|dk|fi)/.exec(host)?.groups ?? {};
-
-		this.HOST_URL = `https://content.${host}`;
+		const host = viaplayUrl.hostname;
+		let { region = 'com' } = /\.(?<region>no|se|dk|fi|is|pl|ee|lv|lt)/.exec(host)?.groups ?? {};
+		if (region === 'com') {
+			//pathname should be something like /us-en/
+			region = /\/(?<region>..)-..\//.exec(viaplayUrl.pathname)?.groups?.region || region;
+			if (region === 'com') {
+				if (byFetch) {
+					Shared.errors.error('Unknown Viaplay region: ', new Error(viaplayUrl.href));
+				} else {
+					await this.activate(true);
+					return;
+				}
+			}
+		}
+		this.HOST_URL = `https://content.${host}/`;
 		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
 		this.HISTORY_API_URL = `${this.API_BASE_URL}watched`;
-		this.AUTH_URL = `https://login.${host}api/persistentLogin/v1?deviceKey=pcdash-${region}`;
+		this.AUTH_URL = `https://login.${host}/api/persistentLogin/v1?deviceKey=pcdash-${region}`;
 		this.nextHistoryUrl = this.HISTORY_API_URL;
 
 		const authResponseText = await Requests.send({
@@ -127,7 +140,7 @@ class _ViaplayApi extends ServiceApi {
 		});
 		const authResponse = JSON.parse(authResponseText) as ViaplayAuthResponse;
 		this.session = {
-			profileName: authResponse.userData?.firstName || null,
+			profileName: authResponse.userData?.firstName || authResponse.userData?.username || null,
 		};
 
 		this.isActivated = true;
