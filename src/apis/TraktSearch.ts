@@ -309,7 +309,8 @@ class _TraktSearch extends TraktApi {
 			(x) =>
 				x.episode.title &&
 				item.title &&
-				this.formatEpisodeTitle(x.episode.title) === this.formatEpisodeTitle(item.title) &&
+				(this.formatEpisodeTitle(x.episode.title) === this.formatEpisodeTitle(item.title) ||
+					/^Episode \d+$/.test(x.episode.title)) &&
 				(this.formatEpisodeTitle(x.show.title).includes(this.formatEpisodeTitle(item.show.title)) ||
 					this.formatEpisodeTitle(item.title).includes(this.formatEpisodeTitle(x.show.title)))
 		);
