@@ -20,6 +20,15 @@ export interface AmazonPrimeHistoryItem {
 	watchedAt: number;
 }
 
+export interface AmazonPrimeConfigResponse {
+	customerConfig: {
+		homeRegion: string;
+	};
+	territoryConfig: {
+		defaultVideoWebsite: string;
+	};
+}
+
 export interface AmazonPrimeProfileResponse {
 	profiles: {
 		id: string;
@@ -122,10 +131,10 @@ export interface AmazonPrimeNextItemResponse {
 class _AmazonPrimeApi extends ServiceApi {
 	HOST_URL = 'https://www.primevideo.com';
 	API_URL = 'https://atv-ps.primevideo.com';
-	SETTINGS_URL = `${this.HOST_URL}/settings`;
-	PROFILE_URL = `${this.HOST_URL}/gp/video/api/getProfiles`;
-	HISTORY_URL = `${this.HOST_URL}/gp/video/api/getWatchHistorySettingsPage?widgets=activity-history&widgetArgs=%7B%22startIndex%22%3A{index}%7D`;
-	ENRICHMENTS_URL = `${this.HOST_URL}/gp/video/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+	PROFILE_URL = `${this.HOST_URL}/api/getProfiles`;
+	HISTORY_URL = `${this.HOST_URL}/api/getWatchHistorySettingsPage?widgetArgs=%7B%22startIndex%22%3A{index}%7D`;
+	ENRICHMENTS_URL = `${this.HOST_URL}/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+	CONFIG_URL = '';
 	ITEM_URL = '';
 	NEXT_ITEM_URL = '';
 
@@ -167,6 +176,28 @@ class _AmazonPrimeApi extends ServiceApi {
 				};
 				servicesData.set(this.id, cache);
 				await Cache.set({ servicesData });
+			}
+
+			this.CONFIG_URL = `${this.API_URL}/cdp/usage/GetAppStartupConfig?deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=false&version=1`;
+
+			try {
+				const configResponseText = await Requests.send({
+					url: this.CONFIG_URL,
+					method: 'GET',
+				});
+				const configResponse = JSON.parse(configResponseText) as AmazonPrimeConfigResponse;
+				const region = configResponse.customerConfig.homeRegion.toLowerCase();
+
+				this.HOST_URL = configResponse.territoryConfig.defaultVideoWebsite;
+				this.API_URL = this.HOST_URL.replace('www.', '').replace(
+					'//',
+					`//atv-ps${region === 'na' ? '' : `-${region}`}.`
+				);
+			} catch (err) {
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log(`Failed to activate ${this.id} API`, err);
+				}
+				throw new Error('Failed to activate API');
 			}
 
 			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
@@ -383,7 +414,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		return ScriptInjector.inject<Partial<AmazonPrimeSession>>(
 			this.id,
 			'session',
-			this.SETTINGS_URL,
+			this.HOST_URL,
 			() => ({
 				deviceId: window.localStorage.getItem('atvwebplayersdk_atvwebplayer_deviceid') ?? '',
 			})
