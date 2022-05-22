@@ -1,18 +1,12 @@
 import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
-import { Cache } from '@common/Cache';
 import { Requests, withHeaders } from '@common/Requests';
-import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { SetOptional } from 'type-fest';
 
-export interface AmazonPrimeSession extends ServiceApiSession, AmazonPrimeData {}
-
-export interface AmazonPrimeData {
-	deviceId: string;
-}
+export interface AmazonPrimeSession extends ServiceApiSession {}
 
 export interface AmazonPrimeHistoryItem {
 	id: string;
@@ -162,23 +156,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		}
 
 		try {
-			const servicesData = await Cache.get('servicesData');
-			let cache = servicesData.get(this.id) as AmazonPrimeData | undefined;
-
-			if (!cache) {
-				const partialSession = await this.getSession();
-				if (!partialSession || !partialSession.deviceId) {
-					throw new Error('Failed to activate API');
-				}
-
-				cache = {
-					deviceId: partialSession.deviceId,
-				};
-				servicesData.set(this.id, cache);
-				await Cache.set({ servicesData });
-			}
-
-			this.CONFIG_URL = `${this.API_URL}/cdp/usage/GetAppStartupConfig?deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=false&version=1`;
+			this.CONFIG_URL = `${this.API_URL}/cdp/usage/GetAppStartupConfig?deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=false&version=1`;
 
 			try {
 				const configResponseText = await Requests.send({
@@ -200,11 +178,10 @@ class _AmazonPrimeApi extends ServiceApi {
 				throw new Error('Failed to activate API');
 			}
 
-			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
-			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
+			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
+			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
 
 			this.session = {
-				...cache,
 				profileName: null,
 			};
 			this.isActivated = true;
@@ -410,17 +387,6 @@ class _AmazonPrimeApi extends ServiceApi {
 			});
 		}
 		return item;
-	}
-
-	getSession(): Promise<Partial<AmazonPrimeSession> | null> {
-		return ScriptInjector.inject<Partial<AmazonPrimeSession>>(
-			this.id,
-			'session',
-			this.HOST_URL,
-			() => ({
-				deviceId: window.localStorage.getItem('atvwebplayersdk_atvwebplayer_deviceid') ?? '',
-			})
-		);
 	}
 }
 
