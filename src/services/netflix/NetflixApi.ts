@@ -334,9 +334,9 @@ class _NetflixApi extends ServiceApi {
 		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const { video } = metadata;
-		const id = video.id.toString();
 		const { type, title, year } = video;
 		if (type === 'show') {
+			const id = video.currentEpisode.toString();
 			let episodeInfo: NetflixMetadataShowEpisode | undefined;
 			const seasonInfo = video.seasons.find((currentSeason) =>
 				currentSeason.episodes.find((currentEpisode) => {
@@ -367,10 +367,12 @@ class _NetflixApi extends ServiceApi {
 				number,
 				show: {
 					serviceId,
+					id: video.id.toString(),
 					title,
 				},
 			});
 		} else {
+			const id = video.id.toString();
 			item = new MovieItem({
 				serviceId,
 				id,
