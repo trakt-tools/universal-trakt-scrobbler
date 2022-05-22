@@ -54,15 +54,14 @@ export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];
 }
 
-export type NetflixHistoryItem = NetflixHistoryShowItem | NetflixHistoryMovieItem;
+export type NetflixHistoryItem = NetflixHistoryEpisodeItem | NetflixHistoryMovieItem;
 
-export interface NetflixHistoryShowItem {
+export interface NetflixHistoryEpisodeItem {
 	bookmark: number;
 	date: number;
 	duration: number;
 	episodeTitle: string;
 	movieID: number;
-	seasonDescriptor: string;
 	series: number;
 	seriesTitle: string;
 	title: string;
@@ -78,18 +77,38 @@ export interface NetflixHistoryMovieItem {
 
 export interface NetflixMetadataResponse {
 	value: {
-		videos: { [key: number]: NetflixMetadataItem };
+		seasons?: Record<string, NetflixMetadataSeasonItem>;
+		videos: Record<string, NetflixMetadataItem>;
 	};
 }
 
-export type NetflixMetadataItem = NetflixMetadataShowItem | NetflixMetadataMovieItem;
+export type NetflixMetadataItem =
+	| NetflixMetadataEpisodeItem
+	| NetflixMetadataShowItem
+	| NetflixMetadataMovieItem;
 
-export interface NetflixMetadataShowItem {
+export interface NetflixMetadataEpisodeItem {
 	releaseYear: number;
 	summary: {
 		episode: number;
 		id: number;
 		season: number;
+	};
+}
+
+export interface NetflixMetadataSeasonItem {
+	summary: {
+		hiddenEpisodeNumbers: boolean;
+	};
+}
+
+export type NetflixMetadataEpisodeItemWithSeason = NetflixMetadataEpisodeItem & {
+	season?: NetflixMetadataSeasonItem;
+};
+
+export interface NetflixMetadataShowItem {
+	seasonList: {
+		current: ['seasons', string];
 	};
 }
 
@@ -113,13 +132,13 @@ export interface NetflixMetadataGeneric {
 export type NetflixMetadataShow = NetflixMetadataGeneric & {
 	type: 'show';
 	currentEpisode: number;
+	hiddenEpisodeNumbers: boolean;
 	seasons: NetflixMetadataShowSeason[];
 };
 
 export interface NetflixMetadataShowSeason {
 	episodes: NetflixMetadataShowEpisode[];
 	seq: number;
-	shortName: string;
 }
 
 export interface NetflixMetadataShowEpisode {
@@ -133,10 +152,11 @@ export type NetflixMetadataMovie = NetflixMetadataGeneric & {
 };
 
 export type NetflixHistoryItemWithMetadata =
-	| NetflixHistoryShowItemWithMetadata
+	| NetflixHistoryEpisodeItemWithMetadata
 	| NetflixHistoryMovieItemWithMetadata;
 
-export type NetflixHistoryShowItemWithMetadata = NetflixHistoryShowItem & NetflixMetadataShowItem;
+export type NetflixHistoryEpisodeItemWithMetadata = NetflixHistoryEpisodeItem &
+	NetflixMetadataEpisodeItemWithSeason;
 
 export type NetflixHistoryMovieItemWithMetadata = NetflixHistoryMovieItem &
 	NetflixMetadataMovieItem;
@@ -231,20 +251,51 @@ class _NetflixApi extends ServiceApi {
 			throw new Error('Invalid session');
 		}
 		let historyItemsWithMetadata: NetflixHistoryItemWithMetadata[] = [];
+
+		const paths = historyItems.map(
+			(historyItem) => `path=["videos",${historyItem.movieID},["releaseYear","summary"]]`
+		);
+
+		// In order to have `hiddenEpisodeNumbers` available in the response,
+		// we need to request the summary for the current season of each unique show in the history
+		paths.push(
+			...Array.from(
+				new Set(
+					(
+						historyItems.filter(
+							(historyItem) => 'series' in historyItem
+						) as NetflixHistoryEpisodeItem[]
+					).map((historyItem) => historyItem.series)
+				)
+			).map((seriesId) => `path=["videos",${seriesId},"seasonList","current","summary"]`)
+		);
+
 		const responseText = await Requests.send({
 			url: `${this.API_URL}/${this.session.buildIdentifier}/pathEvaluator?languages=en-US`,
 			method: 'POST',
-			body: `authURL=${this.session.authUrl}&${historyItems
-				.map((historyItem) => `path=["videos",${historyItem.movieID},["releaseYear","summary"]]`)
-				.join('&')}`,
+			body: `authURL=${this.session.authUrl}&${paths.join('&')}`,
 		});
 		const responseJson = JSON.parse(responseText) as NetflixMetadataResponse;
 		if (responseJson && responseJson.value.videos) {
 			historyItemsWithMetadata = historyItems.map((historyItem) => {
 				const metadata = responseJson.value.videos[historyItem.movieID];
 				let combinedItem: NetflixHistoryItemWithMetadata;
-				if (metadata) {
+				if (metadata && !('seasonList' in metadata)) {
 					combinedItem = Object.assign({}, historyItem, metadata);
+
+					// We lookup the current season metadata using the show metadata
+					// and assign it to the `season` prop in `NetflixHistoryItemWithMetadata`
+					if (responseJson.value.seasons && 'series' in historyItem && historyItem.series) {
+						const showMetadata = responseJson.value.videos[historyItem.series];
+						if (showMetadata && 'seasonList' in showMetadata && showMetadata.seasonList) {
+							const seasonMetadata = responseJson.value.seasons[showMetadata.seasonList.current[1]];
+							if (seasonMetadata) {
+								combinedItem = Object.assign({}, combinedItem, {
+									season: seasonMetadata,
+								});
+							}
+						}
+					}
 				} else {
 					combinedItem = historyItem as NetflixHistoryItemWithMetadata;
 				}
@@ -258,7 +309,7 @@ class _NetflixApi extends ServiceApi {
 
 	isShow(
 		historyItem: NetflixHistoryItemWithMetadata
-	): historyItem is NetflixHistoryShowItemWithMetadata {
+	): historyItem is NetflixHistoryEpisodeItemWithMetadata {
 		return 'series' in historyItem;
 	}
 
@@ -271,13 +322,18 @@ class _NetflixApi extends ServiceApi {
 		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
+
 			let season = 0;
 			let number = 0;
-			const isCollection = !historyItem.seasonDescriptor.includes('Season');
-			if (!isCollection && historyItem.summary) {
-				season = historyItem.summary.season;
-				number = historyItem.summary.episode;
+
+			// `hiddenEpisodeNumbers` is `true` for collections
+			// In this case, the episode should be searched by title instead of season and number,
+			// because the numbering differs between Netflix and Trakt.tv for collections
+			if (!historyItem.season?.summary.hiddenEpisodeNumbers) {
+				season = historyItem.summary.season || 0;
+				number = historyItem.summary.episode || 0;
 			}
+
 			const episodeTitle = historyItem.episodeTitle.trim();
 			item = new EpisodeItem({
 				serviceId,
@@ -350,13 +406,18 @@ class _NetflixApi extends ServiceApi {
 			if (!seasonInfo || !episodeInfo) {
 				throw new Error('Could not find item');
 			}
-			const isCollection = seasonInfo.shortName.includes('C');
+
 			let season = 0;
 			let number = 0;
-			if (!isCollection) {
-				season = seasonInfo.seq;
-				number = episodeInfo.seq;
+
+			// `hiddenEpisodeNumbers` is `true` for collections
+			// In this case, the episode should be searched by title instead of season and number,
+			// because the numbering differs between Netflix and Trakt.tv for collections
+			if (!video.hiddenEpisodeNumbers) {
+				season = seasonInfo.seq || 0;
+				number = episodeInfo.seq || 0;
 			}
+
 			const episodeTitle = episodeInfo.title;
 			item = new EpisodeItem({
 				serviceId,
