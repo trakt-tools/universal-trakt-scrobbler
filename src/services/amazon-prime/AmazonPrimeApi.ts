@@ -324,7 +324,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		const items: ScrobbleItem[] = [];
 
 		for (const historyItem of historyItems) {
-			const item = await this.getItem(historyItem.id);
+			const item = await this.getItem(historyItem.id, true);
 			if (item) {
 				item.progress = historyItem.progress;
 				item.watchedAt = Utils.unix(historyItem.watchedAt);
@@ -343,7 +343,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		item.progress = historyItem.progress;
 	}
 
-	async getItem(id: string): Promise<ScrobbleItem | null> {
+	async getItem(id: string, isHistoryItem = false): Promise<ScrobbleItem | null> {
 		let item: ScrobbleItem | null = null;
 		try {
 			if (!this.isActivated) {
@@ -356,15 +356,17 @@ class _AmazonPrimeApi extends ServiceApi {
 			const metadata = JSON.parse(responseText) as AmazonPrimeMetadataItem;
 			item = this.parseMetadata(metadata);
 
-			// Since there's no way to get the next item ID when the user clicks the 'Next episode' button or when it autoplays the next episode, we use this endpoint to get the ID beforehand so it can be used by the parser when/if the next episode plays
-			const nextItemResponseText = await Requests.send({
-				url: this.NEXT_ITEM_URL.replace(/{id}/i, id),
-				method: 'GET',
-			});
-			const nextItemResponse = JSON.parse(nextItemResponseText) as AmazonPrimeNextItemResponse;
-			this.nextItemId =
-				nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0].titleId ??
-				'';
+			if (!isHistoryItem) {
+				// Since there's no way to get the next item ID when the user clicks the 'Next episode' button or when it autoplays the next episode, we use this endpoint to get the ID beforehand so it can be used by the parser when/if the next episode plays
+				const nextItemResponseText = await Requests.send({
+					url: this.NEXT_ITEM_URL.replace(/{id}/i, id),
+					method: 'GET',
+				});
+				const nextItemResponse = JSON.parse(nextItemResponseText) as AmazonPrimeNextItemResponse;
+				this.nextItemId =
+					nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0]
+						.titleId ?? '';
+			}
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to get item.', err);
