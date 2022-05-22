@@ -305,7 +305,7 @@ class _TraktSearch extends TraktApi {
 		showItem: TraktSearchShowItem,
 		episodeItems: TraktSearchEpisodeItem[]
 	): TraktSearchEpisodeItem {
-		const searchItem = episodeItems.find(
+		let searchItem = episodeItems.find(
 			(x) =>
 				x.episode.title &&
 				item.title &&
@@ -314,6 +314,9 @@ class _TraktSearch extends TraktApi {
 				(this.formatEpisodeTitle(x.show.title).includes(this.formatEpisodeTitle(item.show.title)) ||
 					this.formatEpisodeTitle(item.title).includes(this.formatEpisodeTitle(x.show.title)))
 		);
+		if (!searchItem && episodeItems.length > 0) {
+			searchItem = episodeItems[0];
+		}
 		if (!searchItem) {
 			throw new RequestError({
 				status: 404,
