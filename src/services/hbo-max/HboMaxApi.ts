@@ -133,7 +133,6 @@ class _HboMaxApi extends ServiceApi {
 	CONFIG_URL = `https://sessions.${this.API_BASE}/sessions/v1/clientConfig`;
 	CONTENT_URL = `https://comet{subdomain}.${this.API_BASE}/content`;
 	HISTORY_URL = `https://markers{subdomain}.${this.API_BASE}/markers`;
-	ITEM_METADATA_URL = `https://comet{subdomain}.${this.API_BASE}/express-content/{id}?device-code=desktop&product-code=hboMax&api-version=v9.0&country-code=US&language=en-us`;
 
 	/**
 	 * These values were retrieved from https://play.hbomax.com/js/app.js:
@@ -396,9 +395,10 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		try {
-			const responseText = await Requests.send({
-				url: Utils.replace(this.ITEM_METADATA_URL, { ...this.session, id }),
-				method: 'GET',
+			const responseText = await this.authRequests.send({
+				url: Utils.replace(this.CONTENT_URL, this.session),
+				method: 'POST',
+				body: [{ id }],
 			});
 			const response = JSON.parse(responseText) as HboMaxItemMetadataResponse;
 
