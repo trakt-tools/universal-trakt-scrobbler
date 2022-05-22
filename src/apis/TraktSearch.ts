@@ -343,7 +343,7 @@ class _TraktSearch extends TraktApi {
 		return title
 			.toLowerCase()
 			.replace(/(?<begin>^|\s)(?:a|an|the)(?<end>\s)/g, '$<begin>$<end>')
-			.replace(/\s/g, '');
+			.replace(/[^\w]/g, '');
 	}
 }
 
