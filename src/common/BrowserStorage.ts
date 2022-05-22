@@ -501,7 +501,8 @@ class _BrowserStorage {
 
 	async sync(): Promise<void> {
 		if (this.isSyncAvailable) {
-			const values = (await browser.storage.sync.get()) as StorageValues;
+			let values = (await browser.storage.sync.get()) as StorageValues;
+			values = this.joinChunks(values);
 			for (const key of Object.keys(values) as (keyof StorageValues)[]) {
 				await browser.storage.local.set({ [key]: values[key] });
 			}
@@ -514,6 +515,7 @@ class _BrowserStorage {
 
 	private async doSet(values: StorageValues, doSync: boolean): Promise<void> {
 		if (doSync && this.isSyncAvailable) {
+			values = await this.splitChunks(values);
 			await browser.storage.sync.set(values);
 		}
 		await browser.storage.local.set(values);
@@ -535,7 +537,16 @@ class _BrowserStorage {
 		doSync = false
 	): Promise<void> {
 		if (doSync && this.isSyncAvailable) {
-			await browser.storage.sync.remove(keys);
+			const syncKeys = [];
+			for (const key of keys) {
+				syncKeys.push(key);
+
+				const numChunks = await this.getNumChunks(key);
+				if (numChunks > 0) {
+					syncKeys.push(...this.getChunkKeys(key, numChunks));
+				}
+			}
+			await browser.storage.sync.remove(syncKeys);
 		}
 		await browser.storage.local.remove(keys);
 	}
@@ -559,6 +570,104 @@ class _BrowserStorage {
 		this.syncOptions = {} as StorageValuesSyncOptions;
 		await this.loadOptions();
 		await this.loadSyncOptions();
+	}
+
+	/**
+	 * Splits values in chunks, so that each chunk is smaller than QUOTA_BYTES_PER_ITEM
+	 * and therefore can be saved in the sync storage.
+	 */
+	private async splitChunks(values: Record<string, unknown>): Promise<StorageValues> {
+		const maxSize = browser.storage.sync.QUOTA_BYTES_PER_ITEM;
+		const newValues: Record<string, unknown> = {};
+		const keysToRemove: string[] = [];
+
+		for (const [key, value] of Object.entries(values)) {
+			let stringifiedValue = JSON.stringify(value);
+			const size = `${key}${stringifiedValue}`.length + 10;
+			const numChunks = await this.getNumChunks(key);
+
+			if (size < maxSize && numChunks === 0) {
+				newValues[key] = value;
+				continue;
+			}
+
+			keysToRemove.push(key);
+
+			const chunks = [];
+			const sliceEnd = maxSize - key.length - 10;
+
+			while (stringifiedValue.length > 0) {
+				chunks.push(stringifiedValue.slice(0, sliceEnd));
+				stringifiedValue = stringifiedValue.slice(sliceEnd);
+			}
+
+			if (chunks.length > 1) {
+				for (const [i, chunk] of chunks.entries()) {
+					const chunkKey = this.getChunkKey(key, i);
+					newValues[chunkKey] = chunk;
+				}
+
+				const chunksKey = this.getChunksKey(key);
+				newValues[chunksKey] = chunks.length;
+			} else {
+				newValues[key] = JSON.parse(chunks[0]);
+			}
+		}
+
+		if (keysToRemove.length > 0) {
+			await this.remove(keysToRemove as BrowserStorageRemoveKey[], true);
+		}
+
+		return newValues;
+	}
+
+	private joinChunks(values: Record<string, unknown>): StorageValues {
+		const newValues: Record<string, unknown> = {};
+
+		for (const [key, value] of Object.entries(values)) {
+			if (!key.includes('_chunk')) {
+				newValues[key] = value;
+				continue;
+			}
+
+			if (!key.endsWith('_chunks')) {
+				continue;
+			}
+
+			const numChunks = value as number;
+			const actualKey = key.split('_chunks')[0];
+			let stringifiedValue = '';
+
+			for (let i = 0; i < numChunks; i++) {
+				const chunkKey = this.getChunkKey(actualKey, i);
+				stringifiedValue += values[chunkKey];
+			}
+
+			newValues[actualKey] = JSON.parse(stringifiedValue);
+		}
+
+		return newValues;
+	}
+
+	private async getNumChunks(key: string): Promise<number> {
+		const chunksKey = this.getChunksKey(key);
+		const values = await browser.storage.local.get(chunksKey);
+		return (values[chunksKey] as number) || 0;
+	}
+
+	private getChunksKey(key: string): string {
+		return `${key}_chunks`;
+	}
+
+	private getChunkKeys(key: string, numChunks: number): string[] {
+		return [
+			this.getChunksKey(key),
+			...new Array(numChunks).fill('').map((_, i) => this.getChunkKey(key, i)),
+		];
+	}
+
+	private getChunkKey(key: string, i: number): string {
+		return `${key}_chunk${i.toString().padStart(3, '0')}`;
 	}
 
 	async getSize(keys?: keyof StorageValues | (keyof StorageValues)[] | null): Promise<string> {
