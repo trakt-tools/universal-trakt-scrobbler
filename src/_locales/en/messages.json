@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Cannot sync items"
 	},
+	"clear": {
+		"message": "Clear"
+	},
 	"clearCaches": {
 		"message": "Clear Caches"
 	},
@@ -138,6 +141,9 @@
 	},
 	"couldNotScrobble": {
 		"message": "Could not scrobble."
+	},
+	"currentCorrection": {
+		"message": "Currently corrected to"
 	},
 	"darkTheme": {
 		"message": "Dark"
