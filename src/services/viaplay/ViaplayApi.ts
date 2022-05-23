@@ -3,7 +3,7 @@ import { ServiceApi } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface ViaplayAuthResponse {
 	success: boolean;
@@ -190,6 +190,12 @@ class _ViaplayApi extends ServiceApi {
 	convertHistoryItems(historyItems: ViaplayProduct[]) {
 		const items = historyItems.map((historyItem) => this.parseViaplayProduct(historyItem));
 		return items;
+	}
+
+	updateItemFromHistory(item: ScrobbleItemValues, historyItem: ViaplayProduct): Promisable<void> {
+		const progressInfo = historyItem.user.progress;
+		item.watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
+		item.progress = progressInfo?.elapsedPercent || 0;
 	}
 
 	parseViaplayProduct(product: ViaplayProduct): ScrobbleItem {
