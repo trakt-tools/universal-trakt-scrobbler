@@ -1,5 +1,6 @@
 import { CorrectionApi, Suggestion } from '@apis/CorrectionApi';
 import { ExactItemDetails, TraktSearch } from '@apis/TraktSearch';
+import { BrowserStorage } from '@common/BrowserStorage';
 import { Cache } from '@common/Cache';
 import { CorrectionDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
@@ -16,10 +17,12 @@ import {
 	DialogTitle,
 	Divider,
 	Link,
+	List,
 	ListItem,
 	ListItemSecondaryAction,
 	ListItemText,
 	TextField,
+	Typography,
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -30,11 +33,17 @@ interface CorrectionDialogState {
 	item?: ScrobbleItem;
 	isScrobblingItem: boolean;
 	url: string;
+	correction: Suggestion | null;
 }
 
 interface SuggestionListItemData {
 	suggestions: Suggestion[];
 	onCorrectButtonClick: (suggestion: Suggestion) => void;
+}
+
+interface CorrectionItemProps {
+	correction: Suggestion;
+	onClearButtonClick: () => void;
 }
 
 const SuggestionListItem = ({
@@ -62,12 +71,29 @@ const SuggestionListItem = ({
 	);
 };
 
+const CorrectionItem = ({ correction, onClearButtonClick }: CorrectionItemProps): JSX.Element => {
+	return (
+		<ListItem>
+			<ListItemText
+				primary={<Typography>{correction.title}</Typography>}
+				secondary={I18N.translate('suggestedBy', correction.count.toString())}
+			/>
+			<ListItemSecondaryAction>
+				<Button variant="contained" color="error" onClick={onClearButtonClick}>
+					{I18N.translate('clear')}
+				</Button>
+			</ListItemSecondaryAction>
+		</ListItem>
+	);
+};
+
 export const CorrectionDialog = (): JSX.Element => {
 	const [dialog, setDialog] = useState<CorrectionDialogState>({
 		isOpen: false,
 		isLoading: false,
 		isScrobblingItem: false,
 		url: '',
+		correction: null,
 	});
 
 	const closeDialog = (): void => {
@@ -115,7 +141,13 @@ export const CorrectionDialog = (): JSX.Element => {
 			delete newItem.trakt;
 			delete newItem.imageUrl;
 
+			const databaseId = newItem.getDatabaseId();
+
 			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
+			caches.itemsToTraktItems.set(databaseId, '');
+			if ('url' in exactItemDetails) {
+				caches.urlsToTraktItems.set(exactItemDetails.url, '');
+			}
 			newItem.trakt = await TraktSearch.find(newItem, caches, exactItemDetails);
 			await Cache.set(caches);
 
@@ -130,7 +162,6 @@ export const CorrectionDialog = (): JSX.Element => {
 					count: 1,
 				};
 			}
-			const databaseId = newItem.getDatabaseId();
 			let { corrections } = await Shared.storage.get('corrections');
 			if (!corrections) {
 				corrections = {};
@@ -149,6 +180,56 @@ export const CorrectionDialog = (): JSX.Element => {
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to correct item.', err);
+				await Shared.events.dispatch('SNACKBAR_SHOW', null, {
+					messageName: 'correctItemFailed',
+					severity: 'error',
+				});
+			}
+		}
+		setDialog((prevDialog) => ({
+			...prevDialog,
+			isOpen: false,
+		}));
+	};
+
+	const onClearButtonClick = async (): Promise<void> => {
+		setDialog((prevDialog) => ({
+			...prevDialog,
+			isLoading: true,
+		}));
+		try {
+			if (!dialog.item) {
+				throw new Error('Missing item');
+			}
+			const oldItem = dialog.item;
+			const newItem = oldItem.clone();
+			delete newItem.trakt;
+			delete newItem.imageUrl;
+
+			const databaseId = newItem.getDatabaseId();
+
+			const caches = await Cache.get(['itemsToTraktItems', 'traktItems', 'urlsToTraktItems']);
+			caches.itemsToTraktItems.set(databaseId, '');
+			newItem.trakt = await TraktSearch.find(newItem, caches);
+			await Cache.set(caches);
+
+			let { corrections } = await Shared.storage.get('corrections');
+			if (!corrections) {
+				corrections = {};
+			}
+			delete corrections[databaseId];
+			await Shared.storage.set({ corrections }, true);
+			await Shared.events.dispatch(
+				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
+				null,
+				{
+					oldItem: oldItem.save(),
+					newItem: newItem.save(),
+				}
+			);
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to clear item.', err);
 				await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 					messageName: 'correctItemFailed',
 					severity: 'error',
@@ -192,12 +273,21 @@ export const CorrectionDialog = (): JSX.Element => {
 			Shared.events.unsubscribe('CORRECTION_DIALOG_SHOW', null, openDialog);
 		};
 
-		const openDialog = (data: CorrectionDialogShowData) => {
+		const openDialog = async (data: CorrectionDialogShowData) => {
+			let correction = null;
+
+			if (data.item) {
+				const { corrections } = await BrowserStorage.get(['corrections']);
+				const databaseId = data.item.getDatabaseId();
+				correction = corrections?.[databaseId] || null;
+			}
+
 			setDialog({
 				isOpen: true,
 				isLoading: false,
 				...data,
 				url: '',
+				correction,
 			});
 		};
 
@@ -267,6 +357,25 @@ export const CorrectionDialog = (): JSX.Element => {
 								>
 									{SuggestionListItem}
 								</FixedSizeList>
+								<Divider />
+							</>
+						)}
+						{dialog.correction && (
+							<>
+								<Divider />
+								<DialogContentText
+									sx={{
+										marginTop: 1,
+									}}
+								>
+									{I18N.translate('currentCorrection')}:
+								</DialogContentText>
+								<List>
+									<CorrectionItem
+										correction={dialog.correction}
+										onClearButtonClick={onClearButtonClick}
+									/>
+								</List>
 								<Divider />
 							</>
 						)}
