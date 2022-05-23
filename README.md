@@ -57,18 +57,19 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 <!-- services-start -->
 <!-- Update this section with `npx trakt-tools dev update-readme` -->
 
-| Streaming Service | Scrobble | Sync | Limitations |
-| :---------------: | :------: | :--: | :---------- |
-|   Amazon Prime    |    ✔️    |  ✔️  | -           |
-|    DisneyPlus     |    ✔️    |  ❌  | -           |
-|     GoPlay BE     |    ✔️    |  ❌  | -           |
-|      HBO Max      |    ✔️    |  ✔️  | -           |
-|      Netflix      |    ✔️    |  ✔️  | -           |
-|        NRK        |    ✔️    |  ✔️  | -           |
-|    Streamz BE     |    ✔️    |  ❌  | -           |
-|      Viaplay      |    ✔️    |  ✔️  | -           |
-|     VRTNu BE      |    ✔️    |  ❌  | -           |
-|     VTMGo BE      |    ✔️    |  ❌  | -           |
+| Streaming Service | Scrobble | Sync  | Limitations                     |
+| :---------------: | :------: | :---: | :------------------------------ |
+|   Amazon Prime    |    ✔️     |   ✔️   | -                               |
+| Crunchyroll Beta  |    ❌     |   ✔️   | can't identify movies as movies |
+|    DisneyPlus     |    ✔️     |   ❌   | -                               |
+|     GoPlay BE     |    ✔️     |   ❌   | -                               |
+|      HBO Max      |    ✔️     |   ✔️   | -                               |
+|      Netflix      |    ✔️     |   ✔️   | -                               |
+|        NRK        |    ✔️     |   ✔️   | -                               |
+|    Streamz BE     |    ✔️     |   ❌   | -                               |
+|      Viaplay      |    ✔️     |   ✔️   | -                               |
+|     VRTNu BE      |    ✔️     |   ❌   | -                               |
+|     VTMGo BE      |    ✔️     |   ❌   | -                               |
 
 <!-- services-end -->
 
