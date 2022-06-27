@@ -111,8 +111,8 @@ class _CrunchyrollBetaApi extends ServiceApi {
 		// We do this here because the token will expire within minutes.
 		await this.checkLogin();
 
-		if (!this.nextHistoryUrl) {
-			this.nextHistoryUrl = `${this.HOST_URL}/content/v1/watch-history/${this.session?.accountId}?locale=en-US&page=1&page_size=10`;
+		if (!this.nextHistoryUrl && this.session?.accountId) {
+			this.nextHistoryUrl = `${this.HOST_URL}/content/v1/watch-history/${this.session.accountId}?locale=en-US&page=1&page_size=10`;
 		}
 
 		// Retrieve the history items
@@ -120,10 +120,10 @@ class _CrunchyrollBetaApi extends ServiceApi {
 			url: this.nextHistoryUrl,
 			method: 'GET',
 		});
-		const page = this.parseJsonWithDates(responseText, [
+		const page = this.parseJsonWithDates<CrunchyrollBetaHistoryPage>(responseText, [
 			'date_played',
 			'episode_air_date',
-		]) as CrunchyrollBetaHistoryPage;
+		]);
 
 		let historyItems: CrunchyrollBetaHistoryItem[] = [];
 		// Filter out entries with missing information.
@@ -155,8 +155,8 @@ class _CrunchyrollBetaApi extends ServiceApi {
 				id: historyItem.id,
 				serviceId: this.id,
 				title: historyItem.panel.title,
-				// Allthough we have episode and season info, we omit these,
-				// because the numbers used by crunchyroll often don't correspond with the trakt ones.
+				// Although we have episode and season info, we omit these,
+				// because the numbers used by Crunchyroll often don't correspond with the Trakt ones.
 				// We are more likely to find a match just using the series name and title.
 				number: 0,
 				season: 0,
@@ -178,14 +178,14 @@ class _CrunchyrollBetaApi extends ServiceApi {
 		return Promise.resolve(items);
 	}
 
-	parseJsonWithDates(text: string, dateFieldNames: string[]) {
+	parseJsonWithDates<T>(text: string, dateFieldNames: string[]): T {
 		const dateReviver = (key: string, value: unknown) => {
 			return dateFieldNames.includes(key) &&
 				(typeof value === 'string' || typeof value === 'number')
 				? new Date(value)
 				: value;
 		};
-		return JSON.parse(text, dateReviver);
+		return JSON.parse(text, dateReviver) as T;
 	}
 }
 
