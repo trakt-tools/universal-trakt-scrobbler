@@ -2,7 +2,13 @@ import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
 import { Utils } from '@common/Utils';
-import { BaseItemValues, EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import {
+	BaseItemValues,
+	EpisodeItem,
+	MovieItem,
+	ScrobbleItem,
+	ScrobbleItemValues,
+} from '@models/Item';
 
 export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
@@ -197,6 +203,11 @@ class _NrkApi extends ServiceApi {
 	convertHistoryItems(historyItems: NrkProgressItem[]) {
 		const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
 		return Promise.all(promises);
+	}
+
+	updateItemFromHistory(item: ScrobbleItemValues, historyItem: NrkProgressItem): Promisable<void> {
+		item.watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
+		item.progress = historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
 	}
 
 	async parseHistoryItem(historyItem: NrkProgressItem): Promise<ScrobbleItem> {

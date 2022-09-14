@@ -4,7 +4,7 @@ import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface NetflixGlobalObject {
 	appContext: {
@@ -216,6 +216,14 @@ class _NetflixApi extends ServiceApi {
 	async convertHistoryItems(historyItems: NetflixHistoryItem[]) {
 		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
 		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
+	}
+
+	updateItemFromHistory(
+		item: ScrobbleItemValues,
+		historyItem: NetflixHistoryItem
+	): Promisable<void> {
+		item.watchedAt = Utils.unix(historyItem.date);
+		item.progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
 	}
 
 	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {

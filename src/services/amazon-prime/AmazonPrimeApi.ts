@@ -5,7 +5,7 @@ import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { SetOptional } from 'type-fest';
 
 export interface AmazonPrimeSession extends ServiceApiSession, AmazonPrimeData {}
@@ -302,6 +302,14 @@ class _AmazonPrimeApi extends ServiceApi {
 		}
 
 		return items;
+	}
+
+	updateItemFromHistory(
+		item: ScrobbleItemValues,
+		historyItem: AmazonPrimeHistoryItem
+	): Promisable<void> {
+		item.watchedAt = Utils.unix(historyItem.watchedAt);
+		item.progress = historyItem.progress;
 	}
 
 	async getItem(id: string): Promise<ScrobbleItem | null> {

@@ -5,7 +5,7 @@ import { Requests, withHeaders } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
-import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface HboMaxAuthObj {
 	accessToken: string;
@@ -344,6 +344,14 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		return items;
+	}
+
+	updateItemFromHistory(
+		item: ScrobbleItemValues,
+		historyItem: HboMaxHistoryItem
+	): Promisable<void> {
+		item.watchedAt = Utils.unix(historyItem.watchedAt);
+		item.progress = historyItem.progress;
 	}
 
 	parseItemMetadata(id: string, itemMetadata: HboMaxItemMetadata) {

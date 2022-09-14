@@ -216,6 +216,7 @@ export abstract class ServiceApi {
 					if (itemId) {
 						const item = caches.items.get(itemId);
 						if (item) {
+							this.updateItemFromHistory(item, historyItem);
 							tmpItems.push(createScrobbleItem(item));
 						} else {
 							tmpItems.push(null);
@@ -308,6 +309,17 @@ export abstract class ServiceApi {
 	 */
 	convertHistoryItems(historyItems: unknown[]): Promisable<ScrobbleItem[]> {
 		return Promise.resolve([]);
+	}
+
+	/**
+	 * This method is responsible for updating the `watchedAt` and `progress` data for an item from the history,
+	 * when it's retrieved from the cache,
+	 * so that it has up-to-date data.
+	 *
+	 * Should be overridden in the child class.
+	 */
+	updateItemFromHistory(item: ScrobbleItemValues, historyItem: unknown): void {
+		// Do nothing
 	}
 
 	/**
