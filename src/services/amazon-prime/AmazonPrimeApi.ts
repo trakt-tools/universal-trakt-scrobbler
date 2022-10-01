@@ -36,7 +36,7 @@ export interface AmazonPrimeHistoryResponse {
 		content: {
 			content:
 				| {
-						nextStartIndex: number;
+						nextToken: string;
 						titles: AmazonPrimeHistoryResponseTitle[];
 				  }
 				| {
@@ -125,9 +125,9 @@ export interface AmazonPrimeNextItemResponse {
 class _AmazonPrimeApi extends ServiceApi {
 	HOST_URL = 'https://www.primevideo.com';
 	API_URL = 'https://atv-ps.primevideo.com';
-	PROFILE_URL = `${this.HOST_URL}/api/getProfiles`;
-	HISTORY_URL = `${this.HOST_URL}/api/getWatchHistorySettingsPage?widgetArgs=%7B%22startIndex%22%3A{index}%7D`;
-	ENRICHMENTS_URL = `${this.HOST_URL}/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+	PROFILE_URL = `${this.HOST_URL}/gp/video/api/getProfiles`;
+	HISTORY_URL = `${this.HOST_URL}/gp/video/api/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
+	ENRICHMENTS_URL = `${this.HOST_URL}/gp/video/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
 	CONFIG_URL = '';
 	ITEM_URL = '';
 	NEXT_ITEM_URL = '';
@@ -143,7 +143,7 @@ class _AmazonPrimeApi extends ServiceApi {
 
 	isActivated = false;
 	session?: AmazonPrimeSession | null;
-	nextIndex = 0;
+	nextToken = '';
 	nextItemId = '';
 
 	constructor() {
@@ -223,13 +223,15 @@ class _AmazonPrimeApi extends ServiceApi {
 		const historyItems: AmazonPrimeHistoryItem[] = [];
 
 		const historyResponseText = await this.requests.send({
-			url: Utils.replace(this.HISTORY_URL, { index: this.nextIndex }),
+			url: Utils.replace(this.HISTORY_URL, {
+				args: this.nextToken ? `%22nextToken%22%3A%22${this.nextToken}%22` : '',
+			}),
 			method: 'GET',
 		});
 		const historyResponse = JSON.parse(historyResponseText) as AmazonPrimeHistoryResponse;
 
 		const historyWidget = historyResponse.widgets.find(
-			(widget) => widget.widgetType === 'activity-history'
+			(widget) => widget.widgetType === 'watch-history'
 		);
 		if (historyWidget) {
 			const { content } = historyWidget.content;
@@ -266,11 +268,18 @@ class _AmazonPrimeApi extends ServiceApi {
 					});
 				}
 
-				this.nextIndex = content.nextStartIndex;
+				if (content.nextToken) {
+					this.nextToken = content.nextToken;
+				} else {
+					this.nextToken = '';
+					this.hasReachedHistoryEnd = true;
+				}
 			} else {
+				this.nextToken = '';
 				this.hasReachedHistoryEnd = true;
 			}
 		} else {
+			this.nextToken = '';
 			this.hasReachedHistoryEnd = true;
 		}
 
