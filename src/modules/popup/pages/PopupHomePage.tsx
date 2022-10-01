@@ -112,7 +112,9 @@ export const HomePage = (): JSX.Element => {
 			if (Shared.storage.options.sendReceiveSuggestions) {
 				[newItem] = await CorrectionApi.loadSuggestions([newItem]);
 			}
-			[newItem] = await TmdbApi.loadImages([newItem]);
+			if (Shared.storage.options.loadImages) {
+				[newItem] = await TmdbApi.loadImages([newItem]);
+			}
 			setContent((prevContent) => ({
 				...prevContent,
 				scrobblingItem: newItem,

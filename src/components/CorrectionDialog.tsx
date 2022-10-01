@@ -168,7 +168,9 @@ export const CorrectionDialog = (): JSX.Element => {
 			}
 			corrections[databaseId] = suggestion;
 			await Shared.storage.set({ corrections }, true);
-			await CorrectionApi.saveSuggestion(newItem, suggestion);
+			if (Shared.storage.options.sendReceiveSuggestions) {
+				await CorrectionApi.saveSuggestion(newItem, suggestion);
+			}
 			await Shared.events.dispatch(
 				dialog.isScrobblingItem ? 'SCROBBLING_ITEM_CORRECTED' : 'ITEM_CORRECTED',
 				null,

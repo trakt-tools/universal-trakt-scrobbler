@@ -228,6 +228,12 @@
 	"loadHistoryError": {
 		"message": "Failed to load history."
 	},
+	"loadImages": {
+		"message": "Load images."
+	},
+	"loadImagesDescription": {
+		"message": "With this option disabled, images for the scrobbling item and for the history items will not be loaded. This is useful for slower connections, where loading images significantly slows down the extension."
+	},
 	"loadTraktHistoryError": {
 		"message": "Failed to load Trakt history."
 	},

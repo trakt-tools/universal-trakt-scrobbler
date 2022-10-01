@@ -14,9 +14,14 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV9;
-export type StorageValuesOptions = StorageValuesOptionsV3;
+export type StorageValues = StorageValuesV10;
+export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
+
+export type StorageValuesV10 = Omit<StorageValuesV8, 'version' | 'options'> & {
+	version?: 10;
+	options?: StorageValuesOptionsV4;
+};
 
 export type StorageValuesV9 = Omit<StorageValuesV8, 'version'> & {
 	version?: 9;
@@ -83,6 +88,10 @@ export interface ScrobblingDetails {
 	tabId: number | null;
 	isPaused: boolean;
 }
+
+export type StorageValuesOptionsV4 = StorageValuesOptionsV3 & {
+	loadImages: boolean;
+};
 
 export type StorageValuesOptionsV3 = Omit<StorageValuesOptionsV2, 'streamingServices'> & {
 	services: Record<string, ServiceValue>;
@@ -218,7 +227,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 9;
+	readonly currentVersion = 10;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -374,6 +383,10 @@ class _BrowserStorage {
 			await this.doRemove(['itemsCache', 'syncCache', 'traktItemsCache'], true);
 		}
 
+		if (version < 10 && this.currentVersion >= 10) {
+			console.log('Upgrading to v10...');
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -384,6 +397,20 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 9 && this.currentVersion <= 9) {
+			console.log('Downgrading to v9...');
+
+			const values = await this.get('options');
+
+			const optionsV3 = values.options as Partial<StorageValuesOptionsV3> | undefined;
+			const optionsV4 = values.options as Partial<StorageValuesOptionsV4> | undefined;
+			if (optionsV3 && optionsV4) {
+				delete optionsV4.loadImages;
+
+				await this.doSet({ options: optionsV3 as unknown as StorageValuesOptions }, true);
+			}
+		}
+
 		if (version > 8 && this.currentVersion <= 8) {
 			console.log('Downgrading to v8...');
 
@@ -719,6 +746,12 @@ class _BrowserStorage {
 				type: 'switch',
 				id: 'sendReceiveSuggestions',
 				value: false,
+				doShow: true,
+			},
+			loadImages: {
+				type: 'switch',
+				id: 'loadImages',
+				value: true,
 				doShow: true,
 			},
 			theme: {

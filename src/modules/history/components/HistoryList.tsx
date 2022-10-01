@@ -143,10 +143,14 @@ export const HistoryList = (): JSX.Element => {
 
 	const loadData = async (items: ScrobbleItem[]) => {
 		items = await ServiceApi.loadTraktHistory(items, processItem);
-		items = await CorrectionApi.loadSuggestions(items);
-		await store.update(items, true);
-		items = await TmdbApi.loadImages(items);
-		await store.update(items, true);
+		if (Shared.storage.options.sendReceiveSuggestions) {
+			items = await CorrectionApi.loadSuggestions(items);
+			await store.update(items, true);
+		}
+		if (Shared.storage.options.loadImages) {
+			items = await TmdbApi.loadImages(items);
+			await store.update(items, true);
+		}
 		return items;
 	};
 
