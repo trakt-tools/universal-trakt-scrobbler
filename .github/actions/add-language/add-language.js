@@ -229,25 +229,24 @@ const addLanguage = async () => {
 
 		console.log('Adding language on Crowdin');
 
-		await api.patch(projectUrl, [
+		/** @type {unknown[]} */
+		const data = [
 			{
 				path: '/targetLanguageIds',
 				op: 'replace',
 				value: [...project.data.targetLanguageIds, language.id],
 			},
-		]);
+		];
 
 		if (languagesMappings[language.osxLocale]) {
-			console.log('Adding custom mapping for language on Crowdin');
-
-			await api.patch(projectUrl, [
-				{
-					path: `/languageMapping/${language.id}/osx_locale`,
-					op: 'replace',
-					value: languagesMappings[language.osxLocale],
-				},
-			]);
+			data.push({
+				path: `/languageMapping/${language.id}`,
+				op: 'add',
+				value: { osx_locale: languagesMappings[language.osxLocale] },
+			});
 		}
+
+		await api.patch(projectUrl, data);
 
 		console.log('Creating comment');
 
