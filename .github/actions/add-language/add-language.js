@@ -174,9 +174,9 @@ const addLanguage = async () => {
 						issue_number: payload.issue.number,
 						body: `Found more than 1 languages with this name. Please edit the title and specify one of the languages below:\n\n${languages
 							.map((currentLanguage) => `* ${currentLanguage.name}`)
-							.join(
-								'\n'
-							)}\n\nIf you want to add the language ${exactMatch}, surround it with double quotes: "${exactMatch}"`,
+							.join('\n')}\n\nIf you want to add the language ${
+							exactMatch.name
+						}, surround it with double quotes: "${exactMatch.name}"`,
 					});
 
 					return;
