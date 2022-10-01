@@ -39,7 +39,6 @@ export interface NetflixPlayerState {
 
 export interface NetflixSession extends ServiceApiSession {
 	authUrl: string;
-	buildIdentifier: string;
 }
 
 export interface NetflixScrobbleSession {
@@ -215,7 +214,7 @@ class _NetflixApi extends ServiceApi {
 			throw new Error('Invalid session');
 		}
 		const responseText = await Requests.send({
-			url: `${this.API_URL}/${this.session.buildIdentifier}/viewingactivity?languages=en-US&authURL=${this.session.authUrl}&pg=${this.nextHistoryPage}`,
+			url: `${this.API_URL}/mre/viewingactivity?languages=en-US&authURL=${this.session.authUrl}&pg=${this.nextHistoryPage}`,
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
@@ -271,7 +270,7 @@ class _NetflixApi extends ServiceApi {
 		);
 
 		const responseText = await Requests.send({
-			url: `${this.API_URL}/${this.session.buildIdentifier}/pathEvaluator?languages=en-US`,
+			url: `${this.API_URL}/mre/pathEvaluator?languages=en-US`,
 			method: 'POST',
 			body: `authURL=${this.session.authUrl}&${paths.join('&')}`,
 		});
@@ -374,7 +373,7 @@ class _NetflixApi extends ServiceApi {
 		}
 		try {
 			const responseText = await Requests.send({
-				url: `${this.API_URL}/${this.session.buildIdentifier}/metadata?languages=en-US&movieid=${id}`,
+				url: `${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}`,
 				method: 'GET',
 			});
 			item = this.parseMetadata(JSON.parse(responseText));
@@ -449,12 +448,11 @@ class _NetflixApi extends ServiceApi {
 			let session: NetflixSession | null = null;
 			const { netflix } = window;
 			if (netflix) {
-				const { userInfo, serverDefs } = netflix.reactContext.models;
+				const { userInfo } = netflix.reactContext.models;
 				const authUrl = userInfo.data.authURL;
-				const buildIdentifier = serverDefs.data.BUILD_IDENTIFIER;
 				const profileName = userInfo.data.name;
-				if (authUrl && buildIdentifier) {
-					session = { authUrl, buildIdentifier, profileName };
+				if (authUrl) {
+					session = { authUrl, profileName };
 				}
 			}
 			return session;
@@ -464,13 +462,11 @@ class _NetflixApi extends ServiceApi {
 	extractSession(text: string): NetflixSession | null {
 		let session: NetflixSession | null = null;
 		const authUrlRegex = /"authURL":"(?<authUrl>.*?)"/;
-		const buildIdentifierRegex = /"BUILD_IDENTIFIER":"(?<buildIdentifier>.*?)"/;
 		const profileNameRegex = /"userInfo":\{"name":"(?<profileName>.*?)"/;
 		const { authUrl } = authUrlRegex.exec(text)?.groups ?? {};
-		const { buildIdentifier } = buildIdentifierRegex.exec(text)?.groups ?? {};
 		const { profileName = null } = profileNameRegex.exec(text)?.groups ?? {};
-		if (authUrl && buildIdentifier) {
-			session = { authUrl, buildIdentifier, profileName };
+		if (authUrl) {
+			session = { authUrl, profileName };
 		}
 		return session;
 	}
