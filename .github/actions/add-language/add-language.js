@@ -270,7 +270,17 @@ const main = async () => {
 	try {
 		await addLanguage();
 	} catch (err) {
-		setFailed(err.message);
+		let message = err.message;
+
+		if (err.toJSON) {
+			message += ` ${JSON.stringify(err.toJSON())}`;
+		}
+
+		if (err.response) {
+			message += ` ${JSON.stringify(err.response.data)}`;
+		}
+
+		setFailed(message);
 	}
 };
 
