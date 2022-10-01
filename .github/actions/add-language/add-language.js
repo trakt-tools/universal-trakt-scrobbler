@@ -128,7 +128,9 @@ const getLanguages = async (api, query) => {
 
 const addLanguage = async () => {
 	const payload = /** @type {IssuePayload} */ (context.payload);
-	const matches = /^add\snew\slanguage:\s(.+)$/.exec(payload.issue.title.trim().toLowerCase());
+	const matches = /^add\snew\slanguage:\s(")?(.+)(")?$/.exec(
+		payload.issue.title.trim().toLowerCase()
+	);
 
 	if (matches) {
 		const octokit = getOctokit(getInput('trakt-tools-bot-token'), {
@@ -140,7 +142,7 @@ const addLanguage = async () => {
 				Authorization: `Bearer ${getInput('crowdin-api-key')}`,
 			},
 		});
-		const [, query] = matches;
+		const [, isExactMatch, query] = matches;
 
 		console.log('Getting languages');
 
@@ -156,7 +158,31 @@ const addLanguage = async () => {
 			return;
 		}
 
+		let language;
+
 		if (languages.length > 1) {
+			const exactMatch = languages.find(
+				(currentLanguage) => currentLanguage.name.toLowerCase() === query.toLowerCase()
+			);
+
+			if (exactMatch) {
+				if (isExactMatch) {
+					language = exactMatch;
+				} else {
+					await octokit.rest.issues.createComment({
+						...defaultParams,
+						issue_number: payload.issue.number,
+						body: `Found more than 1 languages with this name. Please edit the title and specify one of the languages below:\n\n${languages
+							.map((currentLanguage) => `* ${currentLanguage.name}`)
+							.join(
+								'\n'
+							)}\n\nIf you want to add the language ${exactMatch}, surround it with double quotes: "${exactMatch}"`,
+					});
+
+					return;
+				}
+			}
+
 			await octokit.rest.issues.createComment({
 				...defaultParams,
 				issue_number: payload.issue.number,
@@ -168,7 +194,9 @@ const addLanguage = async () => {
 			return;
 		}
 
-		const [language] = languages;
+		if (!language) {
+			[language] = languages;
+		}
 
 		console.log('Getting project');
 
