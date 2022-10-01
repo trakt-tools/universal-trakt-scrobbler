@@ -8,11 +8,11 @@ import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface HboMaxAuthObj {
-	accessToken: string;
-	refreshToken: string;
+	access_token: string;
+	refresh_token: string;
 
 	/** In milliseconds */
-	accessExpiration: number;
+	expires_on: number;
 }
 
 export interface HboMaxSession extends ServiceApiSession, HboMaxData {}
@@ -126,14 +126,13 @@ export interface HboMaxContentErrorResponse {
 }
 
 class _HboMaxApi extends ServiceApi {
-	HOST_URL = 'https://www.hbomax.com';
+	HOST_URL = 'https://play.hbomax.com';
 	API_BASE = 'api.hbo.com';
 	GLOBAL_AUTH_URL = `https://oauth.${this.API_BASE}/auth/tokens`;
 	LOCAL_AUTH_URL = `https://gateway{subdomain}.${this.API_BASE}/auth/tokens`;
 	CONFIG_URL = `https://sessions.${this.API_BASE}/sessions/v1/clientConfig`;
 	CONTENT_URL = `https://comet{subdomain}.${this.API_BASE}/content`;
 	HISTORY_URL = `https://markers{subdomain}.${this.API_BASE}/markers`;
-	ITEM_METADATA_URL = `https://comet{subdomain}.${this.API_BASE}/express-content/{id}?device-code=desktop&product-code=hboMax&api-version=v9.0&country-code=US&language=en-us`;
 
 	/**
 	 * These values were retrieved from https://play.hbomax.com/js/app.js:
@@ -309,8 +308,11 @@ class _HboMaxApi extends ServiceApi {
 			method: 'GET',
 		});
 		const historyResponse = JSON.parse(historyResponseText) as HboMaxHistoryResponse;
+		const historyResponseItems = historyResponse.filter(
+			(item) => item.id.startsWith('urn:hbo:episode') || item.id.startsWith('urn:hbo:feature')
+		);
 
-		for (const historyResponseItem of historyResponse) {
+		for (const historyResponseItem of historyResponseItems) {
 			historyItems.push({
 				id: historyResponseItem.id,
 				progress:
@@ -404,9 +406,10 @@ class _HboMaxApi extends ServiceApi {
 		}
 
 		try {
-			const responseText = await Requests.send({
-				url: Utils.replace(this.ITEM_METADATA_URL, { ...this.session, id }),
-				method: 'GET',
+			const responseText = await this.authRequests.send({
+				url: Utils.replace(this.CONTENT_URL, this.session),
+				method: 'POST',
+				body: [{ id }],
 			});
 			const response = JSON.parse(responseText) as HboMaxItemMetadataResponse;
 
@@ -425,35 +428,30 @@ class _HboMaxApi extends ServiceApi {
 	}
 
 	async getSession(): Promise<Partial<HboMaxSession> | null> {
-		const result = await ScriptInjector.inject<Partial<HboMaxSession>, { clientId: string }>(
+		const result = await ScriptInjector.inject<Partial<HboMaxSession>>(
 			this.id,
 			'session',
 			this.HOST_URL,
-			({ clientId }) => {
+			() => {
 				const session: Partial<HboMaxSession> = {};
 
-				const authStr = window.localStorage.getItem(
-					`prod:dataservices.dependent.hurley.types.LoginInfo.user:${clientId}`
-				);
+				const authStr = window.localStorage.getItem('authToken');
 				if (authStr) {
 					const authObj = JSON.parse(authStr) as HboMaxAuthObj;
 					session.auth = {
-						accessToken: authObj.accessToken,
-						refreshToken: authObj.refreshToken,
-						expiresAt: authObj.accessExpiration,
+						accessToken: authObj.access_token,
+						refreshToken: authObj.refresh_token,
+						expiresAt: authObj.expires_on,
 					};
 				}
 
-				const deviceSerialNumber = window.localStorage.getItem(
-					'platform.PlatformSettings.singleton.serial'
-				);
+				const deviceSerialNumber = window.localStorage.getItem('deviceSerialNumber');
 				if (deviceSerialNumber) {
 					session.deviceSerialNumber = deviceSerialNumber;
 				}
 
 				return session;
-			},
-			{ clientId: this.CLIENT_ID }
+			}
 		);
 		if (result?.auth) {
 			result.auth.expiresAt = Utils.unix(result.auth.expiresAt);
