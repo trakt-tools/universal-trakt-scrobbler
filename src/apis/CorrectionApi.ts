@@ -44,9 +44,6 @@ class _CorrectionApi {
 	 * If all suggestions have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
 	 */
 	async loadSuggestions(items: ScrobbleItem[]): Promise<ScrobbleItem[]> {
-		if (!Shared.storage.options.sendReceiveSuggestions) {
-			return items;
-		}
 		const hasLoadedSuggestions = !items.some((item) => typeof item.suggestions === 'undefined');
 		if (hasLoadedSuggestions) {
 			return items;
@@ -109,9 +106,6 @@ class _CorrectionApi {
 	 * Saves a suggestion for an item in the database.
 	 */
 	async saveSuggestion(item: ScrobbleItem, suggestion: Suggestion): Promise<void> {
-		if (!Shared.storage.options.sendReceiveSuggestions) {
-			return;
-		}
 		await Requests.send({
 			method: 'PUT',
 			url: this.SUGGESTIONS_DATABASE_URL,
