@@ -308,8 +308,11 @@ class _HboMaxApi extends ServiceApi {
 			method: 'GET',
 		});
 		const historyResponse = JSON.parse(historyResponseText) as HboMaxHistoryResponse;
+		const historyResponseItems = historyResponse.filter(
+			(item) => item.id.startsWith('urn:hbo:episode') || item.id.startsWith('urn:hbo:feature')
+		);
 
-		for (const historyResponseItem of historyResponse) {
+		for (const historyResponseItem of historyResponseItems) {
 			historyItems.push({
 				id: historyResponseItem.id,
 				progress:
