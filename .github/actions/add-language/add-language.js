@@ -147,7 +147,7 @@ const addLanguage = async () => {
 		});
 		const [, isExactMatch, query] = matches;
 
-		console.log(`Getting languages for query ${query}`);
+		console.log(`Getting languages for query: ${query}`);
 
 		const languages = await getLanguages(api, query);
 
@@ -184,15 +184,17 @@ const addLanguage = async () => {
 				}
 			}
 
-			await octokit.rest.issues.createComment({
-				...defaultParams,
-				issue_number: payload.issue.number,
-				body: `Found more than 1 languages with this name. Please edit the title and specify one of the languages below:\n\n${languages
-					.map((currentLanguage) => `* ${currentLanguage.name}`)
-					.join('\n')}`,
-			});
+			if (!language) {
+				await octokit.rest.issues.createComment({
+					...defaultParams,
+					issue_number: payload.issue.number,
+					body: `Found more than 1 languages with this name. Please edit the title and specify one of the languages below:\n\n${languages
+						.map((currentLanguage) => `* ${currentLanguage.name}`)
+						.join('\n')}`,
+				});
 
-			return;
+				return;
+			}
 		}
 
 		if (!language) {
