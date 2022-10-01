@@ -121,14 +121,17 @@ const getLanguages = async (api, query) => {
 					languagesMappings[language.data.osxLocale] || language.data.osxLocale
 				)
 		)
-		.map((language) => language.data);
+		.map((language) => ({
+			...language.data,
+			isExactMatch: language.data.name.toLowerCase() === query,
+		}));
 
 	return languagesMatches;
 };
 
 const addLanguage = async () => {
 	const payload = /** @type {IssuePayload} */ (context.payload);
-	const matches = /^add\snew\slanguage:\s(")?(.+)(")?$/.exec(
+	const matches = /^add\snew\slanguage:\s(")?(.+?)(")?$/.exec(
 		payload.issue.title.trim().toLowerCase()
 	);
 
@@ -144,7 +147,7 @@ const addLanguage = async () => {
 		});
 		const [, isExactMatch, query] = matches;
 
-		console.log('Getting languages');
+		console.log(`Getting languages for query ${query}`);
 
 		const languages = await getLanguages(api, query);
 
@@ -161,9 +164,7 @@ const addLanguage = async () => {
 		let language;
 
 		if (languages.length > 1) {
-			const exactMatch = languages.find(
-				(currentLanguage) => currentLanguage.name.toLowerCase() === query.toLowerCase()
-			);
+			const exactMatch = languages.find((currentLanguage) => currentLanguage.isExactMatch);
 
 			if (exactMatch) {
 				if (isExactMatch) {
