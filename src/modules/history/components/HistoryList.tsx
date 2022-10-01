@@ -147,8 +147,10 @@ export const HistoryList = (): JSX.Element => {
 			items = await CorrectionApi.loadSuggestions(items);
 			await store.update(items, true);
 		}
-		items = await TmdbApi.loadImages(items);
-		await store.update(items, true);
+		if (Shared.storage.options.loadImages) {
+			items = await TmdbApi.loadImages(items);
+			await store.update(items, true);
+		}
 		return items;
 	};
 
