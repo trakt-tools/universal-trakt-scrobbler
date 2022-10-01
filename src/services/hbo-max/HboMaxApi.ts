@@ -8,11 +8,11 @@ import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface HboMaxAuthObj {
-	accessToken: string;
-	refreshToken: string;
+	access_token: string;
+	refresh_token: string;
 
 	/** In milliseconds */
-	accessExpiration: number;
+	expires_on: number;
 }
 
 export interface HboMaxSession extends ServiceApiSession, HboMaxData {}
@@ -126,7 +126,7 @@ export interface HboMaxContentErrorResponse {
 }
 
 class _HboMaxApi extends ServiceApi {
-	HOST_URL = 'https://www.hbomax.com';
+	HOST_URL = 'https://play.hbomax.com';
 	API_BASE = 'api.hbo.com';
 	GLOBAL_AUTH_URL = `https://oauth.${this.API_BASE}/auth/tokens`;
 	LOCAL_AUTH_URL = `https://gateway{subdomain}.${this.API_BASE}/auth/tokens`;
@@ -425,35 +425,30 @@ class _HboMaxApi extends ServiceApi {
 	}
 
 	async getSession(): Promise<Partial<HboMaxSession> | null> {
-		const result = await ScriptInjector.inject<Partial<HboMaxSession>, { clientId: string }>(
+		const result = await ScriptInjector.inject<Partial<HboMaxSession>>(
 			this.id,
 			'session',
 			this.HOST_URL,
-			({ clientId }) => {
+			() => {
 				const session: Partial<HboMaxSession> = {};
 
-				const authStr = window.localStorage.getItem(
-					`prod:dataservices.dependent.hurley.types.LoginInfo.user:${clientId}`
-				);
+				const authStr = window.localStorage.getItem('authToken');
 				if (authStr) {
 					const authObj = JSON.parse(authStr) as HboMaxAuthObj;
 					session.auth = {
-						accessToken: authObj.accessToken,
-						refreshToken: authObj.refreshToken,
-						expiresAt: authObj.accessExpiration,
+						accessToken: authObj.access_token,
+						refreshToken: authObj.refresh_token,
+						expiresAt: authObj.expires_on,
 					};
 				}
 
-				const deviceSerialNumber = window.localStorage.getItem(
-					'platform.PlatformSettings.singleton.serial'
-				);
+				const deviceSerialNumber = window.localStorage.getItem('deviceSerialNumber');
 				if (deviceSerialNumber) {
 					session.deviceSerialNumber = deviceSerialNumber;
 				}
 
 				return session;
-			},
-			{ clientId: this.CLIENT_ID }
+			}
 		);
 		if (result?.auth) {
 			result.auth.expiresAt = Utils.unix(result.auth.expiresAt);
