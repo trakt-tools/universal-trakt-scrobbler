@@ -26,11 +26,14 @@ const deployBeta = async () => {
 			...defaultParams,
 			release_id: previousRelease.id,
 		});
-		await octokit.rest.git.deleteRef({
-			...defaultParams,
-			ref: 'beta',
-		});
 	}
+
+	console.log('Deleting preious beta tag...');
+
+	await octokit.rest.git.deleteRef({
+		...defaultParams,
+		ref: 'tags/beta',
+	});
 
 	console.log('Generating release...');
 
