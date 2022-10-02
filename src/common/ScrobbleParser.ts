@@ -285,8 +285,12 @@ export abstract class ScrobbleParser {
 	}
 
 	protected parseItemIdFromUrl(): string | null {
-		const { id = null } = this.options.watchingUrlRegex?.exec(this.getLocation())?.groups ?? {};
-		return id;
+		const {
+			id = null,
+			episodeId = null,
+			movieId = null,
+		} = this.options.watchingUrlRegex?.exec(this.getLocation())?.groups ?? {};
+		return episodeId || movieId || id;
 	}
 
 	protected async parseItemIdFromInjectedScript(): Promise<string | null> {
