@@ -46,6 +46,7 @@ export abstract class ScrobbleParser {
 	protected videoPlayer: HTMLVideoElement | null = null;
 	private currentTime = 0.0;
 	private progress = 0.0;
+	private failingId: string | null = null;
 
 	constructor(api: ServiceApi, options: Partial<ScrobbleParserOptions> = {}) {
 		this.api = api;
@@ -224,7 +225,13 @@ export abstract class ScrobbleParser {
 
 	protected async parseItemFromApi(): Promise<ScrobbleItem | null> {
 		const id = await this.parseItemId();
-		return id ? this.api.getItem(id) : null;
+		if (!id || id === this.failingId) {
+			return null;
+		}
+
+		const item = await this.api.getItem(id);
+		this.failingId = item ? null : id;
+		return item;
 	}
 
 	protected async parseItemFromInjectedScript(): Promise<ScrobbleItem | null> {
