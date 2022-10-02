@@ -8,6 +8,8 @@ import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 export interface AmcPlusSession extends ServiceApiSession {
 	auth: {
 		accessToken: string;
+		cacheHash: string;
+		userCacheHash: string;
 	};
 }
 
@@ -19,19 +21,19 @@ export interface AmcPlusItemResponse {
 
 export interface AmcPlusEpisodeResponse {
 	pageType: 'episode';
-	pageTitle: string;
+	pageTitle?: string;
 	id: string;
 
 	// In slug-ish format (e.g. "the-walking-dead")
-	showName: string;
+	showName?: string;
 
-	seasonNumber: number;
-	episodeNumber: number;
+	seasonNumber?: number;
+	episodeNumber?: number;
 }
 
 export interface AmcPlusMovieResponse {
 	pageType: 'movie';
-	pageTitle: string;
+	pageTitle?: string;
 	id: string;
 }
 
@@ -55,17 +57,28 @@ class _AmcPlusApi extends ServiceApi {
 
 		try {
 			const partialSession = await this.getSession();
-			if (!partialSession || !partialSession.auth || !partialSession.auth.accessToken) {
+			if (
+				!partialSession ||
+				!partialSession.auth ||
+				!partialSession.auth.accessToken ||
+				!partialSession.auth.cacheHash ||
+				!partialSession.auth.userCacheHash
+			) {
 				throw new Error();
 			}
 
 			this.authRequests = withHeaders({
 				Authorization: `Bearer ${partialSession.auth.accessToken}`,
+				'x-amcn-cache-hash': partialSession.auth.cacheHash,
+				'x-amcn-user-cache-hash': partialSession.auth.userCacheHash,
+				'x-amcn-language': 'en',
 			});
 
 			this.session = {
 				auth: {
 					accessToken: partialSession.auth.accessToken,
+					cacheHash: partialSession.auth.cacheHash,
+					userCacheHash: partialSession.auth.userCacheHash,
 				},
 				profileName: null,
 			};
@@ -100,12 +113,22 @@ class _AmcPlusApi extends ServiceApi {
 		return item;
 	}
 
-	parseMetadata(metadata: AmcPlusEpisodeResponse | AmcPlusMovieResponse): ScrobbleItem {
+	parseMetadata(metadata: AmcPlusEpisodeResponse | AmcPlusMovieResponse): ScrobbleItem | null {
 		let item: ScrobbleItem;
 		const serviceId = this.id;
 		const { pageType: type, pageTitle: title, id } = metadata;
+
+		if (!title) {
+			return null;
+		}
+
 		if (type === 'episode') {
 			const { showName: showSlug, seasonNumber: season, episodeNumber: number } = metadata;
+
+			if (!showSlug || typeof season === 'undefined' || typeof number === 'undefined') {
+				return null;
+			}
+
 			const showTitle = this.formatSlug(showSlug);
 
 			item = new EpisodeItem({
@@ -144,12 +167,14 @@ class _AmcPlusApi extends ServiceApi {
 			() => {
 				const session: Partial<AmcPlusSession> = {};
 
-				const accessToken = window.localStorage.getItem('access_token');
-				if (accessToken) {
-					session.auth = {
-						accessToken,
-					};
-				}
+				const accessToken = window.localStorage.getItem('access_token') ?? '';
+				const cacheHash = window.localStorage.getItem('cache_hash') ?? '';
+				const userCacheHash = window.localStorage.getItem('user_cache_hash') ?? '';
+				session.auth = {
+					accessToken,
+					cacheHash,
+					userCacheHash,
+				};
 
 				return session;
 			}
