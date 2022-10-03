@@ -60,9 +60,9 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 | Streaming Service | Scrobble | Sync | Limitations                     |
 | :---------------: | :------: | :--: | :------------------------------ |
 |   Amazon Prime    |    ✔️    |  ✔️  | -                               |
-|     AMC Plus      |    ✔️    |  ❌  | -                               |
+|       AMC+        |    ✔️    |  ❌  | -                               |
 | Crunchyroll Beta  |    ❌    |  ✔️  | Can't identify movies as movies |
-|    DisneyPlus     |    ✔️    |  ❌  | -                               |
+|      Disney+      |    ✔️    |  ❌  | -                               |
 |     GoPlay BE     |    ✔️    |  ❌  | -                               |
 |      HBO Go       |    ✔️    |  ❌  | -                               |
 |      HBO Max      |    ✔️    |  ✔️  | -                               |
@@ -71,6 +71,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |        NRK        |    ✔️    |  ✔️  | -                               |
 |     Player.pl     |    ✔️    |  ❌  | -                               |
 |  Polsatboxgo.pl   |    ✔️    |  ❌  | -                               |
+|       Star+       |    ✔️    |  ❌  | -                               |
 |    Streamz BE     |    ✔️    |  ❌  | -                               |
 |      Viaplay      |    ✔️    |  ✔️  | -                               |
 |     VRTNu BE      |    ✔️    |  ❌  | -                               |
