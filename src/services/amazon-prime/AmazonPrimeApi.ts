@@ -1,23 +1,26 @@
 import { AmazonPrimeService } from '@/amazon-prime/AmazonPrimeService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
-import { Cache } from '@common/Cache';
 import { Requests, withHeaders } from '@common/Requests';
-import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { SetOptional } from 'type-fest';
 
-export interface AmazonPrimeSession extends ServiceApiSession, AmazonPrimeData {}
-
-export interface AmazonPrimeData {
-	deviceId: string;
-}
+export interface AmazonPrimeSession extends ServiceApiSession {}
 
 export interface AmazonPrimeHistoryItem {
 	id: string;
 	progress: number;
 	watchedAt: number;
+}
+
+export interface AmazonPrimeConfigResponse {
+	customerConfig: {
+		homeRegion: string;
+	};
+	territoryConfig: {
+		defaultVideoWebsite: string;
+	};
 }
 
 export interface AmazonPrimeProfileResponse {
@@ -33,7 +36,7 @@ export interface AmazonPrimeHistoryResponse {
 		content: {
 			content:
 				| {
-						nextStartIndex: number;
+						nextToken: string;
 						titles: AmazonPrimeHistoryResponseTitle[];
 				  }
 				| {
@@ -122,10 +125,10 @@ export interface AmazonPrimeNextItemResponse {
 class _AmazonPrimeApi extends ServiceApi {
 	HOST_URL = 'https://www.primevideo.com';
 	API_URL = 'https://atv-ps.primevideo.com';
-	SETTINGS_URL = `${this.HOST_URL}/settings`;
 	PROFILE_URL = `${this.HOST_URL}/gp/video/api/getProfiles`;
-	HISTORY_URL = `${this.HOST_URL}/gp/video/api/getWatchHistorySettingsPage?widgets=activity-history&widgetArgs=%7B%22startIndex%22%3A{index}%7D`;
+	HISTORY_URL = `${this.HOST_URL}/gp/video/api/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
 	ENRICHMENTS_URL = `${this.HOST_URL}/gp/video/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+	CONFIG_URL = '';
 	ITEM_URL = '';
 	NEXT_ITEM_URL = '';
 
@@ -140,7 +143,7 @@ class _AmazonPrimeApi extends ServiceApi {
 
 	isActivated = false;
 	session?: AmazonPrimeSession | null;
-	nextIndex = 0;
+	nextToken = '';
 	nextItemId = '';
 
 	constructor() {
@@ -153,27 +156,32 @@ class _AmazonPrimeApi extends ServiceApi {
 		}
 
 		try {
-			const servicesData = await Cache.get('servicesData');
-			let cache = servicesData.get(this.id) as AmazonPrimeData | undefined;
+			this.CONFIG_URL = `${this.API_URL}/cdp/usage/GetAppStartupConfig?deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=false&version=1`;
 
-			if (!cache) {
-				const partialSession = await this.getSession();
-				if (!partialSession || !partialSession.deviceId) {
-					throw new Error('Failed to activate API');
+			try {
+				const configResponseText = await Requests.send({
+					url: this.CONFIG_URL,
+					method: 'GET',
+				});
+				const configResponse = JSON.parse(configResponseText) as AmazonPrimeConfigResponse;
+				const region = configResponse.customerConfig.homeRegion.toLowerCase();
+
+				this.HOST_URL = configResponse.territoryConfig.defaultVideoWebsite;
+				this.API_URL = this.HOST_URL.replace('www.', '').replace(
+					'//',
+					`//atv-ps${region === 'na' ? '' : `-${region}`}.`
+				);
+			} catch (err) {
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log(`Failed to activate ${this.id} API`, err);
 				}
-
-				cache = {
-					deviceId: partialSession.deviceId,
-				};
-				servicesData.set(this.id, cache);
-				await Cache.set({ servicesData });
+				throw new Error('Failed to activate API');
 			}
 
-			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
-			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=${cache.deviceId}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
+			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
+			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
 
 			this.session = {
-				...cache,
 				profileName: null,
 			};
 			this.isActivated = true;
@@ -215,13 +223,15 @@ class _AmazonPrimeApi extends ServiceApi {
 		const historyItems: AmazonPrimeHistoryItem[] = [];
 
 		const historyResponseText = await this.requests.send({
-			url: Utils.replace(this.HISTORY_URL, { index: this.nextIndex }),
+			url: Utils.replace(this.HISTORY_URL, {
+				args: this.nextToken ? `%22nextToken%22%3A%22${this.nextToken}%22` : '',
+			}),
 			method: 'GET',
 		});
 		const historyResponse = JSON.parse(historyResponseText) as AmazonPrimeHistoryResponse;
 
 		const historyWidget = historyResponse.widgets.find(
-			(widget) => widget.widgetType === 'activity-history'
+			(widget) => widget.widgetType === 'watch-history'
 		);
 		if (historyWidget) {
 			const { content } = historyWidget.content;
@@ -258,11 +268,18 @@ class _AmazonPrimeApi extends ServiceApi {
 					});
 				}
 
-				this.nextIndex = content.nextStartIndex;
+				if (content.nextToken) {
+					this.nextToken = content.nextToken;
+				} else {
+					this.nextToken = '';
+					this.hasReachedHistoryEnd = true;
+				}
 			} else {
+				this.nextToken = '';
 				this.hasReachedHistoryEnd = true;
 			}
 		} else {
+			this.nextToken = '';
 			this.hasReachedHistoryEnd = true;
 		}
 
@@ -293,7 +310,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		const items: ScrobbleItem[] = [];
 
 		for (const historyItem of historyItems) {
-			const item = await this.getItem(historyItem.id);
+			const item = await this.getItem(historyItem.id, true);
 			if (item) {
 				item.progress = historyItem.progress;
 				item.watchedAt = Utils.unix(historyItem.watchedAt);
@@ -312,7 +329,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		item.progress = historyItem.progress;
 	}
 
-	async getItem(id: string): Promise<ScrobbleItem | null> {
+	async getItem(id: string, isHistoryItem = false): Promise<ScrobbleItem | null> {
 		let item: ScrobbleItem | null = null;
 		try {
 			if (!this.isActivated) {
@@ -325,15 +342,17 @@ class _AmazonPrimeApi extends ServiceApi {
 			const metadata = JSON.parse(responseText) as AmazonPrimeMetadataItem;
 			item = this.parseMetadata(metadata);
 
-			// Since there's no way to get the next item ID when the user clicks the 'Next episode' button or when it autoplays the next episode, we use this endpoint to get the ID beforehand so it can be used by the parser when/if the next episode plays
-			const nextItemResponseText = await Requests.send({
-				url: this.NEXT_ITEM_URL.replace(/{id}/i, id),
-				method: 'GET',
-			});
-			const nextItemResponse = JSON.parse(nextItemResponseText) as AmazonPrimeNextItemResponse;
-			this.nextItemId =
-				nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0].titleId ??
-				'';
+			if (!isHistoryItem) {
+				// Since there's no way to get the next item ID when the user clicks the 'Next episode' button or when it autoplays the next episode, we use this endpoint to get the ID beforehand so it can be used by the parser when/if the next episode plays
+				const nextItemResponseText = await Requests.send({
+					url: this.NEXT_ITEM_URL.replace(/{id}/i, id),
+					method: 'GET',
+				});
+				const nextItemResponse = JSON.parse(nextItemResponseText) as AmazonPrimeNextItemResponse;
+				this.nextItemId =
+					nextItemResponse.sections.bottom?.collections.collectionList[0].items.itemList[0]
+						.titleId ?? '';
+			}
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to get item.', err);
@@ -377,17 +396,6 @@ class _AmazonPrimeApi extends ServiceApi {
 			});
 		}
 		return item;
-	}
-
-	getSession(): Promise<Partial<AmazonPrimeSession> | null> {
-		return ScriptInjector.inject<Partial<AmazonPrimeSession>>(
-			this.id,
-			'session',
-			this.SETTINGS_URL,
-			() => ({
-				deviceId: window.localStorage.getItem('atvwebplayersdk_atvwebplayer_deviceid') ?? '',
-			})
-		);
 	}
 }
 
