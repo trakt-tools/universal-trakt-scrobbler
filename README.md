@@ -15,7 +15,7 @@
 	</a>
 </p>
 
-**WARNING:** This extension has not been released yet. For now you can install it manually by downloading the zip for your browser here: https://github.com/trakt-tools/universal-trakt-scrobbler/releases/tag/beta
+**WARNING:** This extension has not been released yet. For now you can install it manually by downloading the zip for your browser here: hhttps://github.com/trakt-tools/universal-trakt-scrobbler/releases
 
 ### Loading the extension manually on Chrome
 
