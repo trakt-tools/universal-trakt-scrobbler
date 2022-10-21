@@ -66,6 +66,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |     GoPlay BE     |    ✔️    |  ❌  | -                               |
 |      HBO Go       |    ✔️    |  ❌  | -                               |
 |      HBO Max      |    ✔️    |  ✔️  | -                               |
+|      Hotstar      |    ✔️    |  ❌  | -                               |
 |      Kijk.nl      |    ✔️    |  ❌  | -                               |
 |      Netflix      |    ✔️    |  ✔️  | -                               |
 |        NRK        |    ✔️    |  ✔️  | -                               |
