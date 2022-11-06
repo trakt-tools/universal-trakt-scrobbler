@@ -18,7 +18,7 @@ export type StorageValues = StorageValuesV11;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
-export type StorageValuesV11 = StorageValuesV10 & {
+export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
 	version?: 11;
 };
 
@@ -420,7 +420,7 @@ class _BrowserStorage {
 			console.log('Downgrading to v10...');
 			const values = await this.get('options');
 			const options = values.options;
-			if (options){
+			if (options) {
 				delete options.services['crunchyroll'];
 				await this.doSet({ options: options as unknown as StorageValuesOptions }, true);
 			}
