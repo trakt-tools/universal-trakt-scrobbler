@@ -14,9 +14,13 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV10;
+export type StorageValues = StorageValuesV11;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
+
+export type StorageValuesV11 = StorageValuesV10 & {
+	version?: 11;
+};
 
 export type StorageValuesV10 = Omit<StorageValuesV8, 'version' | 'options'> & {
 	version?: 10;
@@ -227,7 +231,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 10;
+	readonly currentVersion = 11;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -387,6 +391,21 @@ class _BrowserStorage {
 			console.log('Upgrading to v10...');
 		}
 
+		if (version < 11 && this.currentVersion >= 11) {
+			console.log('Upgrading to v11...');
+
+			const { options } = await this.get('options');
+
+			if (options?.services && 'crunchyroll-beta' in options.services) {
+				options.services['crunchyroll'] = options.services['crunchyroll-beta'];
+				options.services['crunchyroll'].lastSync = 0;
+				options.services['crunchyroll'].lastSyncId = '';
+				delete options.services['crunchyroll-beta'];
+
+				await this.doSet({ options }, true);
+			}
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -397,6 +416,16 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 10 && this.currentVersion <= 10) {
+			console.log('Downgrading to v10...');
+			const values = await this.get('options');
+			const options = values.options;
+			if (options){
+				delete options.services['crunchyroll'];
+				await this.doSet({ options: options as unknown as StorageValuesOptions }, true);
+			}
+		}
+
 		if (version > 9 && this.currentVersion <= 9) {
 			console.log('Downgrading to v9...');
 
