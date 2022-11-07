@@ -19,18 +19,18 @@ class _HotstarParser extends ScrobbleParser {
 		}
 
 		const title = titleElement?.textContent ?? '';
-		const seasonEpisodeElement = document.querySelector('.show-title .meta-data-holder')?.firstChild;
+		const seasonEpisodeElement = document.querySelector(
+			'.show-title .meta-data-holder'
+		)?.firstChild;
 		const subTitleElement = document.querySelector('.show-title .meta-data-holder')?.lastChild;
-
 
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
-		let subTitle = subTitleElement?.textContent ?? '';
+		const subTitle = subTitleElement?.textContent ?? '';
 
 		const matches = /(?<seasonId>[\d]+)\s.(?<episodeId>[\d]+)/.exec(
 			seasonEpisodeElement?.textContent ?? ''
 		);
-
 
 		if (matches?.groups) {
 			({ seasonId, episodeId } = matches.groups);
@@ -51,17 +51,14 @@ class _HotstarParser extends ScrobbleParser {
 					title,
 				},
 			});
-
-			
 		}
 
 		return new MovieItem({
 			serviceId,
 			id,
-			title
+			title,
 		});
 	}
-
 }
 
 export const HotstarParser = new _HotstarParser();
