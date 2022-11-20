@@ -21,6 +21,9 @@ export interface SharedValues {
 	storage: typeof BrowserStorage;
 	errors: typeof Errors;
 	events: typeof EventDispatcher;
+
+	waitForInit: () => Promise<unknown>;
+	finishInit: () => void;
 }
 
 export type BrowserPrefix = 'moz' | 'chrome' | 'unknown';
@@ -37,6 +40,12 @@ const browsers: Record<BrowserPrefix, BrowserName> = {
 const browserPrefix = browser
 	? (browser.runtime.getURL('/').split('-')[0] as BrowserPrefix)
 	: 'unknown';
+
+let initPromiseResolve: (value: unknown) => void = () => {
+	// Do nothing
+};
+
+const initPromise = new Promise((resolve) => (initPromiseResolve = resolve));
 
 export const Shared: SharedValues = {
 	DATABASE_URL: 'https://uts.rafaelgomes.xyz/api',
@@ -55,4 +64,7 @@ export const Shared: SharedValues = {
 	storage: {} as typeof BrowserStorage,
 	errors: {} as typeof Errors,
 	events: {} as typeof EventDispatcher,
+
+	waitForInit: () => initPromise,
+	finishInit: () => initPromiseResolve(null),
 };
