@@ -128,26 +128,26 @@ nvm use
 6. Install the dependencies.
 
 ```bash
-npm install
+pnpm install
 ```
 
 - To run in development mode:
 
 ```bash
-npm start
+pnpm start
 ```
 
 - To get the build version for development mode (does not watch files):
 
 ```bash
-npm run build-dev
+pnpm run build-dev
 ```
 
 - To get the build version for production mode (generates app.zip, ready for deployment):
 
 ```bash
-npm run build
-npm run zip
+pnpm run build
+pnpm run zip
 ```
 
 #### How to add more streaming services
