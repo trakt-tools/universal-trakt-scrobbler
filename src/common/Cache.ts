@@ -124,8 +124,6 @@ class _Cache {
 	private async check() {
 		await Shared.waitForInit();
 
-		console.log('Checking cache...');
-
 		const now = Utils.unix();
 		for (const [key, ttl] of Object.entries(this.ttl) as [keyof CacheValues, number][]) {
 			const storageKey = `${key}Cache` as const;

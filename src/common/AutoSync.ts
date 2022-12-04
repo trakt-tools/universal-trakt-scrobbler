@@ -42,8 +42,6 @@ class _AutoSync {
 	private async check() {
 		await Shared.waitForInit();
 
-		console.log('Checking auto sync...');
-
 		const now = Utils.unix();
 		const servicesToSync = getServices().filter((service) => {
 			const value = Shared.storage.options.services[service.id];
