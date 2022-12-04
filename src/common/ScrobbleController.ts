@@ -47,7 +47,7 @@ export class ScrobbleController {
 	};
 
 	checkListeners(): void {
-		const { scrobble } = Shared.storage.options?.services?.[this.api.id];
+		const { scrobble } = Shared.storage.options?.services?.[this.api.id] ?? {};
 		if (scrobble && !this.hasAddedListeners) {
 			Shared.events.subscribe('SCROBBLING_ITEM_CORRECTED', null, this.onItemCorrected);
 			this.hasAddedListeners = true;

@@ -376,7 +376,7 @@ class _NetflixApi extends ServiceApi {
 				url: `${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}`,
 				method: 'GET',
 			});
-			item = this.parseMetadata(JSON.parse(responseText));
+			item = this.parseMetadata(JSON.parse(responseText) as NetflixSingleMetadataItem);
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to get item.', err);
