@@ -19,6 +19,9 @@ import '@images/uts-icon-38.png';
 import '@images/uts-icon-selected-19.png';
 import '@images/uts-icon-selected-38.png';
 
+Cache.addBackgroundListeners();
+AutoSync.addBackgroundListeners();
+
 const init = async () => {
 	Shared.pageType = 'background';
 	await BrowserStorage.init();
@@ -28,9 +31,10 @@ const init = async () => {
 	Notifications.init();
 	RequestsManager.init();
 	ScriptInjector.init();
-	Cache.init();
-	AutoSync.init();
+	await Cache.initFromBackground();
+	await AutoSync.initFromBackground();
 	Messaging.init();
+	Shared.finishInit();
 };
 
 Messaging.addHandlers({

@@ -260,6 +260,7 @@ const getManifest = (browserName: string): string => {
 			default_title: 'Universal Trakt Scrobbler',
 		},
 		permissions: [
+			'alarms',
 			'identity',
 			'storage',
 			'unlimitedStorage',

@@ -6,6 +6,7 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { ScrobbleItemValues } from '@models/Item';
 import { TraktItemValues } from '@models/TraktItem';
+import browser, { Alarms as WebExtAlarms } from 'webextension-polyfill';
 
 export type CacheItems<T extends (keyof CacheValues)[]> = {
 	[K in T[number]]: CacheItem<K>;
@@ -89,28 +90,39 @@ class _Cache {
 		urlsToTraktItems: 24 * 60 * 60,
 	};
 
-	private isChecking = false;
-	private checkTimeout: number | null = null;
-
 	readonly storageKeys = Object.keys(this.ttl).map(
 		(key) => `${key}Cache`
 	) as (keyof CacheStorageValues)[];
 
 	timestamp = 0;
 
-	init() {
-		void this.check();
-	}
-
-	async check() {
-		if (this.isChecking) {
+	async initFromBackground() {
+		const existingAlarm = await browser.alarms.get('check-cache');
+		if (existingAlarm) {
 			return;
 		}
-		this.isChecking = true;
 
-		if (this.checkTimeout !== null) {
-			window.clearTimeout(this.checkTimeout);
+		browser.alarms.create('check-cache', {
+			delayInMinutes: 1,
+			// Check again every hour
+			periodInMinutes: 60,
+		});
+	}
+
+	addBackgroundListeners() {
+		browser.alarms.onAlarm.addListener(this.onAlarm);
+	}
+
+	private onAlarm = (alarm: WebExtAlarms.Alarm) => {
+		if (alarm.name !== 'check-cache') {
+			return;
 		}
+
+		void this.check();
+	};
+
+	private async check() {
+		await Shared.waitForInit();
 
 		const now = Utils.unix();
 		for (const [key, ttl] of Object.entries(this.ttl) as [keyof CacheValues, number][]) {
@@ -127,11 +139,6 @@ class _Cache {
 			}
 			await Shared.storage.set({ [storageKey]: cache }, false);
 		}
-
-		// Check again every hour
-		this.checkTimeout = window.setTimeout(() => void this.check(), 3600000);
-
-		this.isChecking = false;
 	}
 
 	async get<K extends keyof CacheValues>(key: K): Promise<CacheItem<K>>;

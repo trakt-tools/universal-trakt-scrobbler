@@ -2,7 +2,6 @@ import { getServiceApi, ServiceApi } from '@apis/ServiceApi';
 import { TraktSync } from '@apis/TraktSync';
 import { BrowserAction } from '@common/BrowserAction';
 import { StorageValuesOptions } from '@common/BrowserStorage';
-import { StorageOptionsChangeData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
@@ -12,37 +11,36 @@ import { getServices, Service } from '@models/Service';
 import '@services-apis';
 import { getSyncStore } from '@stores/SyncStore';
 import { PartialDeep } from 'type-fest';
+import browser, { Alarms as WebExtAlarms } from 'webextension-polyfill';
 
 class _AutoSync {
-	isChecking = false;
-	checkTimeoutId: number | null = null;
-
-	init() {
-		void this.check();
-		Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
-	}
-
-	onStorageOptionsChange = (data: StorageOptionsChangeData) => {
-		if (data.options?.services) {
-			const doCheck = Object.values(data.options.services).some(
-				(serviceValue) =>
-					serviceValue && ('autoSync' in serviceValue || 'autoSyncDays' in serviceValue)
-			);
-			if (doCheck) {
-				void this.check();
-			}
-		}
-	};
-
-	async check() {
-		if (this.isChecking) {
+	async initFromBackground() {
+		const existingAlarm = await browser.alarms.get('check-auto-sync');
+		if (existingAlarm) {
 			return;
 		}
-		this.isChecking = true;
 
-		if (this.checkTimeoutId !== null) {
-			window.clearTimeout(this.checkTimeoutId);
+		browser.alarms.create('check-auto-sync', {
+			delayInMinutes: 1,
+			// Check again every hour
+			periodInMinutes: 60,
+		});
+	}
+
+	addBackgroundListeners() {
+		browser.alarms.onAlarm.addListener(this.onAlarm);
+	}
+
+	private onAlarm = (alarm: WebExtAlarms.Alarm) => {
+		if (alarm.name !== 'check-auto-sync') {
+			return;
 		}
+
+		void this.check();
+	};
+
+	private async check() {
+		await Shared.waitForInit();
 
 		const now = Utils.unix();
 		const servicesToSync = getServices().filter((service) => {
@@ -70,11 +68,6 @@ class _AutoSync {
 			await BrowserAction.setTitle();
 			await BrowserAction.setStaticIcon();
 		}
-
-		// Check again every hour
-		this.checkTimeoutId = window.setTimeout(() => void this.check(), 3600000);
-
-		this.isChecking = false;
 	}
 
 	private async sync(services: Service[], now: number) {
