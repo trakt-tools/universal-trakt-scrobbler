@@ -5,8 +5,6 @@ import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { ScrobbleItem } from '@models/Item';
-import { DateTimePicker, LocalizationProvider } from '@mui/lab';
-import DateAdapter from '@mui/lab/AdapterDateFns';
 import {
 	Button,
 	CircularProgress,
@@ -19,6 +17,8 @@ import {
 	RadioGroup,
 	TextField,
 } from '@mui/material';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 interface MissingWatchedDateDialogState {
@@ -229,7 +229,7 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 							/>
 						</RadioGroup>
 						{dialog.dateType === 'custom-date' && (
-							<LocalizationProvider dateAdapter={DateAdapter}>
+							<LocalizationProvider dateAdapter={AdapterDateFns}>
 								<DateTimePicker
 									value={dialog.date}
 									inputFormat="yyyy/MM/dd HH:mm"
