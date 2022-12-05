@@ -256,7 +256,7 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 								(dialog.dateType === 'custom-date' && (!dialog.date || !!dialog.dateError))
 							}
 							variant="contained"
-							onClick={void onAddButtonClick}
+							onClick={onAddButtonClick}
 						>
 							{I18N.translate('add')}
 						</Button>

@@ -83,8 +83,8 @@ export interface SearchErrorData {
 export interface DialogShowData {
 	title: string | ReactNode;
 	message: string | ReactNode;
-	onConfirm?: () => Promisable<void>;
-	onDeny?: () => Promisable<void>;
+	onConfirm?: () => void;
+	onDeny?: () => void;
 }
 
 export interface SnackbarShowData {

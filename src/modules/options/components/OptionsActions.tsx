@@ -89,10 +89,10 @@ export const OptionsActions = (): JSX.Element => {
 					},
 				}}
 			>
-				<Button onClick={void onClearStorageClick} variant="contained">
+				<Button onClick={onClearStorageClick} variant="contained">
 					{I18N.translate('clearStorage')}
 				</Button>
-				<Button onClick={void onClearCachesClick} variant="contained">
+				<Button onClick={onClearCachesClick} variant="contained">
 					{I18N.translate('clearCaches')} (<Box component="span">{cacheSize}</Box>)
 				</Button>
 			</Box>

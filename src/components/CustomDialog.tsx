@@ -36,7 +36,7 @@ export const CustomDialog = (): JSX.Element => {
 			isOpen: false,
 		}));
 		if (callback) {
-			void callback();
+			callback();
 		}
 	};
 

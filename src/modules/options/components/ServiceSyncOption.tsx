@@ -34,9 +34,7 @@ const _ServiceSyncOption = ({
 								color="inherit"
 								disabled={!sync}
 								size="small"
-								onClick={() =>
-									void onLinkClick(browser.runtime.getURL(`history.html#${service.path}`))
-								}
+								onClick={() => onLinkClick(browser.runtime.getURL(`history.html#${service.path}`))}
 							>
 								<LaunchIcon fontSize="small" />
 							</IconButton>
