@@ -66,7 +66,7 @@ specifiers:
   react-virtualized-auto-sizer: ^1.0.7
   react-window: ^1.8.8
   react-window-infinite-loader: ^1.0.8
-  rollbar: ^2.24.0
+  rollbar: ^2.26.0
   string-replace-loader: ^3.1.0
   style-loader: ^3.3.1
   ts-node: ^10.9.1
@@ -96,7 +96,7 @@ dependencies:
   react-virtualized-auto-sizer: 1.0.7_react-dom@17.0.2+react@17.0.2
   react-window: 1.8.8_react-dom@17.0.2+react@17.0.2
   react-window-infinite-loader: 1.0.8_react-dom@17.0.2+react@17.0.2
-  rollbar: 2.24.0
+  rollbar: 2.26.0
   type-fest: 2.3.3
   webextension-polyfill: 0.8.0
 
@@ -3687,16 +3687,11 @@ packages:
     engines: { node: '>=8' }
     dev: true
 
-  /async/1.2.1:
-    resolution: { integrity: sha1-pIFqF81f9RbfosdpikUzabl5DeA= }
-    dev: false
-
   /async/3.2.4:
     resolution:
       {
         integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==,
       }
-    dev: true
 
   /axios/0.26.1:
     resolution:
@@ -5515,7 +5510,10 @@ packages:
     dev: true
 
   /find/0.2.9:
-    resolution: { integrity: sha1-S3Px/55WrZG3bnFkB/5f/mVUu4w= }
+    resolution:
+      {
+        integrity: sha512-7a4/LCiInB9xYMnAUEjLilL9FKclwbwK7VlXw+h5jMvT2TDFeYFCHM24O1XdnC/on/hx8mxVO3FTQkyHZnOghQ==,
+      }
     dependencies:
       traverse-chain: 0.1.0
     dev: false
@@ -6296,7 +6294,10 @@ packages:
     dev: true
 
   /is_js/0.9.0:
-    resolution: { integrity: sha1-CrlFQFArp6+iTIVqqYVWFmnpxS0= }
+    resolution:
+      {
+        integrity: sha512-8Y5EHSH+TonfUHX2g3pMJljdbGavg55q4jmHzghJCdqYDbdNROC8uw/YFQwIRCRqRJT1EY3pJefz+kglw+o7sg==,
+      }
     dev: false
 
   /isarray/0.0.1:
@@ -6416,7 +6417,10 @@ packages:
     dev: true
 
   /json-stringify-safe/5.0.1:
-    resolution: { integrity: sha1-Epai1Y/UXxmg9s4B1lcB4sc1tus= }
+    resolution:
+      {
+        integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==,
+      }
     dev: false
 
   /json5/1.0.1:
@@ -6720,7 +6724,10 @@ packages:
     dev: true
 
   /lru-cache/2.2.4:
-    resolution: { integrity: sha1-bGWGGb7PFAMdDQtZSxYELOTcBj0= }
+    resolution:
+      {
+        integrity: sha512-Q5pAgXs+WEAfoEdw2qKQhNFFhMoFMTYqRVKKUMnzuiR7oKFHS7fWo848cPcTKw+4j/IdN17NyzdhVKgabFV0EA==,
+      }
     dev: false
 
   /lru-cache/6.0.0:
@@ -8046,7 +8053,10 @@ packages:
     dev: true
 
   /request-ip/2.0.2:
-    resolution: { integrity: sha1-3urm1K8hdoSX24zQX6NxQ/jxJX4= }
+    resolution:
+      {
+        integrity: sha512-Y6LxqTmxLKKDk2I5tU2sxoCSKAnWJ42jmGqixNrH+oYoAyncpal7fFF5gqJ2bbgkRmb9qYNxdD6KFHfLS4dKBA==,
+      }
     dependencies:
       is_js: 0.9.0
     dev: false
@@ -8165,20 +8175,19 @@ packages:
       glob: 7.1.7
     dev: true
 
-  /rollbar/2.24.0:
+  /rollbar/2.26.0:
     resolution:
       {
-        integrity: sha512-cjAGDeTOUH5Bc4qzXlrp2D3eTO51adMWMxzOrr079t/nZidrO8ISBFM8SnazJVv5fOjIX5VbB/4a+gwbn9l4rw==,
+        integrity: sha512-YWRzEY9CsqMhxA04x5SOlu5Ws+sSyIXs0E3GVzE4PYEexMcImFHuyniwmBD7eIKEipi9yO7Zw7lSMUwb5OVmXw==,
       }
     dependencies:
-      async: 1.2.1
+      async: 3.2.4
       console-polyfill: 0.3.0
       error-stack-parser: 2.0.6
       json-stringify-safe: 5.0.1
       lru-cache: 2.2.4
       request-ip: 2.0.2
       source-map: 0.5.7
-      uuid: 3.0.1
     optionalDependencies:
       decache: 3.1.0
     dev: false
@@ -8877,7 +8886,10 @@ packages:
     dev: true
 
   /traverse-chain/0.1.0:
-    resolution: { integrity: sha1-YdvC1Ttp/2CRoSoWj9fUMxB+QPE= }
+    resolution:
+      {
+        integrity: sha512-up6Yvai4PYKhpNp5PkYtx50m3KbwQrqDwbuZP/ItyL64YEWHAvH6Md83LFLV/GRSk/BoUVwwgUzX6SOQSbsfAg==,
+      }
     dev: false
     optional: true
 
@@ -9127,12 +9139,6 @@ packages:
         integrity: sha512-Z0DbgELS9/L/75wZbro8xAnT50pBVFQZ+hUEueGDU5FN51YSCYM+jdxsfCiHjwNP/4LCDD0i/graKpeBnOXKRA==,
       }
     dev: true
-
-  /uuid/3.0.1:
-    resolution: { integrity: sha1-ZUS7ot/ajBzxfmKaOjBeK7H+5sE= }
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
-    hasBin: true
-    dev: false
 
   /uuid/8.3.2:
     resolution:
