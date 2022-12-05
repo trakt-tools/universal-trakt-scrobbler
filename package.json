@@ -34,8 +34,8 @@
 		"history": "Do not update to v5 while using react-router-dom v5"
 	},
 	"dependencies": {
-		"@emotion/react": "^11.4.1",
-		"@emotion/styled": "^11.3.0",
+		"@emotion/react": "^11.10.5",
+		"@emotion/styled": "^11.10.5",
 		"@fontsource/roboto": "^4.5.0",
 		"@mui/icons-material": "^5.0.0",
 		"@mui/lab": "^5.0.0-alpha.47",
