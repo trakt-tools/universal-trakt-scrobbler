@@ -11,7 +11,7 @@ specifiers:
   '@babel/runtime': ^7.20.6
   '@emotion/react': ^11.10.5
   '@emotion/styled': ^11.10.5
-  '@fontsource/roboto': ^4.5.0
+  '@fontsource/roboto': ^4.5.8
   '@mui/icons-material': ^5.0.0
   '@mui/lab': ^5.0.0-alpha.47
   '@mui/material': ^5.0.0
@@ -80,7 +80,7 @@ specifiers:
 dependencies:
   '@emotion/react': 11.10.5_dde6eeb73e59e8f29fe28119bd6386e2
   '@emotion/styled': 11.10.5_709cb486af170390c06397de73e851d3
-  '@fontsource/roboto': 4.5.0
+  '@fontsource/roboto': 4.5.8
   '@mui/icons-material': 5.0.0_4e00b21f90bfa66c1dc75f1b04c9491b
   '@mui/lab': 5.0.0-alpha.47_5812dbf6ed4945d4502741b6f85e7d4c
   '@mui/material': 5.0.0_1883d1d6b395f7e628e9de4137ffa2cd
@@ -2054,10 +2054,10 @@ packages:
       - supports-color
     dev: true
 
-  /@fontsource/roboto/4.5.0:
+  /@fontsource/roboto/4.5.8:
     resolution:
       {
-        integrity: sha512-ja4XYw/9kNRFM5Ndk9vwzHWsdBMXczyBazFkTXJQ74QQBnT0BbSsHn0pF60AU0Iznig1Wt9x3rADfG8LANvMpw==,
+        integrity: sha512-CnD7zLItIzt86q4Sj3kZUiLcBk1dSk81qcqgMGaZe7SQ1P8hFNxhMl5AZthK1zrDM5m74VVhaOpuMGIL4gagaA==,
       }
     dev: false
 
