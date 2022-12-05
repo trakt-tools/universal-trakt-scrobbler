@@ -64,6 +64,7 @@ export class CacheItem<K extends keyof CacheValues> {
 	}
 
 	set(subKey: string, subValue: CacheSubValues[K]) {
+		// @ts-expect-error TODO: Type this better
 		this.cache[subKey] = {
 			value: subValue as never,
 			timestamp: Cache.timestamp,
