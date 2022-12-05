@@ -89,16 +89,20 @@ export const HistoryActions = (): JSX.Element => {
 					},
 				}}
 			>
-				<Button onClick={void onSyncClick} variant="contained">
+				<Button onClick={() => void onSyncClick()} variant="contained">
 					{I18N.translate('sync')}
 				</Button>
 				{!serviceId && (
-					<Button color="secondary" onClick={void onClearSyncCacheClick} variant="contained">
+					<Button
+						color="secondary"
+						onClick={() => void onClearSyncCacheClick()}
+						variant="contained"
+					>
 						{I18N.translate('clearSyncCache')}
 					</Button>
 				)}
 				{areItemsMissingWatchedDate && (
-					<Button onClick={void onAddDateClick} variant="contained">
+					<Button onClick={() => void onAddDateClick()} variant="contained">
 						{I18N.translate('addDate')}
 					</Button>
 				)}

@@ -94,7 +94,11 @@ export const HistoryHeader = (): JSX.Element => {
 					right={
 						<>
 							{isLoggedIn && (
-								<Button color="inherit" onClick={void onLogoutClick} startIcon={<ExitToAppIcon />}>
+								<Button
+									color="inherit"
+									onClick={() => void onLogoutClick()}
+									startIcon={<ExitToAppIcon />}
+								>
 									{I18N.translate('logout')}
 								</Button>
 							)}

@@ -112,7 +112,7 @@ export const PopupHeader = (): JSX.Element => {
 						<>
 							{isLoggedIn && (
 								<Tooltip title={I18N.translate('logout')}>
-									<IconButton color="inherit" onClick={void onLogoutClick}>
+									<IconButton color="inherit" onClick={() => void onLogoutClick()}>
 										<ExitToAppIcon />
 									</IconButton>
 								</Tooltip>

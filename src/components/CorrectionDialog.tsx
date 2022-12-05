@@ -79,7 +79,7 @@ const CorrectionItem = ({ correction, onClearButtonClick }: CorrectionItemProps)
 				secondary={I18N.translate('suggestedBy', correction.count.toString())}
 			/>
 			<ListItemSecondaryAction>
-				<Button variant="contained" color="error" onClick={void onClearButtonClick}>
+				<Button variant="contained" color="error" onClick={() => void onClearButtonClick()}>
 					{I18N.translate('clear')}
 				</Button>
 			</ListItemSecondaryAction>
