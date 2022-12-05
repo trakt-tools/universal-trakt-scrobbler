@@ -65,7 +65,7 @@ specifiers:
   react-router-dom: ^5.3.0
   react-virtualized-auto-sizer: ^1.0.7
   react-window: ^1.8.8
-  react-window-infinite-loader: ^1.0.7
+  react-window-infinite-loader: ^1.0.8
   rollbar: ^2.24.0
   string-replace-loader: ^3.1.0
   style-loader: ^3.3.1
@@ -95,7 +95,7 @@ dependencies:
   react-router-dom: 5.3.0_react@17.0.2
   react-virtualized-auto-sizer: 1.0.7_react-dom@17.0.2+react@17.0.2
   react-window: 1.8.8_react-dom@17.0.2+react@17.0.2
-  react-window-infinite-loader: 1.0.7_react-dom@17.0.2+react@17.0.2
+  react-window-infinite-loader: 1.0.8_react-dom@17.0.2+react@17.0.2
   rollbar: 2.24.0
   type-fest: 2.3.3
   webextension-polyfill: 0.8.0
@@ -7844,15 +7844,15 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
-  /react-window-infinite-loader/1.0.7_react-dom@17.0.2+react@17.0.2:
+  /react-window-infinite-loader/1.0.8_react-dom@17.0.2+react@17.0.2:
     resolution:
       {
-        integrity: sha512-wg3LWkUpG21lhv+cZvNy+p0+vtclZw+9nP2vO6T9PKT50EN1cUq37Dq6FzcM38h/c2domE0gsUhb6jHXtGogAA==,
+        integrity: sha512-907ZLAiZZfBHuZyiY0V7uiSL4P/rI6UQyCF9wES1cDWTeyNLgGLaxu+BZkcUW3R5tSCQcbCcWBl0jVIpYzrKGQ==,
       }
     engines: { node: '>8.0.0' }
     peerDependencies:
-      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
-      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
