@@ -60,7 +60,7 @@ export const HistoryHeader = (): JSX.Element => {
 							</Button>
 							<Button
 								color="inherit"
-								onClick={() => onLinkClick(browser.runtime.getURL('options.html'))}
+								onClick={() => void onLinkClick(browser.runtime.getURL('options.html'))}
 								startIcon={<SettingsIcon />}
 							>
 								{I18N.translate('options')}
@@ -94,7 +94,11 @@ export const HistoryHeader = (): JSX.Element => {
 					right={
 						<>
 							{isLoggedIn && (
-								<Button color="inherit" onClick={onLogoutClick} startIcon={<ExitToAppIcon />}>
+								<Button
+									color="inherit"
+									onClick={() => void onLogoutClick()}
+									startIcon={<ExitToAppIcon />}
+								>
 									{I18N.translate('logout')}
 								</Button>
 							)}

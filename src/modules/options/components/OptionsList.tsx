@@ -1,4 +1,5 @@
 import { OptionsDetails, StorageValuesOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import { Shared } from '@common/Shared';
 import { OptionsListItem } from '@components/OptionsListItem';
 import { ServiceOptions } from '@components/ServiceOptions';
@@ -30,7 +31,9 @@ export const OptionsList = ({ details }: OptionsListProps): JSX.Element => {
 					});
 				})
 				.catch(async (err) => {
-					Shared.errors.error('Failed to save option.', err);
+					if (Errors.validate(err)) {
+						Shared.errors.error('Failed to save option.', err);
+					}
 					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',

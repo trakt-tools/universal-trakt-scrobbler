@@ -71,7 +71,11 @@ export const HistoryListItemCard = ({
 			);
 		} else if (openMissingWatchedDateDialog) {
 			watchedAtComponent = (
-				<Button color="secondary" disabled={isLoading} onClick={openMissingWatchedDateDialog}>
+				<Button
+					color="secondary"
+					disabled={isLoading}
+					onClick={() => void openMissingWatchedDateDialog()}
+				>
 					<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
 				</Button>
 			);
@@ -142,7 +146,11 @@ export const HistoryListItemCard = ({
 								</>
 							)}
 							{openCorrectionDialog && (
-								<Button color="secondary" disabled={isLoading} onClick={openCorrectionDialog}>
+								<Button
+									color="secondary"
+									disabled={isLoading}
+									onClick={() => void openCorrectionDialog()}
+								>
 									<Typography variant="caption">
 										{I18N.translate('isThisWrong')}{' '}
 										{Shared.storage.options.sendReceiveSuggestions ? (

@@ -71,7 +71,7 @@ const _ServiceLastSyncOption = ({
 					color="secondary"
 					disabled={!sync || !autoSync}
 					size="small"
-					onClick={onClearLastSyncClick}
+					onClick={() => void onClearLastSyncClick()}
 				>
 					<ClearIcon fontSize="small" />
 				</IconButton>

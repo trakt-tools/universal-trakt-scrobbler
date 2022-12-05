@@ -43,7 +43,7 @@ interface SuggestionListItemData {
 
 interface CorrectionItemProps {
 	correction: Suggestion;
-	onClearButtonClick: () => void;
+	onClearButtonClick: () => Promisable<void>;
 }
 
 const SuggestionListItem = ({
@@ -79,7 +79,7 @@ const CorrectionItem = ({ correction, onClearButtonClick }: CorrectionItemProps)
 				secondary={I18N.translate('suggestedBy', correction.count.toString())}
 			/>
 			<ListItemSecondaryAction>
-				<Button variant="contained" color="error" onClick={onClearButtonClick}>
+				<Button variant="contained" color="error" onClick={() => void onClearButtonClick()}>
 					{I18N.translate('clear')}
 				</Button>
 			</ListItemSecondaryAction>
@@ -400,7 +400,7 @@ export const CorrectionDialog = (): JSX.Element => {
 						<Button
 							disabled={!dialog.url || urlError}
 							variant="contained"
-							onClick={() => onCorrectButtonClick()}
+							onClick={() => void onCorrectButtonClick()}
 						>
 							{I18N.translate('correct')}
 						</Button>

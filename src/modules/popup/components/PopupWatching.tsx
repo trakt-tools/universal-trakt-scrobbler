@@ -47,7 +47,7 @@ export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Eleme
 						) : (
 							<Typography variant="h6">{item.trakt?.title}</Typography>
 						)}
-						<Button color="secondary" onClick={openCorrectionDialog}>
+						<Button color="secondary" onClick={() => void openCorrectionDialog()}>
 							<Typography variant="caption">
 								{I18N.translate('isThisWrong')}{' '}
 								{Shared.storage.options.sendReceiveSuggestions ? (

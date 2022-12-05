@@ -128,7 +128,7 @@ const _HistoryListItem = ({
 							>
 								<Typography variant="body1">{I18N.translate('reachedLastSyncDate')}</Typography>
 							</Box>
-							<Button onClick={onContinueLoadingClick} variant="contained">
+							<Button onClick={() => void onContinueLoadingClick()} variant="contained">
 								{I18N.translate('continueLoading')}
 							</Button>
 						</>
@@ -142,7 +142,7 @@ const _HistoryListItem = ({
 						disabled={!item?.isSelectable()}
 						checked={item?.isSelected || false}
 						edge="start"
-						onChange={onCheckboxChange}
+						onChange={(event: ChangeEvent<HTMLInputElement>) => void onCheckboxChange(event)}
 						sx={{
 							alignSelf: 'center',
 						}}

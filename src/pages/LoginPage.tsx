@@ -56,7 +56,7 @@ export const LoginPage = (): JSX.Element => {
 			{isLoading ? (
 				<CircularProgress color="secondary" />
 			) : (
-				<Button color="secondary" onClick={onLoginClick} variant="contained">
+				<Button color="secondary" onClick={() => void onLoginClick()} variant="contained">
 					{I18N.translate('login')}
 				</Button>
 			)}

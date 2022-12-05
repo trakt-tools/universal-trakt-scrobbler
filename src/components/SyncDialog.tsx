@@ -89,7 +89,7 @@ export const SyncDialog = (): JSX.Element => {
 				</Center>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={cancelSync}>{I18N.translate('cancel')}</Button>
+				<Button onClick={() => void cancelSync()}>{I18N.translate('cancel')}</Button>
 			</DialogActions>
 		</CustomDialogRoot>
 	);

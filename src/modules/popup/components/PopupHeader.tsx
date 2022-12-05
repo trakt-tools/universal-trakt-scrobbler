@@ -77,7 +77,7 @@ export const PopupHeader = (): JSX.Element => {
 							<Tooltip title={I18N.translate('history')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('history.html'))}
+									onClick={() => void onLinkClick(browser.runtime.getURL('history.html'))}
 								>
 									<HistoryIcon />
 								</IconButton>
@@ -85,7 +85,7 @@ export const PopupHeader = (): JSX.Element => {
 							<Tooltip title={I18N.translate('options')}>
 								<IconButton
 									color="inherit"
-									onClick={() => onLinkClick(browser.runtime.getURL('options.html'))}
+									onClick={() => void onLinkClick(browser.runtime.getURL('options.html'))}
 								>
 									<SettingsIcon />
 								</IconButton>
@@ -98,7 +98,9 @@ export const PopupHeader = (): JSX.Element => {
 								>
 									<IconButton
 										color="inherit"
-										onClick={() => onLinkClick(browser.runtime.getURL('history.html#/auto-sync'))}
+										onClick={() =>
+											void onLinkClick(browser.runtime.getURL('history.html#/auto-sync'))
+										}
 									>
 										<SyncIcon color={syncButton.hasError ? 'secondary' : 'inherit'} />
 									</IconButton>
@@ -110,7 +112,7 @@ export const PopupHeader = (): JSX.Element => {
 						<>
 							{isLoggedIn && (
 								<Tooltip title={I18N.translate('logout')}>
-									<IconButton color="inherit" onClick={onLogoutClick}>
+									<IconButton color="inherit" onClick={() => void onLogoutClick()}>
 										<ExitToAppIcon />
 									</IconButton>
 								</Tooltip>

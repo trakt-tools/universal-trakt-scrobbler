@@ -1,4 +1,5 @@
 import { StorageValuesSyncOptions } from '@common/BrowserStorage';
+import { Errors } from '@common/Errors';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
 import { HistoryOptionsListItem } from '@components/HistoryOptionsListItem';
@@ -29,7 +30,9 @@ export const HistoryOptionsList = (): JSX.Element => {
 					});
 				})
 				.catch(async (err) => {
-					Shared.errors.error('Failed to save option.', err);
+					if (Errors.validate(err)) {
+						Shared.errors.error('Failed to save option.', err);
+					}
 					await Shared.events.dispatch('SNACKBAR_SHOW', null, {
 						messageName: 'saveOptionFailed',
 						severity: 'error',

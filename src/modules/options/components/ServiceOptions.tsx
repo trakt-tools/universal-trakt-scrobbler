@@ -57,8 +57,8 @@ export const ServiceOptions = ({ option }: ServiceOptionsProps): JSX.Element => 
 				/>
 				<ListItemSecondaryAction>
 					<ButtonGroup variant="contained">
-						<Button onClick={onSelectAllClick}>{I18N.translate('selectAll')}</Button>
-						<Button onClick={onSelectNoneClick}>{I18N.translate('selectNone')}</Button>
+						<Button onClick={() => void onSelectAllClick()}>{I18N.translate('selectAll')}</Button>
+						<Button onClick={() => void onSelectNoneClick()}>{I18N.translate('selectNone')}</Button>
 					</ButtonGroup>
 				</ListItemSecondaryAction>
 			</ListItem>
