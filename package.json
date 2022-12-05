@@ -56,9 +56,6 @@
 		"type-fest": "^3.3.0",
 		"webextension-polyfill": "^0.10.0"
 	},
-	"@comment devDependencies": {
-		"eslint-plugin-react": "v7.25.2 has a breaking bug"
-	},
 	"devDependencies": {
 		"@actions/core": "^1.10.0",
 		"@actions/github": "^5.1.1",
