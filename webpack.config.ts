@@ -235,7 +235,6 @@ const getManifest = (browserName: string): string => {
 			},
 		],
 		default_locale: 'en',
-		web_accessible_resources: ['images/*'],
 	};
 	switch (browserName) {
 		case 'chrome': {
