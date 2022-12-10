@@ -219,8 +219,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 };
 
 const getManifest = (browserName: string): string => {
-	const manifest: WebExtManifest.WebExtensionManifest & { key?: string } = {
-		manifest_version: 2,
+	const manifest: Partial<WebExtManifest.WebExtensionManifest> & { key?: string } = {
 		name: 'Universal Trakt Scrobbler',
 		version: packageJson.version,
 		description: '__MSG_appDescription__',
@@ -274,12 +273,14 @@ const getManifest = (browserName: string): string => {
 	};
 	switch (browserName) {
 		case 'chrome': {
+			manifest.manifest_version = 3;
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
 			break;
 		}
 		case 'firefox': {
+			manifest.manifest_version = 2;
 			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {
