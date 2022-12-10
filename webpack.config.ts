@@ -227,10 +227,6 @@ const getManifest = (browserName: string): string => {
 			16: 'images/uts-icon-16.png',
 			128: 'images/uts-icon-128.png',
 		},
-		background: {
-			scripts: ['background.js'],
-			persistent: true,
-		},
 		content_scripts: [
 			{
 				js: ['trakt.js'],
@@ -274,6 +270,9 @@ const getManifest = (browserName: string): string => {
 	switch (browserName) {
 		case 'chrome': {
 			manifest.manifest_version = 3;
+			manifest.background = {
+				service_worker: 'background.js',
+			};
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
@@ -281,6 +280,10 @@ const getManifest = (browserName: string): string => {
 		}
 		case 'firefox': {
 			manifest.manifest_version = 2;
+			manifest.background = {
+				scripts: ['background.js'],
+				persistent: false,
+			};
 			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {
