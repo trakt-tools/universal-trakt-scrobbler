@@ -235,17 +235,6 @@ const getManifest = (browserName: string): string => {
 			},
 		],
 		default_locale: 'en',
-		optional_permissions: [
-			'cookies',
-			'notifications',
-			'tabs',
-			'webRequest',
-			'webRequestBlocking',
-			'*://api.rollbar.com/*',
-			...Object.values(services)
-				.map((service) => service.hostPatterns)
-				.flat(),
-		],
 		browser_action: {
 			default_icon: {
 				19: 'images/uts-icon-19.png',
@@ -254,15 +243,6 @@ const getManifest = (browserName: string): string => {
 			default_popup: 'popup.html',
 			default_title: 'Universal Trakt Scrobbler',
 		},
-		permissions: [
-			'alarms',
-			'identity',
-			'storage',
-			'unlimitedStorage',
-			'*://*.trakt.tv/*',
-			'*://*.themoviedb.org/*',
-			'*://*.uts.rafaelgomes.xyz/*',
-		],
 		web_accessible_resources: ['images/*'],
 		// Uncomment this to connect to react-devtools
 		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
@@ -273,6 +253,20 @@ const getManifest = (browserName: string): string => {
 			manifest.background = {
 				service_worker: 'background.js',
 			};
+			manifest.optional_permissions = ['notifications', 'tabs'];
+			// @ts-expect-error This is a newer key, so it's missing from the types.
+			manifest.optional_host_permissions = [
+				'*://api.rollbar.com/*',
+				...Object.values(services)
+					.map((service) => service.hostPatterns)
+					.flat(),
+			];
+			manifest.permissions = ['alarms', 'identity', 'storage', 'unlimitedStorage'];
+			manifest.host_permissions = [
+				'*://*.trakt.tv/*',
+				'*://*.themoviedb.org/*',
+				'*://*.uts.rafaelgomes.xyz/*',
+			];
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
@@ -284,6 +278,26 @@ const getManifest = (browserName: string): string => {
 				scripts: ['background.js'],
 				persistent: false,
 			};
+			manifest.optional_permissions = [
+				'cookies',
+				'notifications',
+				'tabs',
+				'webRequest',
+				'webRequestBlocking',
+				'*://api.rollbar.com/*',
+				...Object.values(services)
+					.map((service) => service.hostPatterns)
+					.flat(),
+			];
+			manifest.permissions = [
+				'alarms',
+				'identity',
+				'storage',
+				'unlimitedStorage',
+				'*://*.trakt.tv/*',
+				'*://*.themoviedb.org/*',
+				'*://*.uts.rafaelgomes.xyz/*',
+			];
 			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {
