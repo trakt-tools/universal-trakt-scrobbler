@@ -231,7 +231,6 @@ const getManifest = (browserName: string): string => {
 			{
 				js: ['trakt.js'],
 				matches: ['*://*.trakt.tv/apps*'],
-				run_at: 'document_start',
 			},
 		],
 		default_locale: 'en',
@@ -250,7 +249,7 @@ const getManifest = (browserName: string): string => {
 					.map((service) => service.hostPatterns)
 					.flat(),
 			];
-			manifest.permissions = ['alarms', 'identity', 'storage', 'unlimitedStorage'];
+			manifest.permissions = ['alarms', 'identity', 'scripting', 'storage', 'unlimitedStorage'];
 			manifest.host_permissions = [
 				'*://*.trakt.tv/*',
 				'*://*.themoviedb.org/*',

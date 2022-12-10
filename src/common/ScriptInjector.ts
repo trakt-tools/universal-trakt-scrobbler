@@ -61,7 +61,6 @@ class _ScriptInjector {
 					hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
 				),
 				js: [`${service.id}.js`],
-				run_at: 'document_idle',
 			}));
 	}
 
@@ -93,15 +92,19 @@ class _ScriptInjector {
 		) {
 			return;
 		}
-		for (const { matches, js, run_at: runAt } of this.contentScripts) {
-			if (!js || !runAt) {
+		for (const { matches, js } of this.contentScripts) {
+			if (!js) {
 				continue;
 			}
 			const isMatch = matches.find((match) => tab.url?.match(match));
 			if (isMatch) {
 				this.injectedContentScriptTabs.add(tab.id);
 				for (const file of js) {
-					await browser.tabs.executeScript(tab.id, { file, runAt });
+					if (Shared.manifestVersion === 3) {
+						await browser.scripting.executeScript({ target: { tabId: tab.id }, files: [file] });
+					} else {
+						await browser.tabs.executeScript(tab.id, { file });
+					}
 				}
 				break;
 			}
