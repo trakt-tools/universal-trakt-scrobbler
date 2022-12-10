@@ -244,8 +244,6 @@ const getManifest = (browserName: string): string => {
 			default_title: 'Universal Trakt Scrobbler',
 		},
 		web_accessible_resources: ['images/*'],
-		// Uncomment this to connect to react-devtools
-		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
 	};
 	switch (browserName) {
 		case 'chrome': {
@@ -298,6 +296,9 @@ const getManifest = (browserName: string): string => {
 				'*://*.themoviedb.org/*',
 				'*://*.uts.rafaelgomes.xyz/*',
 			];
+			// Uncomment this to connect to react-devtools
+			// manifest.content_security_policy =
+			// 	"script-src 'self' http://localhost:8097; object-src 'self'";
 			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {
