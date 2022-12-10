@@ -11,6 +11,7 @@ export interface BrowserActionRotating {
 }
 
 class _BrowserAction {
+	instance = Shared.manifestVersion === 3 ? browser.action : browser.browserAction;
 	currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 	rotating: BrowserActionRotating | null = null;
 
@@ -30,7 +31,7 @@ class _BrowserAction {
 
 	async setTitle(title = 'Universal Trakt Scrobbler'): Promise<void> {
 		if (Shared.pageType === 'background') {
-			await browser.browserAction.setTitle({ title });
+			await this.instance.setTitle({ title });
 		} else {
 			await Messaging.toExtension({ action: 'set-title', title });
 		}
@@ -43,7 +44,7 @@ class _BrowserAction {
 				await this.setStaticIcon();
 				await this.setRotatingIcon();
 			} else {
-				await browser.browserAction.setIcon({
+				await this.instance.setIcon({
 					path: this.currentIcon,
 				});
 			}
@@ -59,7 +60,7 @@ class _BrowserAction {
 				await this.setStaticIcon();
 				await this.setRotatingIcon();
 			} else {
-				await browser.browserAction.setIcon({
+				await this.instance.setIcon({
 					path: this.currentIcon,
 				});
 			}
@@ -114,7 +115,7 @@ class _BrowserAction {
 		context.rotate((degrees * Math.PI) / 180);
 		context.drawImage(image, -(image.width / 2), -(image.height / 2));
 
-		await browser.browserAction.setIcon({
+		await this.instance.setIcon({
 			imageData: context.getImageData(
 				0,
 				0,

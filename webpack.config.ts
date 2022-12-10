@@ -235,14 +235,6 @@ const getManifest = (browserName: string): string => {
 			},
 		],
 		default_locale: 'en',
-		browser_action: {
-			default_icon: {
-				19: 'images/uts-icon-19.png',
-				38: 'images/uts-icon-38.png',
-			},
-			default_popup: 'popup.html',
-			default_title: 'Universal Trakt Scrobbler',
-		},
 		web_accessible_resources: ['images/*'],
 	};
 	switch (browserName) {
@@ -265,6 +257,14 @@ const getManifest = (browserName: string): string => {
 				'*://*.themoviedb.org/*',
 				'*://*.uts.rafaelgomes.xyz/*',
 			];
+			manifest.action = {
+				default_icon: {
+					19: 'images/uts-icon-19.png',
+					38: 'images/uts-icon-38.png',
+				},
+				default_popup: 'popup.html',
+				default_title: 'Universal Trakt Scrobbler',
+			};
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
@@ -296,6 +296,14 @@ const getManifest = (browserName: string): string => {
 				'*://*.themoviedb.org/*',
 				'*://*.uts.rafaelgomes.xyz/*',
 			];
+			manifest.browser_action = {
+				default_icon: {
+					19: 'images/uts-icon-19.png',
+					38: 'images/uts-icon-38.png',
+				},
+				default_popup: 'popup.html',
+				default_title: 'Universal Trakt Scrobbler',
+			};
 			// Uncomment this to connect to react-devtools
 			// manifest.content_security_policy =
 			// 	"script-src 'self' http://localhost:8097; object-src 'self'";
