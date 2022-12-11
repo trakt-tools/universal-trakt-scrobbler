@@ -1,4 +1,4 @@
-import { withHeaders, withRateLimit } from '@common/Requests';
+import { Requests, withHeaders } from '@common/Requests';
 import { Shared } from '@common/Shared';
 
 export class TraktApi {
@@ -15,17 +15,7 @@ export class TraktApi {
 	SYNC_URL: string;
 	SETTINGS_URL: string;
 
-	requests = withRateLimit({
-		id: 'trakt-api',
-
-		/**
-		 * @see https://trakt.docs.apiary.io/#introduction/rate-limiting
-		 */
-		maxRPS: {
-			'*': 1,
-			GET: 3,
-		},
-	});
+	requests = Requests;
 
 	isActivated = false;
 

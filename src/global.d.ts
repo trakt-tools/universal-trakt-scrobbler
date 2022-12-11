@@ -10,6 +10,8 @@ declare let cloneInto: <T>(value: T, window: Window) => T;
 
 declare type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 
+declare type PromiseReject = (value: Error) => void;
+
 declare type Messages = typeof import('@locales/en/messages.json');
 
 declare type MessageName = keyof Messages;
