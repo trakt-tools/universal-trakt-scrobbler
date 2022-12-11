@@ -25,13 +25,11 @@
 4. Click "Load unpacked"
 5. Select the folder you unzipped
 
-### Loading the extension manually on Firefox
+### Loading the extension on Firefox
 
-1. Go to about:debugging#/runtime/this-firefox
-2. Click "Load Temporary Add-on"
-3. Select `firefox.zip`
+The extension is available in the Firefox store. Install it from [here](https://addons.mozilla.org/en-US/firefox/addon/universal-trakt-scrobbler/).
 
-We are working on getting the extension in the Chrome and Firefox stores ASAP.
+We are working on getting the extension in the Chrome and store ASAP.
 
 ### Table of Contents
 
