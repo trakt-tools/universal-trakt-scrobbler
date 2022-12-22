@@ -397,9 +397,6 @@ class _BrowserStorage {
 			const { options } = await this.get('options');
 
 			if (options?.services && 'crunchyroll-beta' in options.services) {
-				options.services['crunchyroll'] = options.services['crunchyroll-beta'];
-				options.services['crunchyroll'].lastSync = 0;
-				options.services['crunchyroll'].lastSyncId = '';
 				delete options.services['crunchyroll-beta'];
 
 				await this.doSet({ options }, true);
