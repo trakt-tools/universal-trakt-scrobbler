@@ -55,27 +55,28 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 <!-- services-start -->
 <!-- Update this section with `npx trakt-tools dev update-readme` -->
 
-| Streaming Service | Scrobble | Sync | Limitations                     |
-| :---------------: | :------: | :--: | :------------------------------ |
-|   Amazon Prime    |    ✔️    |  ✔️  | -                               |
-|       AMC+        |    ✔️    |  ❌  | -                               |
-| Crunchyroll Beta  |    ❌    |  ✔️  | Can't identify movies as movies |
-|      Disney+      |    ✔️    |  ❌  | -                               |
-|     GoPlay BE     |    ✔️    |  ❌  | -                               |
-|      HBO Go       |    ✔️    |  ❌  | -                               |
-|      HBO Max      |    ✔️    |  ✔️  | -                               |
-|      Hotstar      |    ✔️    |  ❌  | -                               |
-|      Kijk.nl      |    ✔️    |  ❌  | -                               |
-|      Netflix      |    ✔️    |  ✔️  | -                               |
-|        NRK        |    ✔️    |  ✔️  | -                               |
-|     Player.pl     |    ✔️    |  ❌  | -                               |
-|  Polsatboxgo.pl   |    ✔️    |  ❌  | -                               |
-|       Star+       |    ✔️    |  ❌  | -                               |
-|    Streamz BE     |    ✔️    |  ❌  | -                               |
-|      Viaplay      |    ✔️    |  ✔️  | -                               |
-|     VRTNu BE      |    ✔️    |  ❌  | -                               |
-|     VTMGo BE      |    ✔️    |  ❌  | -                               |
-|    Wakanim.tv     |    ✔️    |  ❌  | -                               |
+| Streaming Service | Scrobble | Sync | Limitations |
+| :---------------: | :------: | :--: | :---------- |
+|   Amazon Prime    |    ✔️    |  ✔️  | -           |
+|       AMC+        |    ✔️    |  ❌  | -           |
+| Crunchyroll Beta  |    ❌    |  ✔️  | -           |
+|      Disney+      |    ✔️    |  ❌  | -           |
+|     GoPlay BE     |    ✔️    |  ❌  | -           |
+|      HBO Go       |    ✔️    |  ❌  | -           |
+|      HBO Max      |    ✔️    |  ✔️  | -           |
+|      Hotstar      |    ✔️    |  ❌  | -           |
+|      Kijk.nl      |    ✔️    |  ❌  | -           |
+|      Netflix      |    ✔️    |  ✔️  | -           |
+|        NRK        |    ✔️    |  ✔️  | -           |
+|     Player.pl     |    ✔️    |  ❌  | -           |
+|  Polsatboxgo.pl   |    ✔️    |  ❌  | -           |
+|       Star+       |    ✔️    |  ❌  | -           |
+|    Streamz BE     |    ✔️    |  ❌  | -           |
+|      Tet TV+      |    ✔️    |  ❌  | -           |
+|      Viaplay      |    ✔️    |  ✔️  | -           |
+|     VRTNu BE      |    ✔️    |  ❌  | -           |
+|     VTMGo BE      |    ✔️    |  ❌  | -           |
+|    Wakanim.tv     |    ✔️    |  ❌  | -           |
 
 <!-- services-end -->
 
