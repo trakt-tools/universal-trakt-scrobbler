@@ -61,6 +61,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |       AMC+        |    ✔️    |  ❌  | -                               |
 | Crunchyroll Beta  |    ❌    |  ✔️  | Can't identify movies as movies |
 |      Disney+      |    ✔️    |  ❌  | -                               |
+|        Go3        |    ✔️    |  ❌  | -                               |
 |     GoPlay BE     |    ✔️    |  ❌  | -                               |
 |      HBO Go       |    ✔️    |  ❌  | -                               |
 |      HBO Max      |    ✔️    |  ✔️  | -                               |
