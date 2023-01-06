@@ -328,7 +328,7 @@ class _NetflixApi extends ServiceApi {
 			// `hiddenEpisodeNumbers` is `true` for collections
 			// In this case, the episode should be searched by title instead of season and number,
 			// because the numbering differs between Netflix and Trakt.tv for collections
-			if (!historyItem.season?.summary.hiddenEpisodeNumbers) {
+			if (historyItem.season?.summary.hiddenEpisodeNumbers === false) {
 				season = historyItem.summary.season || 0;
 				number = historyItem.summary.episode || 0;
 			}
