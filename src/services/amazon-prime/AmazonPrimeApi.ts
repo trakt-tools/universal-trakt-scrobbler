@@ -84,7 +84,7 @@ export interface AmazonPrimeEnrichmentsResponse {
 export interface AmazonPrimeMetadataItem {
 	catalogMetadata: {
 		catalog: {
-			entityType: 'TV Show' | 'Movie';
+			entityType: 'TV Show' | 'Movie' | 'Trailer' | 'Bonus Content';
 			episodeNumber?: number;
 			id: string;
 			title: string;
@@ -366,8 +366,8 @@ class _AmazonPrimeApi extends ServiceApi {
 		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
-		const type = entityType === 'TV Show' ? 'show' : 'movie';
-		if (type === 'show') {
+
+		if (entityType === 'TV Show' || entityType === 'Bonus Content') {
 			let title = '';
 			let season = 0;
 			if (family) {
