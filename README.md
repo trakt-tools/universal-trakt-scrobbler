@@ -73,6 +73,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |  Polsatboxgo.pl   |    ✔️    |  ❌  | -                               |
 |       Star+       |    ✔️    |  ❌  | -                               |
 |    Streamz BE     |    ✔️    |  ❌  | -                               |
+|      Tet TV+      |    ✔️    |  ❌  | -                               |
 |      Viaplay      |    ✔️    |  ✔️  | -                               |
 |     VRTNu BE      |    ✔️    |  ❌  | -                               |
 |     VTMGo BE      |    ✔️    |  ❌  | -                               |
