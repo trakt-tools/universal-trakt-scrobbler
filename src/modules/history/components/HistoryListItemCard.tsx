@@ -132,7 +132,14 @@ export const HistoryListItemCard = ({
 									{item.season > 0 && item.number > 0 && (
 										<Typography variant="overline">{`S${item.season} E${item.number}`}</Typography>
 									)}
-									<Typography variant="h6">{item.title}</Typography>
+									<Typography
+										variant="h6"
+										noWrap
+										style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}
+										title={item.title}
+									>
+										{item.title}
+									</Typography>
 									<Typography variant="subtitle2">{item.show.title}</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
