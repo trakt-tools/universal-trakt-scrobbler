@@ -188,7 +188,7 @@ class _NetflixApi extends ServiceApi {
 				});
 				this.session = this.extractSession(responseText);
 			}
-			if (this.session) {
+			if (this.session && this.session.profileName) {
 				this.isActivated = true;
 			}
 		} catch (err) {
