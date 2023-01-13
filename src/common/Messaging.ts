@@ -241,13 +241,17 @@ class _Messaging {
 			response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
 		} catch (err) {
 			if (err instanceof Error) {
-				const messagingError = JSON.parse(err.message) as MessagingError;
-				switch (messagingError.instance) {
-					case 'Error':
-						throw new Error(messagingError.data.message);
+				try {
+					const messagingError = JSON.parse(err.message) as MessagingError;
+					switch (messagingError.instance) {
+						case 'Error':
+							throw new Error(messagingError.data.message);
 
-					case 'RequestError':
-						throw new RequestError(messagingError.data);
+						case 'RequestError':
+							throw new RequestError(messagingError.data);
+					}
+				} catch (_) {
+					throw err;
 				}
 			}
 		}
