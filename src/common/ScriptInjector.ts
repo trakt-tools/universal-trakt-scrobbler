@@ -1,6 +1,7 @@
 import { TraktScrobble } from '@apis/TraktScrobble';
 import { ContentScriptConnectData, StorageOptionsChangeData } from '@common/Events';
 import { Messaging } from '@common/Messaging';
+import { SessionStorage } from '@common/SessionStorage';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { getServices } from '@models/Service';
@@ -15,7 +16,6 @@ export interface ScriptInjectorMessage {
 
 class _ScriptInjector {
 	contentScripts: WebExtManifest.ContentScript[] | null = null;
-	injectedContentScriptTabs = new Set();
 	injectedScriptIds = new Set<string>();
 
 	init() {
@@ -40,8 +40,13 @@ class _ScriptInjector {
 	};
 
 	private onContentScriptDisconnect = async (data: ContentScriptConnectData) => {
-		if (this.injectedContentScriptTabs.has(data.tabId)) {
-			this.injectedContentScriptTabs.delete(data.tabId);
+		const values = await SessionStorage.get('injectedContentScriptTabs');
+		const injectedContentScriptTabs = new Set(values.injectedContentScriptTabs ?? []);
+		if (injectedContentScriptTabs.has(data.tabId)) {
+			injectedContentScriptTabs.delete(data.tabId);
+			await SessionStorage.set({
+				injectedContentScriptTabs: Array.from(injectedContentScriptTabs),
+			});
 		}
 		const { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
 		if (scrobblingDetails && data.tabId === scrobblingDetails.tabId) {
@@ -77,18 +82,36 @@ class _ScriptInjector {
 		}
 	}
 
-	onTabUpdated = (_: unknown, __: unknown, tab: WebExtTabs.Tab) => {
-		void this.injectContentScript(tab);
+	onTabUpdated = (
+		_: unknown,
+		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
+		tab: WebExtTabs.Tab
+	) => {
+		void this.injectContentScript(changeInfo, tab);
 	};
 
-	async injectContentScript(tab: Partial<WebExtTabs.Tab>) {
+	async injectContentScript(
+		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
+		tab: Partial<WebExtTabs.Tab>
+	) {
+		const values = await SessionStorage.get('injectedContentScriptTabs');
+		const injectedContentScriptTabs = new Set(values.injectedContentScriptTabs ?? []);
+		if (
+			tab.id &&
+			injectedContentScriptTabs.has(tab.id) &&
+			changeInfo.status === 'loading' &&
+			typeof changeInfo.url === 'undefined'
+		) {
+			void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId: tab.id });
+			return;
+		}
 		if (
 			!this.contentScripts ||
 			tab.status !== 'complete' ||
 			!tab.id ||
 			!tab.url ||
 			!tab.url.startsWith('http') ||
-			this.injectedContentScriptTabs.has(tab.id)
+			injectedContentScriptTabs.has(tab.id)
 		) {
 			return;
 		}
@@ -98,7 +121,10 @@ class _ScriptInjector {
 			}
 			const isMatch = matches.find((match) => tab.url?.match(match));
 			if (isMatch) {
-				this.injectedContentScriptTabs.add(tab.id);
+				injectedContentScriptTabs.add(tab.id);
+				await SessionStorage.set({
+					injectedContentScriptTabs: Array.from(injectedContentScriptTabs),
+				});
 				for (const file of js) {
 					if (Shared.manifestVersion === 3) {
 						await browser.scripting.executeScript({ target: { tabId: tab.id }, files: [file] });

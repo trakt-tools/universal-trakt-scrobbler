@@ -9,8 +9,11 @@ import { HistoryApp } from '@history/HistoryApp';
 import { GlobalStyles } from '@mui/material';
 import ReactDOM from 'react-dom';
 
+Shared.pageType = 'popup';
+
+Messaging.addListeners();
+
 const init = async () => {
-	Shared.pageType = 'popup';
 	await BrowserStorage.init();
 	Errors.init();
 	EventDispatcher.init();

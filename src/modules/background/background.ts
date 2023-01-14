@@ -19,11 +19,13 @@ import '@images/uts-icon-38.png';
 import '@images/uts-icon-selected-19.png';
 import '@images/uts-icon-selected-38.png';
 
+Shared.pageType = 'background';
+
 Cache.addBackgroundListeners();
 AutoSync.addBackgroundListeners();
+Messaging.addListeners();
 
 const init = async () => {
-	Shared.pageType = 'background';
 	await BrowserStorage.init();
 	BrowserAction.init();
 	Errors.init();
@@ -38,6 +40,8 @@ const init = async () => {
 };
 
 Messaging.addHandlers({
+	'connect-content-script': (message, tabId) => Messaging.connectContentScript(message, tabId),
+
 	'open-tab': (message) => Tabs.open(message.url, message.extraProperties),
 
 	'get-tab-id': (message, tabId) => tabId,

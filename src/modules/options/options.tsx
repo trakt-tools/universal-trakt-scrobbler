@@ -7,8 +7,11 @@ import { AppWrapper } from '@components/AppWrapper';
 import { OptionsApp } from '@options/OptionsApp';
 import ReactDOM from 'react-dom';
 
+Shared.pageType = 'popup';
+
+Messaging.addListeners();
+
 const init = async () => {
-	Shared.pageType = 'popup';
 	await BrowserStorage.init();
 	Errors.init();
 	EventDispatcher.init();

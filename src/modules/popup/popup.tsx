@@ -8,8 +8,11 @@ import { AppWrapper } from '@components/AppWrapper';
 import { PopupApp } from '@popup/PopupApp';
 import ReactDOM from 'react-dom';
 
+Shared.pageType = 'popup';
+
+Messaging.addListeners();
+
 const init = async () => {
-	Shared.pageType = 'popup';
 	await BrowserStorage.init();
 	Errors.init();
 	EventDispatcher.init();
