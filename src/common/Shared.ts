@@ -23,6 +23,8 @@ export interface SharedValues {
 	errors: typeof Errors;
 	events: typeof EventDispatcher;
 
+	functionsToInject: Record<string, () => unknown>;
+
 	waitForInit: () => Promise<unknown>;
 	finishInit: () => void;
 }
@@ -66,6 +68,8 @@ export const Shared: SharedValues = {
 	storage: {} as typeof BrowserStorage,
 	errors: {} as typeof Errors,
 	events: {} as typeof EventDispatcher,
+
+	functionsToInject: {},
 
 	waitForInit: () => initPromise,
 	finishInit: () => initPromiseResolve(null),

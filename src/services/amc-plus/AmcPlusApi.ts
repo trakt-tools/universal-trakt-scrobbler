@@ -163,24 +163,25 @@ class _AmcPlusApi extends ServiceApi {
 		const result = await ScriptInjector.inject<Partial<AmcPlusSession>>(
 			this.id,
 			'session',
-			this.HOST_URL,
-			() => {
-				const session: Partial<AmcPlusSession> = {};
-
-				const accessToken = window.localStorage.getItem('access_token') ?? '';
-				const cacheHash = window.localStorage.getItem('cache_hash') ?? '';
-				const userCacheHash = window.localStorage.getItem('user_cache_hash') ?? '';
-				session.auth = {
-					accessToken,
-					cacheHash,
-					userCacheHash,
-				};
-
-				return session;
-			}
+			this.HOST_URL
 		);
 		return result;
 	}
 }
+
+Shared.functionsToInject[`${AmcPlusService.id}-session`] = () => {
+	const session: Partial<AmcPlusSession> = {};
+
+	const accessToken = window.localStorage.getItem('access_token') ?? '';
+	const cacheHash = window.localStorage.getItem('cache_hash') ?? '';
+	const userCacheHash = window.localStorage.getItem('user_cache_hash') ?? '';
+	session.auth = {
+		accessToken,
+		cacheHash,
+		userCacheHash,
+	};
+
+	return session;
+};
 
 export const AmcPlusApi = new _AmcPlusApi();

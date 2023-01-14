@@ -1,6 +1,7 @@
 import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
+import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import {
 	BaseItemValues,
@@ -333,5 +334,17 @@ class _NrkApi extends ServiceApi {
 		});
 	}
 }
+
+Shared.functionsToInject[`${NrkService.id}-item-id`] = () => {
+	let itemId: string | null = null;
+	const { player } = window;
+	if (player) {
+		const playbackSession = player.getPlaybackSession();
+		if (playbackSession) {
+			itemId = playbackSession.mediaItem?.id ?? null;
+		}
+	}
+	return itemId;
+};
 
 export const NrkApi = new _NrkApi();

@@ -25,6 +25,7 @@ export interface MessageRequests {
 	'dispatch-event': DispatchEventMessage;
 	'send-to-all-content': SendToAllContentMessage;
 	'inject-function': InjectFunctionMessage;
+	'inject-function-from-background': InjectFunctionFromBackgroundMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
@@ -46,6 +47,7 @@ export interface ReturnTypes {
 	'dispatch-event': void;
 	'send-to-all-content': void;
 	'inject-function': unknown;
+	'inject-function-from-background': unknown;
 }
 
 export interface OpenTabMessage {
@@ -124,8 +126,12 @@ export interface InjectFunctionMessage {
 	serviceId: string;
 	key: string;
 	url: string;
-	fnStr: string;
-	fnParamsStr: string;
+	params: Record<string, unknown>;
+}
+
+export interface InjectFunctionFromBackgroundMessage extends Omit<InjectFunctionMessage, 'action'> {
+	action: 'inject-function-from-background';
+	tabId: number | null;
 }
 
 export type MessageHandlers = {

@@ -445,19 +445,7 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	getSession(): Promise<NetflixSession | null> {
-		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '', () => {
-			let session: NetflixSession | null = null;
-			const { netflix } = window;
-			if (netflix) {
-				const { userInfo } = netflix.reactContext.models;
-				const authUrl = userInfo.data.authURL;
-				const profileName = userInfo.data.name;
-				if (authUrl) {
-					session = { authUrl, profileName };
-				}
-			}
-			return session;
-		});
+		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '');
 	}
 
 	extractSession(text: string): NetflixSession | null {
@@ -472,5 +460,19 @@ class _NetflixApi extends ServiceApi {
 		return session;
 	}
 }
+
+Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
+	let session: NetflixSession | null = null;
+	const { netflix } = window;
+	if (netflix) {
+		const { userInfo } = netflix.reactContext.models;
+		const authUrl = userInfo.data.authURL;
+		const profileName = userInfo.data.name;
+		if (authUrl) {
+			session = { authUrl, profileName };
+		}
+	}
+	return session;
+};
 
 export const NetflixApi = new _NetflixApi();

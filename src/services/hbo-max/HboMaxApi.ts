@@ -432,27 +432,7 @@ class _HboMaxApi extends ServiceApi {
 		const result = await ScriptInjector.inject<Partial<HboMaxSession>>(
 			this.id,
 			'session',
-			this.HOST_URL,
-			() => {
-				const session: Partial<HboMaxSession> = {};
-
-				const authStr = window.localStorage.getItem('authToken');
-				if (authStr) {
-					const authObj = JSON.parse(authStr) as HboMaxAuthObj;
-					session.auth = {
-						accessToken: authObj.access_token,
-						refreshToken: authObj.refresh_token,
-						expiresAt: authObj.expires_on,
-					};
-				}
-
-				const deviceSerialNumber = window.localStorage.getItem('deviceSerialNumber');
-				if (deviceSerialNumber) {
-					session.deviceSerialNumber = deviceSerialNumber;
-				}
-
-				return session;
-			}
+			this.HOST_URL
 		);
 		if (result?.auth) {
 			result.auth.expiresAt = Utils.unix(result.auth.expiresAt);
@@ -460,5 +440,26 @@ class _HboMaxApi extends ServiceApi {
 		return result;
 	}
 }
+
+Shared.functionsToInject[`${HboMaxService.id}-session`] = () => {
+	const session: Partial<HboMaxSession> = {};
+
+	const authStr = window.localStorage.getItem('authToken');
+	if (authStr) {
+		const authObj = JSON.parse(authStr) as HboMaxAuthObj;
+		session.auth = {
+			accessToken: authObj.access_token,
+			refreshToken: authObj.refresh_token,
+			expiresAt: authObj.expires_on,
+		};
+	}
+
+	const deviceSerialNumber = window.localStorage.getItem('deviceSerialNumber');
+	if (deviceSerialNumber) {
+		session.deviceSerialNumber = deviceSerialNumber;
+	}
+
+	return session;
+};
 
 export const HboMaxApi = new _HboMaxApi();

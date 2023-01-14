@@ -65,6 +65,9 @@ Messaging.addHandlers({
 	'show-notification': (message) => Notifications.show(message.title, message.message),
 
 	'send-to-all-content': (message) => Messaging.toAllContent(message.message),
+
+	'inject-function-from-background': ({ serviceId, key, url, params, tabId }) =>
+		ScriptInjector.injectInTab(serviceId, key, url, params, tabId),
 });
 
 void init();

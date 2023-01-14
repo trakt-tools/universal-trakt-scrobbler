@@ -21,6 +21,6 @@ export const init = async (serviceId: string): Promise<void> => {
 };
 
 Messaging.addHandlers({
-	'inject-function': ({ serviceId, key, url, fnStr, fnParamsStr }) =>
-		ScriptInjector.inject(serviceId, key, url, fnStr, fnParamsStr),
+	'inject-function': ({ serviceId, key, url, params }) =>
+		ScriptInjector.inject(serviceId, key, url, params),
 });
