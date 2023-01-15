@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Impossibile sincronizzare gli elementi"
 	},
+	"clear": {
+		"message": "Pulisci"
+	},
 	"clearCaches": {
 		"message": "Cancella i dati salvati nella cache"
 	},
@@ -139,6 +142,9 @@
 	"couldNotScrobble": {
 		"message": "Impossibile registrare le preferenze."
 	},
+	"currentCorrection": {
+		"message": "Attualmente corretto a"
+	},
 	"darkTheme": {
 		"message": "Scuro"
 	},
@@ -221,6 +227,12 @@
 	},
 	"loadHistoryError": {
 		"message": "Impossibile caricare la cronologia di riproduzione."
+	},
+	"loadImages": {
+		"message": "Load images."
+	},
+	"loadImagesDescription": {
+		"message": "With this option disabled, images for the scrobbling item and for the history items will not be loaded. This is useful for slower connections, where loading images significantly slows down the extension."
 	},
 	"loadTraktHistoryError": {
 		"message": "Impossibile caricare la cronologia di Trakt."
