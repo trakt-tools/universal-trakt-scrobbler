@@ -150,7 +150,7 @@ class _Requests {
 		if (!Shared.storage.options.grantCookies || !browser.cookies || !browser.webRequest) {
 			return;
 		}
-		const domainMatches = /https?:\/\/(?:www\.)?(?:.+?)(?<domain>\/.*)?$/.exec(request.url);
+		const domainMatches = /https?:\/\/(?:www\.)?(?<domain>.+?)(?:\/.*)?$/.exec(request.url);
 		if (!domainMatches?.groups) {
 			return;
 		}
