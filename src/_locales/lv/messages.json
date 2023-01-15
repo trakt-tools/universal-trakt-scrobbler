@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "Par"
+	},
+	"aboutMessage": {
+		"message": "Nosūti savas aktivitātes no iecienītākajām straumēšanas platformām uz Trakt.tv!"
+	},
+	"add": {
+		"message": "Pievienot"
+	},
+	"addDate": {
+		"message": "Pievienot datumu"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Neizdevās pievienot trūkstošos skatīšanās datumus."
+	},
+	"addWithReleaseDate": {
+		"message": "Pievienot ar izlaišanas datumu."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Pievienot ar izlaišanas datumu tikai tos vienumus, kuriem trūkst skatīšanās datuma."
+	},
+	"allowRollbar": {
+		"message": "Atļaut Rollbar vākt informāciju par kļūdām."
+	},
+	"allowRollbarDescription": {
+		"message": "Ja šī opcija ir iespējota, ikreiz, kad rodas kļūda, informācija par to tiks apkopota un nosūtīta mums, lai mēs varētu ātrāk to novērst un uzlabot paplašinājumu. Šī informācija ietver: kļūdas rašanās laiku, kļūdas izsekošanu, pārlūkprogrammas nosaukumu un versiju, kā arī OS nosaukumu. Šie dati netiek koplietoti ne ar vienu citu pakalpojumu."
+	},
+	"appDescription": {
+		"message": "Universāla Trakt.tv sinhronizācija."
+	},
+	"autoSync": {
+		"message": "Automātiska sinhronizācija"
+	},
+	"autoSyncNotActivated": {
+		"message": "Automātiskā sinhronizācija nav aktivizēta. Vispirms vēstures lapā ir jāveic manuāla sinhronizācija, lai varētu saglabāt pēdējās sinhronizācijas datumu."
+	},
+	"autoSyncPageMessage": {
+		"message": "Šie ir vienumi, kas tika automātiski sinhronizēti vai kuriem neizdevās automātiski sinhronizēt kopš pēdējās pārskatīšanas. Ja nepieciešami labojumi, veic tos, atlasi labojamos vienumus un noklikšķini uz pogas Sinhronizēt. Kad to izdarīsi, kešatmiņa tiks dzēsta, un šie vienumi vairs netiks rādīti šajā lapā. Ja labojumi nav nepieciešami, vienkārši noklikšķini uz pogas Notīrīt sinhronizācijas kešatmiņu, un notiks tas pats."
+	},
+	"autoSyncing": {
+		"message": "Automātiski sinhronizē..."
+	},
+	"cancel": {
+		"message": "Atcelt"
+	},
+	"cannotSync": {
+		"message": "Nevar sinhronizēt vienumus"
+	},
+	"clear": {
+		"message": "Notīrīt"
+	},
+	"clearCaches": {
+		"message": "Notīrīt kešatmiņu"
+	},
+	"clearCachesFailed": {
+		"message": "Neizdevās notīrīt kešatmiņu."
+	},
+	"clearCachesSuccess": {
+		"message": "Kešatmiņa notīrīta."
+	},
+	"clearLastSync": {
+		"message": "Notīrīt pēdējās sinhronizācijas datumu"
+	},
+	"clearStorage": {
+		"message": "Notīrīt krātuvi"
+	},
+	"clearStorageFailed": {
+		"message": "Neizdevās notīrīt krātuvi."
+	},
+	"clearStorageSuccess": {
+		"message": "Krātuve notīrīta."
+	},
+	"clearSyncCache": {
+		"message": "Notīrīt sinhronizācijas kešatmiņu"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Aizvērt"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Tiks notīrīta visa kešatmiņa, izņemot sinhronizācijas kešatmiņu."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Notīrīt kešatmiņu?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Lai atkārtoti aktivizētu automātisko sinhronizāciju, straumēšanas platformas vēstures lapā vēlreiz būs jāveic manuāla sinhronizācija."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Notīrīt $SERVICE$ pēdējās sinhronizācijas datumu?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "Visas opcijas tiks atiestatītas uz noklusējuma vērtībām, un tev būs jāpiesakās vēlreiz."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Notīrīt krātuvi?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Visi pašreizējās lapas vienumi tiks noņemti no kešatmiņas, un tu vairs nevarēsi tos pārskatīt."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Notīrīt sinhronizācijas kešatmiņu?"
+	},
+	"continueLoading": {
+		"message": "Turpināt ielādi"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Labot"
+	},
+	"correctItem": {
+		"message": "Labot vienumu"
+	},
+	"correctItemFailed": {
+		"message": "Neizdevās izlabot vienumu."
+	},
+	"correctionDialogContent": {
+		"message": "Zemāk esošajā laukā ievadiet pareizo $TITLE$ Trakt URL.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Zemāk esošajā laukā ievadiet pareizo $TITLE$ Trakt URL vai izmantojiet kādu no ieteikumiem.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "BRĪDINĀJUMS: Tu labo vienumu, kas jau bija sinhronizēts. Ja turpināsi, iepriekš sinhronizētais vienums tiks noņemts no Trakt vēstures."
+	},
+	"couldNotScrobble": {
+		"message": "Tiešā sinhronizācija (scrobble) neizdevās."
+	},
+	"currentCorrection": {
+		"message": "Pašlaik labots uz"
+	},
+	"darkTheme": {
+		"message": "Tumšs"
+	},
+	"days": {
+		"message": "Dienas"
+	},
+	"daysDescription": {
+		"message": "Cik bieži notiks automātiskā sinhronizācija."
+	},
+	"errorNotification": {
+		"message": "Radusies kļūda. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Šķiet, ka neesi pieteicies. Lūdzu, atver paplašinājumu un piesakies ar savu Trakt kontu."
+	},
+	"errorNotificationNotFound": {
+		"message": "Ak! Mēs Trakt nevarējām atrast to, ko skaties. Lūdzu, atstāj ziņojumu ar vienuma nosaukumu."
+	},
+	"errorNotificationServers": {
+		"message": "Mēs nevarējām sazināties ar Trakt serveriem. Mēs cenšamies to novērst. Lūdzu, vēlāk mēģini vēlreiz."
+	},
+	"from": {
+		"message": "no"
+	},
+	"goToHistoryPage": {
+		"message": "Atvērt vēstures lapu"
+	},
+	"grantCookies": {
+		"message": "Piešķiriet \"cookies\" atļauju, lai paplašinājums varētu darboties ar Firefox Containers."
+	},
+	"grantCookiesDescription": {
+		"message": "Ja šī opcija ir iespējota, paplašinājums darbosies kopā ar Firefox Containers, iegūstot sīkfailus no pašreizējā konteinera, kurā atrodaties. Iespējojiet to tikai tad, ja izmantojat Firefox Containers."
+	},
+	"hideSynced": {
+		"message": "Paslēpt sinhronizētos."
+	},
+	"history": {
+		"message": "Vēsture"
+	},
+	"historyFor": {
+		"message": "Vēsture no"
+	},
+	"historySyncError": {
+		"message": "Neizdevās sinhronizēt vēsturi."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ epizodes un $MOVIES$ filmas sinhronizētas.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Sākums"
+	},
+	"invalidTraktUrl": {
+		"message": "Lūdzu, ievadiet derīgu Trakt URL!"
+	},
+	"isThisWrong": {
+		"message": "Nav pareizi?"
+	},
+	"itemNotSynced": {
+		"message": "Vienums nav sinhronizēts"
+	},
+	"itemSynced": {
+		"message": "Vienums sinhronizēts"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "Dažiem vienumiem nav norādīts skatīšanās datums. Atrisini katru vienumu vai iespējojiet opciju pievienot ar izlaišanas datumu un mēģini vēlreiz."
+	},
+	"lastSync": {
+		"message": "Pēdējās sinhronizācijas datums"
+	},
+	"lightTheme": {
+		"message": "Gaišs"
+	},
+	"loadHistoryError": {
+		"message": "Neizdevās ielādēt vēsturi."
+	},
+	"loadImages": {
+		"message": "Ielādēt attēlus."
+	},
+	"loadImagesDescription": {
+		"message": "Ja šī opcija ir atspējota, tiešās sinhronizācijas un vēstures vienumu attēli netiks ielādēti. Tas ir noderīgi lēnākiem savienojumiem, kur attēlu ielāde ievērojami palēnina paplašinājumu."
+	},
+	"loadTraktHistoryError": {
+		"message": "Neizdevās ielādēt Trakt vēsturi."
+	},
+	"loadingHistory": {
+		"message": "Ielādē vēsturi"
+	},
+	"loadingSuggestions": {
+		"message": "Ielādē ieteikumus"
+	},
+	"login": {
+		"message": "Pieteikties ar Trakt.tv"
+	},
+	"logout": {
+		"message": "Atslēgties"
+	},
+	"minPercentageWatched": {
+		"message": "Minimālais skatītais procents."
+	},
+	"missingWatchedDate": {
+		"message": "Trūkst skatīšanās datums"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Izvēlies kā pievienot trūkstošo $TITLE$ skatīšanās datumu.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Izvēlies kā pievienot trūkstošo skatīšanās datumu $ITEMS$ vienumiem.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Izvēlieties datumu"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Lūdzu, ievadi derīgu datumu!"
+	},
+	"no": {
+		"message": "Nē"
+	},
+	"noItemsSelected": {
+		"message": "Nekas nav atlasīts. Atlasiet dažus vienumus un mēģiniet vēlreiz."
+	},
+	"noServices": {
+		"message": "Nav iespējota neviena straumēšanas platforma. Straumēšanas platformas vari iespējot iestatījumu lapā."
+	},
+	"notAvailable": {
+		"message": "Nav pieejams"
+	},
+	"notFound": {
+		"message": "Nav atrasts"
+	},
+	"notLoggedIn": {
+		"message": "Neesi pieslēdzies"
+	},
+	"notLoggedInDescription": {
+		"message": "Šķiet, ka neesi pieteicies šajā platformā. Lūdzu, dodies uz zemāk esošo lapu un piesakies, pirms mēģini sinhronizēt."
+	},
+	"notWatched": {
+		"message": "Nav skatīts"
+	},
+	"notWatching": {
+		"message": "Skaties kaut ko!"
+	},
+	"nowScrobbling": {
+		"message": "Tagad sinhronizē"
+	},
+	"on": {
+		"message": "No"
+	},
+	"options": {
+		"message": "Iestatījumi"
+	},
+	"profile": {
+		"message": "Profils"
+	},
+	"profileDescription": {
+		"message": "Šis ir pašreizējais profils. Ja šis nav profils, kuru vēlies sinhronizēt, pārslēdz profilus platformas lapā."
+	},
+	"progress": {
+		"message": "Progress: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Sasniegtas vēstures beigas."
+	},
+	"reachedLastSyncDate": {
+		"message": "Sasniegts pēdējās sinhronizācijas datums. Ja vēlaties ielādēt vienumus pēc šī punkta, noklikšķiniet uz zemāk esošās pogas."
+	},
+	"readMore": {
+		"message": "Lasīt vairāk"
+	},
+	"recentAutoSync": {
+		"message": "Daži vienumi nesen tika automātiski sinhronizēti. Noklikšķiniet šeit, lai tos pārskatītu un pārliecinātos, ka ir sinhronizēti pareizie vienumi."
+	},
+	"recentAutoSyncError": {
+		"message": "Dažus vienumus neizdevās automātiski sinhronizēt. Noklikšķiniet šeit, lai tos pārskatītu un labotu."
+	},
+	"save": {
+		"message": "Saglabāt"
+	},
+	"saveOptionFailed": {
+		"message": "Neizdevās saglabāt iestatījumus."
+	},
+	"saveOptionSuccess": {
+		"message": "Iestatījumi saglabāti."
+	},
+	"saveSuggestionFailed": {
+		"message": "Neizdevās saglabāt ieteikumu."
+	},
+	"scrobblePaused": {
+		"message": "Tiešā sinhronizācija (scrobble) pauzēta."
+	},
+	"scrobbleStarted": {
+		"message": "Tiešā sinhronizācija (scrobble) sākta."
+	},
+	"scrobbleStopped": {
+		"message": "Tiešā sinhronizācija (scrobble) apturēta."
+	},
+	"select": {
+		"message": "Izvēlēties:"
+	},
+	"selectAll": {
+		"message": "Visu"
+	},
+	"selectNone": {
+		"message": "Neko"
+	},
+	"selectService": {
+		"message": "Atlasi straumēšanas platformu, no kuras sinhronizēt:"
+	},
+	"sendReceiveSuggestions": {
+		"message": "Nosūtīt / saņemt labojumu ieteikumus."
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "Ja šī opcija ir iespējota, ikreiz, kad atjaunināsit nepareizu vienumu, labojums tiks nosūtīts uz Google Cloud datu bāzi, lai citi lietotāji varētu saņemt labojumu ieteikumus. Šī opcija ir nepieciešama arī, lai saņemtu šos labojumu ieteikumus."
+	},
+	"service": {
+		"message": "Platforma"
+	},
+	"serviceScrobble": {
+		"message": "Tiešā sinhronizācija (Scrobble)"
+	},
+	"serviceSync": {
+		"message": "Sinhronizēt"
+	},
+	"services": {
+		"message": "Straumēšanas platformas"
+	},
+	"servicesDescription": {
+		"message": "Izvēlies kuras straumēšanas platformas iespējot."
+	},
+	"showNotifications": {
+		"message": "Rādīt pārlūka paziņojumus."
+	},
+	"showNotificationsDescription": {
+		"message": "Ja šī opcija ir iespējota, saņemsi pārlūkprogrammas paziņojumus ikreiz, kad sāksies/beigsies tiešā sinhronizācija."
+	},
+	"suggestedBy": {
+		"message": "Ieteica $COUNT$ lietotāji",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "Ieteikumi"
+	},
+	"sync": {
+		"message": "Sinhronizācija"
+	},
+	"syncing": {
+		"message": "Notiek sinhronizēšana"
+	},
+	"systemTheme": {
+		"message": "Izmantot sistēmas iestatījumus"
+	},
+	"theme": {
+		"message": "Izskats"
+	},
+	"themeDescription": {
+		"message": "Izvēlieties, kuru izskatu izmantot."
+	},
+	"toggleAll": {
+		"message": "Pārslēgt"
+	},
+	"unknown": {
+		"message": "Nezināms"
+	},
+	"use": {
+		"message": "Izmantot"
+	},
+	"useCurrentDate": {
+		"message": "Izmantot pašreizējo datumu."
+	},
+	"useCustomDate": {
+		"message": "Izmantot pielāgotu datumu."
+	},
+	"useReleaseDate": {
+		"message": "Izmantot izlaišanas datumu."
+	},
+	"watched": {
+		"message": "Noskatījies"
+	},
+	"yes": {
+		"message": "Jā"
+	}
+}
