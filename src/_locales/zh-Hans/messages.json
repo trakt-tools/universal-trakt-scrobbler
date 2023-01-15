@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "关于"
+	},
+	"aboutMessage": {
+		"message": "将您最喜欢的流媒体服务活动发送到Trakt.tv！"
+	},
+	"add": {
+		"message": "新增"
+	},
+	"addDate": {
+		"message": "新增日期"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "新增曾看日期失败。"
+	},
+	"addWithReleaseDate": {
+		"message": "新增发行日期。"
+	},
+	"addWithReleaseDateMissing": {
+		"message": "为缺少曾看日期的条目新增发行日期。"
+	},
+	"allowRollbar": {
+		"message": "允许 Rollbar 收集Bug信息。"
+	},
+	"allowRollbarDescription": {
+		"message": "启用此选项后，每当出现Bug时，有关信息将会收集并发送，可以使我们更快地修复并改进扩展。 此信息包括：Bug发生时间，Bug具体溯源， 您的浏览器名称版本与操作系统的名称。 此数据不与任何其他服务共享。"
+	},
+	"appDescription": {
+		"message": "Trakt.tv的通用同步。"
+	},
+	"autoSync": {
+		"message": "自动同步"
+	},
+	"autoSyncNotActivated": {
+		"message": "自动同步未激活。您需要先在历史页面手动同步，以便保存最后一次同步日期。"
+	},
+	"autoSyncPageMessage": {
+		"message": "这些是自上次查看以来自动同步或自动同步失败的条目。 如果需要校正，请应用并选择需要纠正的条目，然后点击同步按钮。 当您同步时，缓存将被删除，这些条目将不再出现在此页面。 如果不需要校正，只需单击清除同步缓存按钮即可。"
+	},
+	"autoSyncing": {
+		"message": "自动同步中..."
+	},
+	"cancel": {
+		"message": "取消"
+	},
+	"cannotSync": {
+		"message": "无法同步条目"
+	},
+	"clear": {
+		"message": "清除"
+	},
+	"clearCaches": {
+		"message": "清除缓存"
+	},
+	"clearCachesFailed": {
+		"message": "清除缓存失败。"
+	},
+	"clearCachesSuccess": {
+		"message": "缓存已清除。"
+	},
+	"clearLastSync": {
+		"message": "清除上次同步日期"
+	},
+	"clearStorage": {
+		"message": "清除存储空间"
+	},
+	"clearStorageFailed": {
+		"message": "清除存储空间失败。"
+	},
+	"clearStorageSuccess": {
+		"message": "存储已清除。"
+	},
+	"clearSyncCache": {
+		"message": "清除同步缓存"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "关闭"
+	},
+	"confirmClearCachesMessage": {
+		"message": "除同步缓存外，所有缓存将被清除。"
+	},
+	"confirmClearCachesTitle": {
+		"message": "清除缓存?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "您需要再次在流媒体服务历史页面手动同步才能重新激活自动同步功能。"
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "清除上次的 $SERVICE$ 同步日期？",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "所有选项都将被重置为默认，您必须重新登录。"
+	},
+	"confirmClearStorageTitle": {
+		"message": "清空存储空间？"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "当前页面中的所有条目都将从缓存中删除，您将无法再查看。"
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "清除同步缓存?"
+	},
+	"continueLoading": {
+		"message": "继续加载"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "更正"
+	},
+	"correctItem": {
+		"message": "更正条目"
+	},
+	"correctItemFailed": {
+		"message": "更正条目失败。"
+	},
+	"correctionDialogContent": {
+		"message": "在下框为 $TITLE$ 输入正确的Trakt链接",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "在下框为 $TITLE$ 输入正确的Trakt链接或选择建议链接。",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "警告：您正在更正一个已经同步的条目。如果您继续，先前同步的条目将从您的Trakt历史中删除。"
+	},
+	"couldNotScrobble": {
+		"message": "无法刮削。"
+	},
+	"currentCorrection": {
+		"message": "正在更正为"
+	},
+	"darkTheme": {
+		"message": "暗色主题"
+	},
+	"days": {
+		"message": "日间主题"
+	},
+	"daysDescription": {
+		"message": "自动同步的频率是多久。"
+	},
+	"errorNotification": {
+		"message": "发生了一个错误 :("
+	},
+	"errorNotificationLogin": {
+		"message": "您似乎没有登录。请打开扩展并使用您的Trakt账户登录。"
+	},
+	"errorNotificationNotFound": {
+		"message": "糟糕！我们找不到你在Trakt中正在观看的条目。请留下带有条目标题的反馈。"
+	},
+	"errorNotificationServers": {
+		"message": "我们无法连接Trakt服务器。正在修复，请稍后再试。"
+	},
+	"from": {
+		"message": "从"
+	},
+	"goToHistoryPage": {
+		"message": "转到历史页面"
+	},
+	"grantCookies": {
+		"message": "授予\"cookies\"权限，以便扩展可以Firefox容器中使用。"
+	},
+	"grantCookiesDescription": {
+		"message": "启用此选项后，扩展通过从您当前打开的容器中检索cookie来在Firefox容器中运行。仅在使用Firefox容器时启用。"
+	},
+	"hideSynced": {
+		"message": "隐藏同步状态。"
+	},
+	"history": {
+		"message": "历史"
+	},
+	"historyFor": {
+		"message": "的历史记录"
+	},
+	"historySyncError": {
+		"message": "同步历史记录失败。"
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ 集和 $MOVIES$ 电影同步完成。",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "首页"
+	},
+	"invalidTraktUrl": {
+		"message": "请输入有效的Trakt地址！"
+	},
+	"isThisWrong": {
+		"message": "这是错误吗？"
+	},
+	"itemNotSynced": {
+		"message": "条目未同步"
+	},
+	"itemSynced": {
+		"message": "条目已同步"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "有些条目缺少曾看日期，手动添加每个条目曾看日期，或启用选项以自动新增发行日期。"
+	},
+	"lastSync": {
+		"message": "上次同步日期"
+	},
+	"lightTheme": {
+		"message": "浅色主题"
+	},
+	"loadHistoryError": {
+		"message": "加载历史记录失败。"
+	},
+	"loadImages": {
+		"message": "加载图像。"
+	},
+	"loadImagesDescription": {
+		"message": "禁用此选项后，将不会加载刮削条目和历史项目的图像。 这有助于提高连接速度，加载图像会显著减缓扩展运行速度。"
+	},
+	"loadTraktHistoryError": {
+		"message": "加载Trakt 历史记录失败。"
+	},
+	"loadingHistory": {
+		"message": "正在加载历史记录"
+	},
+	"loadingSuggestions": {
+		"message": "正在加载建议"
+	},
+	"login": {
+		"message": "使用 Trakt.tv 账户登录"
+	},
+	"logout": {
+		"message": "注销"
+	},
+	"minPercentageWatched": {
+		"message": "观看的最小百分比"
+	},
+	"missingWatchedDate": {
+		"message": "缺少曾看日期"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "选择如何为缺失的 $TITLE$ 添加曾看日期。",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "选择如何为缺失的 $ITEMS$ 条目添加曾看日期。",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "选择日期"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "请输入有效日期！"
+	},
+	"no": {
+		"message": "否"
+	},
+	"noItemsSelected": {
+		"message": "没有选中任何条目，请选择一些条目并重试。"
+	},
+	"noServices": {
+		"message": "没有启用流媒体服务。您可以在选项页面启用流媒体服务。"
+	},
+	"notAvailable": {
+		"message": "不可用"
+	},
+	"notFound": {
+		"message": "未找到"
+	},
+	"notLoggedIn": {
+		"message": "未登录"
+	},
+	"notLoggedInDescription": {
+		"message": "您似乎没有登录到这个服务。请前往下面的页面登录后再尝试同步。"
+	},
+	"notWatched": {
+		"message": "未观看的"
+	},
+	"notWatching": {
+		"message": "观看一下！"
+	},
+	"nowScrobbling": {
+		"message": "正在刮削"
+	},
+	"on": {
+		"message": "开启"
+	},
+	"options": {
+		"message": "选项"
+	},
+	"profile": {
+		"message": "个人资料"
+	},
+	"profileDescription": {
+		"message": "这是当前配置文件。如果不是您想要同步的配置文件，请在服务页面切换配置文件。"
+	},
+	"progress": {
+		"message": "进度： $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "已到达历史记录最后。"
+	},
+	"reachedLastSyncDate": {
+		"message": "已到达最后一次同步日期。如果你加载这之后的条目，请点击下面的按钮。"
+	},
+	"readMore": {
+		"message": "了解更多"
+	},
+	"recentAutoSync": {
+		"message": "一些条目最近被自动同步。点击此处查看并确保正确的项目被同步完成。"
+	},
+	"recentAutoSyncError": {
+		"message": "一些条目最近未能自动同步。点击此处查看并更正。"
+	},
+	"save": {
+		"message": "保存"
+	},
+	"saveOptionFailed": {
+		"message": "保存选项失败。"
+	},
+	"saveOptionSuccess": {
+		"message": "选项已保存。"
+	},
+	"saveSuggestionFailed": {
+		"message": "保存建议失败。"
+	},
+	"scrobblePaused": {
+		"message": "刮削暂停。"
+	},
+	"scrobbleStarted": {
+		"message": "刮削开始。"
+	},
+	"scrobbleStopped": {
+		"message": "刮削完成。"
+	},
+	"select": {
+		"message": "请选择："
+	},
+	"selectAll": {
+		"message": "所有的"
+	},
+	"selectNone": {
+		"message": "无"
+	},
+	"selectService": {
+		"message": "选择要同步的流媒体服务："
+	},
+	"sendReceiveSuggestions": {
+		"message": "发送/接收更正建议。"
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "启用此选项后，每当您更新错误的条目， 更正将发送到谷歌云数据库，其他用户也能够收到此更正建议。 接收这些更正建议也需要启用此选项。"
+	},
+	"service": {
+		"message": "服务"
+	},
+	"serviceScrobble": {
+		"message": "刮削"
+	},
+	"serviceSync": {
+		"message": "同步"
+	},
+	"services": {
+		"message": "流媒体服务"
+	},
+	"servicesDescription": {
+		"message": "选择要启用的流媒体服务。"
+	},
+	"showNotifications": {
+		"message": "显示浏览器通知。"
+	},
+	"showNotificationsDescription": {
+		"message": "启用此选项后，每当您开始/停止刮削某些条目时，您将收到浏览器通知。"
+	},
+	"suggestedBy": {
+		"message": "$COUNT$ 位用户建议",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "建议"
+	},
+	"sync": {
+		"message": "同步"
+	},
+	"syncing": {
+		"message": "同步中"
+	},
+	"systemTheme": {
+		"message": "使用您的系统首选项"
+	},
+	"theme": {
+		"message": "界面主题"
+	},
+	"themeDescription": {
+		"message": "选择要使用的主题。"
+	},
+	"toggleAll": {
+		"message": "切换"
+	},
+	"unknown": {
+		"message": "未知的"
+	},
+	"use": {
+		"message": "使用"
+	},
+	"useCurrentDate": {
+		"message": "使用当前日期"
+	},
+	"useCustomDate": {
+		"message": "使用自定义日期。"
+	},
+	"useReleaseDate": {
+		"message": "使用发行日期。"
+	},
+	"watched": {
+		"message": "看过或者已关注"
+	},
+	"yes": {
+		"message": "确定"
+	}
+}
