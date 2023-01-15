@@ -22,7 +22,7 @@ export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
 	version?: 11;
 };
 
-export type StorageValuesV10 = Omit<StorageValuesV8, 'version' | 'options'> & {
+export type StorageValuesV10 = Omit<StorageValuesV9, 'version' | 'options'> & {
 	version?: 10;
 	options?: StorageValuesOptionsV4;
 };
