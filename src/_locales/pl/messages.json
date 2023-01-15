@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Nie można zsynchronizować elementów"
 	},
+	"clear": {
+		"message": "Clear"
+	},
 	"clearCaches": {
 		"message": "Wyczyść pamięć podręczną"
 	},
@@ -139,6 +142,9 @@
 	"couldNotScrobble": {
 		"message": "Nie udało się skrobblować."
 	},
+	"currentCorrection": {
+		"message": "Currently corrected to"
+	},
 	"darkTheme": {
 		"message": "Ciemny"
 	},
@@ -221,6 +227,12 @@
 	},
 	"loadHistoryError": {
 		"message": "Nie udało się zsynchronizować historii."
+	},
+	"loadImages": {
+		"message": "Load images."
+	},
+	"loadImagesDescription": {
+		"message": "With this option disabled, images for the scrobbling item and for the history items will not be loaded. This is useful for slower connections, where loading images significantly slows down the extension."
 	},
 	"loadTraktHistoryError": {
 		"message": "Nie udało się załadować historii Trakt."

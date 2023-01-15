@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Kan deze items niet synchroniseren"
 	},
+	"clear": {
+		"message": "Wissen"
+	},
 	"clearCaches": {
 		"message": "Cache legen"
 	},
@@ -139,6 +142,9 @@
 	"couldNotScrobble": {
 		"message": "Kon de data niet verwerken."
 	},
+	"currentCorrection": {
+		"message": "Momenteel gecorrigeerd naar"
+	},
 	"darkTheme": {
 		"message": "Donker"
 	},
@@ -221,6 +227,12 @@
 	},
 	"loadHistoryError": {
 		"message": "Kon de historiek niet laden."
+	},
+	"loadImages": {
+		"message": "Laad afbeeldingen."
+	},
+	"loadImagesDescription": {
+		"message": "Indien deze optie uitgeschakeld is, worden afbeeldingen voor het spelende item en historische items niet geladen. Dit is handiger voor langzamere internetverbindingen, waarbij het laden van afbeeldingen de extensie aanzienlijk vertraagt."
 	},
 	"loadTraktHistoryError": {
 		"message": "Kon de Trakt historiek niet laden."

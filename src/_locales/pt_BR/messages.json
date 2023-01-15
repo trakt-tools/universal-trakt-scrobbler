@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Não é possível sincronizar os itens"
 	},
+	"clear": {
+		"message": "Limpar"
+	},
 	"clearCaches": {
 		"message": "Limpar Caches"
 	},
@@ -139,6 +142,9 @@
 	"couldNotScrobble": {
 		"message": "Não foi possível realizar o scrobble."
 	},
+	"currentCorrection": {
+		"message": "Atualmente corrigido para"
+	},
 	"darkTheme": {
 		"message": "Escuro"
 	},
@@ -221,6 +227,12 @@
 	},
 	"loadHistoryError": {
 		"message": "Ocorreu um erro ao carregar o histórico."
+	},
+	"loadImages": {
+		"message": "Carregar imagens."
+	},
+	"loadImagesDescription": {
+		"message": "Com esta opção desativada, imagens do item sincronizado e do histórico não serão carregadas. Isso é útil para conexões lentas, onde o carregamento de imagens diminui significativamente a velocidade da extensão."
 	},
 	"loadTraktHistoryError": {
 		"message": "Ocorreu um erro ao carregar o histórico do Trakt."

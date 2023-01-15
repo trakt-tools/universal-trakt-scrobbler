@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "Tietoja"
+	},
+	"aboutMessage": {
+		"message": "Lähetä suoratoistokatselusi Trakt.tv-kokoelmaasi!"
+	},
+	"add": {
+		"message": "Lisää"
+	},
+	"addDate": {
+		"message": "Lisää päiväys"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Puuttuvan katseluajan lisäys epäonnistui."
+	},
+	"addWithReleaseDate": {
+		"message": "Lisää julkaisupäivällä."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Lisää julkaisupäivällä vain ne kohteet, joilta katseluaika puuttuu."
+	},
+	"allowRollbar": {
+		"message": "Salli Rollbarin kerätä vikatietoja."
+	},
+	"allowRollbarDescription": {
+		"message": "Asetuksen ollessa käytössä, kehittäjälle kerätään tietoa ja lähetetään vikailmoituksia, jotta viat voidaan korjata nopeammin ja laajennusta parantaa. Lähetettävät tiedot: vian tapahtumisaika, vian jäljitettävyystieto, selaimen nimi ja versio sekä käyttöjärjestelmän nimi. Tietoja ei jaeta minkään muun palvelun kanssa."
+	},
+	"appDescription": {
+		"message": "Universaali Trakt.tv-palvelun synkronointi."
+	},
+	"autoSync": {
+		"message": "Automaattisynkronointi"
+	},
+	"autoSyncNotActivated": {
+		"message": "Automaattinen synkronointi ei ole käytössä. Sinun on ensin suoritettava manuaalinen synkronointi historiasivulla, jotta viimeisin synkronointipäivä voidaan tallentaa."
+	},
+	"autoSyncPageMessage": {
+		"message": "Nämä kohteet synkronoitiin automaattisesti tai niiden automaattinen synkronointi epäonnistui edellisen tarkistuksen jälkeen. Tee tarpeelliset korjaukset, valitse korjattavat kohteet ja paina Synkronoi-painiketta. Tällöin välimuisti tyhjennetään, eivätkä nämä kohteet enää näy tällä sivulla. Jos korjauksia ei tarvita, tee tämä suoraan painamalla Tyhjennä synkronointivälimuisti -painiketta."
+	},
+	"autoSyncing": {
+		"message": "Synkronoidaan automaattisesti..."
+	},
+	"cancel": {
+		"message": "Peru"
+	},
+	"cannotSync": {
+		"message": "Kohteita ei voida synkronoida"
+	},
+	"clear": {
+		"message": "Tyhjennä"
+	},
+	"clearCaches": {
+		"message": "Tyhjennä välimuistit"
+	},
+	"clearCachesFailed": {
+		"message": "Välimuistien tyhjennys epäonnistui."
+	},
+	"clearCachesSuccess": {
+		"message": "Välimuistit tyhjennettiin."
+	},
+	"clearLastSync": {
+		"message": "Tyhjennä viimeisin synkronointiaika"
+	},
+	"clearStorage": {
+		"message": "Tyhjennä tallennustila"
+	},
+	"clearStorageFailed": {
+		"message": "Tallennustilan tyhjennys epäonnistui."
+	},
+	"clearStorageSuccess": {
+		"message": "Tallennustila tyhjennettiin."
+	},
+	"clearSyncCache": {
+		"message": "Tyhjennä synkronointivälimuisti"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Sulje"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Kaikki välimuistit tyhjennetään, lukuun ottamatta synkronointivälimuistia."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Tyhjennetäänkö välimuistit?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Manuaalinen synkronointi on suoritettava suoratoistopalvelun historiasivulta uudelleen, jotta automaattinen synkronointi voidaan ottaa uudelleen käyttöön."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Tyhjennetäänkö palvelun $SERVICE$ edellinen synkronointiaika?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "Kaikki asetukset palautetaan aletusarvoihinsa, jonka jälkeen on kirjauduttava sisään uudelleen."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Tyhjennetäänkö tallennustila?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Kaikki nykyisen sivun kohteet poistuvat välimuistista, eikä niiden tarkastelu ole enää mahdollista."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Tyhjennetäänkö synkronointivälimuisti?"
+	},
+	"continueLoading": {
+		"message": "Jatka latausta"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Korjaa"
+	},
+	"correctItem": {
+		"message": "Korjaa kohde"
+	},
+	"correctItemFailed": {
+		"message": "Kohteen korjaus epäonnistui."
+	},
+	"correctionDialogContent": {
+		"message": "Syötä alle kohteen $TITLE$ oikea Trakt-URL.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Syötä alle kohteen $TITLE$ oikea Trakt-URL tai valitse ehdotuksista.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "VAROITUS: Olet korjaamassa kohdetta, joka on jo synkronoitu. Jos jatkat, poistetaan aiemmin synkronoitu kohde Trakt-historiasta."
+	},
+	"couldNotScrobble": {
+		"message": "Ei voitu kirjata."
+	},
+	"currentCorrection": {
+		"message": "Nykyinen korjaus"
+	},
+	"darkTheme": {
+		"message": "Tumma"
+	},
+	"days": {
+		"message": "Päivää"
+	},
+	"daysDescription": {
+		"message": "Automaattisen synkronoinnin suoritustiheys."
+	},
+	"errorNotification": {
+		"message": "Tapahtui virhe. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Et näytä olevan kirjautuneena. Avaa laajennus ja kirjaudu Trakt-tilillesi."
+	},
+	"errorNotificationNotFound": {
+		"message": "Voi ei! katseltua kohdetta ei löytynyt Traktista. Lähetä ilmoitus, joka sisältää kohteen nimen."
+	},
+	"errorNotificationServers": {
+		"message": "Trakt-palvelinten kanssa ei voitu viestiä. Pyrimme korjaamaan ongelman, yritä myöhemmin uudelleen."
+	},
+	"from": {
+		"message": "from"
+	},
+	"goToHistoryPage": {
+		"message": "Avaa historiasivu"
+	},
+	"grantCookies": {
+		"message": "Myönnä \"evästeet\" -käyttöoikeus, jotta laajennus voi toimia Firefox Container -erityistilojen kanssa."
+	},
+	"grantCookiesDescription": {
+		"message": "Asetuksen ollessa käytössä, laajennus toimii Firefox Container -erityistilojen kanssa noutamalla evästeet nykyisestä aktiivisena olevasta erityistilasta. Käytä tätä vain, jos käytät Firefox Containers -erityistiloja."
+	},
+	"hideSynced": {
+		"message": "Piilota synkronoidut."
+	},
+	"history": {
+		"message": "Historia"
+	},
+	"historyFor": {
+		"message": "Historia palvelusta"
+	},
+	"historySyncError": {
+		"message": "Historian synkronointi epäonnistui."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ jaksoa ja $MOVIES$ elokuvaa synkronoitiin.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Etusivu"
+	},
+	"invalidTraktUrl": {
+		"message": "Syötä kelvollinen Trakt-URL!"
+	},
+	"isThisWrong": {
+		"message": "Onko tämä väärin?"
+	},
+	"itemNotSynced": {
+		"message": "Synkronoimaton kohde"
+	},
+	"itemSynced": {
+		"message": "Synkronoitu kohde"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "Joiltakin kohteilta puuttuu katseluaika. Korjaa kohteet yksitellen tai ota Lisää julkaisupäivällä -valinta käyttöön ja yritä uudelleen."
+	},
+	"lastSync": {
+		"message": "Viimeisin synkronointiaika"
+	},
+	"lightTheme": {
+		"message": "Vaalea"
+	},
+	"loadHistoryError": {
+		"message": "Historian lataus epäonnistui."
+	},
+	"loadImages": {
+		"message": "Lataa kuvat."
+	},
+	"loadImagesDescription": {
+		"message": "Asetuksen ollessa pois käytöstä, ei seurattavan kohteen ja historian kohteiden kuvia ladata. Tämä on hyödyllistä hitaiden yhteyksien kanssa, jolloin kuvalataukset hidastavat laajennusta merkittävästi."
+	},
+	"loadTraktHistoryError": {
+		"message": "Trakt-historian lataus epäonnistui."
+	},
+	"loadingHistory": {
+		"message": "Historiaa ladataan"
+	},
+	"loadingSuggestions": {
+		"message": "Ehdotuksia ladataan"
+	},
+	"login": {
+		"message": "Kirjaudu Trakt.tv-tunnuksella"
+	},
+	"logout": {
+		"message": "Kirjaudu ulos"
+	},
+	"minPercentageWatched": {
+		"message": "Vähimmäiskatseluprosentti"
+	},
+	"missingWatchedDate": {
+		"message": "Katseluaika puuttuu"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Valitse, miten kohteen $TITLE$ puuttuva katseluaika lisätään.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Valitse, miten kohteiden $ITEMS$ puuttuvat katseluajat lisätään.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Valitse aika"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Syötä kelvollinen päiväys!"
+	},
+	"no": {
+		"message": "Ei"
+	},
+	"noItemsSelected": {
+		"message": "Kohteita ei ole valittu. Valitse kohteita ja yritä uudelleen."
+	},
+	"noServices": {
+		"message": "Suoratoistopalveluja ei ole käytössä. Palveluiden käyttöönotto tapahtuu asetussivulta."
+	},
+	"notAvailable": {
+		"message": "Ei käytettävissä"
+	},
+	"notFound": {
+		"message": "Ei löytynyt"
+	},
+	"notLoggedIn": {
+		"message": "Ei kirjautunut"
+	},
+	"notLoggedInDescription": {
+		"message": "Et näytä olevan kirjautuneena palveluun. Avaa alla oleva sivu ja kirjaudu sisään ennen synkronointia."
+	},
+	"notWatched": {
+		"message": "Katsomaton"
+	},
+	"notWatching": {
+		"message": "Katsele jotain!"
+	},
+	"nowScrobbling": {
+		"message": "Kirjataan nyt"
+	},
+	"on": {
+		"message": "Palvelussa"
+	},
+	"options": {
+		"message": "Asetukset"
+	},
+	"profile": {
+		"message": "Profiili"
+	},
+	"profileDescription": {
+		"message": "Tämä on nykyinen profiili. Jos et halua synkronoida tätä profiilia, vaihda aktiivinen profiili suoratoistopalvelun sivulta."
+	},
+	"progress": {
+		"message": "Katselutilanne: $PROGRESS$ %",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Historian loppu saavutettiin."
+	},
+	"reachedLastSyncDate": {
+		"message": "Viimeisin synkronointiaika saavutettiin. Voit ladata tätä vanhempia kohteita alla olevalla painikkeella."
+	},
+	"readMore": {
+		"message": "Lue lisää"
+	},
+	"recentAutoSync": {
+		"message": "Joitakin kohteita sunkronoitiin hiljattain automaattisesti. Tarkista kohteet ja varmista niiden oikeellisuus painamalla tästä."
+	},
+	"recentAutoSyncError": {
+		"message": "Joidenkin kohteiden automaattinen synkronointi epäonnistui hiljattain. Tarkista ja korjaa kohteet painamalla tästä."
+	},
+	"save": {
+		"message": "Tallenna"
+	},
+	"saveOptionFailed": {
+		"message": "Asetuksen tallennus epäonnistui."
+	},
+	"saveOptionSuccess": {
+		"message": "Asetus tallennettiin."
+	},
+	"saveSuggestionFailed": {
+		"message": "Ehdotuksen tallennus epäonnistui."
+	},
+	"scrobblePaused": {
+		"message": "Kirjaus on keskeytetty."
+	},
+	"scrobbleStarted": {
+		"message": "Kirjaus on aloitettu."
+	},
+	"scrobbleStopped": {
+		"message": "Kirjaus on pysäytetty."
+	},
+	"select": {
+		"message": "Valinta:"
+	},
+	"selectAll": {
+		"message": "Kaikki"
+	},
+	"selectNone": {
+		"message": "Ei mitään"
+	},
+	"selectService": {
+		"message": "Valitse synkronoitava suoratoistopalvelu:"
+	},
+	"sendReceiveSuggestions": {
+		"message": "Lähetä/vastaanota korjausehdotuksia."
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "Asetuksen ollessa käytössä, lähetetään tekemistäsi virheellisesti tunnistettujen korjauksista tieto Google Cloud -tietokantaan, jolloin muut käyttäjät voivat vastaanottaa näitä korjausehdotuksina. Myös korjausehdotusten vastaanotto edellyttää tätä."
+	},
+	"service": {
+		"message": "Palvelu"
+	},
+	"serviceScrobble": {
+		"message": "Kirjaus"
+	},
+	"serviceSync": {
+		"message": "Synkronointi"
+	},
+	"services": {
+		"message": "Suoratoistopalvelut"
+	},
+	"servicesDescription": {
+		"message": "Valitse käytettävät suoratoistopalvelut."
+	},
+	"showNotifications": {
+		"message": "Näytä selainilmoitukset"
+	},
+	"showNotificationsDescription": {
+		"message": "Asetuksen ollessa käytössä, saat selainilmoituksia aina kirjauksen alkaessa/päättyessä."
+	},
+	"suggestedBy": {
+		"message": "Ehdottanut $COUNT$ käyttäjää",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "Ehdotukset"
+	},
+	"sync": {
+		"message": "Synkronoi"
+	},
+	"syncing": {
+		"message": "Synkronoidaan"
+	},
+	"systemTheme": {
+		"message": "Seuraa järjestelmää"
+	},
+	"theme": {
+		"message": "Teema"
+	},
+	"themeDescription": {
+		"message": "Valitse käytettävä teema."
+	},
+	"toggleAll": {
+		"message": "Vaihda"
+	},
+	"unknown": {
+		"message": "Tuntematon"
+	},
+	"use": {
+		"message": "Käytä"
+	},
+	"useCurrentDate": {
+		"message": "Käytä nykyistä päivää."
+	},
+	"useCustomDate": {
+		"message": "Käytä omaa päivää."
+	},
+	"useReleaseDate": {
+		"message": "Käytä julkaisupäivää."
+	},
+	"watched": {
+		"message": "Katseltu"
+	},
+	"yes": {
+		"message": "Kyllä"
+	}
+}

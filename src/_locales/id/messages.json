@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "Tentang"
+	},
+	"aboutMessage": {
+		"message": "Kirim aktivitas Anda dari layanan streaming favorit Anda ke Trakt.tv!"
+	},
+	"add": {
+		"message": "Tambah"
+	},
+	"addDate": {
+		"message": "Tambah tanggal"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Gagal menambahkan tanggal menonton yang hilang."
+	},
+	"addWithReleaseDate": {
+		"message": "Tambah dengan tanggal rilis."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Tambah dengan tanggal rilis hanya untuk item yang tidak memiliki tanggal tonton."
+	},
+	"allowRollbar": {
+		"message": "Izinkan Rollbar mengumpulkan informasi tentang bug."
+	},
+	"allowRollbarDescription": {
+		"message": "Dengan mengaktifkan opsi ini, setiap kali bug terjadi, informasi tentangnya akan dikumpulkan dan dikirimkan kepada kami, sehingga kami dapat memperbaikinya lebih cepat dan meningkatkan ekstensi. Informasi ini mencakup: kapan bug terjadi, pelacakan balik bug, nama dan versi browser Anda, dan nama OS Anda. Data ini tidak dibagikan dengan layanan lain mana pun."
+	},
+	"appDescription": {
+		"message": "Sinkronisasi universal untuk Trakt.tv."
+	},
+	"autoSync": {
+		"message": "Sinkronisasi Otomatis"
+	},
+	"autoSyncNotActivated": {
+		"message": "Sinkronisasi otomatis tidak diaktifkan. Anda perlu menyinkronkan secara manual di halaman histori terlebih dahulu, agar tanggal sinkronisasi terakhir dapat disimpan."
+	},
+	"autoSyncPageMessage": {
+		"message": "Ini adalah item yang secara otomatis disinkronkan atau gagal disinkronkan secara otomatis sejak tinjauan terakhir. Jika ada koreksi yang diperlukan, terapkan, pilih item yang perlu dikoreksi, dan klik tombol Sinkronkan. Ketika Anda melakukannya, cache akan dihapus dan item ini tidak akan muncul lagi di halaman ini. Jika tidak diperlukan koreksi, cukup klik tombol Clear Sync Cache dan hal yang sama akan terjadi."
+	},
+	"autoSyncing": {
+		"message": "Menyinkronkan secara otomatis..."
+	},
+	"cancel": {
+		"message": "Batal"
+	},
+	"cannotSync": {
+		"message": "Tidak dapat menyinkronkan item"
+	},
+	"clear": {
+		"message": "Bersihkan"
+	},
+	"clearCaches": {
+		"message": "Bersihkan Cache"
+	},
+	"clearCachesFailed": {
+		"message": "Gagal membersihkan cache."
+	},
+	"clearCachesSuccess": {
+		"message": "Cache dibersihkan."
+	},
+	"clearLastSync": {
+		"message": "Bersihkan Tanggal Sinkronisasi Terakhir"
+	},
+	"clearStorage": {
+		"message": "Bersihkan Penyimpanan"
+	},
+	"clearStorageFailed": {
+		"message": "Gagal membersihkan penyimpanan."
+	},
+	"clearStorageSuccess": {
+		"message": "Penyimpanan berhasil dibersihkan."
+	},
+	"clearSyncCache": {
+		"message": "Bersihkan Cache Sinkronisasi"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Tutup"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Semua cache akan dibersihkan, kecuali cache sinkronisasi."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Bersihkan Cache?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Anda harus menyinkronkan kembali secara manual di halaman riwayat layanan streaming untuk mengaktifkan kembali sinkronisasi otomatis."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Bersihkan tanggal sinkronisasi terakhir untuk $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "Semua opsi akan diatur ulang ke nilai defaultnya dan Anda harus masuk lagi."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Bersihkan Penyimpanan?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Semua item di halaman saat ini akan dihapus dari cache dan Anda tidak dapat meninjaunya lagi."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Bersihkan cache sinkronisasi?"
+	},
+	"continueLoading": {
+		"message": "Lanjutkan Memuat"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Perbaiki"
+	},
+	"correctItem": {
+		"message": "Perbaiki item"
+	},
+	"correctItemFailed": {
+		"message": "Gagal memperbaiki item."
+	},
+	"correctionDialogContent": {
+		"message": "Masukkan URL Trakt yang benar untuk $TITLE$ di bidang di bawah ini.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Masukkan URL Trakt yang benar untuk $TITLE$ di bidang di bawah ini atau gunakan salah satu saran.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "PERINGATAN: Anda mengoreksi item yang telah disinkronkan. Jika Anda melanjutkan, item yang disinkronkan sebelumnya akan dihapus dari riwayat Trakt Anda."
+	},
+	"couldNotScrobble": {
+		"message": "Tidak bisa scrobble."
+	},
+	"currentCorrection": {
+		"message": "Saat ini dikoreksi menjadi"
+	},
+	"darkTheme": {
+		"message": "Gelap"
+	},
+	"days": {
+		"message": "Hari"
+	},
+	"daysDescription": {
+		"message": "Seberapa sering sinkronisasi otomatis akan terjadi."
+	},
+	"errorNotification": {
+		"message": "Terjadi sebuah kesalahan. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Sepertinya Anda belum masuk. Silakan buka ekstensi dan masuk dengan akun Trakt Anda."
+	},
+	"errorNotificationNotFound": {
+		"message": "Oh snap! Kami tidak dapat menemukan apa yang Anda tonton di Trakt. Silakan tinggalkan laporan dengan judul item."
+	},
+	"errorNotificationServers": {
+		"message": "Kami tidak dapat terkoneksi dengan server Trakt. Kami sedang mencoba memperbaikinya, silakan coba lagi nanti."
+	},
+	"from": {
+		"message": "dari"
+	},
+	"goToHistoryPage": {
+		"message": "Pergi ke Halaman Riwayat"
+	},
+	"grantCookies": {
+		"message": "Berikan izin \"cookies\" agar ekstensi dapat bekerja dengan Firefox Containers."
+	},
+	"grantCookiesDescription": {
+		"message": "Dengan mengaktifkan opsi ini, ekstensi akan bekerja dengan Firefox Containers, dengan mengambil cookie dari container yang Anda gunakan saat ini. Aktifkan hanya jika Anda menggunakan Firefox Containers."
+	},
+	"hideSynced": {
+		"message": "Sembunyikan yang disinkronkan."
+	},
+	"history": {
+		"message": "Riwayat"
+	},
+	"historyFor": {
+		"message": "Riwayat untuk"
+	},
+	"historySyncError": {
+		"message": "Gagal menyinkronkan riwayat."
+	},
+	"historySyncSuccess": {
+		"message": "Episode $EPISODES$ dan film $MOVIES$ disinkronkan.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Beranda"
+	},
+	"invalidTraktUrl": {
+		"message": "Harap masukkan URL Trakt yang benar!"
+	},
+	"isThisWrong": {
+		"message": "Apakah ini salah?"
+	},
+	"itemNotSynced": {
+		"message": "Item tidak tersinkron"
+	},
+	"itemSynced": {
+		"message": "Item tersinkron"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "Beberapa item tidak memiliki tanggal tonton. Selesaikan setiap item atau aktifkan opsi untuk menambahkan dengan tanggal rilis dan coba lagi."
+	},
+	"lastSync": {
+		"message": "Tanggal Sinkron Terakhir"
+	},
+	"lightTheme": {
+		"message": "Terang"
+	},
+	"loadHistoryError": {
+		"message": "Gagal untuk memuat riwayat."
+	},
+	"loadImages": {
+		"message": "Muat gambar."
+	},
+	"loadImagesDescription": {
+		"message": "Dengan opsi ini dinonaktifkan, gambar untuk item scrobbling dan untuk item riwayat tidak akan dimuat. Ini berguna untuk koneksi yang lebih lambat, di mana memuat gambar secara signifikan memperlambat ekstensi."
+	},
+	"loadTraktHistoryError": {
+		"message": "Gagal memuat riwayat Trakt."
+	},
+	"loadingHistory": {
+		"message": "Memuat riwayat"
+	},
+	"loadingSuggestions": {
+		"message": "Memuat saran"
+	},
+	"login": {
+		"message": "Login dengan Trakt.tv"
+	},
+	"logout": {
+		"message": "Keluar"
+	},
+	"minPercentageWatched": {
+		"message": "Persentase minimum yang ditonton."
+	},
+	"missingWatchedDate": {
+		"message": "Tanggal menonton tidak ada"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Pilih bagaimana Anda ingin menambahkan tanggal menonton yang hilang untuk $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Pilih bagaimana Anda ingin menambahkan tanggal tonton yang hilang untuk item $ITEMS$.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Pilih tanggal"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Harap masukkan tanggal yang benar!"
+	},
+	"no": {
+		"message": "Tidak"
+	},
+	"noItemsSelected": {
+		"message": "Tidak ada item yang dipilih. Pilih beberapa item dan coba lagi."
+	},
+	"noServices": {
+		"message": "Tidak ada layanan streaming yang diaktifkan. Anda dapat mengaktifkan layanan streaming di halaman opsi."
+	},
+	"notAvailable": {
+		"message": "Tidak Tersedia"
+	},
+	"notFound": {
+		"message": "Tidak Ditemukan"
+	},
+	"notLoggedIn": {
+		"message": "Belum Masuk"
+	},
+	"notLoggedInDescription": {
+		"message": "Sepertinya Anda belum masuk ke layanan ini. Buka laman di bawah dan masuk sebelum mencoba menyinkronkan."
+	},
+	"notWatched": {
+		"message": "Tidak Ditonton"
+	},
+	"notWatching": {
+		"message": "Menonton sesuatu!"
+	},
+	"nowScrobbling": {
+		"message": "Sedang Scrobbling"
+	},
+	"on": {
+		"message": "Aktif"
+	},
+	"options": {
+		"message": "Opsi"
+	},
+	"profile": {
+		"message": "Profil"
+	},
+	"profileDescription": {
+		"message": "Ini adalah profil saat ini. Jika ini bukan profil yang ingin Anda sinkronkan, ganti profil di halaman layanan."
+	},
+	"progress": {
+		"message": "Proses: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Mencapai riwayat terakhir."
+	},
+	"reachedLastSyncDate": {
+		"message": "Mencapai tanggal sinkronisasi terakhir. Jika Anda ingin memuat item melewati titik ini, klik tombol di bawah."
+	},
+	"readMore": {
+		"message": "Baca lebih lanjut"
+	},
+	"recentAutoSync": {
+		"message": "Beberapa item baru-baru ini disinkronkan secara otomatis. Klik di sini untuk meninjaunya dan memastikan bahwa item yang benar telah disinkronkan."
+	},
+	"recentAutoSyncError": {
+		"message": "Beberapa item baru-baru ini gagal disinkronkan secara otomatis. Klik di sini untuk meninjau dan memperbaikinya."
+	},
+	"save": {
+		"message": "Simpan"
+	},
+	"saveOptionFailed": {
+		"message": "Gagal menyimpan opsi."
+	},
+	"saveOptionSuccess": {
+		"message": "Opsi tersimpan."
+	},
+	"saveSuggestionFailed": {
+		"message": "Gagal menyimpan saran."
+	},
+	"scrobblePaused": {
+		"message": "Scrobble dijeda."
+	},
+	"scrobbleStarted": {
+		"message": "Scrobble dimulai."
+	},
+	"scrobbleStopped": {
+		"message": "Scrobble dihentikan."
+	},
+	"select": {
+		"message": "Pilih:"
+	},
+	"selectAll": {
+		"message": "Semua"
+	},
+	"selectNone": {
+		"message": "Tidak ada"
+	},
+	"selectService": {
+		"message": "Pilih layanan streaming yang akan disinkronkan dari:"
+	},
+	"sendReceiveSuggestions": {
+		"message": "Kirim / terima saran koreksi."
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "Dengan mengaktifkan opsi ini, setiap kali Anda memperbarui item yang salah, koreksi akan dikirim ke database Google Cloud sehingga pengguna lain dapat menerima saran koreksi. Opsi ini juga diperlukan untuk menerima saran koreksi tersebut."
+	},
+	"service": {
+		"message": "Layanan"
+	},
+	"serviceScrobble": {
+		"message": "Scrobble"
+	},
+	"serviceSync": {
+		"message": "Sinkronisasi"
+	},
+	"services": {
+		"message": "Layanan streaming"
+	},
+	"servicesDescription": {
+		"message": "Pilih layanan streaming mana yang akan diaktifkan."
+	},
+	"showNotifications": {
+		"message": "Tampilkan pemberitahuan peramban."
+	},
+	"showNotificationsDescription": {
+		"message": "Dengan opsi ini diaktifkan, Anda akan menerima pemberitahuan browser setiap kali Anda memulai / berhenti scrobbling sesuatu."
+	},
+	"suggestedBy": {
+		"message": "Disarankan oleh $COUNT$ pengguna",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "Saran"
+	},
+	"sync": {
+		"message": "Sinkronisasi"
+	},
+	"syncing": {
+		"message": "Menyinkronkan"
+	},
+	"systemTheme": {
+		"message": "Gunakan preferensi sistem Anda"
+	},
+	"theme": {
+		"message": "Tema"
+	},
+	"themeDescription": {
+		"message": "Pilih tema apa yang akan digunakan."
+	},
+	"toggleAll": {
+		"message": "Beralih"
+	},
+	"unknown": {
+		"message": "Tak diketahui"
+	},
+	"use": {
+		"message": "Gunakan"
+	},
+	"useCurrentDate": {
+		"message": "Gunakan tanggal sekarang."
+	},
+	"useCustomDate": {
+		"message": "Gunakan tanggal khusus."
+	},
+	"useReleaseDate": {
+		"message": "Gunakan tanggal rilis."
+	},
+	"watched": {
+		"message": "Ditonton pada"
+	},
+	"yes": {
+		"message": "Ya"
+	}
+}

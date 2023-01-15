@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "Hakkında"
+	},
+	"aboutMessage": {
+		"message": "En sevdiğiniz yayın servislerindeki etkinliğinizi Trakt.tv'ye gönderin!"
+	},
+	"add": {
+		"message": "Ekle"
+	},
+	"addDate": {
+		"message": "Tarih ekle"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Eksik olan izleme tarihi eklemesi başarızı oldu."
+	},
+	"addWithReleaseDate": {
+		"message": "Çıkış tarihi ile ekle."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Sadece izlenme tarihi eksik olan öğeler için yayınlanma tarihini kullan."
+	},
+	"allowRollbar": {
+		"message": "Rollbar'ın hatalar hakkında bilgi toplamasına izn ver."
+	},
+	"allowRollbarDescription": {
+		"message": "Bu seçenek etkinleştirildiğinde, bir hata oluştuğunda, daha hızlı düzeltebilmemiz ve uzantıyı iyileştirebilmemiz için bununla ilgili bilgiler toplanacak ve bize gönderilecektir. Bu bilgiler şunları içerir: hatanın ne zaman oluştuğu, hatanın geri izlenmesi için adımları, tarayıcınızın adı ve sürümü ve işletim sisteminizin adı. Bu veriler başka hiçbir hizmetle paylaşılmaz."
+	},
+	"appDescription": {
+		"message": "Trakt.tv için evrensel senkroniazsyon aracı."
+	},
+	"autoSync": {
+		"message": "Otomatik senkronizasyon"
+	},
+	"autoSyncNotActivated": {
+		"message": "Otomatik senkronizasyon aktif edilmedi. Son senkronizasyon tarihinin kaydedilebilmesi için, öncelik ile geçmiş sayfasından manuel olarak senkronize edilmesi gerekli."
+	},
+	"autoSyncPageMessage": {
+		"message": "Bunlar, son incelemeden bu yana otomatik olarak senkronize edilen veya otomatik olarak senkronize edilemeyen öğelerdir. Herhangi bir düzeltme gerekiyorsa, düzeltmeleri uygulayın, düzeltilmesi gereken öğeleri seçin ve senkronizasyon düğmesine tıklayın. Bunu yaptığınızda, bellek silinecek ve bu öğeler artık bu sayfada görüntülenemeyecek. Herhangi bir düzeltme gerekmiyorsa, Senkronizasyon Belleğini Temizle düğmesini tıklamanız yeterlidir. Her iki seçenekte aynı şey gerçekleştirir."
+	},
+	"autoSyncing": {
+		"message": "Otomatik senkronize ediliyor..."
+	},
+	"cancel": {
+		"message": "İptal"
+	},
+	"cannotSync": {
+		"message": "Ögeler senkronize edilemedi"
+	},
+	"clear": {
+		"message": "Temizle"
+	},
+	"clearCaches": {
+		"message": "Önbelleği Temizle"
+	},
+	"clearCachesFailed": {
+		"message": "Bellek temizlenemedi."
+	},
+	"clearCachesSuccess": {
+		"message": "Bellek temizlendi."
+	},
+	"clearLastSync": {
+		"message": "Son senkronizasyon tarihini temizle"
+	},
+	"clearStorage": {
+		"message": "Depolamayı temizle"
+	},
+	"clearStorageFailed": {
+		"message": "Depolama temizlenemedi."
+	},
+	"clearStorageSuccess": {
+		"message": "Depolama temizlendi."
+	},
+	"clearSyncCache": {
+		"message": "Senkronizasyon belleğini temizle"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Kapat"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Bu senkronizasyon önbelleği dışındaki tüm önbellekler temizlenecektir."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Çerezleri temizle?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Otomatik senkronizasyonu aktive edebilmek için manuel olarak akış hizmetinin geçmiş sayfasından manuel olarak yeniden senkronize etmen gerekli."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "$SERVICE$ için son senkronizasyonu sil?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "Tüm seçenekler varsayılan değerlerine sıfırlanacak ve tekrar oturum açmanız gerekecek."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Depolamayı temizle?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Bu sayfa üzerindeki öğeler bellek üzerinden kaldırılacak ve artık bunları gözden geçiremeyeceksiniz."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Senkronizasyon belleğini temizle?"
+	},
+	"continueLoading": {
+		"message": "Yüklemeye devam et"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Doğru"
+	},
+	"correctItem": {
+		"message": "Doğru öğe"
+	},
+	"correctItemFailed": {
+		"message": "Öğe düzeltilemedi."
+	},
+	"correctionDialogContent": {
+		"message": "Aşağıdaki $TITLE$ öğesi için doğru Trakt adresini girin.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Aşağıdaki alana $TITLE$ için doğru Trakt adresini girin veya önerilerden birini kullanın.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "UYARI: Zaten senkronize edilmiş bir öğyeyi düzeltiyorsunuz. Eğer devam ederseniz, önceden senkronize edilmiş olan öğe Trakt geçmişnizden kaldırılacaktır."
+	},
+	"couldNotScrobble": {
+		"message": "Listelenemedi."
+	},
+	"currentCorrection": {
+		"message": "Şuna düzeltildi"
+	},
+	"darkTheme": {
+		"message": "Karanlık"
+	},
+	"days": {
+		"message": "Günler"
+	},
+	"daysDescription": {
+		"message": "Otomatik senkronizasyonun ne sıklıkta gerçekleşeceği."
+	},
+	"errorNotification": {
+		"message": "Bir hata meydana geldi. :("
+	},
+	"errorNotificationLogin": {
+		"message": "Görünüşe göre giriş yapmamışsınız. Lütfen eklentiyi açın ve Trakt hesabınıza giriş yapın."
+	},
+	"errorNotificationNotFound": {
+		"message": "Aman! Trakt't üzerinde izlediğinizi bulamadık. Lütfen öğenin başlığını içeren bir rapor oluşturun."
+	},
+	"errorNotificationServers": {
+		"message": "Maalesef Trakt sunucularına ulaşamadık. Düzeltmeye çalışıyoruz, lütfen daha sonra tekrar deneyin."
+	},
+	"from": {
+		"message": "kimden"
+	},
+	"goToHistoryPage": {
+		"message": "Geçmiş sayfasına git"
+	},
+	"grantCookies": {
+		"message": "Eklentinin Firefox Containers ile çalışabilmesi için \"çerezlere\" izin verin."
+	},
+	"grantCookiesDescription": {
+		"message": "Bu seçenek etkinleştirildiği zaman uzantı, bulunduğunuz konteynırdan tanımlama bilgilerini alarak Firefox Containers ile çalışacaktır. Yalnızca Firefox Containers kullanıyorsanız etkinleştirin."
+	},
+	"hideSynced": {
+		"message": "Senkronize edilenleri gizle."
+	},
+	"history": {
+		"message": "Geçmiş"
+	},
+	"historyFor": {
+		"message": "için geçmiş"
+	},
+	"historySyncError": {
+		"message": "Geçmiş senkronize edilemedi."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ bölümleri ve $MOVIES$ filmleri senkronize edildi.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Ana sayfa"
+	},
+	"invalidTraktUrl": {
+		"message": "Lütfen geçerli bir Trakt adresi girin!"
+	},
+	"isThisWrong": {
+		"message": "Bu yanlış mı?"
+	},
+	"itemNotSynced": {
+		"message": "Öğe senkronize edilmedi"
+	},
+	"itemSynced": {
+		"message": "Öğe senkronize edildi"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "Bazı öğeler için izlenme tarihi eksik. Bu öğeler için manuel olarak izleme tarihini ekleyin veya yayınlanma tarihi ile eklenmesi için gerekli özelliği etkinleştirip tekrar deneyin."
+	},
+	"lastSync": {
+		"message": "Son senkronizasyon tarihi"
+	},
+	"lightTheme": {
+		"message": "Açık"
+	},
+	"loadHistoryError": {
+		"message": "Geçmiş yüklenemedi."
+	},
+	"loadImages": {
+		"message": "Resimleri yükle."
+	},
+	"loadImagesDescription": {
+		"message": "Bu seçenek devre dışı bırakıldığında, listelenecek öğe'nin ve geçmiş sayfasının resimleri yüklenmeyecektir. Resim yüklemek uzantıyı önemli ölçüde yavaşlattığı için yavaş bağlantılar için kullanışlıdır."
+	},
+	"loadTraktHistoryError": {
+		"message": "Trakt geçmişi yüklenemedi."
+	},
+	"loadingHistory": {
+		"message": "Geçmiş yükleniyor"
+	},
+	"loadingSuggestions": {
+		"message": "Öneriler yükleniyor"
+	},
+	"login": {
+		"message": "Trakt.tv ile giriş yap"
+	},
+	"logout": {
+		"message": "Çıkış yap"
+	},
+	"minPercentageWatched": {
+		"message": "Minimum izlenen yüzde."
+	},
+	"missingWatchedDate": {
+		"message": "Eksik izleme tarhi"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "$TITLE$ için eksik izleme tarihini nasıl ekleyeceğinizi seçin.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "$ITEMS$ öğeleri için eksik izleme tarihini nasıl ekleyeceğinizi seçin.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Tarih seçin"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Lütfen geçerli bir tarih giriniz!"
+	},
+	"no": {
+		"message": "Hayır"
+	},
+	"noItemsSelected": {
+		"message": "Hiçbir öğe seçilmedi. Lütfen öğeleri seçin ve tekrar deneyin."
+	},
+	"noServices": {
+		"message": "Herhangi bir akış hizmeti aktif edilmedi. Ayarlar sayfası üzerinden akış hizmetlerini aktif edebilirsiniz."
+	},
+	"notAvailable": {
+		"message": "Mevcut değil"
+	},
+	"notFound": {
+		"message": "Bulunamadı"
+	},
+	"notLoggedIn": {
+		"message": "Giriş Yapılamadı"
+	},
+	"notLoggedInDescription": {
+		"message": "Görünüşe göre bu hizmete giriş sağlanılmamış. Lütfen senkronize etmeden önce aşağıdaki sayfa üzerinden giriş yapın."
+	},
+	"notWatched": {
+		"message": "İzlenmedi"
+	},
+	"notWatching": {
+		"message": "Bir şey izle!"
+	},
+	"nowScrobbling": {
+		"message": "Listeleniyor…"
+	},
+	"on": {
+		"message": "Açık"
+	},
+	"options": {
+		"message": "Şeçenekler"
+	},
+	"profile": {
+		"message": "Profil"
+	},
+	"profileDescription": {
+		"message": "Bu mevcut profildir. Senkronize etmek istediğiniz profil şu anda seçili olan profil değil ise, akış hizmeti üzerinden profiller arasında geçiş yapın."
+	},
+	"progress": {
+		"message": "İlerleme: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Geçmişin sonuna gelindi."
+	},
+	"reachedLastSyncDate": {
+		"message": "Son senkronizasyon tarihine ulaşıld. Eğer daha fazla öğe yüklemek istiyorsanız aşağıdaki butona tıklayın."
+	},
+	"readMore": {
+		"message": "Devamını Oku"
+	},
+	"recentAutoSync": {
+		"message": "Bazı öğeler otomatik olarak senkronize edildi. Buraya tıklayarak senkronize edilen öğeleri gözden geçirip doğru olduğunu kontrol edin."
+	},
+	"recentAutoSyncError": {
+		"message": "Bazı öğeler otomatik olarak senkroniz edilemedi. Buraya tıklayarak gözden geçirin."
+	},
+	"save": {
+		"message": "Kaydet"
+	},
+	"saveOptionFailed": {
+		"message": "Seçenekler kaydedilemedi."
+	},
+	"saveOptionSuccess": {
+		"message": "Seçenek kaydedildi."
+	},
+	"saveSuggestionFailed": {
+		"message": "Öneriler kaydedilemedi."
+	},
+	"scrobblePaused": {
+		"message": "Listeleme durduruldu."
+	},
+	"scrobbleStarted": {
+		"message": "Listeleme başladı."
+	},
+	"scrobbleStopped": {
+		"message": "Listeleme durduruldu."
+	},
+	"select": {
+		"message": "Seç:"
+	},
+	"selectAll": {
+		"message": "Tümü"
+	},
+	"selectNone": {
+		"message": "Hiçbiri"
+	},
+	"selectService": {
+		"message": "Senkronize etmek için akış hizmeti seç:"
+	},
+	"sendReceiveSuggestions": {
+		"message": "Düzeltme önerileri gönderin / alın."
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "Bu seçenek etkinleştirildiğinde, yanlış bir öğeyi her güncellediğinizde, diğer kullanıcıların düzeltme önerileri alabilmesi için düzeltme bir Google Cloud veritabanına gönderilir. Bu seçenek, düzeltme önerilerini almak için de gereklidir."
+	},
+	"service": {
+		"message": "Servis"
+	},
+	"serviceScrobble": {
+		"message": "Listele"
+	},
+	"serviceSync": {
+		"message": "Senkronize et"
+	},
+	"services": {
+		"message": "Akış hizmerleri"
+	},
+	"servicesDescription": {
+		"message": "Aktif edilecek akış hizmetlerini seç."
+	},
+	"showNotifications": {
+		"message": "Tarayıcı bildirimlerini göster."
+	},
+	"showNotificationsDescription": {
+		"message": "Bu seçenek aktif edildi zaman her listeleme başlandığında veya durdurulduğunda bildirim alacaksınız."
+	},
+	"suggestedBy": {
+		"message": "$COUNT$ tane kullanıcı tarafından önerildi",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "Öneriler"
+	},
+	"sync": {
+		"message": "Senkronizasyon"
+	},
+	"syncing": {
+		"message": "Senkronize ediliyor"
+	},
+	"systemTheme": {
+		"message": "Sistem tercihlerinizi kullanın"
+	},
+	"theme": {
+		"message": "Tema"
+	},
+	"themeDescription": {
+		"message": "Kullanılacak temayı seçin."
+	},
+	"toggleAll": {
+		"message": "Aç/Kapat"
+	},
+	"unknown": {
+		"message": "Bilinmeyen"
+	},
+	"use": {
+		"message": "Kullan"
+	},
+	"useCurrentDate": {
+		"message": "Geçerli tarihi kullan."
+	},
+	"useCustomDate": {
+		"message": "Özel tarihi kullan."
+	},
+	"useReleaseDate": {
+		"message": "Çıkış tarihini kullan."
+	},
+	"watched": {
+		"message": "İzlendiği Tarih"
+	},
+	"yes": {
+		"message": "Evet"
+	}
+}
