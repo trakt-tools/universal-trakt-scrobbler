@@ -6,10 +6,10 @@ labels: new streaming service
 
 ### Details
 
-- **Service Name:** 
-- **Service URL:** 
-- **Is it region-locked? If yes, to what region?** 
-- **Does it have a free version / trial?** 
+- **Service Name:**
+- **Service URL:**
+- **Is it region-locked? If yes, to what region?**
+- **Does it have a free version / trial?**
 
 ### Additional Information
 

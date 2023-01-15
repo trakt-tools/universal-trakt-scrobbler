@@ -8,24 +8,18 @@ labels: bug
 
 <!-- Describe what should happen -->
 
-
-
 ### Current Behavior
 
 <!-- Describe what's actually happening -->
-
-
 
 ### Steps to Reproduce
 
 <!-- Describe the steps to reproduce -->
 
-
-
 <!-- Feel free to attach any screenshots/videos that could help. -->
 
 ### Additional Information
 
-- **OS + Version:** 
-- **Browser + Version:** 
-- **Country/Region:** 
+- **OS + Version:**
+- **Browser + Version:**
+- **Country/Region:**
