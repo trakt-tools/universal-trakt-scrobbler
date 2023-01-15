@@ -47,6 +47,9 @@
 	"cannotSync": {
 		"message": "Klarer ikke å synkronisere elementer"
 	},
+	"clear": {
+		"message": "Fjern"
+	},
 	"clearCaches": {
 		"message": "Fjern mellomlagrede data"
 	},
@@ -139,6 +142,9 @@
 	"couldNotScrobble": {
 		"message": "Scrobbling feilet."
 	},
+	"currentCorrection": {
+		"message": "Er nå rettet til"
+	},
 	"darkTheme": {
 		"message": "Mørkt"
 	},
@@ -221,6 +227,12 @@
 	},
 	"loadHistoryError": {
 		"message": "Klarte ikke å laste inn historikken."
+	},
+	"loadImages": {
+		"message": "Last bilder."
+	},
+	"loadImagesDescription": {
+		"message": "Deaktiveres dette valget lastes ikke bilder for scrobbling-elementer og historie-elementene. Dette er nyttig for langsommere Internett-forbindelser, hvor innlasting av bilder gjør utvidelsen treg."
 	},
 	"loadTraktHistoryError": {
 		"message": "Klarte ikke å laste inn Trakt historikken."
