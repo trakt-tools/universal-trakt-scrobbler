@@ -281,6 +281,7 @@ export abstract class ServiceApi {
 	 * Should be overridden in the child class.
 	 */
 	loadHistoryItems(): Promise<unknown[]> {
+		Shared.errors.error('loadHistoryItems() is not implemented in this service!', new Error());
 		return Promise.resolve([]);
 	}
 
@@ -290,6 +291,7 @@ export abstract class ServiceApi {
 	 * Should be overridden in the child class.
 	 */
 	isNewHistoryItem(historyItem: unknown, lastSync: number, lastSyncId: string): boolean {
+		Shared.errors.error('isNewHistoryItem() is not implemented in this service!', new Error());
 		return true;
 	}
 
@@ -299,6 +301,7 @@ export abstract class ServiceApi {
 	 * Should be overridden in the child class.
 	 */
 	getHistoryItemId(historyItem: unknown): string {
+		Shared.errors.error('getHistoryItemId() is not implemented in this service!', new Error());
 		return '';
 	}
 
@@ -308,6 +311,7 @@ export abstract class ServiceApi {
 	 * Should be overridden in the child class.
 	 */
 	convertHistoryItems(historyItems: unknown[]): Promisable<ScrobbleItem[]> {
+		Shared.errors.error('convertHistoryItems() is not implemented in this service!', new Error());
 		return Promise.resolve([]);
 	}
 
@@ -319,6 +323,7 @@ export abstract class ServiceApi {
 	 * Should be overridden in the child class.
 	 */
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: unknown): void {
+		Shared.errors.error('updateItemFromHistory() is not implemented in this service!', new Error());
 		// Do nothing
 	}
 
@@ -326,6 +331,7 @@ export abstract class ServiceApi {
 	 * If an item can be retrieved from the API based on the ID, this method should be overridden in the child class.
 	 */
 	getItem(id: string): Promise<ScrobbleItem | null> {
+		Shared.errors.error('getItem() is not implemented in this service!', new Error());
 		return Promise.resolve(null);
 	}
 }

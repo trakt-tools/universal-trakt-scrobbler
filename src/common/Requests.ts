@@ -80,11 +80,11 @@ class _Requests {
 			if (responseStatus < 200 || responseStatus >= 400) {
 				throw responseText;
 			}
-		} catch (err) {
+		} catch (err: any) {
 			throw new RequestError({
 				request,
-				status: responseStatus,
-				text: responseText,
+				status: err.response.status,
+				text: err.response.data,
 				isCanceled: err instanceof axios.Cancel,
 			});
 		}
