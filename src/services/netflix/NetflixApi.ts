@@ -188,7 +188,7 @@ class _NetflixApi extends ServiceApi {
 				});
 				this.session = this.extractSession(responseText);
 			}
-			if (this.session && this.session.profileName) {
+			if (this.session?.profileName != null) {
 				this.isActivated = true;
 			}
 		} catch (err) {
@@ -203,7 +203,7 @@ class _NetflixApi extends ServiceApi {
 		if (!this.isActivated) {
 			await this.activate();
 		}
-		return !!this.session && this.session.profileName !== null;
+		return this.session?.profileName != null;
 	}
 
 	async loadHistoryItems(): Promise<NetflixHistoryItem[]> {
