@@ -1,0 +1,455 @@
+{
+	"about": {
+		"message": "Informácie"
+	},
+	"aboutMessage": {
+		"message": "Odošlite vašu aktivitu z obľúbených streamovacích služieb do Trakt.tv!"
+	},
+	"add": {
+		"message": "Pridať"
+	},
+	"addDate": {
+		"message": "Pridať dátum"
+	},
+	"addMissingWatchedDateFailed": {
+		"message": "Nepodarilo sa pridať chýbajúci dátum sledovania."
+	},
+	"addWithReleaseDate": {
+		"message": "Pridať s dátumom vydania."
+	},
+	"addWithReleaseDateMissing": {
+		"message": "Pridať s dátumom vydania iba pre položky, kde chýba dátum sledovania."
+	},
+	"allowRollbar": {
+		"message": "Povoliť Rollbaru zbierať informácie o chybách."
+	},
+	"allowRollbarDescription": {
+		"message": "S povolením tejto možnosti, kedykoľvek príde ku chybe, informácie súvisiace s chybou budú zozbierané a odoslané ku nám, aby sme vedeli chybu rýchlejšie identifikovať a opraviť. Táto informácia obsahuje: kedy došlo ku chybe, zdroj chyby, názov a verzia prehliadača, názov operačného systému. Tieto údaje nie sú zdieľané so žiadnou ďalšou službou."
+	},
+	"appDescription": {
+		"message": "Univerzálna synchronizácia pre Trakt.tv."
+	},
+	"autoSync": {
+		"message": "Automatické synchronizovanie"
+	},
+	"autoSyncNotActivated": {
+		"message": "Automatické synchronizovanie nie je aktívne. Je potrebné aby ste synchronizáciu vykonali manuálne v histórii stránky, aby sa uložil posledný dátum."
+	},
+	"autoSyncPageMessage": {
+		"message": "Toto sú položky, ktoré sa nepodarilo automaticky synchronizovať, prípadne ich synchronizácia zlyhala. Ak je potrebné vykonať nejaké úpravy, vykonajte ich a následne stlačtle tlačítko na synchronizáciu. Keď to spravíte, záloha bude zmazaná a tieto položky sa viac nezobrazia na tejto stránke. Ak nie je potrebné vykonať žiadne zmeny, kliknite na Vyčistiť zálohu synchronizácie."
+	},
+	"autoSyncing": {
+		"message": "Automaticky synchronizujem..."
+	},
+	"cancel": {
+		"message": "Zrušiť"
+	},
+	"cannotSync": {
+		"message": "Nie je možné synchronizovať položky"
+	},
+	"clear": {
+		"message": "Vyčistiť"
+	},
+	"clearCaches": {
+		"message": "Vyčistiť zálohy"
+	},
+	"clearCachesFailed": {
+		"message": "Zlyhalo čistenie záloh."
+	},
+	"clearCachesSuccess": {
+		"message": "Zálohy vyčistené."
+	},
+	"clearLastSync": {
+		"message": "Vynulovať dátum poslednej synchronizácie"
+	},
+	"clearStorage": {
+		"message": "Vyčistiť úložisko"
+	},
+	"clearStorageFailed": {
+		"message": "Nepodarilo sa vyčistiť úložisko."
+	},
+	"clearStorageSuccess": {
+		"message": "Úložisko bolo vyčistené."
+	},
+	"clearSyncCache": {
+		"message": "Vyčistiť zálohu synchronizácie"
+	},
+	"close": {
+		"description": "This is the verb, as in 'to close'.",
+		"message": "Zatvoriť"
+	},
+	"confirmClearCachesMessage": {
+		"message": "Všetky zálohy budú vyčistené, mimo zálohy synchronizácie."
+	},
+	"confirmClearCachesTitle": {
+		"message": "Vyčistiť zálohy?"
+	},
+	"confirmClearLastSyncMessage": {
+		"message": "Musíte vykonať manuálnu synchronizáciu v histórii stránky v streamovacej službe, aby sa reaktivovala automatická synchronizácia."
+	},
+	"confirmClearLastSyncTitle": {
+		"message": "Vyčistiť dátum poslednej synchronizácie pre $SERVICE$?",
+		"placeholders": {
+			"service": {
+				"content": "$1"
+			}
+		}
+	},
+	"confirmClearStorageMessage": {
+		"message": "Všetky nastavenia budú resetnuté do ich pôvodných hodnôt a bude potrebné sa znova prihlásiť."
+	},
+	"confirmClearStorageTitle": {
+		"message": "Vyčistiť úložisko?"
+	},
+	"confirmClearSyncCacheMessage": {
+		"message": "Všetky položky z aktuálnej stránky budú odstránené zo zálohy a už ich nebudete môcť opätovne skontrolovať."
+	},
+	"confirmClearSyncCacheTitle": {
+		"message": "Vyčistiť zálohu synchronizácie?"
+	},
+	"continueLoading": {
+		"message": "Pokračovať v nahrávaní"
+	},
+	"correct": {
+		"description": "This is the verb, as in 'to correct'.",
+		"message": "Správne"
+	},
+	"correctItem": {
+		"message": "Správna položka"
+	},
+	"correctItemFailed": {
+		"message": "Nepodarilo sa opraviť položku."
+	},
+	"correctionDialogContent": {
+		"message": "Zadajte správnu Trakt URL pre $TITLE$ v poli nižšie.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogContentWithSuggestions": {
+		"message": "Zadajte správnu Trakt URL pre $TITLE$ v poli nižšie alebo použite jednu z navrhovaných.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"correctionDialogSyncedWarning": {
+		"message": "VAROVANIE: Snažíte sa opraviť položku, ktorá už bola synchronizovaná. Ak budete pokračovať, predošlá synchronizovaná položka bude zmazaná z vašej Trakt histórie."
+	},
+	"couldNotScrobble": {
+		"message": "Nebolo možné zistiť."
+	},
+	"currentCorrection": {
+		"message": "Aktuálne opravené v"
+	},
+	"darkTheme": {
+		"message": "Tmavá"
+	},
+	"days": {
+		"message": "Dni"
+	},
+	"daysDescription": {
+		"message": "Ako často má automatická synchronizácia zbiehať."
+	},
+	"errorNotification": {
+		"message": "Došlo k neočakávanej chybe :("
+	},
+	"errorNotificationLogin": {
+		"message": "Vyzerá fo tak, že nie ste prihlásený. Prosím, otvorte rozšírenie a prihláste sa do svojho Trakt.tv účtu."
+	},
+	"errorNotificationNotFound": {
+		"message": "Ouch... Nepodarilo sa nám nájsť čo ste sledovali v Trakt.tv. Prosím, zanechajte hlásenie s názvom položky."
+	},
+	"errorNotificationServers": {
+		"message": "Nepodarilo sa nám komunikovať so servermi služby Trakt.tv. Snažíme sa o odstránenie porblému, prosím skúste to neskôr."
+	},
+	"from": {
+		"message": "z"
+	},
+	"goToHistoryPage": {
+		"message": "Prejsť do Histórie"
+	},
+	"grantCookies": {
+		"message": "Povoľte \"cookies\" aby mohlo rozšírenie pracovať s Firefox kontajnermi."
+	},
+	"grantCookiesDescription": {
+		"message": "S povolením tejto možnosti, umožníte rozšíreniu pracovať s Firefox kontajnermi, získavaním cookies z aktuálneho kontajneru v ktorom sa nachádzate. Povoľte len ak používate Firefox kontajnery."
+	},
+	"hideSynced": {
+		"message": "Skryť synchronizované."
+	},
+	"history": {
+		"message": "História"
+	},
+	"historyFor": {
+		"message": "História pre"
+	},
+	"historySyncError": {
+		"message": "Nepodarilo sa synchronizovať históriu."
+	},
+	"historySyncSuccess": {
+		"message": "$EPISODES$ epizód a $MOVIES$ filmov bolo synchronizovaných.",
+		"placeholders": {
+			"episodes": {
+				"content": "$1"
+			},
+			"movies": {
+				"content": "$2"
+			}
+		}
+	},
+	"home": {
+		"message": "Domov"
+	},
+	"invalidTraktUrl": {
+		"message": "Prosím, vložte korektnú Trakt.tv URL!"
+	},
+	"isThisWrong": {
+		"message": "Čo je tu chybné?"
+	},
+	"itemNotSynced": {
+		"message": "Položka nebola synchronizovaná"
+	},
+	"itemSynced": {
+		"message": "Položka bola synchronizovaná"
+	},
+	"itemsMissingWatchedDate": {
+		"message": "Niektoré položky neobsahujú dátum, kedy boli pozerané. Upravte dané položky alebo povoľte automatické doplnenie dátumu podľa dátumu vydania a skúste to znovu."
+	},
+	"lastSync": {
+		"message": "Dátum poslednej synchronizácie"
+	},
+	"lightTheme": {
+		"message": "Svetlá"
+	},
+	"loadHistoryError": {
+		"message": "Nepodarilo sa načítať históriu."
+	},
+	"loadImages": {
+		"message": "Load images."
+	},
+	"loadImagesDescription": {
+		"message": "With this option disabled, images for the scrobbling item and for the history items will not be loaded. This is useful for slower connections, where loading images significantly slows down the extension."
+	},
+	"loadTraktHistoryError": {
+		"message": "Nepodarilo sa načítať históriu z Trakt.tv."
+	},
+	"loadingHistory": {
+		"message": "Načítavam históriu"
+	},
+	"loadingSuggestions": {
+		"message": "Načítavam návrhy"
+	},
+	"login": {
+		"message": "Prihlásiť cez Trakt.tv"
+	},
+	"logout": {
+		"message": "Odhlásenie"
+	},
+	"minPercentageWatched": {
+		"message": "Minimálne percentá sledovania."
+	},
+	"missingWatchedDate": {
+		"message": "Chýba dátum sledovania"
+	},
+	"missingWatchedDateDialogContent": {
+		"message": "Zvoľte ako chcete zadať chýbajúci dátum sledovania pre $TITLE$.",
+		"placeholders": {
+			"title": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogContentMultiple": {
+		"message": "Zvoľte, ako chcete pridať chýbajúce dátumy sledovania pre $ITEMS$ položiek.",
+		"placeholders": {
+			"items": {
+				"content": "$1"
+			}
+		}
+	},
+	"missingWatchedDateDialogDateLabel": {
+		"message": "Vyberte dátum"
+	},
+	"missingWatchedDateDialogInvalidDateLabel": {
+		"message": "Prosím, zadajte korektný dátum!"
+	},
+	"no": {
+		"message": "Nie"
+	},
+	"noItemsSelected": {
+		"message": "Neboli vybrané žiadne položky. Vyberte niektoré položky a skúste to znova."
+	},
+	"noServices": {
+		"message": "Neboli aktivované žiadne streamovacie služby. Môžete tak spraviť v nastaveniach streamovacích služieb."
+	},
+	"notAvailable": {
+		"message": "Nie je dostupné"
+	},
+	"notFound": {
+		"message": "Nebolo nájdené"
+	},
+	"notLoggedIn": {
+		"message": "Neprihlásený"
+	},
+	"notLoggedInDescription": {
+		"message": "Vyzerá to tak, že nie ste prihlásený k službe. Prosím, prejdite na stránku nižšie a prihláste sa, skôr ako skúsite synchronizáciu."
+	},
+	"notWatched": {
+		"message": "Nepozerané"
+	},
+	"notWatching": {
+		"message": "Pozeraj niečo!"
+	},
+	"nowScrobbling": {
+		"message": "Práve zbieram"
+	},
+	"on": {
+		"message": "Na"
+	},
+	"options": {
+		"message": "Možnosti"
+	},
+	"profile": {
+		"message": "Profil"
+	},
+	"profileDescription": {
+		"message": "Toto je aktuálny profil. Ak toto nie je profil, ktorý chcete synchronizovať, prepnite profil v stránke služieb."
+	},
+	"progress": {
+		"message": "Progres: $PROGRESS$%",
+		"placeholders": {
+			"progress": {
+				"content": "$1"
+			}
+		}
+	},
+	"reachedHistoryEnd": {
+		"message": "Dosiahli ste na koniec histórie."
+	},
+	"reachedLastSyncDate": {
+		"message": "Dosiahli ste posledný dátum synchronizácie. Ak chcete nahrať položky pred týmto dátumom, kliknite na tlačítko nižšie."
+	},
+	"readMore": {
+		"message": "Čítať viac"
+	},
+	"recentAutoSync": {
+		"message": "Niektoré položky boli predchvíľou automaticky synchronizované. Kliknite sem ak chcete skontrolovať, že sa synchronizovali správne položky."
+	},
+	"recentAutoSyncError": {
+		"message": "Niektoré položky sa nepodarilo automaticky synchronizovať. Kliknite sem a skontrolujte čo sa nepodarilo."
+	},
+	"save": {
+		"message": "Uložiť"
+	},
+	"saveOptionFailed": {
+		"message": "Nepodarilo sa uložiť možnosť."
+	},
+	"saveOptionSuccess": {
+		"message": "Možnosť uložená."
+	},
+	"saveSuggestionFailed": {
+		"message": "Nepodarilo sa uložiť odporúčanie."
+	},
+	"scrobblePaused": {
+		"message": "Zbieranie pozastavené."
+	},
+	"scrobbleStarted": {
+		"message": "Zbieranie spustené."
+	},
+	"scrobbleStopped": {
+		"message": "Zbieranie zastavené."
+	},
+	"select": {
+		"message": "Vyberte:"
+	},
+	"selectAll": {
+		"message": "Všetko"
+	},
+	"selectNone": {
+		"message": "Nič"
+	},
+	"selectService": {
+		"message": "Vyberte streamovaciu službu z ktorej chcete synchronizovať:"
+	},
+	"sendReceiveSuggestions": {
+		"message": "Odoslať / prijať návrhy na opravy."
+	},
+	"sendReceiveSuggestionsDescription": {
+		"message": "So zapnutou touto možnosťou, kedykoľvek aktualizujete chybnú položku, oprava bude poslaná na Google cloud databázu, aby mohli iní užívatelia dostať návrh na opravu. Táto možnosť vyžaduje, aby ste príjmali aj vy tieto návrhy na opravu."
+	},
+	"service": {
+		"message": "Služba"
+	},
+	"serviceScrobble": {
+		"message": "Zbieranie"
+	},
+	"serviceSync": {
+		"message": "Synchronizácia"
+	},
+	"services": {
+		"message": "Streamovacie služby"
+	},
+	"servicesDescription": {
+		"message": "Vyberte, ktoré streamovacie služby chcete povoliť."
+	},
+	"showNotifications": {
+		"message": "Zobrazovať notifikácie v prehliadači."
+	},
+	"showNotificationsDescription": {
+		"message": "So zapnutou touto možnosťou, budete prostredníctvom prehliadača dostávať notifikácie, kedykoľvek začnete alebo prestanete zbierať údaje o položkách, ktoré sledujete."
+	},
+	"suggestedBy": {
+		"message": "Navrhuje $COUNT$ užívateľov",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"suggestions": {
+		"message": "Návrhy"
+	},
+	"sync": {
+		"message": "Synchronizovať"
+	},
+	"syncing": {
+		"message": "Synchronizuje sa"
+	},
+	"systemTheme": {
+		"message": "Použiť nastavenia podľa systému"
+	},
+	"theme": {
+		"message": "Téma"
+	},
+	"themeDescription": {
+		"message": "Vyberte akú tému chcete použiť."
+	},
+	"toggleAll": {
+		"message": "Prepnúť"
+	},
+	"unknown": {
+		"message": "Neznáme"
+	},
+	"use": {
+		"message": "Použiť"
+	},
+	"useCurrentDate": {
+		"message": "Použiť aktuálny dátum."
+	},
+	"useCustomDate": {
+		"message": "Použiť vlastný dátum."
+	},
+	"useReleaseDate": {
+		"message": "Použiť dátum vydania."
+	},
+	"watched": {
+		"message": "Sledované na"
+	},
+	"yes": {
+		"message": "Áno"
+	}
+}
