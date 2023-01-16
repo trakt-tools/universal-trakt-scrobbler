@@ -140,14 +140,28 @@ export const HistoryListItemCard = ({
 									>
 										{item.title}
 									</Typography>
-									<Typography variant="subtitle2">{item.show.title}</Typography>
+									<Typography
+										variant="subtitle2"
+										noWrap
+										style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}
+										title={item.show.title}
+									>
+										{item.show.title}
+									</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
 							) : (
 								<>
 									{item.year && <Typography variant="overline">{item.year}</Typography>}
-									<Typography variant="h6">{item.title}</Typography>
+									<Typography
+										variant="h6"
+										noWrap
+										style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}
+										title={item.title}
+									>
+										{item.title}
+									</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
