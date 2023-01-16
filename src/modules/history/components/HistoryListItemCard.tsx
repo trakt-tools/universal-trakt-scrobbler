@@ -79,6 +79,34 @@ export const HistoryListItemCard = ({
 					<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
 				</Button>
 			);
+		} else if (isTraktItem(item) && item.otherWatches?.length) {
+			watchedAtComponent = (
+				<Typography variant="overline">
+					<Tooltip
+						title={
+							<span style={{ whiteSpace: 'pre-line', textAlign: 'center', display: 'block' }}>
+								{[
+									I18N.translate('otherPlays'),
+									...item.otherWatches.map((watch) => Utils.timestamp(watch)),
+								].join('\n')}
+							</span>
+						}
+					>
+						<Link
+							href={item.getHistoryUrl()}
+							target="_blank"
+							rel="noreferrer"
+							sx={{
+								color: 'inherit',
+								textDecorationColor: 'inherit',
+								textDecorationStyle: 'dotted',
+							}}
+						>
+							{I18N.translate('watchedOtherTimes', item.otherWatches.length.toString())}
+						</Link>
+					</Tooltip>
+				</Typography>
+			);
 		} else {
 			watchedAtComponent = (
 				<Typography variant="overline">{I18N.translate('notWatched')}</Typography>

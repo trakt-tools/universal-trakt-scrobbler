@@ -316,6 +316,9 @@
 	"options": {
 		"message": "Options"
 	},
+	"otherPlays": {
+		"message": "Other plays:"
+	},
 	"profile": {
 		"message": "Profile"
 	},
@@ -451,6 +454,14 @@
 	},
 	"watched": {
 		"message": "Watched On"
+	},
+	"watchedOtherTimes": {
+		"message": "Watched $COUNT$ other times",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
 	},
 	"yes": {
 		"message": "Yes"

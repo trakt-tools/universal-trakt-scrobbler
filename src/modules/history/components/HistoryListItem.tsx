@@ -8,7 +8,7 @@ import { ScrobbleItem } from '@models/Item';
 import { getService } from '@models/Service';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
-import { green, red } from '@mui/material/colors';
+import { green, grey, red } from '@mui/material/colors';
 import { ChangeEvent, memo, useEffect, useState } from 'react';
 import { areEqual, ListChildComponentProps } from 'react-window';
 

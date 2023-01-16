@@ -14,6 +14,8 @@ export interface TraktBaseItemValues {
 	year: number;
 	releaseDate?: number;
 	watchedAt?: number | null;
+	/** List of other watchedAt values available */
+	otherWatches?: number[];
 	progress?: number;
 }
 
@@ -48,6 +50,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 	year: number;
 	releaseDate?: number;
 	watchedAt?: number | null;
+	otherWatches?: number[];
 	progress: number;
 
 	constructor(values: TraktBaseItemValues) {
@@ -58,6 +61,8 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 		this.year = values.year;
 		this.releaseDate = values.releaseDate;
 		this.watchedAt = values.watchedAt;
+		this.otherWatches =
+			values.otherWatches != null ? [...values.otherWatches] : values.otherWatches;
 		this.progress = values.progress ? Math.round(values.progress * 100) / 100 : 0.0;
 	}
 
@@ -70,6 +75,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 			year: this.year,
 			releaseDate: this.releaseDate,
 			watchedAt: this.watchedAt,
+			otherWatches: this.otherWatches != null ? [...this.otherWatches] : this.otherWatches,
 			progress: this.progress,
 		};
 	}
