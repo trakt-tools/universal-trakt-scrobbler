@@ -204,7 +204,9 @@ export abstract class ServiceApi {
 						break;
 					}
 				}
-				hasReachedEnd = this.hasReachedHistoryEnd || hasReachedLastSyncDate;
+				hasReachedEnd =
+					(this.leftoverHistoryItems.length === 0 && this.hasReachedHistoryEnd) ||
+					hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const tmpItems: (ScrobbleItem | null)[] = [];
