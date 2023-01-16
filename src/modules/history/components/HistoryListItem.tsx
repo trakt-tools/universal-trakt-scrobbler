@@ -81,9 +81,11 @@ const _HistoryListItem = ({
 		return stopListeners;
 	}, []);
 
-	const [statusColor, statusMessageName]: [string, MessageName] = item?.trakt?.watchedAt
-		? [green[500], 'itemSynced']
-		: [red[500], 'itemNotSynced'];
+	const [statusColor, statusMessageName]: [string, MessageName] = item?.trakt
+		? item?.trakt?.watchedAt
+			? [green[500], 'itemSynced']
+			: [red[500], 'itemNotSynced']
+		: [grey[700], 'itemSyncStatusUnknown'];
 	let serviceName;
 	if (item?.serviceId) {
 		serviceName = getService(item.serviceId).name;

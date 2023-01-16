@@ -216,6 +216,9 @@
 	"itemSynced": {
 		"message": "Item synced"
 	},
+	"itemSyncStatusUnknown": {
+		"message": "Item sync status unknown"
+	},
 	"itemsMissingWatchedDate": {
 		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
 	},
