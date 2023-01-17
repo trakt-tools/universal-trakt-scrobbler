@@ -17,6 +17,7 @@ export interface TraktBaseItemValues {
 	/** List of other watchedAt values available */
 	otherWatches?: number[];
 	progress?: number;
+	imageUrl?: string | null;
 }
 
 export interface TraktEpisodeItemValues extends TraktBaseItemValues {
@@ -52,6 +53,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 	watchedAt?: number | null;
 	otherWatches?: number[];
 	progress: number;
+	imageUrl?: string | null;
 
 	constructor(values: TraktBaseItemValues) {
 		this.id = values.id;
@@ -64,6 +66,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 		this.otherWatches =
 			values.otherWatches != null ? [...values.otherWatches] : values.otherWatches;
 		this.progress = values.progress ? Math.round(values.progress * 100) / 100 : 0.0;
+		this.imageUrl = values.imageUrl;
 	}
 
 	save(): TraktBaseItemValues {
@@ -77,6 +80,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 			watchedAt: this.watchedAt,
 			otherWatches: this.otherWatches != null ? [...this.otherWatches] : this.otherWatches,
 			progress: this.progress,
+			imageUrl: this.imageUrl,
 		};
 	}
 

@@ -91,7 +91,7 @@ class _TmdbApi {
 		if (!this.config || !item?.tmdbId) {
 			return null;
 		}
-		const cache = await Cache.get('imageUrls');
+		const cache = await Cache.get('tmdbImageUrls');
 		const databaseId = item.getDatabaseId();
 		let imageUrl = cache.get(databaseId);
 		if (typeof imageUrl !== 'undefined') {
@@ -107,7 +107,7 @@ class _TmdbApi {
 			if (image?.file_path) {
 				imageUrl = `${this.config.baseUrl}${this.config.sizes[item.type]}${image.file_path}`;
 				cache.set(databaseId, imageUrl);
-				await Cache.set({ imageUrls: cache });
+				await Cache.set({ tmdbImageUrls: cache });
 				return imageUrl;
 			}
 		} catch (err) {
@@ -149,22 +149,22 @@ class _TmdbApi {
 	 * If all images have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.
 	 */
 	async loadImages(items: ScrobbleItem[]): Promise<ScrobbleItem[]> {
-		const hasLoadedImages = !items.some((item) => typeof item.imageUrl === 'undefined');
+		const hasLoadedImages = !items.some((item) => typeof item.trakt?.imageUrl === 'undefined');
 		if (hasLoadedImages) {
 			return items;
 		}
 		const newItems = items.map((item) => item.clone());
-		const cache = await Cache.get('imageUrls');
+		const cache = await Cache.get('tmdbImageUrls');
 		try {
 			const itemsToFetch: ScrobbleItem[] = [];
 			for (const item of newItems) {
-				if (!item.trakt || typeof item.imageUrl !== 'undefined') {
+				if (!item.trakt || typeof item.trakt.imageUrl !== 'undefined') {
 					continue;
 				}
 				const databaseId = item.trakt.getDatabaseId();
 				const imageUrl = cache.get(databaseId);
 				if (typeof imageUrl !== 'undefined') {
-					item.imageUrl = imageUrl;
+					item.trakt.imageUrl = imageUrl;
 				} else {
 					itemsToFetch.push(item);
 				}
@@ -198,7 +198,7 @@ class _TmdbApi {
 						continue;
 					}
 					const databaseId = item.trakt.getDatabaseId();
-					item.imageUrl = json?.result[databaseId] || (await this.findImage(item.trakt));
+					item.trakt.imageUrl = json?.result[databaseId] || (await this.findImage(item.trakt));
 				}
 			}
 		} catch (err) {
@@ -210,10 +210,10 @@ class _TmdbApi {
 				continue;
 			}
 			const databaseId = item.trakt.getDatabaseId();
-			item.imageUrl = item.imageUrl || null;
-			cache.set(databaseId, item.imageUrl);
+			item.trakt.imageUrl = item.trakt.imageUrl || null;
+			cache.set(databaseId, item.trakt.imageUrl);
 		}
-		await Cache.set({ imageUrls: cache });
+		await Cache.set({ tmdbImageUrls: cache });
 		return newItems;
 	}
 }

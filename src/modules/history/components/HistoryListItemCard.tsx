@@ -4,7 +4,7 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
-import { TmdbImage } from '@components/TmdbImage';
+import { BackgroundImage } from '@components/BackgroundImage';
 import { isItem, ScrobbleItem } from '@models/Item';
 import { isTraktItem, TraktItem } from '@models/TraktItem';
 import {
@@ -125,7 +125,8 @@ export const HistoryListItemCard = ({
 		);
 	}
 
-	const hasImage = isTraktItem(item) || item === null;
+	const hasImage: boolean =
+		Shared.storage.options.loadImages && (!!item?.imageUrl || isTraktItem(item) || item === null);
 	return (
 		<Card
 			variant="outlined"
@@ -142,7 +143,7 @@ export const HistoryListItemCard = ({
 					: {}),
 			}}
 		>
-			{hasImage && <TmdbImage imageUrl={imageUrl} />}
+			{hasImage && <BackgroundImage imageUrl={imageUrl} />}
 			<CardContent
 				sx={{
 					position: 'relative',

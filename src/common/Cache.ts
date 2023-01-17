@@ -19,12 +19,12 @@ export type CacheValues = {
 export interface CacheSubValues {
 	history: HistoryCache;
 	historyItemsToItems: string;
-	imageUrls: string | null;
 	items: ScrobbleItemValues;
 	itemsToTraktItems: string;
 	servicesData: unknown;
 	suggestions: Suggestion[] | null;
 	tmdbApiConfigs: TmdbApiConfig | null;
+	tmdbImageUrls: string | null;
 	traktHistoryItems: TraktHistoryItem[];
 	traktItems: TraktItemValues;
 	traktSettings: TraktSettingsResponse;
@@ -79,12 +79,12 @@ class _Cache {
 	private ttl: Record<keyof CacheValues, number> = {
 		history: 24 * 60 * 60,
 		historyItemsToItems: 24 * 60 * 60,
-		imageUrls: 24 * 60 * 60,
 		items: 24 * 60 * 60,
 		itemsToTraktItems: 24 * 60 * 60,
 		servicesData: 24 * 60 * 60,
 		suggestions: 60 * 60,
 		tmdbApiConfigs: 7 * 24 * 60 * 60,
+		tmdbImageUrls: 24 * 60 * 60,
 		traktHistoryItems: 45 * 60,
 		traktItems: 24 * 60 * 60,
 		traktSettings: 24 * 60 * 60,

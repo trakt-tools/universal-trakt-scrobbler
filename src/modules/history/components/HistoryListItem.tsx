@@ -153,6 +153,7 @@ const _HistoryListItem = ({
 						isLoading={item?.isLoading ?? true}
 						item={item}
 						name={serviceName}
+						imageUrl={item?.imageUrl}
 						openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 					/>
 					<Tooltip title={I18N.translate(statusMessageName)}>
@@ -177,7 +178,7 @@ const _HistoryListItem = ({
 						item={item?.trakt}
 						name="Trakt"
 						suggestions={item?.suggestions}
-						imageUrl={item?.imageUrl}
+						imageUrl={item?.trakt?.imageUrl}
 						openCorrectionDialog={openCorrectionDialog}
 					/>
 				</>
