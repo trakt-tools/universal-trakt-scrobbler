@@ -53,12 +53,7 @@ export const PopupHeader = (): JSX.Element => {
 	}, []);
 
 	return (
-		<AppBar
-			position="sticky"
-			sx={{
-				color: '#fff',
-			}}
-		>
+		<AppBar position="sticky">
 			<Toolbar>
 				<LeftRight
 					centerVertically={true}

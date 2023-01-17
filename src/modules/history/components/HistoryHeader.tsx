@@ -36,7 +36,6 @@ export const HistoryHeader = (): JSX.Element => {
 			position="sticky"
 			sx={{
 				zIndex: ({ zIndex }) => zIndex.drawer + 1,
-				color: '#fff',
 			}}
 		>
 			<Toolbar>

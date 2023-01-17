@@ -1,11 +1,13 @@
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
 import { useSync } from '@contexts/SyncContext';
-import { Box, Button, Divider } from '@mui/material';
+import { Box, Button, Divider, useTheme } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export const HistoryActions = (): JSX.Element => {
 	const { serviceId, store } = useSync();
+
+	const theme = useTheme();
 
 	const [areItemsMissingWatchedDate, setItemsMissingWatchedDate] = useState(
 		store.areItemsMissingWatchedDate()
@@ -73,7 +75,7 @@ export const HistoryActions = (): JSX.Element => {
 		<Box
 			sx={{
 				zIndex: ({ zIndex }) => zIndex.drawer + 1,
-				backgroundColor: '#fff',
+				backgroundColor: theme.palette.background.default,
 			}}
 		>
 			<Divider />
