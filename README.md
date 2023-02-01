@@ -17,7 +17,7 @@
 
 **WARNING:** This extension has not been released yet. For now you can install it manually by downloading the zip for your browser here: https://github.com/trakt-tools/universal-trakt-scrobbler/releases
 
-### Loading the extension manually on Chrome
+### Loading the extension manually in Chrome
 
 1. Unzip `chrome.zip`
 2. Go to chrome://extensions
@@ -25,11 +25,19 @@
 4. Click "Load unpacked"
 5. Select the folder you unzipped
 
-### Loading the extension on Firefox
+We are working on getting the extension in the Chrome and store ASAP.
+
+### Loading the extension in Firefox
 
 The extension is available in the Firefox store. Install it from [here](https://addons.mozilla.org/en-US/firefox/addon/universal-trakt-scrobbler/).
 
-We are working on getting the extension in the Chrome and store ASAP.
+#### Loading the extension manually in Firefox
+
+1. Go to about:debugging#/runtime/this-firefox
+2. Click "Load temporary addon"
+3. Select `firefox.zip` or, if it's unzipped, select any file in the folder
+
+Extension will be enabled until you restart Firefox.
 
 ### Table of Contents
 
