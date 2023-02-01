@@ -81,10 +81,23 @@ class _Requests {
 				throw responseText;
 			}
 		} catch (err) {
+			let errRespStatus = -1;
+			let errRespData: string | undefined = undefined;
+			// Making sure all accessed data is actually there
+			if (
+				typeof err === 'object' &&
+				err &&
+				'response' in err &&
+				typeof err.response === 'object' &&
+				err.response
+			) {
+				if ('status' in err.response) errRespStatus = err.response.status as number;
+				if ('data' in err.response) errRespData = err.response.data as string;
+			}
 			throw new RequestError({
 				request,
-				status: responseStatus,
-				text: responseText,
+				status: errRespStatus,
+				text: errRespData,
 				isCanceled: err instanceof axios.Cancel,
 			});
 		}
