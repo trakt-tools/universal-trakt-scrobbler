@@ -2,17 +2,22 @@ import { FullView } from '@components/FullView';
 import TraktIconImage from '@images/trakt-icon.png';
 import { Box } from '@mui/material';
 
-interface TmdbImageProps {
+interface BackgroundImageProps {
 	imageUrl?: string | null;
+	/** Fallback image in case {@link imageUrl} is falsy. Defaults to the Trakt logo. */
+	fallbackImageUrl?: string;
 }
 
-export const TmdbImage = ({ imageUrl }: TmdbImageProps): JSX.Element => {
+export const BackgroundImage = ({
+	imageUrl,
+	fallbackImageUrl = TraktIconImage,
+}: BackgroundImageProps): JSX.Element => {
 	return (
 		<Box>
 			<FullView
 				sx={{
 					backgroundColor: '#000',
-					backgroundImage: `url("${imageUrl || TraktIconImage}")`,
+					backgroundImage: `url("${imageUrl || fallbackImageUrl}")`,
 					backgroundPosition: 'center',
 					backgroundSize: 'cover',
 					backgroundRepeat: 'no-repeat',

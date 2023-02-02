@@ -4,7 +4,7 @@ import { CorrectionDialog } from '@components/CorrectionDialog';
 import { CustomSnackbar } from '@components/CustomSnackbar';
 import { PopupInfo } from '@components/PopupInfo';
 import { PopupOverlay } from '@components/PopupOverlay';
-import { TmdbImage } from '@components/TmdbImage';
+import { BackgroundImage } from '@components/BackgroundImage';
 import { ScrobbleItem } from '@models/Item';
 import { Pause as PauseIcon } from '@mui/icons-material';
 import { Box, Button, LinearProgress, Tooltip, Typography } from '@mui/material';
@@ -25,7 +25,7 @@ export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Eleme
 	return (
 		<>
 			<Box>
-				<TmdbImage imageUrl={item.imageUrl} />
+				<BackgroundImage imageUrl={item.imageUrl} />
 				<Box
 					sx={{
 						position: 'relative',

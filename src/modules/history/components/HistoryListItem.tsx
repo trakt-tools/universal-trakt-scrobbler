@@ -8,7 +8,7 @@ import { ScrobbleItem } from '@models/Item';
 import { getService } from '@models/Service';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
-import { green, red } from '@mui/material/colors';
+import { green, grey, red } from '@mui/material/colors';
 import { ChangeEvent, memo, useEffect, useState } from 'react';
 import { areEqual, ListChildComponentProps } from 'react-window';
 
@@ -81,9 +81,11 @@ const _HistoryListItem = ({
 		return stopListeners;
 	}, []);
 
-	const [statusColor, statusMessageName]: [string, MessageName] = item?.trakt?.watchedAt
-		? [green[500], 'itemSynced']
-		: [red[500], 'itemNotSynced'];
+	const [statusColor, statusMessageName]: [string, MessageName] = item?.trakt
+		? item?.trakt?.watchedAt
+			? [green[500], 'itemSynced']
+			: [red[500], 'itemNotSynced']
+		: [grey[700], 'itemSyncStatusUnknown'];
 	let serviceName;
 	if (item?.serviceId) {
 		serviceName = getService(item.serviceId).name;
@@ -151,6 +153,7 @@ const _HistoryListItem = ({
 						isLoading={item?.isLoading ?? true}
 						item={item}
 						name={serviceName}
+						imageUrl={item?.imageUrl}
 						openMissingWatchedDateDialog={openMissingWatchedDateDialog}
 					/>
 					<Tooltip title={I18N.translate(statusMessageName)}>
@@ -175,7 +178,7 @@ const _HistoryListItem = ({
 						item={item?.trakt}
 						name="Trakt"
 						suggestions={item?.suggestions}
-						imageUrl={item?.imageUrl}
+						imageUrl={item?.trakt?.imageUrl}
 						openCorrectionDialog={openCorrectionDialog}
 					/>
 				</>

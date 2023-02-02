@@ -62,6 +62,7 @@ class _TraktSync extends TraktApi {
 			traktHistoryItemsCache.set(databaseId, historyItems);
 		}
 		let historyItemMatch: ParsedTraktHistoryItem | null = null;
+		const historyItemOtherWatches: number[] = [];
 		for (const historyItem of historyItems) {
 			const parsedHistoryItem: ParsedTraktHistoryItem = {
 				id: historyItem.id,
@@ -72,6 +73,8 @@ class _TraktSync extends TraktApi {
 				break;
 			} else if (Utils.dateDiff(watchedAt, parsedHistoryItem.watched_at, 26 * 60 * 60)) {
 				historyItemMatch = parsedHistoryItem;
+			} else {
+				historyItemOtherWatches.push(parsedHistoryItem.watched_at);
 			}
 		}
 		if (historyItemMatch) {
@@ -80,6 +83,8 @@ class _TraktSync extends TraktApi {
 		} else {
 			item.trakt.watchedAt = null;
 		}
+
+		item.trakt.otherWatches = historyItemOtherWatches;
 	}
 
 	async removeHistory(item: ScrobbleItem): Promise<void> {

@@ -4,7 +4,7 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { HistoryListItemDivider } from '@components/HistoryListItemDivider';
-import { TmdbImage } from '@components/TmdbImage';
+import { BackgroundImage } from '@components/BackgroundImage';
 import { isItem, ScrobbleItem } from '@models/Item';
 import { isTraktItem, TraktItem } from '@models/TraktItem';
 import {
@@ -79,6 +79,34 @@ export const HistoryListItemCard = ({
 					<Typography variant="caption">{I18N.translate('missingWatchedDate')}</Typography>
 				</Button>
 			);
+		} else if (isTraktItem(item) && item.otherWatches?.length) {
+			watchedAtComponent = (
+				<Typography variant="overline">
+					<Tooltip
+						title={
+							<span style={{ whiteSpace: 'pre-line', textAlign: 'center', display: 'block' }}>
+								{[
+									I18N.translate('otherPlays'),
+									...item.otherWatches.map((watch) => Utils.timestamp(watch)),
+								].join('\n')}
+							</span>
+						}
+					>
+						<Link
+							href={item.getHistoryUrl()}
+							target="_blank"
+							rel="noreferrer"
+							sx={{
+								color: 'inherit',
+								textDecorationColor: 'inherit',
+								textDecorationStyle: 'dotted',
+							}}
+						>
+							{I18N.translate('watchedOtherTimes', item.otherWatches.length.toString())}
+						</Link>
+					</Tooltip>
+				</Typography>
+			);
 		} else {
 			watchedAtComponent = (
 				<Typography variant="overline">{I18N.translate('notWatched')}</Typography>
@@ -97,7 +125,8 @@ export const HistoryListItemCard = ({
 		);
 	}
 
-	const hasImage = isTraktItem(item) || item === null;
+	const hasImage: boolean =
+		Shared.storage.options.loadImages && (!!item?.imageUrl || isTraktItem(item) || item === null);
 	return (
 		<Card
 			variant="outlined"
@@ -114,7 +143,7 @@ export const HistoryListItemCard = ({
 					: {}),
 			}}
 		>
-			{hasImage && <TmdbImage imageUrl={imageUrl} />}
+			{hasImage && <BackgroundImage imageUrl={imageUrl} />}
 			<CardContent
 				sx={{
 					position: 'relative',
@@ -140,14 +169,28 @@ export const HistoryListItemCard = ({
 									>
 										{item.title}
 									</Typography>
-									<Typography variant="subtitle2">{item.show.title}</Typography>
+									<Typography
+										variant="subtitle2"
+										noWrap
+										style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}
+										title={item.show.title}
+									>
+										{item.show.title}
+									</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
 							) : (
 								<>
 									{item.year && <Typography variant="overline">{item.year}</Typography>}
-									<Typography variant="h6">{item.title}</Typography>
+									<Typography
+										variant="h6"
+										noWrap
+										style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}
+										title={item.title}
+									>
+										{item.title}
+									</Typography>
 									<HistoryListItemDivider useDarkMode={hasImage} />
 									{watchedAtComponent}
 								</>
