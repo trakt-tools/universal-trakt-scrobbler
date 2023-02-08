@@ -171,6 +171,11 @@ class _AmazonPrimeApi extends ServiceApi {
 					'//',
 					`//atv-ps${region === 'na' ? '' : `-${region}`}.`
 				);
+				if (region === 'na') {
+					this.PROFILE_URL = this.PROFILE_URL.replace('/gp/video', '/region/na');
+					this.HISTORY_URL = this.HISTORY_URL.replace('/gp/video', '/region/na');
+					this.ENRICHMENTS_URL = this.ENRICHMENTS_URL.replace('/gp/video', '/region/na');
+				}
 			} catch (err) {
 				if (Shared.errors.validate(err)) {
 					Shared.errors.log(`Failed to activate ${this.id} API`, err);
