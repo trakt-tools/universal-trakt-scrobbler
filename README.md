@@ -84,6 +84,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |    Streamz BE     |    ✔️    |  ❌  | -                               |
 |      Tet TV+      |    ✔️    |  ❌  | -                               |
 |      Viaplay      |    ✔️    |  ✔️  | -                               |
+|       Vidio       |    ✔️    |  ❌  | -                               |
 |     VRTNu BE      |    ✔️    |  ❌  | -                               |
 |     VTMGo BE      |    ✔️    |  ❌  | -                               |
 |    Wakanim.tv     |    ✔️    |  ❌  | -                               |
