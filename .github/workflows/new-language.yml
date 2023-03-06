@@ -1,23 +1,25 @@
-name: New language
+name: New Language
 
 on:
   issues:
     types: [opened, edited]
 
 jobs:
-  add_language:
+  add_new_language:
     name: Add new language
     if: ${{ startsWith(github.event.issue.title, 'Add new language') }}
-    runs-on: ubuntu-latest
-    container: node:lts-alpine
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
       - name: Install dependencies
-        run: |
-          apk add --no-cache curl
-          curl -L https://unpkg.com/@pnpm/self-installer | node
-          pnpm install
+        run: pnpm install
       - name: Add language
         uses: ./.github/actions/add-language
         with:
