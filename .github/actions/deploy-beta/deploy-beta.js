@@ -75,6 +75,14 @@ const deployBeta = async () => {
 		);
 	}
 	await Promise.all(promises);
+
+	console.log('Publishing release...');
+
+	await octokit.rest.repos.updateRelease({
+		...defaultParams,
+		release_id: release.data.id,
+		draft: false,
+	});
 };
 
 const main = async () => {
