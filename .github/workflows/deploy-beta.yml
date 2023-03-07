@@ -1,4 +1,4 @@
-name: Deploy beta
+name: Deploy Beta
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - master
 
 jobs:
-  deploy_beta:
-    name: Deploy a beta version
-    if: ${{ !contains(github.event.head_commit.message, '[skip-beta]') }}
-    runs-on: ubuntu-latest
-    container: node:lts-alpine
+  deploy_beta_version:
+    name: Deploy beta version
+    if: ${{ !contains(github.event.head_commit.message, '[skip-beta]') && !contains(github.event.head_commit.message, '[bump-version]') }}
+    runs-on: ubuntu-22.04
     env:
       TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
       TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
@@ -20,15 +19,18 @@ jobs:
       CHROME_EXTENSION_KEY: ${{ secrets.CHROME_EXTENSION_KEY }}
       FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
       - name: Install dependencies
-        run: |
-          apk add --no-cache curl
-          curl -L https://unpkg.com/@pnpm/self-installer | node
-          pnpm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Deploy version
         uses: ./.github/actions/deploy-beta
         with:

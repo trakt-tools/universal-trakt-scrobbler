@@ -1,6 +1,6 @@
 {
 	"name": "universal-trakt-scrobbler",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"description": "A universal sync for Trakt.tv.",
 	"author": "trakt-tools",
 	"private": true,

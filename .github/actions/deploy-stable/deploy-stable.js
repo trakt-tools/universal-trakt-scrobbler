@@ -9,41 +9,19 @@ const defaultParams = {
 	repo: packageJson.name,
 };
 
-const deployBeta = async () => {
+const deployStable = async () => {
 	const octokit = getOctokit(getInput('trakt-tools-bot-token'), {
 		userAgent: 'universal-trakt-scrobbler',
 	});
 
-	console.log('Deleting previous beta release...');
-
-	const releases = await octokit.rest.repos.listReleases({
-		...defaultParams,
-	});
-
-	const previousRelease = releases.data.find((release) => release.prerelease);
-	if (previousRelease) {
-		await octokit.rest.repos.deleteRelease({
-			...defaultParams,
-			release_id: previousRelease.id,
-		});
-	}
-
-	console.log('Deleting preious beta tag...');
-
-	await octokit.rest.git.deleteRef({
-		...defaultParams,
-		ref: 'tags/beta',
-	});
-
 	console.log('Generating release...');
 
-	const name = `Beta (${new Date().toISOString()})`;
+	const name = `v${packageJson.version}`;
 
 	const release = await octokit.rest.repos.createRelease({
 		...defaultParams,
 		name,
-		tag_name: 'beta',
-		prerelease: true,
+		tag_name: packageJson.version,
 	});
 
 	const distPath = path.resolve(__dirname, '../../../dist');
@@ -87,7 +65,7 @@ const deployBeta = async () => {
 
 const main = async () => {
 	try {
-		await deployBeta();
+		await deployStable();
 	} catch (err) {
 		setFailed(err.message);
 	}

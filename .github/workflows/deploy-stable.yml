@@ -1,0 +1,55 @@
+name: Deploy Stable
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy_stable_version:
+    name: Deploy stable version
+    if: ${{ contains(github.event.head_commit.message, '[bump-version]') }}
+    runs-on: ubuntu-22.04
+    env:
+      TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+      TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+      ROLLBAR_TOKEN: ${{ secrets.ROLLBAR_TOKEN }}
+      TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+      CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+      CHROME_EXTENSION_KEY: ${{ secrets.CHROME_EXTENSION_KEY }}
+      FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm run build
+      - name: Deploy version
+        uses: ./.github/actions/deploy-stable
+        with:
+          trakt-tools-bot-token: '${{ secrets.TRAKT_TOOLS_BOT_TOKEN }}'
+      - name: Upload to Chrome store
+        continue-on-error: true
+        uses: trmcnvn/chrome-addon@v2
+        with:
+          extension: ${{ secrets.CHROME_EXTENSION_ID }}
+          zip: ./dist/chrome.zip
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      - name: Upload to Firefox store
+        continue-on-error: true
+        uses: trmcnvn/firefox-addon@v1
+        with:
+          uuid: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          xpi: ./dist/firefox.zip
+          manifest: ./build/firefox/manifest.json
+          api-key: ${{ secrets.FIREFOX_CLIENT_ID }}
+          api-secret: ${{ secrets.FIREFOX_CLIENT_SECRET }}
