@@ -1,30 +1,30 @@
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
 import { EpisodeItem, ScrobbleItem } from '@models/Item';
-import { CrunchyrollBetaService } from '@/crunchyroll-beta/CrunchyrollBetaService';
+import { CrunchyrollService } from '@/crunchyroll/CrunchyrollService';
 import { Utils } from '@common/Utils';
 
-export interface CrunchyrollBetaSession extends ServiceApiSession {
+export interface CrunchyrollSession extends ServiceApiSession {
 	tokenExpirationDate: Date;
 	accountId: string;
 }
 
-export interface CrunchyrollBetaTokenData {
+export interface CrunchyrollTokenData {
 	access_token: string;
 	account_id: string;
 	expires_in: number;
 }
 
-export interface CrunchyrollBetaProfileData {
+export interface CrunchyrollProfileData {
 	username: string;
 }
 
-export interface CrunchyrollBetaHistoryPage {
-	items: CrunchyrollBetaHistoryItem[];
+export interface CrunchyrollHistoryPage {
+	items: CrunchyrollHistoryItem[];
 	next_page?: string;
 }
 
-export interface CrunchyrollBetaHistoryItem {
+export interface CrunchyrollHistoryItem {
 	id: string;
 	date_played: Date;
 	fully_watched: boolean;
@@ -45,20 +45,20 @@ export interface CrunchyrollBetaHistoryItem {
 	};
 }
 
-class _CrunchyrollBetaApi extends ServiceApi {
+class _CrunchyrollApi extends ServiceApi {
 	HOST_URL: string;
 	TOKEN_URL: string;
 	PROFILE_URL: string;
 	TOKEN_AUTH: string;
 	isActivated: boolean;
-	session: CrunchyrollBetaSession | null = null;
+	session: CrunchyrollSession | null = null;
 
 	authRequests = Requests;
 
 	constructor() {
-		super(CrunchyrollBetaService.id);
+		super(CrunchyrollService.id);
 
-		this.HOST_URL = 'https://beta.crunchyroll.com';
+		this.HOST_URL = 'https://www.crunchyroll.com';
 		this.TOKEN_URL = `${this.HOST_URL}/auth/v1/token`;
 		this.PROFILE_URL = `${this.HOST_URL}/accounts/v1/me/profile`;
 		// The basic auth password for retrieving the token is always the same.
@@ -77,7 +77,7 @@ class _CrunchyrollBetaApi extends ServiceApi {
 			},
 			body: 'grant_type=etp_rt_cookie',
 		});
-		const tokenData = JSON.parse(response) as CrunchyrollBetaTokenData;
+		const tokenData = JSON.parse(response) as CrunchyrollTokenData;
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${tokenData.access_token}`,
 		});
@@ -86,7 +86,7 @@ class _CrunchyrollBetaApi extends ServiceApi {
 			url: this.PROFILE_URL,
 			method: 'GET',
 		});
-		const profileData = JSON.parse(response) as CrunchyrollBetaProfileData;
+		const profileData = JSON.parse(response) as CrunchyrollProfileData;
 
 		// The token expires within a few minutes, so we need to be able to check for that.
 		const expirationDate = new Date();
@@ -107,7 +107,7 @@ class _CrunchyrollBetaApi extends ServiceApi {
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<CrunchyrollBetaHistoryItem[]> {
+	async loadHistoryItems(): Promise<CrunchyrollHistoryItem[]> {
 		// We do this here because the token will expire within minutes.
 		await this.checkLogin();
 
@@ -120,12 +120,12 @@ class _CrunchyrollBetaApi extends ServiceApi {
 			url: this.nextHistoryUrl,
 			method: 'GET',
 		});
-		const page = this.parseJsonWithDates<CrunchyrollBetaHistoryPage>(responseText, [
+		const page = this.parseJsonWithDates<CrunchyrollHistoryPage>(responseText, [
 			'date_played',
 			'episode_air_date',
 		]);
 
-		let historyItems: CrunchyrollBetaHistoryItem[] = [];
+		let historyItems: CrunchyrollHistoryItem[] = [];
 		// Filter out entries with missing information.
 		if (page) {
 			historyItems = page.items.filter((item) => !!item?.panel?.episode_metadata);
@@ -140,15 +140,15 @@ class _CrunchyrollBetaApi extends ServiceApi {
 		return historyItems;
 	}
 
-	isNewHistoryItem(historyItem: CrunchyrollBetaHistoryItem, lastSync: number) {
+	isNewHistoryItem(historyItem: CrunchyrollHistoryItem, lastSync: number) {
 		return Utils.unix(historyItem.date_played) > lastSync;
 	}
 
-	getHistoryItemId(historyItem: CrunchyrollBetaHistoryItem): string {
+	getHistoryItemId(historyItem: CrunchyrollHistoryItem): string {
 		return historyItem.id;
 	}
 
-	convertHistoryItems(historyItems: CrunchyrollBetaHistoryItem[]): Promise<ScrobbleItem[]> {
+	convertHistoryItems(historyItems: CrunchyrollHistoryItem[]): Promise<ScrobbleItem[]> {
 		const items: ScrobbleItem[] = [];
 		for (const historyItem of historyItems) {
 			const item = new EpisodeItem({
@@ -189,4 +189,4 @@ class _CrunchyrollBetaApi extends ServiceApi {
 	}
 }
 
-export const CrunchyrollBetaApi = new _CrunchyrollBetaApi();
+export const CrunchyrollApi = new _CrunchyrollApi();
