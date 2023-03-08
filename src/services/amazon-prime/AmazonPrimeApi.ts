@@ -125,9 +125,9 @@ export interface AmazonPrimeNextItemResponse {
 class _AmazonPrimeApi extends ServiceApi {
 	HOST_URL = 'https://www.primevideo.com';
 	API_URL = 'https://atv-ps.primevideo.com';
-	PROFILE_URL = `${this.HOST_URL}/gp/video/api/getProfiles`;
-	HISTORY_URL = `${this.HOST_URL}/gp/video/api/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
-	ENRICHMENTS_URL = `${this.HOST_URL}/gp/video/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+	PROFILE_URL = '';
+	HISTORY_URL = '';
+	ENRICHMENTS_URL = '';
 	CONFIG_URL = '';
 	ITEM_URL = '';
 	NEXT_ITEM_URL = '';
@@ -171,6 +171,9 @@ class _AmazonPrimeApi extends ServiceApi {
 					'//',
 					`//atv-ps${region === 'na' ? '' : `-${region}`}.`
 				);
+				this.PROFILE_URL = `${this.HOST_URL}/region/${region}/api/getProfiles`;
+				this.HISTORY_URL = `${this.HOST_URL}/region/${region}/api/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
+				this.ENRICHMENTS_URL = `${this.HOST_URL}/region/${region}/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
 			} catch (err) {
 				if (Shared.errors.validate(err)) {
 					Shared.errors.log(`Failed to activate ${this.id} API`, err);
@@ -264,7 +267,7 @@ class _AmazonPrimeApi extends ServiceApi {
 					const enrichments = enrichmentsResponse.enrichments[partialHistoryItem.id];
 					historyItems.push({
 						...partialHistoryItem,
-						progress: enrichments?.progress?.percentage ?? 0,
+						progress: enrichments?.progress?.percentage ?? 100,
 					});
 				}
 
