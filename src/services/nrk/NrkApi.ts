@@ -139,8 +139,8 @@ class _NrkApi extends ServiceApi {
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
-		this.TOKEN_URL = `${this.HOST_URL}/auth/token`;
-		this.USERDATA_URL = `${this.HOST_URL}/auth/userdata`;
+		this.TOKEN_URL = `${this.HOST_URL}/_auth/token`;
+		this.USERDATA_URL = `${this.HOST_URL}/_auth/userdata`;
 		this.PROGRAM_URL = '/tv/catalog/programs/';
 		this.token = '';
 		this.isActivated = false;
