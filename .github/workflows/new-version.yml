@@ -1,0 +1,47 @@
+name: New Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionType:
+        description: 'Version type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  release_new_version:
+    name: Release new version
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.TRAKT_TOOLS_BOT_TOKEN }}
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Update version in package.json
+        uses: ./.github/actions/update-version
+        with:
+          version-type: '${{ inputs.versionType }}'
+      - name: Format package.json
+        run: pnpm run format-other
+      - name: Setup git config
+        run: |
+          git config user.name "trakt-tools-bot"
+          git config user.email "89098662+trakt-tools-bot@users.noreply.github.com"
+      - name: Commit and push changes to package.json
+        run: |
+          git add package.json
+          git commit -m "[bump-version] $VERSION"
+          git push origin master
