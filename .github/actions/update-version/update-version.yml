@@ -1,0 +1,9 @@
+name: 'Update version'
+description: 'Updates the version'
+inputs:
+  version-type:
+    description: 'Which version type to update (patch, minor or major)'
+    required: true
+runs:
+  using: 'node16'
+  main: 'update-version.js'
