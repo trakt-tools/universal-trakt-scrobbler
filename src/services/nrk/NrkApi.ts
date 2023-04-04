@@ -14,10 +14,20 @@ export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
 }
 
-interface NrkUserData {
-	name: string;
-	profileType: string;
-	userId: string;
+interface NrkAuth {
+	state: string;
+	userAction: string;
+	session: {
+		accessToken: string;
+		expiresIn: number;
+		idToken: string;
+		user: {
+			email: string;
+			name: string;
+			profileType: string;
+			sub: string;
+		};
+	};
 }
 
 interface NrkProgressResponse {
@@ -127,7 +137,6 @@ class _NrkApi extends ServiceApi {
 	HOST_URL: string;
 	API_HOST_URL: string;
 	TOKEN_URL: string;
-	USERDATA_URL: string;
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
@@ -139,28 +148,24 @@ class _NrkApi extends ServiceApi {
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
-		this.TOKEN_URL = `${this.HOST_URL}/auth/token`;
-		this.USERDATA_URL = `${this.HOST_URL}/auth/userdata`;
+		this.TOKEN_URL = `${this.HOST_URL}/auth/session/tokenforsub/_`;
 		this.PROGRAM_URL = '/tv/catalog/programs/';
 		this.token = '';
 		this.isActivated = false;
 	}
 
 	async activate() {
-		const stringToken = await Requests.send({
+		const authData = await Requests.send({
 			url: `${this.TOKEN_URL}?_=${Date.now()}`,
 			method: 'GET',
 		});
-		this.token = stringToken.split('"').join('');
-		const response = await Requests.send({
-			url: this.USERDATA_URL,
-			method: 'GET',
-		});
-		const userData = JSON.parse(response) as NrkUserData;
+		const data = JSON.parse(authData) as NrkAuth;
+		const { accessToken, user } = data.session;
+		this.token = accessToken.split('"').join('');
 		this.session = {
-			profileName: userData.name,
+			profileName: user.name,
 		};
-		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${userData.userId}/progress?sortorder=descending&pageSize=10`;
+		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${user.sub}/progress?sortorder=descending&pageSize=10`;
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${this.token}`,
 		});
