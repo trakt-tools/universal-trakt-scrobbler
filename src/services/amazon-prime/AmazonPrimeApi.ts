@@ -171,9 +171,14 @@ class _AmazonPrimeApi extends ServiceApi {
 					'//',
 					`//atv-ps${region === 'na' ? '' : `-${region}`}.`
 				);
-				this.PROFILE_URL = `${this.HOST_URL}/region/${region}/api/getProfiles`;
-				this.HISTORY_URL = `${this.HOST_URL}/region/${region}/api/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
-				this.ENRICHMENTS_URL = `${this.HOST_URL}/region/${region}/api/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
+
+				const apiPath = this.HOST_URL.match(/https:\/\/(?:www\.)?amazon\..+/)
+					? '/gp/video/api'
+					: `/region/${region}/api`;
+
+				this.PROFILE_URL = `${this.HOST_URL}${apiPath}/getProfiles`;
+				this.HISTORY_URL = `${this.HOST_URL}${apiPath}/getWatchHistorySettingsPage?widgetArgs=%7B{args}%7D`;
+				this.ENRICHMENTS_URL = `${this.HOST_URL}${apiPath}/enrichItemMetadata?metadataToEnrich=%7B%22playback%22%3Atrue%7D&titleIDsToEnrich=%5B{ids}%5D`;
 			} catch (err) {
 				if (Shared.errors.validate(err)) {
 					Shared.errors.log(`Failed to activate ${this.id} API`, err);
