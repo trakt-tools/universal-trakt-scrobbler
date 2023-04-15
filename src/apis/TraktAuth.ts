@@ -37,7 +37,10 @@ class _TraktAuth extends TraktApi {
 	}
 
 	getRedirectUrl(): string {
-		return this.isIdentityAvailable ? browser.identity.getRedirectURL() : this.REDIRECT_URL;
+		const requiresCookies = !!Shared.storage.options.grantCookies;
+		return this.isIdentityAvailable && !requiresCookies
+			? browser.identity.getRedirectURL()
+			: this.REDIRECT_URL;
 	}
 
 	getCode(redirectUrl: string): string {
