@@ -232,9 +232,7 @@ class _TraktSearch extends TraktApi {
 		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
 		cancelKey = 'default'
 	): Promise<TraktSearchShowItem> {
-		const showUrl = isItem(itemOrUrl)
-			? `show?query=${encodeURIComponent(itemOrUrl.show.title)}`
-			: itemOrUrl;
+		const showUrl = isItem(itemOrUrl) ? this.getShowUrl(itemOrUrl) : itemOrUrl;
 		let traktDatabaseId = caches.urlsToTraktItems.get(showUrl);
 		let cacheItem = traktDatabaseId
 			? (caches.traktItems.get(traktDatabaseId) as TraktShowItemValues | undefined)
@@ -328,6 +326,10 @@ class _TraktSearch extends TraktApi {
 			});
 		}
 		return searchItem;
+	}
+
+	getShowUrl(item: EpisodeItem): string {
+		return `show?query=${encodeURIComponent(item.show.title)}`;
 	}
 
 	getEpisodeUrl(item: EpisodeItem, traktId: number): string {

@@ -5,7 +5,7 @@ import { Cache, CacheItems } from '@common/Cache';
 import { I18N } from '@common/I18N';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
-import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
+import { createScrobbleItem, EpisodeItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { getSyncStore } from '@stores/SyncStore';
 
 const serviceApis = new Map<string, ServiceApi>();
@@ -73,6 +73,22 @@ export abstract class ServiceApi {
 				const batchItems = newItems.slice(
 					batch * this.TRAKT_HISTORY_BATCH_SIZE,
 					(batch + 1) * this.TRAKT_HISTORY_BATCH_SIZE
+				);
+				const episodeItemsByShow: Record<string, EpisodeItem> = {};
+				for (const item of batchItems) {
+					if (
+						item.type === 'episode' &&
+						(typeof item.trakt === 'undefined' ||
+							(item.trakt && typeof item.trakt.watchedAt === 'undefined'))
+					) {
+						const showUrl = TraktSearch.getShowUrl(item);
+						episodeItemsByShow[showUrl] = item;
+					}
+				}
+				await Promise.all(
+					Object.values(episodeItemsByShow).map((episodeItem) =>
+						TraktSearch.findShow(episodeItem, caches, cancelKey)
+					)
 				);
 				for (const [index, item] of batchItems.entries()) {
 					let promise;
