@@ -76,7 +76,7 @@ class _MubiApi extends ServiceApi {
 		return !!this.session;
 	}
 
-	async loadHistoryItems(): Promise<MubiHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<MubiHistoryItem[]> {
 		if (!this.session) {
 			await this.activate();
 		}
@@ -87,6 +87,7 @@ class _MubiApi extends ServiceApi {
 		const responseText = await this.sendRequest({
 			url: `${this.API_URL}/view_logs?page=${this.nextHistoryPage + 1}`,
 			method: 'GET',
+			cancelKey,
 		});
 		const responseJson = JSON.parse(responseText) as MubiHistoryResponse;
 		historyItems = responseJson?.view_logs ?? [];

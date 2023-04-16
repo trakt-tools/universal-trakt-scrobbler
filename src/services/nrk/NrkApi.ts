@@ -179,13 +179,14 @@ class _NrkApi extends ServiceApi {
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<NrkProgressItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<NrkProgressItem[]> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
 		const responseText = await this.authRequests.send({
 			url: this.nextHistoryUrl,
 			method: 'GET',
+			cancelKey,
 		});
 		const responseJson = JSON.parse(responseText) as NrkProgressResponse;
 		const responseItems = responseJson.progresses;

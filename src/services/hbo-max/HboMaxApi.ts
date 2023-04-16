@@ -293,7 +293,7 @@ class _HboMaxApi extends ServiceApi {
 		return !!this.session && !!this.session.profileName;
 	}
 
-	async loadHistoryItems(): Promise<HboMaxHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<HboMaxHistoryItem[]> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -306,6 +306,7 @@ class _HboMaxApi extends ServiceApi {
 		const historyResponseText = await this.authRequests.send({
 			url: Utils.replace(this.HISTORY_URL, this.session),
 			method: 'GET',
+			cancelKey,
 		});
 		const historyResponse = JSON.parse(historyResponseText) as HboMaxHistoryResponse;
 		const historyResponseItems = historyResponse.filter(

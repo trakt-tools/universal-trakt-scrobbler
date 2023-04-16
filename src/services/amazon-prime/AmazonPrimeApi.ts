@@ -223,7 +223,7 @@ class _AmazonPrimeApi extends ServiceApi {
 		return !!this.session && !!this.session.profileName;
 	}
 
-	async loadHistoryItems() {
+	async loadHistoryItems(cancelKey = 'default') {
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -235,6 +235,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				args: this.nextToken ? `%22nextToken%22%3A%22${this.nextToken}%22` : '',
 			}),
 			method: 'GET',
+			cancelKey,
 		});
 		const historyResponse = JSON.parse(historyResponseText) as AmazonPrimeHistoryResponse;
 
