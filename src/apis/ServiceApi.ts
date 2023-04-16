@@ -26,6 +26,8 @@ export interface ServiceApiSession {
 }
 
 export abstract class ServiceApi {
+	static readonly TRAKT_HISTORY_BATCH_SIZE = 100;
+
 	readonly id: string;
 	private leftoverHistoryItems: unknown[] = [];
 	hasCheckedHistoryCache = false;
@@ -53,7 +55,7 @@ export abstract class ServiceApi {
 		if (hasLoadedTraktHistory) {
 			return items;
 		}
-		let newItems = items.map((item) => item.clone());
+		const newItems = items.map((item) => item.clone());
 		try {
 			const caches = await Cache.get([
 				'itemsToTraktItems',
@@ -62,22 +64,40 @@ export abstract class ServiceApi {
 				'urlsToTraktItems',
 			]);
 			const { corrections } = await Shared.storage.get('corrections');
-			const promises = [];
-			for (const item of newItems) {
-				if (
-					typeof item.trakt === 'undefined' ||
-					(item.trakt && typeof item.trakt.watchedAt === 'undefined')
-				) {
-					const databaseId = item.getDatabaseId();
-					const correction = corrections?.[databaseId];
-					promises.push(
-						ServiceApi.loadTraktItemHistory(item, caches, correction, processItem, cancelKey)
-					);
-				} else {
-					promises.push(Promise.resolve(item));
+			const total = newItems.length;
+			const numBatches = Math.ceil(total / this.TRAKT_HISTORY_BATCH_SIZE);
+			for (let batch = 0; batch < numBatches; batch++) {
+				const promises = [];
+				const batchItems = newItems.slice(
+					batch * this.TRAKT_HISTORY_BATCH_SIZE,
+					(batch + 1) * this.TRAKT_HISTORY_BATCH_SIZE
+				);
+				for (const [index, item] of batchItems.entries()) {
+					let promise;
+					if (
+						typeof item.trakt === 'undefined' ||
+						(item.trakt && typeof item.trakt.watchedAt === 'undefined')
+					) {
+						const databaseId = item.getDatabaseId();
+						const correction = corrections?.[databaseId];
+						promise = ServiceApi.loadTraktItemHistory(
+							item,
+							caches,
+							correction,
+							processItem,
+							cancelKey
+						);
+					} else {
+						promise = Promise.resolve(item);
+					}
+
+					void promise.then((newItem) => {
+						newItems[batch * this.TRAKT_HISTORY_BATCH_SIZE + index] = newItem;
+					});
+					promises.push(promise);
 				}
+				await Promise.all(promises);
 			}
-			newItems = await Promise.all(promises);
 			await Cache.set(caches);
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
