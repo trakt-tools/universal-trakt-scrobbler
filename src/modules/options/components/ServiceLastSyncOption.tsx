@@ -69,7 +69,7 @@ const _ServiceLastSyncOption = ({
 			<Box component="span">
 				<IconButton
 					color="secondary"
-					disabled={!sync || !autoSync}
+					disabled={!sync}
 					size="small"
 					onClick={() => void onClearLastSyncClick()}
 				>
