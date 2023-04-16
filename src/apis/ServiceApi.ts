@@ -2,6 +2,7 @@ import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
 import { Cache, CacheItems } from '@common/Cache';
+import { I18N } from '@common/I18N';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
@@ -66,6 +67,7 @@ export abstract class ServiceApi {
 			const { corrections } = await Shared.storage.get('corrections');
 			const total = newItems.length;
 			const numBatches = Math.ceil(total / this.TRAKT_HISTORY_BATCH_SIZE);
+			let count = 0;
 			for (let batch = 0; batch < numBatches; batch++) {
 				const promises = [];
 				const batchItems = newItems.slice(
@@ -93,6 +95,16 @@ export abstract class ServiceApi {
 
 					void promise.then((newItem) => {
 						newItems[batch * this.TRAKT_HISTORY_BATCH_SIZE + index] = newItem;
+					});
+					promise.finally(() => {
+						count += 1;
+						void Shared.events.dispatch('SYNC_PROGRESS', item.serviceId, {
+							message: `${I18N.translate('loadingTraktHistory')} (${I18N.translate(
+								'itemsLoadedOf',
+								[count.toString(), total.toString()]
+							)})...`,
+							percentage: Math.round((count / total) * 10000) / 100,
+						});
 					});
 					promises.push(promise);
 				}
@@ -228,6 +240,12 @@ export abstract class ServiceApi {
 				hasReachedEnd =
 					(this.leftoverHistoryItems.length === 0 && this.hasReachedHistoryEnd) ||
 					hasReachedLastSyncDate;
+
+				await Shared.events.dispatch('SYNC_PROGRESS', this.id, {
+					message: `${I18N.translate('loadingHistory')} (${I18N.translate('itemsLoaded', [
+						historyItems.length.toString(),
+					])})...`,
+				});
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
 				const tmpItems: (ScrobbleItem | null)[] = [];
@@ -252,6 +270,10 @@ export abstract class ServiceApi {
 				}
 
 				if (historyItemsToConvert.length > 0) {
+					await Shared.events.dispatch('SYNC_PROGRESS', this.id, {
+						message: `${I18N.translate('loadingHistory')}...`,
+					});
+
 					const convertedItems = await this.convertHistoryItems(historyItemsToConvert);
 					let index = 0;
 					items = tmpItems.map((item) => {
