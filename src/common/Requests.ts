@@ -51,10 +51,7 @@ class _Requests {
 				const retryAfterStr = response.headers.get('Retry-After');
 				if (retryAfterStr) {
 					const retryAfter = Number.parseInt(retryAfterStr) * 1000;
-					window.setTimeout(
-						() => void this.sendDirectly(request, tabId, resolve, reject),
-						retryAfter
-					);
+					setTimeout(() => void this.sendDirectly(request, tabId, resolve, reject), retryAfter);
 					return;
 				}
 			}

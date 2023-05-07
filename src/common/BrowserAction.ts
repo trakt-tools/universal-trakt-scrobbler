@@ -1,11 +1,12 @@
 import { Messaging } from '@common/Messaging';
+import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import browser, { Action as WebExtAction } from 'webextension-polyfill';
 
 export interface BrowserActionRotating {
-	image: HTMLImageElement | null;
-	canvas: HTMLCanvasElement | null;
-	context: CanvasRenderingContext2D | null;
+	image: ImageBitmap | null;
+	canvas: OffscreenCanvas | null;
+	context: OffscreenCanvasRenderingContext2D | null;
 	degrees: number;
 	canceled: boolean;
 }
@@ -71,9 +72,16 @@ class _BrowserAction {
 
 	async setRotatingIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
-			const image = document.createElement('img');
-			const canvas = document.createElement('canvas');
-			const context = canvas.getContext('2d');
+			const imageResponse = await Requests.fetch({
+				method: 'GET',
+				url: this.currentIcon,
+			});
+			const imageBlob = await imageResponse.blob();
+			const image = await createImageBitmap(imageBlob);
+			const canvas = new OffscreenCanvas(image.width, image.height);
+			const context = canvas.getContext('2d', {
+				willReadFrequently: true,
+			}) as OffscreenCanvasRenderingContext2D;
 			this.rotating = {
 				image,
 				canvas,
@@ -81,8 +89,7 @@ class _BrowserAction {
 				degrees: 0,
 				canceled: false,
 			};
-			image.onload = () => void this.rotateIcon();
-			image.src = this.currentIcon;
+			await this.rotateIcon();
 		} else {
 			await Messaging.toExtension({ action: 'set-rotating-icon' });
 		}
@@ -134,7 +141,7 @@ class _BrowserAction {
 			this.rotating.degrees = 0;
 		}
 
-		window.setTimeout(() => void this.rotateIcon(), 30);
+		setTimeout(() => void this.rotateIcon(), 30);
 	}
 }
 

@@ -39,10 +39,14 @@ class _Errors {
 					environment: Shared.environment,
 				},
 			});
-			window.Rollbar = this.rollbar;
+			if (window) {
+				window.Rollbar = this.rollbar;
+			}
 		} else if (!allowRollbar && this.rollbar) {
 			delete this.rollbar;
-			delete window.Rollbar;
+			if (window) {
+				delete window.Rollbar;
+			}
 		}
 	}
 
