@@ -25,8 +25,6 @@ interface TV2SumoMetadataResponseMovie {
 }
 
 class _Tv2PlayApi extends ServiceApi {
-	// Define any properties you need here
-
 	constructor() {
 		super(Tv2PlayService.id);
 	}
@@ -52,14 +50,12 @@ class _Tv2PlayApi extends ServiceApi {
 				},
 			};
 			return new EpisodeItem(values);
-		} else {
-			const values = {
-				serviceId: this.id,
-				id,
-				title: responseJson.title,
-			};
-			return new MovieItem(values);
 		}
+		return new MovieItem({
+			serviceId: this.id,
+			id,
+			title: responseJson.title,
+		});
 	}
 }
 
