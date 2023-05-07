@@ -2,6 +2,7 @@ import { TraktAuthDetails } from '@apis/TraktAuth';
 import { Event, EventData } from '@common/Events';
 import { RequestDetails } from '@common/Requests';
 import { RequestError, RequestErrorOptions } from '@common/RequestError';
+import { SessionStorage } from '@common/SessionStorage';
 import { Shared } from '@common/Shared';
 import { TabProperties } from '@common/Tabs';
 import browser, { Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextension-polyfill';
@@ -9,6 +10,7 @@ import browser, { Runtime as WebExtRuntime, Tabs as WebExtTabs } from 'webextens
 export type MessageRequest = MessageRequests[keyof MessageRequests];
 
 export interface MessageRequests {
+	'connect-content-script': ConnectContentScriptMessage;
 	'open-tab': OpenTabMessage;
 	'get-tab-id': GetTabIdMessage;
 	'validate-trakt-token': ValidateTraktTokenMessage;
@@ -25,11 +27,13 @@ export interface MessageRequests {
 	'dispatch-event': DispatchEventMessage;
 	'send-to-all-content': SendToAllContentMessage;
 	'inject-function': InjectFunctionMessage;
+	'inject-function-from-background': InjectFunctionFromBackgroundMessage;
 }
 
 export type ReturnType<T extends MessageRequest> = ReturnTypes[T['action']];
 
 export interface ReturnTypes {
+	'connect-content-script': void;
 	'open-tab': WebExtTabs.Tab | null;
 	'get-tab-id': number | null;
 	'validate-trakt-token': TraktAuthDetails | null;
@@ -46,6 +50,11 @@ export interface ReturnTypes {
 	'dispatch-event': void;
 	'send-to-all-content': void;
 	'inject-function': unknown;
+	'inject-function-from-background': unknown;
+}
+
+export interface ConnectContentScriptMessage {
+	action: 'connect-content-script';
 }
 
 export interface OpenTabMessage {
@@ -124,8 +133,12 @@ export interface InjectFunctionMessage {
 	serviceId: string;
 	key: string;
 	url: string;
-	fnStr: string;
-	fnParamsStr: string;
+	params: Record<string, unknown>;
+}
+
+export interface InjectFunctionFromBackgroundMessage extends Omit<InjectFunctionMessage, 'action'> {
+	action: 'inject-function-from-background';
+	tabId: number | null;
 }
 
 export type MessageHandlers = {
@@ -156,29 +169,34 @@ class _Messaging {
 			Shared.events.dispatch(message.eventType, message.eventSpecifier, message.data, true),
 	};
 
-	ports = new Map<number, WebExtRuntime.Port>();
-
 	init() {
-		if (Shared.pageType === 'background') {
-			browser.runtime.onConnect.addListener(this.onConnect);
-		} else if (Shared.pageType === 'content') {
-			browser.runtime.connect();
+		if (Shared.pageType === 'content') {
+			void this.toExtension({ action: 'connect-content-script' });
+		}
+	}
+
+	addListeners() {
+		if (
+			Shared.pageType === 'background' &&
+			!browser.tabs.onRemoved.hasListener(this.onTabRemoved)
+		) {
+			browser.tabs.onRemoved.addListener(this.onTabRemoved);
 		}
 		browser.runtime.onMessage.addListener(this.onMessage);
 	}
 
-	private onConnect = (port: WebExtRuntime.Port) => {
-		const tabId = port.sender?.tab?.id;
-		if (!tabId) {
-			return;
+	async connectContentScript(message: ConnectContentScriptMessage, tabId: number | null) {
+		if (tabId !== null) {
+			await Shared.events.dispatch('CONTENT_SCRIPT_CONNECT', null, { tabId });
 		}
+	}
 
-		this.ports.set(tabId, port);
-		void Shared.events.dispatch('CONTENT_SCRIPT_CONNECT', null, { tabId });
-
-		port.onDisconnect.addListener(() => {
-			this.ports.delete(tabId);
-			void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
+	private onTabRemoved = (tabId: number) => {
+		void SessionStorage.get('injectedContentScriptTabs').then((values) => {
+			const injectedContentScriptTabs = new Set(values.injectedContentScriptTabs ?? []);
+			if (injectedContentScriptTabs.has(tabId)) {
+				void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId });
+			}
 		});
 	};
 
@@ -241,17 +259,18 @@ class _Messaging {
 			response = ((await browser.runtime.sendMessage(message)) ?? null) as ReturnType<T>;
 		} catch (err) {
 			if (err instanceof Error) {
+				let messagingError;
 				try {
-					const messagingError = JSON.parse(err.message) as MessagingError;
-					switch (messagingError.instance) {
-						case 'Error':
-							throw new Error(messagingError.data.message);
-
-						case 'RequestError':
-							throw new RequestError(messagingError.data);
-					}
+					messagingError = JSON.parse(err.message) as MessagingError;
 				} catch (_) {
 					throw err;
+				}
+				switch (messagingError.instance) {
+					case 'Error':
+						throw new Error(messagingError.data.message);
+
+					case 'RequestError':
+						throw new RequestError(messagingError.data);
 				}
 			}
 		}
@@ -279,7 +298,9 @@ class _Messaging {
 			});
 		}
 
-		for (const tabId of this.ports.keys()) {
+		const values = await SessionStorage.get('injectedContentScriptTabs');
+		const injectedContentScriptTabs = new Set(values.injectedContentScriptTabs ?? []);
+		for (const tabId of injectedContentScriptTabs) {
 			await this.toContent(message, tabId);
 		}
 	}

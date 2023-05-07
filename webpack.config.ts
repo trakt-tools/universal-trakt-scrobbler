@@ -219,8 +219,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 };
 
 const getManifest = (browserName: string): string => {
-	const manifest: WebExtManifest.WebExtensionManifest & { key?: string } = {
-		manifest_version: 2,
+	const manifest: Partial<WebExtManifest.WebExtensionManifest> & { key?: string } = {
 		name: 'Universal Trakt Scrobbler',
 		version: packageJson.version,
 		description: '__MSG_appDescription__',
@@ -228,58 +227,84 @@ const getManifest = (browserName: string): string => {
 			16: 'images/uts-icon-16.png',
 			128: 'images/uts-icon-128.png',
 		},
-		background: {
-			scripts: ['background.js'],
-			persistent: true,
-		},
 		content_scripts: [
 			{
 				js: ['trakt.js'],
 				matches: ['*://*.trakt.tv/apps*'],
-				run_at: 'document_start',
 			},
 		],
 		default_locale: 'en',
-		optional_permissions: [
-			'cookies',
-			'notifications',
-			'tabs',
-			'webRequest',
-			'webRequestBlocking',
-			'*://api.rollbar.com/*',
-			...Object.values(services)
-				.map((service) => service.hostPatterns)
-				.flat(),
-		],
-		browser_action: {
-			default_icon: {
-				19: 'images/uts-icon-19.png',
-				38: 'images/uts-icon-38.png',
-			},
-			default_popup: 'popup.html',
-			default_title: 'Universal Trakt Scrobbler',
-		},
-		permissions: [
-			'alarms',
-			'identity',
-			'storage',
-			'unlimitedStorage',
-			'*://*.trakt.tv/*',
-			'*://*.themoviedb.org/*',
-			'*://*.uts.rafaelgomes.xyz/*',
-		],
-		web_accessible_resources: ['images/*'],
-		// Uncomment this to connect to react-devtools
-		// content_security_policy: "script-src 'self' http://localhost:8097; object-src 'self'",
 	};
 	switch (browserName) {
 		case 'chrome': {
+			manifest.manifest_version = 3;
+			manifest.background = {
+				service_worker: 'background.js',
+			};
+			manifest.optional_permissions = ['notifications', 'tabs'];
+			// @ts-expect-error This is a newer key, so it's missing from the types.
+			manifest.optional_host_permissions = [
+				'*://api.rollbar.com/*',
+				...Object.values(services)
+					.map((service) => service.hostPatterns)
+					.flat(),
+			];
+			manifest.permissions = ['alarms', 'identity', 'scripting', 'storage', 'unlimitedStorage'];
+			manifest.host_permissions = [
+				'*://*.trakt.tv/*',
+				'*://*.themoviedb.org/*',
+				'*://*.uts.rafaelgomes.xyz/*',
+			];
+			manifest.action = {
+				default_icon: {
+					19: 'images/uts-icon-19.png',
+					38: 'images/uts-icon-38.png',
+				},
+				default_popup: 'popup.html',
+				default_title: 'Universal Trakt Scrobbler',
+			};
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
 			}
 			break;
 		}
 		case 'firefox': {
+			manifest.manifest_version = 2;
+			manifest.background = {
+				scripts: ['background.js'],
+				persistent: false,
+			};
+			manifest.optional_permissions = [
+				'cookies',
+				'notifications',
+				'tabs',
+				'webRequest',
+				'webRequestBlocking',
+				'*://api.rollbar.com/*',
+				...Object.values(services)
+					.map((service) => service.hostPatterns)
+					.flat(),
+			];
+			manifest.permissions = [
+				'alarms',
+				'identity',
+				'storage',
+				'unlimitedStorage',
+				'*://*.trakt.tv/*',
+				'*://*.themoviedb.org/*',
+				'*://*.uts.rafaelgomes.xyz/*',
+			];
+			manifest.browser_action = {
+				default_icon: {
+					19: 'images/uts-icon-19.png',
+					38: 'images/uts-icon-38.png',
+				},
+				default_popup: 'popup.html',
+				default_title: 'Universal Trakt Scrobbler',
+			};
+			// Uncomment this to connect to react-devtools
+			// manifest.content_security_policy =
+			// 	"script-src 'self' http://localhost:8097; object-src 'self'";
 			if (process.env.FIREFOX_EXTENSION_ID) {
 				manifest.browser_specific_settings = {
 					gecko: {

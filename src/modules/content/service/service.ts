@@ -8,8 +8,11 @@ import { getScrobbleController } from '@common/ScrobbleController';
 import { getScrobbleEvents } from '@common/ScrobbleEvents';
 import { Shared } from '@common/Shared';
 
+Shared.pageType = 'content';
+
+Messaging.addListeners();
+
 export const init = async (serviceId: string): Promise<void> => {
-	Shared.pageType = 'content';
 	await BrowserStorage.init();
 	Errors.init();
 	EventDispatcher.init();
@@ -21,6 +24,6 @@ export const init = async (serviceId: string): Promise<void> => {
 };
 
 Messaging.addHandlers({
-	'inject-function': ({ serviceId, key, url, fnStr, fnParamsStr }) =>
-		ScriptInjector.inject(serviceId, key, url, fnStr, fnParamsStr),
+	'inject-function': ({ serviceId, key, url, params }) =>
+		ScriptInjector.inject(serviceId, key, url, params),
 });

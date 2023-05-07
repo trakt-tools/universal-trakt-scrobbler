@@ -44,7 +44,7 @@ class _TraktScrobble extends TraktApi {
 		}
 		await this.send(item.trakt, this.START);
 		let { scrobblingDetails } = await Shared.storage.get('scrobblingDetails');
-		if (scrobblingDetails) {
+		if (scrobblingDetails?.tabId === Shared.tabId) {
 			scrobblingDetails.isPaused = false;
 		} else {
 			scrobblingDetails = {

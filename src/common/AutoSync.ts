@@ -93,7 +93,7 @@ class _AutoSync {
 			await store.resetData();
 
 			try {
-				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId);
+				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId, 'autoSync');
 
 				items = store.data.items.filter(
 					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched

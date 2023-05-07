@@ -1,16 +1,18 @@
 import { Messaging } from '@common/Messaging';
+import { Requests } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import browser, { Action as WebExtAction } from 'webextension-polyfill';
 
 export interface BrowserActionRotating {
-	image: HTMLImageElement | null;
-	canvas: HTMLCanvasElement | null;
-	context: CanvasRenderingContext2D | null;
+	image: ImageBitmap | null;
+	canvas: OffscreenCanvas | null;
+	context: OffscreenCanvasRenderingContext2D | null;
 	degrees: number;
 	canceled: boolean;
 }
 
 class _BrowserAction {
+	instance = Shared.manifestVersion === 3 ? browser.action : browser.browserAction;
 	currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 	rotating: BrowserActionRotating | null = null;
 
@@ -30,7 +32,7 @@ class _BrowserAction {
 
 	async setTitle(title = 'Universal Trakt Scrobbler'): Promise<void> {
 		if (Shared.pageType === 'background') {
-			await browser.browserAction.setTitle({ title });
+			await this.instance.setTitle({ title });
 		} else {
 			await Messaging.toExtension({ action: 'set-title', title });
 		}
@@ -43,7 +45,7 @@ class _BrowserAction {
 				await this.setStaticIcon();
 				await this.setRotatingIcon();
 			} else {
-				await browser.browserAction.setIcon({
+				await this.instance.setIcon({
 					path: this.currentIcon,
 				});
 			}
@@ -59,7 +61,7 @@ class _BrowserAction {
 				await this.setStaticIcon();
 				await this.setRotatingIcon();
 			} else {
-				await browser.browserAction.setIcon({
+				await this.instance.setIcon({
 					path: this.currentIcon,
 				});
 			}
@@ -70,9 +72,16 @@ class _BrowserAction {
 
 	async setRotatingIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
-			const image = document.createElement('img');
-			const canvas = document.createElement('canvas');
-			const context = canvas.getContext('2d');
+			const imageResponse = await Requests.fetch({
+				method: 'GET',
+				url: this.currentIcon,
+			});
+			const imageBlob = await imageResponse.blob();
+			const image = await createImageBitmap(imageBlob);
+			const canvas = new OffscreenCanvas(image.width, image.height);
+			const context = canvas.getContext('2d', {
+				willReadFrequently: true,
+			}) as OffscreenCanvasRenderingContext2D;
 			this.rotating = {
 				image,
 				canvas,
@@ -80,8 +89,7 @@ class _BrowserAction {
 				degrees: 0,
 				canceled: false,
 			};
-			image.onload = () => void this.rotateIcon();
-			image.src = this.currentIcon;
+			await this.rotateIcon();
 		} else {
 			await Messaging.toExtension({ action: 'set-rotating-icon' });
 		}
@@ -114,7 +122,7 @@ class _BrowserAction {
 		context.rotate((degrees * Math.PI) / 180);
 		context.drawImage(image, -(image.width / 2), -(image.height / 2));
 
-		await browser.browserAction.setIcon({
+		await this.instance.setIcon({
 			imageData: context.getImageData(
 				0,
 				0,
@@ -133,7 +141,7 @@ class _BrowserAction {
 			this.rotating.degrees = 0;
 		}
 
-		window.setTimeout(() => void this.rotateIcon(), 30);
+		setTimeout(() => void this.rotateIcon(), 30);
 	}
 }
 

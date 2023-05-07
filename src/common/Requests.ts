@@ -2,20 +2,16 @@ import { Messaging } from '@common/Messaging';
 import { RequestError } from '@common/RequestError';
 import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
-import axiosRateLimit from '@rafaelgomesxyz/axios-rate-limit';
-import axios, { AxiosResponse, Method } from 'axios';
 import browser from 'webextension-polyfill';
 
 export type RequestDetails = {
 	url: string;
 	method: string;
 	headers?: Record<string, string>;
-	rateLimit?: RateLimit;
 	body?: unknown;
+	signal?: AbortSignal;
 	cancelKey?: string;
-	priority?: RequestPriority;
 	withHeaders?: Record<string, string>;
-	withRateLimit?: RateLimitConfig;
 };
 
 export interface RequestOptions {
@@ -24,59 +20,41 @@ export interface RequestOptions {
 	body: RequestInit['body'];
 }
 
-export interface RateLimit {
-	id: string;
-	maxRPS: number;
-}
-
-export enum RequestPriority {
-	NORMAL,
-	HIGH,
-}
-
-export interface RateLimitConfig {
-	/** All requests with the same ID will be limited by the same instance. */
-	id: string;
-
-	/** Maximum requests per second. */
-	maxRPS: {
-		/** This limit will apply to all methods, unless a limit for the specific method has been provided. */
-		'*': number;
-
-		/** This limit will apply to the specific method. */
-		[K: string]: number | undefined;
-	};
-}
-
 class _Requests {
 	readonly withHeaders: Record<string, string> = {};
-	readonly withRateLimit: RateLimitConfig = {
-		id: 'default',
-		maxRPS: {
-			'*': 2,
-		},
-	};
 
 	async send(request: RequestDetails, tabId = Shared.tabId): Promise<string> {
-		let responseText = '';
-		if (Shared.pageType === 'background') {
-			responseText = await this.sendDirectly(request, tabId);
-		} else {
-			// All requests from other pages must be sent to the background page so that it can rate limit them
-			request.withHeaders = this.withHeaders;
-			request.withRateLimit = this.withRateLimit;
-			responseText = await Messaging.toExtension({ action: 'send-request', request });
-		}
-		return responseText;
+		return new Promise((resolve, reject) => {
+			if (Shared.pageType === 'background') {
+				void this.sendDirectly(request, tabId, resolve, reject);
+			} else {
+				// All requests from other pages must be sent to the background page to bypass CORS
+				request.withHeaders = this.withHeaders;
+				Messaging.toExtension({ action: 'send-request', request }).then(resolve).catch(reject);
+			}
+		});
 	}
 
-	async sendDirectly(request: RequestDetails, tabId = Shared.tabId): Promise<string> {
+	async sendDirectly(
+		request: RequestDetails,
+		tabId = Shared.tabId,
+		resolve: PromiseResolve<string>,
+		reject: PromiseReject
+	): Promise<void> {
 		let responseStatus = 0;
 		let responseText = '';
 		try {
 			const response = await this.fetch(request, tabId);
 			responseStatus = response.status;
-			responseText = response.data;
+			responseText = await response.text();
+			if (responseStatus === 429) {
+				const retryAfterStr = response.headers.get('Retry-After');
+				if (retryAfterStr) {
+					const retryAfter = Number.parseInt(retryAfterStr) * 1000;
+					setTimeout(() => void this.sendDirectly(request, tabId, resolve, reject), retryAfter);
+					return;
+				}
+			}
 			if (responseStatus < 200 || responseStatus >= 400) {
 				throw responseText;
 			}
@@ -94,42 +72,32 @@ class _Requests {
 				if ('status' in err.response) errRespStatus = err.response.status as number;
 				if ('data' in err.response) errRespData = err.response.data as string;
 			}
-			throw new RequestError({
-				request,
-				status: errRespStatus,
-				text: errRespData,
-				isCanceled: err instanceof axios.Cancel,
-			});
+			reject(
+				new RequestError({
+					request,
+					status: errRespStatus,
+					text: errRespData,
+					isCanceled: request.signal?.aborted ?? false,
+				})
+			);
 		}
-		return responseText;
+		resolve(responseText);
 	}
 
-	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<AxiosResponse<string>> {
+	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<Response> {
 		const options = await this.getOptions(request, tabId);
+
 		const cancelKey = `${tabId !== null ? `${tabId}_` : ''}${request.cancelKey || 'default'}`;
 		if (!RequestsManager.abortControllers.has(cancelKey)) {
 			RequestsManager.abortControllers.set(cancelKey, new AbortController());
 		}
-		const signal = RequestsManager.abortControllers.get(cancelKey)?.signal;
+		request.signal = RequestsManager.abortControllers.get(cancelKey)?.signal;
 
-		const rateLimit = request.rateLimit ?? this.getRateLimit(request);
-		let instance = RequestsManager.instances.get(rateLimit.id);
-		if (!instance) {
-			instance = axiosRateLimit(axios.create(), { maxRPS: rateLimit.maxRPS });
-			RequestsManager.instances.set(rateLimit.id, instance);
-		}
-
-		return instance.request({
-			url: request.url,
-			method: options.method as Method,
+		return fetch(request.url, {
+			method: options.method,
 			headers: options.headers,
-			data: options.body,
-			responseType: 'text',
-			signal,
-			transformResponse: (res: string) => res,
-
-			// @ts-expect-error Custom prop
-			priority: request.priority || RequestPriority.NORMAL,
+			body: options.body,
+			signal: request.signal,
 		});
 	}
 
@@ -175,41 +143,6 @@ class _Requests {
 		});
 		return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
 	}
-
-	getRateLimit(request: RequestDetails) {
-		let id;
-		let maxRPS;
-
-		if (request.withRateLimit) {
-			id = request.withRateLimit.id;
-			maxRPS = request.withRateLimit.maxRPS[request.method];
-
-			if (maxRPS) {
-				return {
-					id: `${id}_${request.method}`,
-					maxRPS,
-				};
-			}
-
-			maxRPS = request.withRateLimit.maxRPS['*'];
-
-			return { id, maxRPS };
-		}
-
-		id = this.withRateLimit.id;
-		maxRPS = this.withRateLimit.maxRPS[request.method];
-
-		if (maxRPS) {
-			return {
-				id: `${id}_${request.method}`,
-				maxRPS,
-			};
-		}
-
-		maxRPS = this.withRateLimit.maxRPS['*'];
-
-		return { id, maxRPS };
-	}
 }
 
 export const Requests = new _Requests();
@@ -222,20 +155,6 @@ export const withHeaders = (headers: Record<string, string>, instance = Requests
 		get: (target, prop, receiver) => {
 			if (prop === 'withHeaders') {
 				return { ...instance.withHeaders, ...headers };
-			}
-			return Reflect.get(target, prop, receiver) as unknown;
-		},
-	});
-};
-
-/**
- * Creates a proxy to a requests instance that uses the provided rate limit. Useful for making requests without having to provide the rate limit every time.
- */
-export const withRateLimit = (rateLimit: RateLimitConfig, instance = Requests) => {
-	return new Proxy(instance, {
-		get: (target, prop, receiver) => {
-			if (prop === 'withRateLimit') {
-				return { ...instance.withRateLimit, ...rateLimit };
 			}
 			return Reflect.get(target, prop, receiver) as unknown;
 		},

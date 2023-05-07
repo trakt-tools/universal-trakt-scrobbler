@@ -12,6 +12,7 @@ export interface SharedValues {
 	rollbarToken: string;
 	tmdbApiKey: string;
 
+	manifestVersion: number;
 	browser: BrowserName;
 	pageType: PageType;
 	tabId: number | null;
@@ -21,6 +22,8 @@ export interface SharedValues {
 	storage: typeof BrowserStorage;
 	errors: typeof Errors;
 	events: typeof EventDispatcher;
+
+	functionsToInject: Record<string, () => unknown>;
 
 	waitForInit: () => Promise<unknown>;
 	finishInit: () => void;
@@ -56,6 +59,7 @@ export const Shared: SharedValues = {
 	rollbarToken: process.env.ROLLBAR_TOKEN || '',
 	tmdbApiKey: process.env.TMDB_API_KEY || '',
 
+	manifestVersion: browser.runtime.getManifest().manifest_version,
 	browser: browsers[browserPrefix] || 'unknown',
 	pageType: 'content',
 	tabId: null,
@@ -64,6 +68,8 @@ export const Shared: SharedValues = {
 	storage: {} as typeof BrowserStorage,
 	errors: {} as typeof Errors,
 	events: {} as typeof EventDispatcher,
+
+	functionsToInject: {},
 
 	waitForInit: () => initPromise,
 	finishInit: () => initPromiseResolve(null),

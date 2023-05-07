@@ -136,7 +136,8 @@ export abstract class ServiceApi {
 	async loadHistory(
 		itemsToLoad: number,
 		lastSync: number,
-		lastSyncId: string
+		lastSyncId: string,
+		cancelKey = 'default'
 	): Promise<ScrobbleItem[]> {
 		let items: ScrobbleItem[] = [];
 		try {
@@ -156,7 +157,7 @@ export abstract class ServiceApi {
 					responseItems = this.leftoverHistoryItems;
 					this.leftoverHistoryItems = [];
 				} else if (!this.hasReachedHistoryEnd) {
-					responseItems = await this.loadHistoryItems();
+					responseItems = await this.loadHistoryItems(cancelKey);
 					if (!this.hasCheckedHistoryCache) {
 						let firstItem: ScrobbleItemValues | null = null;
 						if (historyCache.items.length > 0) {
@@ -282,7 +283,7 @@ export abstract class ServiceApi {
 	 *
 	 * Should be overridden in the child class.
 	 */
-	loadHistoryItems(): Promise<unknown[]> {
+	loadHistoryItems(cancelKey = 'default'): Promise<unknown[]> {
 		Shared.errors.error('loadHistoryItems() is not implemented in this service!', new Error());
 		return Promise.resolve([]);
 	}

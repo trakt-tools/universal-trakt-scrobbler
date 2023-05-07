@@ -153,13 +153,14 @@ class _ViaplayApi extends ServiceApi {
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<ViaplayProduct[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<ViaplayProduct[]> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
 		const responseText = await Requests.send({
 			url: this.nextHistoryUrl,
 			method: 'GET',
+			cancelKey,
 		});
 		let historyPage: ViaplayHistoryPage;
 		if (this.nextHistoryUrl === this.HISTORY_API_URL) {

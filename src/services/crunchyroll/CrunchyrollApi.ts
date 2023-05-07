@@ -107,7 +107,7 @@ class _CrunchyrollApi extends ServiceApi {
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<CrunchyrollHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<CrunchyrollHistoryItem[]> {
 		// We do this here because the token will expire within minutes.
 		await this.checkLogin();
 
@@ -119,6 +119,7 @@ class _CrunchyrollApi extends ServiceApi {
 		const responseText = await this.authRequests.send({
 			url: this.nextHistoryUrl,
 			method: 'GET',
+			cancelKey,
 		});
 		const page = this.parseJsonWithDates<CrunchyrollHistoryPage>(responseText, [
 			'date_played',

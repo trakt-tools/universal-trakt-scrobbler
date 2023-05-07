@@ -1,12 +1,10 @@
 import { RequestsCancelData, StorageOptionsChangeData } from '@common/Events';
 import { Shared } from '@common/Shared';
 import { getServices } from '@models/Service';
-import { AxiosInstance } from 'axios';
 import browser, { WebRequest as WebExtWebRequest } from 'webextension-polyfill';
 
 class _RequestsManager {
 	abortControllers = new Map<string, AbortController>();
-	instances = new Map<string, AxiosInstance>();
 
 	init() {
 		if (Shared.pageType === 'background') {

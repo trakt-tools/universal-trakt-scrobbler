@@ -25,7 +25,7 @@ export const PopupWatching = ({ item, isPaused }: PopupWatchingProps): JSX.Eleme
 	return (
 		<>
 			<Box>
-				<BackgroundImage imageUrl={item.imageUrl} />
+				<BackgroundImage imageUrl={item.trakt?.imageUrl || item.imageUrl} />
 				<Box
 					sx={{
 						position: 'relative',

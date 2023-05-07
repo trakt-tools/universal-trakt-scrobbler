@@ -1,6 +1,5 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Cache, CacheItem } from '@common/Cache';
-import { RequestPriority } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { ScrobbleItem } from '@models/Item';
@@ -56,7 +55,6 @@ class _TraktSync extends TraktApi {
 				url: this.getUrl(item),
 				method: 'GET',
 				cancelKey,
-				priority: RequestPriority.HIGH,
 			});
 			historyItems = JSON.parse(responseText) as TraktHistoryItem[];
 			traktHistoryItemsCache.set(databaseId, historyItems);

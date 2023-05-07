@@ -206,7 +206,7 @@ class _NetflixApi extends ServiceApi {
 		return this.session?.profileName != null;
 	}
 
-	async loadHistoryItems(): Promise<NetflixHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<NetflixHistoryItem[]> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -216,6 +216,7 @@ class _NetflixApi extends ServiceApi {
 		const responseText = await Requests.send({
 			url: `${this.API_URL}/mre/viewingactivity?languages=en-US&authURL=${this.session.authUrl}&pg=${this.nextHistoryPage}`,
 			method: 'GET',
+			cancelKey,
 		});
 		const responseJson = JSON.parse(responseText) as NetflixHistoryResponse;
 		const responseItems = responseJson?.viewedItems ?? [];
@@ -444,19 +445,7 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	getSession(): Promise<NetflixSession | null> {
-		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '', () => {
-			let session: NetflixSession | null = null;
-			const { netflix } = window;
-			if (netflix) {
-				const { userInfo } = netflix.reactContext.models;
-				const authUrl = userInfo.data.authURL;
-				const profileName = userInfo.data.name;
-				if (authUrl) {
-					session = { authUrl, profileName };
-				}
-			}
-			return session;
-		});
+		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '');
 	}
 
 	extractSession(text: string): NetflixSession | null {
@@ -471,5 +460,19 @@ class _NetflixApi extends ServiceApi {
 		return session;
 	}
 }
+
+Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
+	let session: NetflixSession | null = null;
+	const { netflix } = window;
+	if (netflix) {
+		const { userInfo } = netflix.reactContext.models;
+		const authUrl = userInfo.data.authURL;
+		const profileName = userInfo.data.name;
+		if (authUrl) {
+			session = { authUrl, profileName };
+		}
+	}
+	return session;
+};
 
 export const NetflixApi = new _NetflixApi();

@@ -1,5 +1,6 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { ScriptInjector } from '@common/ScriptInjector';
+import { Shared } from '@common/Shared';
 import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
 export interface ScrobbleParserOptions {
@@ -82,7 +83,7 @@ export abstract class ScrobbleParser {
 	 * Below are the methods that can be used to parse the playback. Generic methods do not need to be overridden in the child class, as they should work out-of-the-box. If one method fails, the next one is attempted, in the order listed.
 	 *
 	 *   1. **video player:** generic method, based on `videoPlayerSelector`, which can be specified through the options
-	 *   2. **injected script:** specific method (requires implementation of `playbackFnToInject`)
+	 *   2. **injected script:** specific method (requires adding a function to the `{serviceId}-playback` key in `Shared.functionsToInject` at the `{serviceName}Api.ts` file e.g. `netflix-playback` at `NetflixApi.ts`)
 	 *   3. **DOM:** specific method (requires override)
 	 *   4. **custom:** specific method (requires override)
 	 */
@@ -169,19 +170,16 @@ export abstract class ScrobbleParser {
 	}
 
 	protected async parsePlaybackFromInjectedScript(): Promise<Partial<ScrobblePlayback> | null> {
-		if (this.playbackFnToInject) {
+		if (`${this.api.id}-playback` in Shared.functionsToInject) {
 			const playback = await ScriptInjector.inject<Partial<ScrobblePlayback>>(
 				this.api.id,
 				'playback',
-				'',
-				this.playbackFnToInject
+				''
 			);
 			return playback;
 		}
 		return null;
 	}
-
-	protected playbackFnToInject: (() => Partial<ScrobblePlayback> | null) | null = null;
 
 	protected parsePlaybackFromDom(): Promisable<Partial<ScrobblePlayback> | null> {
 		return null;
@@ -195,7 +193,7 @@ export abstract class ScrobbleParser {
 	 * Below are the methods that can be used to parse the item. Generic methods do not need to be overridden in the child class, as they should work out-of-the-box. If one method fails, the next one is attempted, in the order listed.
 	 *
 	 *   1. **API:** generic method, but requires a non-null return from `parseItemId` and the implementation of `*Api#getItem`
-	 *   2. **injected script:** specific method (requires implementation of `itemFnToInject`)
+	 *   2. **injected script:** specific method (requires adding a function to the `{serviceId}-item` key in `Shared.functionsToInject` at the `{serviceName}Api.ts` file e.g. `netflix-item` at `NetflixApi.ts`)
 	 *   3. **DOM:** specific method (requires override)
 	 *   4. **custom:** specific method (requires override)
 	 */
@@ -235,21 +233,14 @@ export abstract class ScrobbleParser {
 	}
 
 	protected async parseItemFromInjectedScript(): Promise<ScrobbleItem | null> {
-		if (this.itemFnToInject) {
-			const savedItem = await ScriptInjector.inject<ScrobbleItemValues>(
-				this.api.id,
-				'item',
-				'',
-				this.itemFnToInject
-			);
+		if (`${this.api.id}-item` in Shared.functionsToInject) {
+			const savedItem = await ScriptInjector.inject<ScrobbleItemValues>(this.api.id, 'item', '');
 			if (savedItem) {
 				return createScrobbleItem(savedItem);
 			}
 		}
 		return null;
 	}
-
-	protected itemFnToInject: (() => ScrobbleItemValues | null) | null = null;
 
 	protected parseItemFromDom(): Promisable<ScrobbleItem | null> {
 		return null;
@@ -263,7 +254,7 @@ export abstract class ScrobbleParser {
 	 * Below are the methods that can be used to parse the item ID. Generic methods do not need to be overridden in the child class, as they should work out-of-the-box. If one method fails, the next one is attempted, in the order listed.
 	 *
 	 *   1. **URL:** generic method, based on `watchingUrlRegex`, which can be specified through the options
-	 *   2. **injected script:** specific method (requires implementation of `itemIdFnToInject`)
+	 *   2. **injected script:** specific method (requires adding a function to the `{serviceId}-item-id` key in `Shared.functionsToInject` at the `{serviceName}Api.ts` file e.g. `netflix-item-id` at `NetflixApi.ts`)
 	 *   3. **DOM:** specific method (requires override)
 	 *   4. **custom:** specific method (requires override)
 	 */
@@ -301,19 +292,12 @@ export abstract class ScrobbleParser {
 	}
 
 	protected async parseItemIdFromInjectedScript(): Promise<string | null> {
-		if (this.itemIdFnToInject) {
-			const id = await ScriptInjector.inject<string>(
-				this.api.id,
-				'item-id',
-				'',
-				this.itemIdFnToInject
-			);
+		if (`${this.api.id}-item-id` in Shared.functionsToInject) {
+			const id = await ScriptInjector.inject<string>(this.api.id, 'item-id', '');
 			return id;
 		}
 		return null;
 	}
-
-	protected itemIdFnToInject: (() => string | null) | null = null;
 
 	protected parseItemIdFromDom(): Promisable<string | null> {
 		return null;
