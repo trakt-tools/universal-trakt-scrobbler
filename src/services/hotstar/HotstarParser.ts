@@ -5,7 +5,7 @@ import { EpisodeItem, MovieItem } from '@models/Item';
 class _HotstarParser extends ScrobbleParser {
 	constructor() {
 		super(HotstarApi, {
-			watchingUrlRegex: /\/(?:movies|shows)\/\D+(?<id>\d.+)\//,
+			watchingUrlRegex: /(?:movies|shows)\/.+\/(?<id>\d+)\//,
 		});
 	}
 
