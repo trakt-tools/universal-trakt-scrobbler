@@ -5,35 +5,36 @@ import { EpisodeItem, MovieItem } from '@models/Item';
 class _HotstarParser extends ScrobbleParser {
 	constructor() {
 		super(HotstarApi, {
-			watchingUrlRegex: /\/(?:movies|tv)\/(?<id>.+)/,
+			watchingUrlRegex: /(?:movies|shows)\/.+\/(?<id>\d+)\//,
 		});
 	}
 
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const id = this.parseItemIdFromUrl();
-		const titleElement = document.querySelector('.primary-title');
+		const titleElement = document.querySelector(
+			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>div.flex>p.ON_IMAGE.BUTTON1_MEDIUM'
+		);
 
 		if (!titleElement) {
 			return null;
 		}
 
 		const title = titleElement?.textContent ?? '';
-		const seasonEpisodeElement = document.querySelector(
-			'.show-title .meta-data-holder'
-		)?.firstChild;
-		const subTitleElement = document.querySelector('.show-title .meta-data-holder')?.lastChild;
+		const subTitleElement = document.querySelector(
+			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>p.ON_IMAGE_ALT2.BUTTON3_MEDIUM'
+		);
 
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
-		const subTitle = subTitleElement?.textContent ?? '';
+		let subTitle: string | null = '';
 
-		const matches = /(?<seasonId>[\d]+)\s.(?<episodeId>[\d]+)/.exec(
-			seasonEpisodeElement?.textContent ?? ''
+		const matches = /(?<seasonId>[\d]+)\s.(?<episodeId>[\d]+)\s(?<subTitle>.*)/.exec(
+			subTitleElement?.textContent ?? ''
 		);
 
 		if (matches?.groups) {
-			({ seasonId, episodeId } = matches.groups);
+			({ seasonId, episodeId, subTitle } = matches.groups);
 		}
 
 		if (seasonId) {
