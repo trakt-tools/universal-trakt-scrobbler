@@ -14,8 +14,12 @@
 		<img src="https://badges.crowdin.net/universal-trakt-scrobbler/localized.svg">
 	</a>
 </p>
+<p align="center">
+  <a href="https://chrome.google.com/webstore/detail/universal-trakt-scrobbler/mbhadeogepkjdjeikcckdkjdjhhkhlid"><img src="https://github.com/trakt-tools/universal-trakt-scrobbler/raw/master/assets/chrome-badge.png" alt="Get the extension on Chrome"></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/universal-trakt-scrobbler"><img src="https://github.com/trakt-tools/universal-trakt-scrobbler/raw/master/assets/firefox-badge.png" alt="Get the extension on Firefox"></a>
+</p>
 
-**WARNING:** This extension has not been released yet. For now you can install it manually by downloading the zip for your browser here: https://github.com/trakt-tools/universal-trakt-scrobbler/releases
+You can also install the extension manually by downloading the zip for your browser here: https://github.com/trakt-tools/universal-trakt-scrobbler/releases
 
 ### Loading the extension manually in Chrome
 
@@ -25,13 +29,7 @@
 4. Click "Load unpacked"
 5. Select the folder you unzipped
 
-We are working on getting the extension in the Chrome and store ASAP.
-
-### Loading the extension in Firefox
-
-The extension is available in the Firefox store. Install it from [here](https://addons.mozilla.org/en-US/firefox/addon/universal-trakt-scrobbler/).
-
-#### Loading the extension manually in Firefox
+### Loading the extension manually in Firefox
 
 1. Go to about:debugging#/runtime/this-firefox
 2. Click "Load temporary addon"
