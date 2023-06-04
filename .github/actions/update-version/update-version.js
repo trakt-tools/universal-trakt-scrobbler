@@ -30,8 +30,6 @@ const updateVersion = async () => {
 	const packageJsonPath = path.resolve(__dirname, '../../../package.json');
 	const packageJsonStr = JSON.stringify(packageJson, null, 2);
 	fs.writeFileSync(packageJsonPath, packageJsonStr);
-
-	process.env.VERSION = packageJson.version;
 };
 
 const main = async () => {

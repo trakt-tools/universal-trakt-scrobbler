@@ -42,6 +42,7 @@ jobs:
           git config user.email "89098662+trakt-tools-bot@users.noreply.github.com"
       - name: Commit and push changes to package.json
         run: |
+          version=$(sed -n 's/.*"version": "\(.*\)".*/\1/p' package.json)
           git add package.json
-          git commit -m "[bump-version] $VERSION"
+          git commit -m "[bump-version] $version"
           git push origin master
