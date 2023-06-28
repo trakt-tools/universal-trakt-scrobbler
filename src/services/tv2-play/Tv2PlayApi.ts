@@ -133,7 +133,7 @@ class _Tv2PlayApi extends ServiceApi {
 	async convertHistoryItems(historyItems: Tv2PlayHistoryItem[]) {
 		const promises = historyItems.map(async (historyItem) => {
 			const item = await this.getItem(`${historyItem.id}`);
-			this.updateItemFromHistory(item, historyItem);
+			await this.updateItemFromHistory(item, historyItem);
 			return item;
 		});
 
