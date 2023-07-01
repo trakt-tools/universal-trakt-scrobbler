@@ -99,6 +99,12 @@ const _HistoryListItem = ({
 		return <></>;
 	}
 
+	// TODO: For some reason, some items get a height of 0 when doing the initial sync.
+	//       This is a workaround, but we should figure out why it happens and fix it.
+	if (style.height === 0) {
+		style.height = 250;
+	}
+
 	return (
 		<Box
 			style={style}
