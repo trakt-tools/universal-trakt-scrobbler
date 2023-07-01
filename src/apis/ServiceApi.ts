@@ -106,7 +106,11 @@ export abstract class ServiceApi {
 							cancelKey
 						);
 					} else {
-						promise = Promise.resolve(item);
+						if (processItem) {
+							promise = processItem(item);
+						} else {
+							promise = Promise.resolve(item);
+						}
 					}
 
 					void promise.then((newItem) => {
