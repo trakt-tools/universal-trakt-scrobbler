@@ -359,6 +359,10 @@ export const HistoryList = (): JSX.Element => {
 				let newItems = await startLoading(store.data.items);
 				newItems = await loadData(newItems);
 				await stopLoading(newItems);
+
+				if (listRef.current) {
+					listRef.current.resetAfterIndex(-1);
+				}
 			}
 		};
 

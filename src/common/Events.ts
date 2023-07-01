@@ -46,9 +46,11 @@ export interface EventData {
 	CONTENT_SCRIPT_CONNECT: ContentScriptConnectData;
 	CONTENT_SCRIPT_DISCONNECT: ContentScriptConnectData;
 	SYNC_DIALOG_SHOW: SyncDialogShowData;
+	SYNC_DIALOG_HIDE: SuccessData;
 	ITEMS_LOAD: ItemsLoadData;
 	SYNC_STORE_LOADING_START: SuccessData;
 	SYNC_STORE_LOADING_STOP: SuccessData;
+	SYNC_PROGRESS: SyncProgressData;
 }
 
 export type Event = keyof EventData;
@@ -134,13 +136,19 @@ export interface ContentScriptConnectData {
 }
 
 export interface SyncDialogShowData {
-	store: SyncStore;
+	isAutoSync?: boolean;
+	store?: SyncStore;
 	serviceId: string | null;
-	items: ScrobbleItem[];
+	items?: ScrobbleItem[];
 }
 
 export interface ItemsLoadData {
 	items: Partial<Record<number, ScrobbleItem | null>>;
+}
+
+export interface SyncProgressData {
+	message: string;
+	percentage?: number;
 }
 
 export type EventDispatcherListeners = Record<

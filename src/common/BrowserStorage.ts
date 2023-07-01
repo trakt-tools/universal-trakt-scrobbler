@@ -125,6 +125,7 @@ export type ServiceValue = {
 	autoSyncDays: number;
 	lastSync: number;
 	lastSyncId: string;
+	hasDismissedSync: boolean;
 };
 
 export type ThemeValue = 'light' | 'dark' | 'system';
@@ -191,6 +192,7 @@ export type BaseOptionDetails<T, K extends keyof T> = {
 	permissions?: WebExtManifest.OptionalPermission[];
 	dependencies?: (keyof T)[];
 	doShow: boolean;
+	doShowForInitialSync?: boolean;
 };
 
 export interface SelectOptionDetails<T, K extends keyof T>
@@ -300,6 +302,7 @@ class _BrowserStorage {
 							autoSyncDays: 0,
 							lastSync: 0,
 							lastSyncId: '',
+							hasDismissedSync: false,
 						};
 					}
 				}
@@ -756,6 +759,7 @@ class _BrowserStorage {
 							autoSyncDays: 7,
 							lastSync: 0,
 							lastSyncId: '',
+							hasDismissedSync: false,
 						},
 					])
 				),
@@ -954,6 +958,7 @@ class _BrowserStorage {
 				id: 'addWithReleaseDate',
 				value: false,
 				doShow: true,
+				doShowForInitialSync: true,
 			},
 			addWithReleaseDateMissing: {
 				type: 'switch',
@@ -961,6 +966,7 @@ class _BrowserStorage {
 				value: false,
 				dependencies: ['addWithReleaseDate'],
 				doShow: true,
+				doShowForInitialSync: true,
 			},
 			minPercentageWatched: {
 				type: 'number',
@@ -969,6 +975,7 @@ class _BrowserStorage {
 				minValue: 0,
 				maxValue: 100,
 				doShow: true,
+				doShowForInitialSync: true,
 			},
 		};
 		const values = await this.get('syncOptions');

@@ -1,4 +1,4 @@
-import { StorageValuesSyncOptions } from '@common/BrowserStorage';
+import { OptionDetails, StorageValuesSyncOptions } from '@common/BrowserStorage';
 import { Errors } from '@common/Errors';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
@@ -10,6 +10,10 @@ import { PartialDeep } from 'type-fest';
 
 export const HistoryOptionsList = (): JSX.Element => {
 	const { store } = useSync();
+
+	const showOption = (option: OptionDetails<StorageValuesSyncOptions>) => {
+		return !!store || !!option.doShowForInitialSync;
+	};
 
 	useEffect(() => {
 		const startListeners = () => {
@@ -45,34 +49,24 @@ export const HistoryOptionsList = (): JSX.Element => {
 		return stopListeners;
 	}, []);
 
-	return (
-		<Drawer
-			anchor="left"
-			variant="permanent"
+	const formGroup = (
+		<FormGroup
 			sx={{
-				'& .MuiDrawer-paper': {
-					width: ({ sizes }) => sizes.sidebar,
-					padding: 2,
+				position: 'sticky',
+				top: 100,
+				height: 'min-content',
+
+				'& > *': {
+					width: 1,
+					marginY: 1,
+					marginX: 0,
 				},
 			}}
 		>
-			<Toolbar />
-			<FormGroup
-				sx={{
-					position: 'sticky',
-					top: 100,
-					height: 'min-content',
-
-					'& > *': {
-						width: 1,
-						marginY: 1,
-						marginX: 0,
-					},
-				}}
-			>
-				{Object.values(Shared.storage.syncOptionsDetails).map((option) => (
-					<HistoryOptionsListItem key={option.id} option={option} />
-				))}
+			{Object.values(Shared.storage.syncOptionsDetails).map(
+				(option) => showOption(option) && <HistoryOptionsListItem key={option.id} option={option} />
+			)}
+			{store && (
 				<Box
 					sx={{
 						display: 'flex',
@@ -91,7 +85,27 @@ export const HistoryOptionsList = (): JSX.Element => {
 						<Button onClick={() => void store.toggleAll()}>{I18N.translate('toggleAll')}</Button>
 					</ButtonGroup>
 				</Box>
-			</FormGroup>
+			)}
+		</FormGroup>
+	);
+
+	if (!store) {
+		return formGroup;
+	}
+
+	return (
+		<Drawer
+			anchor="left"
+			variant="permanent"
+			sx={{
+				'& .MuiDrawer-paper': {
+					width: ({ sizes }) => sizes.sidebar,
+					padding: 2,
+				},
+			}}
+		>
+			<Toolbar />
+			{formGroup}
 		</Drawer>
 	);
 };

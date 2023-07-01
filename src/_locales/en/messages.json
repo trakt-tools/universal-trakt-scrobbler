@@ -204,6 +204,18 @@
 	"home": {
 		"message": "Home"
 	},
+	"initialSyncTitle": {
+		"message": "Sync full history?"
+	},
+	"initialSyncDescription": {
+		"message": "This is the first time that you are accessing this service. Would you like to sync the full history right now? This may take a while depending on how big your history is.\n\nBefore choosing \"Yes\", make sure that the options below are adjusted to your liking.\n\nIf you choose \"No\", you will not be asked this again, unless you clear the last sync date for the service or clear the storage."
+	},
+	"initialSyncSuccess": {
+		"message": "Sync finished with success. Would you like to review it and make sure that the correct items were synced?"
+	},
+	"initialSyncFailed": {
+		"message": "Sync failed. Would you like to review it and correct the items?"
+	},
 	"invalidTraktUrl": {
 		"message": "Please enter a valid Trakt URL!"
 	},
@@ -218,6 +230,25 @@
 	},
 	"itemSyncStatusUnknown": {
 		"message": "Item sync status unknown"
+	},
+	"itemsLoaded": {
+		"message": "$COUNT$ items loaded",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			}
+		}
+	},
+	"itemsLoadedOf": {
+		"message": "$COUNT$ of $TOTAL$ items loaded",
+		"placeholders": {
+			"count": {
+				"content": "$1"
+			},
+			"total": {
+				"content": "$2"
+			}
+		}
 	},
 	"itemsMissingWatchedDate": {
 		"message": "Some items are missing the watched date. Resolve each item or enable the option to add with release date and try again."
@@ -242,6 +273,9 @@
 	},
 	"loadingHistory": {
 		"message": "Loading history"
+	},
+	"loadingTraktHistory": {
+		"message": "Loading Trakt history"
 	},
 	"loadingSuggestions": {
 		"message": "Loading suggestions"

@@ -15,7 +15,7 @@ export const HistoryOptionsListItem = ({ option }: HistoryOptionsListItemProps):
 	const { store } = useSync();
 
 	const [isDisabled, setDisabled] = useState(
-		store.data.isLoading || Shared.storage.checkSyncOptionDisabled(option)
+		store?.data.isLoading || Shared.storage.checkSyncOptionDisabled(option)
 	);
 	const [value, setValue] = useState(option.value);
 
@@ -57,7 +57,7 @@ export const HistoryOptionsListItem = ({ option }: HistoryOptionsListItemProps):
 		};
 
 		const checkDisabled = () => {
-			setDisabled(store.data.isLoading || Shared.storage.checkSyncOptionDisabled(option));
+			setDisabled(store?.data.isLoading || Shared.storage.checkSyncOptionDisabled(option));
 		};
 
 		startListeners();

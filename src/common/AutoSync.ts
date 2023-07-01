@@ -70,7 +70,37 @@ class _AutoSync {
 		}
 	}
 
+	async forceSync(service: Service) {
+		let success = false;
+		let wasCanceled = false;
+
+		const now = Utils.unix();
+		try {
+			await BrowserAction.setRotatingIcon();
+			await BrowserAction.setTitle(I18N.translate('autoSyncing'));
+			success = await this.sync([service], now);
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to automatically sync history.', err);
+			} else if (err instanceof RequestError && err.isCanceled) {
+				wasCanceled = true;
+			}
+		}
+		await BrowserAction.setTitle();
+		await BrowserAction.setStaticIcon();
+
+		if (wasCanceled) {
+			throw new RequestError({
+				isCanceled: true,
+			});
+		}
+
+		return success;
+	}
+
 	private async sync(services: Service[], now: number) {
+		let wasCanceled = false;
+
 		let { syncCache } = await Shared.storage.get('syncCache');
 		if (!syncCache) {
 			syncCache = {
@@ -81,8 +111,6 @@ class _AutoSync {
 		let partialOptions: PartialDeep<StorageValuesOptions> = {};
 
 		for (const service of services) {
-			let wasCanceled = false;
-
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: ScrobbleItem[] = [];
 
@@ -93,12 +121,18 @@ class _AutoSync {
 			await store.resetData();
 
 			try {
+				await Shared.events.dispatch('SYNC_PROGRESS', service.id, {
+					message: `${I18N.translate('loadingHistory')}...`,
+				});
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId, 'autoSync');
 
 				items = store.data.items.filter(
 					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
 				);
 				if (items.length > 0) {
+					await Shared.events.dispatch('SYNC_PROGRESS', service.id, {
+						message: `${I18N.translate('loadingTraktHistory')}...`,
+					});
 					items = await ServiceApi.loadTraktHistory(items, undefined, 'autoSync');
 
 					const foundItems = items.filter((item) => item.trakt);
@@ -109,7 +143,14 @@ class _AutoSync {
 						for (const itemToSync of itemsToSync) {
 							itemToSync.isSelected = true;
 						}
+						await Shared.events.dispatch('SYNC_PROGRESS', service.id, {
+							message: `${I18N.translate('syncing')}...`,
+						});
 						await TraktSync.sync(store, itemsToSync, 'autoSync');
+
+						await Shared.events.dispatch('SYNC_PROGRESS', service.id, {
+							message: '',
+						});
 					}
 
 					items = store.data.items.filter(
@@ -150,6 +191,14 @@ class _AutoSync {
 
 		await Shared.storage.saveOptions(partialOptions);
 		await Shared.storage.set({ syncCache }, false);
+
+		if (wasCanceled) {
+			throw new RequestError({
+				isCanceled: true,
+			});
+		}
+
+		return !syncCache.failed;
 	}
 }
 

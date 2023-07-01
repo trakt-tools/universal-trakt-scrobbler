@@ -1,26 +1,49 @@
 import { TraktSync } from '@apis/TraktSync';
-import { SyncDialogShowData } from '@common/Events';
+import { SyncDialogShowData, SyncProgressData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { ScrobbleItem } from '@models/Item';
-import { Button, CircularProgress, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+	Box,
+	Button,
+	CircularProgress,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	LinearProgress,
+	Typography,
+} from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
 import { useEffect, useState } from 'react';
 
+interface SyncDialogState extends SyncDialogShowData {
+	isOpen: boolean;
+	message: string;
+	percentage?: number | null;
+}
+
 export const SyncDialog = (): JSX.Element => {
-	const [isOpen, setOpen] = useState(false);
+	const [dialog, setDialog] = useState<SyncDialogState>({
+		serviceId: null,
+		isOpen: false,
+		message: '',
+	});
 
 	const closeDialog = (): void => {
-		setOpen(false);
+		setDialog({
+			serviceId: null,
+			isOpen: false,
+			message: '',
+		});
 	};
 
 	const cancelSync = async () => {
 		await Shared.events.dispatch('REQUESTS_CANCEL', null, {
 			tabId: Shared.tabId,
-			key: 'sync',
+			key: dialog.isAutoSync ? 'autoSync' : 'sync',
 		});
 		closeDialog();
 	};
@@ -28,15 +51,23 @@ export const SyncDialog = (): JSX.Element => {
 	useEffect(() => {
 		const startListeners = () => {
 			Shared.events.subscribe('SYNC_DIALOG_SHOW', null, openDialog);
+			Shared.events.subscribe('SYNC_DIALOG_HIDE', null, closeDialog);
 		};
 
 		const stopListeners = () => {
 			Shared.events.unsubscribe('SYNC_DIALOG_SHOW', null, openDialog);
+			Shared.events.unsubscribe('SYNC_DIALOG_HIDE', null, closeDialog);
 		};
 
 		const openDialog = (data: SyncDialogShowData) => {
-			setOpen(true);
-			void startSync(data.store, data.serviceId, data.items);
+			setDialog({
+				...data,
+				isOpen: true,
+				message: '',
+			});
+			if (data.store && data.items) {
+				void startSync(data.store, data.serviceId, data.items);
+			}
 		};
 
 		const startSync = async (store: SyncStore, serviceId: string | null, items: ScrobbleItem[]) => {
@@ -74,9 +105,30 @@ export const SyncDialog = (): JSX.Element => {
 		return stopListeners;
 	}, []);
 
+	useEffect(() => {
+		const startListeners = () => {
+			Shared.events.subscribe('SYNC_PROGRESS', dialog.serviceId, onSyncProgress);
+		};
+
+		const stopListeners = () => {
+			Shared.events.unsubscribe('SYNC_PROGRESS', dialog.serviceId, onSyncProgress);
+		};
+
+		const onSyncProgress = (data: SyncProgressData) => {
+			setDialog((prevDialog) => ({
+				...prevDialog,
+				percentage: null,
+				...data,
+			}));
+		};
+
+		startListeners();
+		return stopListeners;
+	}, [dialog.serviceId]);
+
 	return (
 		<CustomDialogRoot
-			open={isOpen}
+			open={dialog.isOpen}
 			aria-labelledby="sync-dialog-title"
 			onClose={() => {
 				// Do nothing
@@ -84,8 +136,33 @@ export const SyncDialog = (): JSX.Element => {
 		>
 			<DialogTitle id="sync-dialog-title">{I18N.translate('syncing')}</DialogTitle>
 			<DialogContent>
-				<Center>
+				<Center
+					isHorizontal={false}
+					sx={{
+						gap: 2,
+					}}
+				>
 					<CircularProgress />
+					{dialog.message}
+					{dialog.percentage && (
+						<Box
+							sx={{
+								display: 'flex',
+								gap: 2,
+								alignItems: 'center',
+								width: 1,
+							}}
+						>
+							<Box
+								sx={{
+									flex: 1,
+								}}
+							>
+								<LinearProgress variant="determinate" value={dialog.percentage} />
+							</Box>
+							<Typography variant="overline">{`${dialog.percentage}%`}</Typography>
+						</Box>
+					)}
 				</Center>
 			</DialogContent>
 			<DialogActions>
