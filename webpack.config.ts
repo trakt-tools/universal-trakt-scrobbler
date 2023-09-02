@@ -241,7 +241,7 @@ const getManifest = (browserName: string): string => {
 			manifest.background = {
 				service_worker: 'background.js',
 			};
-			manifest.optional_permissions = ['notifications', 'tabs'];
+			manifest.optional_permissions = ['notifications'];
 			// @ts-expect-error This is a newer key, so it's missing from the types.
 			manifest.optional_host_permissions = [
 				'*://api.rollbar.com/*',
