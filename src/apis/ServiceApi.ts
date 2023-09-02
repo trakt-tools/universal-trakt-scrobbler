@@ -74,7 +74,13 @@ export abstract class ServiceApi {
 						ServiceApi.loadTraktItemHistory(item, caches, correction, processItem, cancelKey)
 					);
 				} else {
-					promises.push(Promise.resolve(item));
+					let promise;
+					if (processItem) {
+						promise = processItem(item);
+					} else {
+						promise = Promise.resolve(item);
+					}
+					promises.push(promise);
 				}
 			}
 			newItems = await Promise.all(promises);
