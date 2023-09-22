@@ -890,17 +890,25 @@ class _BrowserStorage {
 					(service) => service.hasScrobbler && options.services[service.id].scrobble
 				);
 				if (originsToAdd.length > 0) {
+					let permissionsToAdd: WebExtManifest.OptionalPermission[] = [];
+					if (Shared.browser == 'firefox') {
+						permissionsToAdd = scrobblerEnabled ? ['tabs'] : [];
+					}
 					permissionPromises.push(
 						browser.permissions.request({
-							permissions: scrobblerEnabled ? ['tabs'] : [],
+							permissions: permissionsToAdd,
 							origins: originsToAdd,
 						})
 					);
 				}
 				if (originsToRemove.length > 0) {
+					let permissionsToRemove: WebExtManifest.OptionalPermission[] = [];
+					if (Shared.browser == 'firefox') {
+						permissionsToRemove = scrobblerEnabled ? [] : ['tabs'];
+					}
 					permissionPromises.push(
 						browser.permissions.remove({
-							permissions: scrobblerEnabled ? [] : ['tabs'],
+							permissions: permissionsToRemove,
 							origins: originsToRemove,
 						})
 					);
