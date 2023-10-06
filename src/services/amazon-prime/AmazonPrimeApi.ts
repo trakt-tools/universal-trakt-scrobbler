@@ -381,7 +381,7 @@ class _AmazonPrimeApi extends ServiceApi {
 			let season = 0;
 			if (family) {
 				const [seasonInfo, showInfo] = family.tvAncestors;
-				title = showInfo.catalog.title;
+				title = showInfo.catalog.title.replace(' [dt./OV]', '');
 				season = seasonInfo.catalog.seasonNumber;
 			}
 			const { episodeNumber: number = 0, title: episodeTitle } = catalog;
@@ -397,7 +397,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				},
 			});
 		} else {
-			const { title } = catalog;
+			const title = catalog.title.replace(' [dt./OV]', '');
 			item = new MovieItem({
 				serviceId,
 				id,
