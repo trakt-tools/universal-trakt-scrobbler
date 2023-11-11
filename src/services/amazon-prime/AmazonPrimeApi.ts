@@ -375,13 +375,14 @@ class _AmazonPrimeApi extends ServiceApi {
 		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
+		const versionTagRegex = / \[[\w.]+\/[\w.]+\]$/; // some media with dub/subtitle will add [version/tag] to the title (issue #342)
 
 		if (entityType === 'TV Show' || entityType === 'Bonus Content') {
 			let title = '';
 			let season = 0;
 			if (family) {
 				const [seasonInfo, showInfo] = family.tvAncestors;
-				title = showInfo.catalog.title.replace(' [dt./OV]', '');
+				title = showInfo.catalog.title.replace(versionTagRegex, '');
 				season = seasonInfo.catalog.seasonNumber;
 			}
 			const { episodeNumber: number = 0, title: episodeTitle } = catalog;
@@ -397,7 +398,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				},
 			});
 		} else {
-			const title = catalog.title.replace(' [dt./OV]', '');
+			const title = catalog.title.replace(versionTagRegex, '');
 			item = new MovieItem({
 				serviceId,
 				id,
