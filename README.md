@@ -39,13 +39,19 @@ Extension will be enabled until you restart Firefox.
 
 ### Table of Contents
 
+- [Loading the extension manually in Chrome](#loading-the-extension-manually-in-chrome)
+- [Loading the extension manually in Firefox](#loading-the-extension-manually-in-firefox)
+- [Table of Contents](#table-of-contents)
 - [What is Universal Trakt Scrobbler?](#what-is-universal-trakt-scrobbler)
 - [Why do I need this extension?](#why-do-i-need-this-extension)
 - [Which streaming services are supported?](#which-streaming-services-are-supported)
 - [How does the extension work?](#how-does-the-extension-work)
-- [Problems](#problems)
+- [Known Issues](#known-issues)
+- [Other Problems](#other-problems)
 - [Help Translate](#help-translate)
 - [Development](#development)
+  - [How to add more streaming services](#how-to-add-more-streaming-services)
+  - [How to add scrobbler/sync to streaming services](#how-to-add-scrobblersync-to-streaming-services)
 - [Credits](#credits)
 
 ### What is Universal Trakt Scrobbler?
@@ -65,6 +71,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 | :---------------: | :------: | :--: | :------------------------------ |
 |   Amazon Prime    |    ✔️    |  ✔️  | -                               |
 |       AMC+        |    ✔️    |  ❌  | -                               |
+|       Crave       |    ✔️    |  ✔️  | -                               |
 |    Crunchyroll    |    ❌    |  ✔️  | Can't identify movies as movies |
 |      Disney+      |    ✔️    |  ❌  | -                               |
 |        Go3        |    ✔️    |  ❌  | -                               |
