@@ -9,6 +9,7 @@ export const AmazonPrimeService = new Service({
 		'*://*.amazon.com/*',
 		'*://*.amazon.co.jp/*',
 		'*://*.amazon.co.uk/*',
+		'*://*.amazon.com.au/*',
 		'*://*.amazon.de/*',
 	],
 	hasScrobbler: true,
