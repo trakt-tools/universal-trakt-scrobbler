@@ -172,7 +172,7 @@ class _NetflixApi extends ServiceApi {
 
 		this.HOST_URL = 'https://www.netflix.com';
 		this.API_URL = `${this.HOST_URL}/api/shakti`;
-		this.ACTIVATE_URL = `${this.HOST_URL}/Activate`;
+		this.ACTIVATE_URL = `${this.HOST_URL}/settings/viewed/`;
 
 		this.isActivated = false;
 	}
