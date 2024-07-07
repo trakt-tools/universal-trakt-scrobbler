@@ -5,5 +5,5 @@ inputs:
     description: 'Which version type to update (patch, minor or major)'
     required: true
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'update-version.js'

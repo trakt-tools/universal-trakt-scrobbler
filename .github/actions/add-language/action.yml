@@ -11,5 +11,5 @@ inputs:
     description: 'Project ID on Crowdin'
     required: true
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'add-language.js'
