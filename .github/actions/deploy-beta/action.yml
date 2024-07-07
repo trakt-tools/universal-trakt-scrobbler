@@ -5,5 +5,5 @@ inputs:
     description: 'Token for generating the release'
     required: true
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'deploy-beta.js'
