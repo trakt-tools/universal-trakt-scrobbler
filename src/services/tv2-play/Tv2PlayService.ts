@@ -6,6 +6,6 @@ export const Tv2PlayService = new Service({
 	homePage: 'https://play.tv2.no',
 	hostPatterns: ['*://*.tv2.no/*'],
 	hasScrobbler: true,
-	hasSync: false,
-	hasAutoSync: false,
+	hasSync: true,
+	hasAutoSync: true,
 });
