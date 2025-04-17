@@ -12,24 +12,42 @@ class _HotstarParser extends ScrobbleParser {
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const id = this.parseItemIdFromUrl();
-		const titleElement = document.querySelector(
-			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>div.flex>p.ON_IMAGE.BUTTON1_MEDIUM'
+
+		// Use XPath since CSS selectors with dynamic classes are unreliable
+		const titleXPath =
+			'/html/body/div[1]/div[4]/div/div[1]/div[1]/div/div/div[2]/div/div/div/div[2]/div/div/p';
+		const subTitleXPath =
+			'/html/body/div[1]/div[4]/div/div[1]/div[1]/div/div/div[2]/div/div/div/div[2]/div/p';
+
+		const titleResult = document.evaluate(
+			titleXPath,
+			document,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null
 		);
+		const titleElement = titleResult.singleNodeValue as HTMLElement | null;
 
 		if (!titleElement) {
 			return null;
 		}
 
 		const title = titleElement?.textContent ?? '';
-		const subTitleElement = document.querySelector(
-			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>p.ON_IMAGE_ALT2.BUTTON3_MEDIUM'
+
+		const subTitleResult = document.evaluate(
+			subTitleXPath,
+			document,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null
 		);
+		const subTitleElement = subTitleResult.singleNodeValue as HTMLElement | null;
 
 		let seasonId: string | null = null;
 		let episodeId: string | null = null;
 		let subTitle: string | null = '';
 
-		const matches = /(?<seasonId>[\d]+)\s.(?<episodeId>[\d]+)\s(?<subTitle>.*)/.exec(
+		const matches = /S(?<seasonId>\d+)\sE(?<episodeId>\d+)\s(?<subTitle>.*)/.exec(
 			subTitleElement?.textContent ?? ''
 		);
 
