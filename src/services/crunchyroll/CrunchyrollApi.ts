@@ -75,7 +75,7 @@ class _CrunchyrollApi extends ServiceApi {
 				Authorization: `Basic ${this.TOKEN_AUTH}`,
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: 'grant_type=etp_rt_cookie',
+			body: `device_id=${crypto.randomUUID()}&device_type=browser&grant_type=etp_rt_cookie`,
 		});
 		const tokenData = JSON.parse(response) as CrunchyrollTokenData;
 		this.authRequests = withHeaders({
