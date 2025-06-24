@@ -50,6 +50,8 @@ class _CrunchyrollApi extends ServiceApi {
 	TOKEN_URL: string;
 	PROFILE_URL: string;
 	TOKEN_AUTH: string;
+	DEVICE_ID: string;
+	DEVICE_NAME: string;
 	isActivated: boolean;
 	session: CrunchyrollSession | null = null;
 
@@ -64,6 +66,9 @@ class _CrunchyrollApi extends ServiceApi {
 		// The basic auth password for retrieving the token is always the same.
 		this.TOKEN_AUTH = 'bm9haWhkZXZtXzZpeWcwYThsMHE6';
 
+		this.DEVICE_ID = '1a740c71-27ac-409a-a360-549a3dadacc6'; // randomly generated to follow UUID v4 standard
+		this.DEVICE_NAME = 'Universal Trakt Scrobbler'; // this will be shown in Crunchyrolls new device login notification mail
+
 		this.isActivated = false;
 	}
 
@@ -75,7 +80,9 @@ class _CrunchyrollApi extends ServiceApi {
 				Authorization: `Basic ${this.TOKEN_AUTH}`,
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: 'grant_type=etp_rt_cookie',
+			body: `device_id=${this.DEVICE_ID}&device_type=${encodeURIComponent(
+				this.DEVICE_NAME
+			)}&grant_type=etp_rt_cookie`,
 		});
 		const tokenData = JSON.parse(response) as CrunchyrollTokenData;
 		this.authRequests = withHeaders({
