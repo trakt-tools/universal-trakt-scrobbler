@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { NetflixService } from '@/netflix/NetflixService';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
@@ -268,70 +267,8 @@ class _NetflixApi extends ServiceApi {
 		}
 
 		// Type-safe parsing and access
-		const responseJson: NetflixAuiHistoryResponse = JSON.parse(responseText);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const responseItems: NetflixHistoryItem[] = [];
-		const aui = responseJson?.jsonGraph?.aui;
-		const viewingActivity = aui?.viewingActivity;
-		const value = viewingActivity?.value;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const viewedItemsUnknown: unknown = value?.viewedItems;
-		if (Array.isArray(viewedItemsUnknown)) {
-			for (const item of viewedItemsUnknown) {
-				if (
-					item &&
-					typeof item === 'object' &&
-					'movieID' in item &&
-					typeof (item as { movieID?: unknown }).movieID === 'number' &&
-					'title' in item &&
-					typeof (item as { title?: unknown }).title === 'string' &&
-					'date' in item &&
-					typeof (item as { date?: unknown }).date === 'number' &&
-					'bookmark' in item &&
-					typeof (item as { bookmark?: unknown }).bookmark === 'number' &&
-					'duration' in item &&
-					typeof (item as { duration?: unknown }).duration === 'number'
-				) {
-					const movieID = (item as { movieID: number }).movieID;
-					const title = (item as { title: string }).title;
-					const date = (item as { date: number }).date;
-					const bookmark = (item as { bookmark: number }).bookmark;
-					const duration = (item as { duration: number }).duration;
-					if (
-						'series' in item &&
-						typeof (item as { series?: unknown }).series === 'number' &&
-						'episodeTitle' in item &&
-						typeof (item as { episodeTitle?: unknown }).episodeTitle === 'string' &&
-						'seriesTitle' in item &&
-						typeof (item as { seriesTitle?: unknown }).seriesTitle === 'string'
-					) {
-						const series = (item as { series: number }).series;
-						const episodeTitle = (item as { episodeTitle: string }).episodeTitle;
-						const seriesTitle = (item as { seriesTitle: string }).seriesTitle;
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						responseItems.push({
-							bookmark,
-							date,
-							duration,
-							movieID,
-							title,
-							series,
-							episodeTitle,
-							seriesTitle,
-						});
-					} else {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						responseItems.push({
-							bookmark,
-							date,
-							duration,
-							movieID,
-							title,
-						});
-					}
-				}
-			}
-		}
+		const responseJson = JSON.parse(responseText) as NetflixAuiHistoryResponse;
+		const responseItems = responseJson.jsonGraph.aui.viewingActivity?.value?.viewedItems ?? [];
 
 		this.nextHistoryPage += 1;
 		this.hasReachedHistoryEnd = Array.isArray(responseItems) && responseItems.length === 0;
@@ -596,28 +533,6 @@ Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
 		}
 	}
 	return session;
-};
-
-const isNetflixHistoryItemArray = (arr: unknown): arr is NetflixHistoryItem[] => {
-	return (
-		Array.isArray(arr) &&
-		arr.every((item) => {
-			if (!item || typeof item !== 'object') return false;
-			const obj = item as { [key: string]: unknown };
-			return (
-				'movieID' in obj &&
-				typeof obj.movieID === 'number' &&
-				'title' in obj &&
-				typeof obj.title === 'string' &&
-				'date' in obj &&
-				typeof obj.date === 'number' &&
-				'bookmark' in obj &&
-				typeof obj.bookmark === 'number' &&
-				'duration' in obj &&
-				typeof obj.duration === 'number'
-			);
-		})
-	);
 };
 
 export const NetflixApi = new _NetflixApi();
