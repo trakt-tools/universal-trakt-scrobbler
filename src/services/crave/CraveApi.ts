@@ -1,4 +1,5 @@
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
+import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import {
 	BaseItemValues,
@@ -428,6 +429,13 @@ class _CraveApi extends ServiceApi {
 	}
 
 	private async getInitialSession(): Promise<CraveSession | CraveSessionNoAuth> {
+		const servicesData = await Cache.get('servicesData');
+		const cacheData = (servicesData.get(CraveService.id) as { session: CraveSession | null }) ?? {
+			session: null,
+		};
+		if (cacheData.session && this.verifyAccessToken(cacheData.session)) {
+			return cacheData.session;
+		}
 		const auth = await ScriptInjector.inject<CraveSession>(this.id, 'session', HOST_URL);
 		if (auth) {
 			// The initial access token might have expired, so refresh and retry if this first query fails.
@@ -440,6 +448,9 @@ class _CraveApi extends ServiceApi {
 			if (profileInfo) {
 				auth.profileName = profileInfo.nickname;
 			}
+			cacheData.session = auth;
+			servicesData.set(CraveService.id, cacheData);
+			await Cache.set({ servicesData });
 			return auth;
 		}
 		return DEFAULT_CRAVE_SESSION;
