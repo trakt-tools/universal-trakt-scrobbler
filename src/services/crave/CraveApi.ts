@@ -18,13 +18,11 @@ const LOGIN_URL = 'https://account.bellmedia.ca/api/login/v2.1?grant_type=refres
 const PROFILES_URL = 'https://account.bellmedia.ca/api/profile/v1.1';
 
 // Models
-type GraphQLResponse<T> = { data: T } & { errors: Array<{ message: string }> };
+type GraphQLResponse<T> = { data: T } & { errors: Array<{ errorType: string; message: string }> };
 
 type CraveWatchHistoryPage = {
-	watchHistoryItemsPage: {
-		cursor: string; // Used for pagination.
-		items: Array<CraveHistoryItem>;
-	};
+	cursor: string; // Used for pagination.
+	items: Array<CraveHistoryItem>;
 };
 
 type CraveHistoryItem = {
@@ -102,14 +100,25 @@ type RetryPolicy<T> = {
 };
 
 // Default values
-const DefaultCraveSession: CraveSessionNoAuth = {
+const DEFAULT_CRAVE_SESSION: CraveSessionNoAuth = Object.freeze({
 	isAuthenticated: false,
 	profileName: null,
-};
+});
 
-const DefaultGraphQLAccessToken = btoa(JSON.stringify({ platform: 'platform_web' }));
+const DEFAULT_GRAPHQL_TOKEN = btoa(JSON.stringify({ platform: 'platform_web' }));
 
 // Helpers
+const parseGraphQLResponse = <T>(responseText: string): T => {
+	const graphResponse = JSON.parse(responseText) as GraphQLResponse<T>;
+	if (graphResponse.errors && graphResponse.errors.length > 0) {
+		throw new Error(
+			'GraphQL Error:\n' +
+				graphResponse.errors.map((error) => `  ${error.errorType}: ${error.message}`).join('\n')
+		);
+	}
+	return graphResponse.data;
+};
+
 const getGraphQLAccessTokenFromSession = (session: CraveSession): string => {
 	// The GraphQL endpoint double-embeds the session access token.
 	return btoa(
@@ -118,10 +127,6 @@ const getGraphQLAccessTokenFromSession = (session: CraveSession): string => {
 			accessToken: session.accessToken,
 		})
 	);
-};
-
-const isAuthenticated = (session: ServiceApiSession | null): session is CraveSession => {
-	return (session as CraveSession)?.isAuthenticated;
 };
 
 const mapContentToScrobbleItem = (content: CraveContentItem): ScrobbleItem => {
@@ -152,7 +157,7 @@ const mapContentToScrobbleItem = (content: CraveContentItem): ScrobbleItem => {
 
 class _CraveApi extends ServiceApi {
 	isActivated = false;
-	session: CraveSession | CraveSessionNoAuth = DefaultCraveSession;
+	session: CraveSession | CraveSessionNoAuth = DEFAULT_CRAVE_SESSION;
 	pageSize = 500;
 	pageCursor: string | null = null;
 	allowedContentTypes = ['episode', 'feature'];
@@ -161,7 +166,7 @@ class _CraveApi extends ServiceApi {
 		super(CraveService.id);
 	}
 
-	async activate() {
+	async activate(): Promise<void> {
 		try {
 			this.session = await this.getInitialSession();
 			this.isActivated = true;
@@ -181,23 +186,23 @@ class _CraveApi extends ServiceApi {
 	}
 
 	async loadHistoryItems(cancelKey?: string): Promise<CraveHistoryItem[]> {
-		const auth = await this.authorize();
+		const session = await this.authorize();
 
-		const { watchHistoryItemsPage } = await this.queryWatchHistoryPage(
-			auth,
+		const watchHistoryItemsPage = await this.queryWatchHistoryPage(
+			session,
 			this.pageSize,
-			this.pageCursor
+			this.pageCursor,
+			cancelKey
 		);
+		this.pageCursor = watchHistoryItemsPage.cursor;
 		if (!watchHistoryItemsPage.cursor) {
 			this.hasReachedHistoryEnd = true;
-		} else {
-			this.pageCursor = watchHistoryItemsPage.cursor;
 		}
 
 		return watchHistoryItemsPage.items;
 	}
 
-	isNewHistoryItem(historyItem: CraveHistoryItem, lastSync: number) {
+	isNewHistoryItem(historyItem: CraveHistoryItem, lastSync: number): boolean {
 		return historyItem.createdDateSecs > lastSync;
 	}
 
@@ -206,37 +211,30 @@ class _CraveApi extends ServiceApi {
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem | null> {
-		let resolvedPath;
+		let resolvedPath: CraveItemByPath | null;
 		try {
 			resolvedPath = await this.queryItemByPath(path);
 
 			if (!resolvedPath || resolvedPath.type !== 'ContentMetadata') {
-				Shared.errors.log('Failed to get item.', new Error(`Item not found for path: ${path}`));
-				return null;
+				throw new Error(`Item not found for path: ${path}`);
 			}
+			const contents = await this.queryContents([resolvedPath.id], this.session);
+			const contentItem = contents[0];
+			if (!contentItem) {
+				// Not a trackable content item, so return null.
+				throw new Error(`Content is not trackable: ${resolvedPath.type}`);
+			}
+			return mapContentToScrobbleItem(contentItem);
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to get item.', err);
 			}
 			return null;
 		}
-
-		const contents = await this.queryContents([resolvedPath.id], this.session);
-		const contentItem = contents[0];
-		if (!contentItem) {
-			// Not a trackable content item, so return null.
-			Shared.errors.log(
-				'Failed to get item.',
-				new Error(`Content is not trackable: ${resolvedPath.type}`)
-			);
-			return null;
-		}
-
-		return mapContentToScrobbleItem(contentItem);
 	}
 
 	async convertHistoryItems(historyItems: CraveHistoryItem[]): Promise<ScrobbleItem[]> {
-		const auth = await this.authorize();
+		const session = await this.authorize();
 
 		const scrobbleItems: ScrobbleItem[] = [];
 
@@ -244,7 +242,7 @@ class _CraveApi extends ServiceApi {
 		const chunkSize = 30;
 		for (let i = 0; i < historyItems.length; i += chunkSize) {
 			const chunk = historyItems.slice(i, i + chunkSize).map((item) => item.contentId);
-			const contents = await this.queryContents(chunk, auth);
+			const contents = await this.queryContents(chunk, session);
 			scrobbleItems.push(...contents.map(mapContentToScrobbleItem));
 		}
 		return scrobbleItems;
@@ -296,17 +294,16 @@ class _CraveApi extends ServiceApi {
 
 	private async queryContents(
 		ids: string[],
-		auth?: CraveServiceApiSession
+		session?: CraveServiceApiSession
 	): Promise<CraveContentItem[]> {
 		// Note that the endpoint is limited to 30 IDs per request.
 		if (ids.length > 30) {
 			throw new Error('Too many IDs provided. The maximum is 30 per request.');
 		}
-		let accessToken = DefaultGraphQLAccessToken; // The default token is capable of getting basic info.
-		if (auth && isAuthenticated(auth)) {
-			// Provide auth if available in order to get personal watch duration.
-			accessToken = getGraphQLAccessTokenFromSession(auth);
-		}
+		const accessToken =
+			session && session.isAuthenticated
+				? getGraphQLAccessTokenFromSession(session) // A user token allows getting watch duration.
+				: DEFAULT_GRAPHQL_TOKEN; // The default token is capable of getting basic info.
 		const responseText = await Requests.send({
 			url: GRAPHQL_URL,
 			method: 'POST',
@@ -336,25 +333,20 @@ class _CraveApi extends ServiceApi {
 					}
 				`,
 				variables: {
-					sessionContext: {
-						userMaturity: 'ADULT',
-						userLanguage: 'EN',
-					},
+					sessionContext: { userMaturity: 'ADULT', userLanguage: 'EN' },
 					ids,
 				},
 			},
 		});
 
-		const graphResponse = JSON.parse(responseText) as GraphQLResponse<{
-			contents: CraveContentItem[];
-		}>;
-		return graphResponse.data.contents.filter((p) =>
+		const graphResponse = parseGraphQLResponse<{ contents: CraveContentItem[] }>(responseText);
+		return graphResponse.contents.filter((p) =>
 			this.allowedContentTypes.includes(p.contentType.toLowerCase())
 		);
 	}
 
 	private async queryItemByPath(path: string): Promise<CraveItemByPath | null> {
-		const accessToken = DefaultGraphQLAccessToken;
+		const accessToken = DEFAULT_GRAPHQL_TOKEN;
 		const responseText = await Requests.send({
 			url: GRAPHQL_URL,
 			method: 'POST',
@@ -377,36 +369,29 @@ class _CraveApi extends ServiceApi {
 			},
 		});
 
-		const graphResponse = JSON.parse(responseText) as GraphQLResponse<{
-			itemByPath: CraveItemByPath;
-		}>;
+		const graphResponse = parseGraphQLResponse<{ itemByPath: CraveItemByPath | null }>(
+			responseText
+		);
 		// Result is null if the item was not found.
-		return graphResponse.data.itemByPath ?? null;
+		return graphResponse.itemByPath;
 	}
 
 	private async queryWatchHistoryPage(
-		auth: CraveSession,
+		session: CraveSession,
 		limit: number,
-		cursor: string | null
+		cursor: string | null,
+		cancelKey?: string
 	): Promise<CraveWatchHistoryPage> {
 		const responseText = await Requests.send({
 			url: GRAPHQL_URL,
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${getGraphQLAccessTokenFromSession(auth)}`,
+				Authorization: `Bearer ${getGraphQLAccessTokenFromSession(session)}`,
 			},
 			body: {
 				query: `
-					query GetWatchHistory(
-						$sessionContext: SessionContext!
-						$limit: Int
-						$cursor: String
-					) {
-						watchHistoryItemsPage(
-							sessionContext: $sessionContext
-							limit: $limit
-							cursor: $cursor
-						) {
+					query GetWatchHistory($sessionContext: SessionContext!, $limit: Int, $cursor: String) {
+						watchHistoryItemsPage(sessionContext: $sessionContext, limit: $limit, cursor: $cursor) {
 							cursor
 							items {
 								contentId
@@ -423,17 +408,20 @@ class _CraveApi extends ServiceApi {
 					cursor,
 				},
 			},
+			cancelKey,
 		});
-		const graphResponse = JSON.parse(responseText) as GraphQLResponse<CraveWatchHistoryPage>;
-		return graphResponse.data;
+		const graphResponse = parseGraphQLResponse<{
+			watchHistoryItemsPage: CraveWatchHistoryPage;
+		}>(responseText);
+		return graphResponse.watchHistoryItemsPage;
 	}
 
-	private async queryProfiles(auth: CraveSession) {
+	private async queryProfiles(session: CraveSession): Promise<Array<CraveProfile>> {
 		const responseText = await Requests.send({
 			url: PROFILES_URL,
 			method: 'GET',
 			headers: {
-				Authorization: `Bearer ${auth.accessToken}`,
+				Authorization: `Bearer ${session.accessToken}`,
 			},
 		});
 		return JSON.parse(responseText) as Array<CraveProfile>;
@@ -454,7 +442,7 @@ class _CraveApi extends ServiceApi {
 			}
 			return auth;
 		}
-		return DefaultCraveSession;
+		return DEFAULT_CRAVE_SESSION;
 	}
 
 	private async retry<T>({ numberOfTries, action, onBeforeRetry }: RetryPolicy<T>) {
