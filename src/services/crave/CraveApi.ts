@@ -433,7 +433,11 @@ class _CraveApi extends ServiceApi {
 		const cacheData = (servicesData.get(CraveService.id) as { session: CraveSession | null }) ?? {
 			session: null,
 		};
-		if (cacheData.session && this.verifyAccessToken(cacheData.session)) {
+		if (cacheData.session) {
+			if (!this.verifyAccessToken(cacheData.session)) {
+				// The access token has expired, so refresh it.
+				await this.refresh(cacheData.session);
+			}
 			return cacheData.session;
 		}
 		const auth = await ScriptInjector.inject<CraveSession>(this.id, 'session', HOST_URL);
