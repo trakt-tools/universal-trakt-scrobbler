@@ -39,7 +39,7 @@ type CraveContentItem = {
 	contentType: 'EPISODE' | 'FEATURE' | 'PROMO';
 	seasonNumber: string;
 	episodeNumber: string;
-	duration?: {
+	duration: {
 		progressPercentage: number; // Percentage as an int between 0 and 100.
 		remainingTimeInSecs: number;
 		lastModifiedTimestamp: number; // Seconds since epoch.
@@ -136,8 +136,8 @@ const mapContentToScrobbleItem = (content: CraveContentItem): ScrobbleItem => {
 		id: content.id,
 		title: content.title,
 		year: parseInt(content.media.productionYear, 10),
-		progress: content.duration?.progressPercentage,
-		watchedAt: content.duration?.lastModifiedTimestamp ?? 0,
+		progress: content.duration.progressPercentage,
+		watchedAt: content.duration.lastModifiedTimestamp,
 	};
 	if (content.contentType === 'EPISODE') {
 		return new EpisodeItem({
@@ -159,7 +159,7 @@ const mapContentToScrobbleItem = (content: CraveContentItem): ScrobbleItem => {
 class _CraveApi extends ServiceApi {
 	isActivated = false;
 	session: CraveSession | CraveSessionNoAuth = DEFAULT_CRAVE_SESSION;
-	pageSize = 500;
+	pageSize = 30;
 	pageCursor: string | null = null;
 	allowedContentTypes = ['episode', 'feature'];
 
@@ -186,7 +186,7 @@ class _CraveApi extends ServiceApi {
 		return await super.checkLogin();
 	}
 
-	async loadHistoryItems(cancelKey?: string): Promise<CraveHistoryItem[]> {
+	async loadHistoryItems(cancelKey?: string): Promise<CraveContentItem[]> {
 		const session = await this.authorize();
 
 		const watchHistoryItemsPage = await this.queryWatchHistoryPage(
@@ -200,15 +200,26 @@ class _CraveApi extends ServiceApi {
 			this.hasReachedHistoryEnd = true;
 		}
 
-		return watchHistoryItemsPage.items;
+		const historyItems = watchHistoryItemsPage.items;
+
+		// Perform an additional query to get the full content details for each history item.
+		const contentItems = [];
+		const chunkSize = 30;
+		for (let i = 0; i < historyItems.length; i += chunkSize) {
+			const chunk = historyItems.slice(i, i + chunkSize).map((item) => item.contentId);
+			contentItems.push(...(await this.queryContents(chunk, session)));
+		}
+		return contentItems.filter((item) =>
+			this.allowedContentTypes.includes(item.contentType.toLowerCase())
+		);
 	}
 
-	isNewHistoryItem(historyItem: CraveHistoryItem, lastSync: number): boolean {
-		return historyItem.createdDateSecs > lastSync;
+	isNewHistoryItem(historyItem: CraveContentItem, lastSync: number): boolean {
+		return historyItem.duration.lastModifiedTimestamp > lastSync;
 	}
 
-	getHistoryItemId(historyItem: CraveHistoryItem): string {
-		return historyItem.contentId;
+	getHistoryItemId(historyItem: CraveContentItem): string {
+		return historyItem.id;
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem | null> {
@@ -234,23 +245,13 @@ class _CraveApi extends ServiceApi {
 		}
 	}
 
-	async convertHistoryItems(historyItems: CraveHistoryItem[]): Promise<ScrobbleItem[]> {
-		const session = await this.authorize();
-
-		const scrobbleItems: ScrobbleItem[] = [];
-
-		// The API is limited to 30 IDs per request, so we need to chunk the requests.
-		const chunkSize = 30;
-		for (let i = 0; i < historyItems.length; i += chunkSize) {
-			const chunk = historyItems.slice(i, i + chunkSize).map((item) => item.contentId);
-			const contents = await this.queryContents(chunk, session);
-			scrobbleItems.push(...contents.map(mapContentToScrobbleItem));
-		}
-		return scrobbleItems;
+	convertHistoryItems(historyItems: CraveContentItem[]): ScrobbleItem[] {
+		return historyItems.map(mapContentToScrobbleItem);
 	}
 
-	updateItemFromHistory(item: ScrobbleItemValues, historyItem: CraveHistoryItem): void {
-		item.watchedAt = historyItem.createdDateSecs;
+	updateItemFromHistory(item: ScrobbleItemValues, historyItem: CraveContentItem): void {
+		item.watchedAt = historyItem.duration.lastModifiedTimestamp;
+		item.progress = historyItem.duration.progressPercentage;
 	}
 
 	private async authorize(): Promise<CraveSession> {
