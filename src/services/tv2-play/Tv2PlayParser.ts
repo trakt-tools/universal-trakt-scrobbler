@@ -1,5 +1,5 @@
 import { ScrobbleParser } from '@common/ScrobbleParser';
-import { Tv2PlayApi } from '@/tv2-play/Tv2PlayApi';
+import { Tv2PlayApi } from '@/services/tv2-play/Tv2PlayApi';
 
 class _Tv2PlayParser extends ScrobbleParser {
 	constructor() {
