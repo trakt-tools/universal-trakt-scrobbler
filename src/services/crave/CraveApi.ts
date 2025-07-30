@@ -1,4 +1,5 @@
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
+import { Cache } from '@common/Cache';
 import { Requests } from '@common/Requests';
 import {
 	BaseItemValues,
@@ -13,112 +14,160 @@ import { ScriptInjector } from '@common/ScriptInjector';
 
 // URLs
 const HOST_URL = CraveService.homePage;
-const WATCH_HISTORY_URL = 'https://recodata.shared-svc.bellmedia.ca/api/bookmark/v2/watchHistory';
-const GRAPHQL_URL = 'https://www.crave.ca/space-graphql/apq/graphql';
+const GRAPHQL_URL = 'https://rte-api.bellmedia.ca/graphql';
 const LOGIN_URL = 'https://account.bellmedia.ca/api/login/v2.1?grant_type=refresh_token';
 const PROFILES_URL = 'https://account.bellmedia.ca/api/profile/v1.1';
 
 // Models
-export interface CraveHistoryItem {
-	/**
-	 * Unique identifier for this episode or feature.
-	 */
-	contentId: `${number}`;
-	/**
-	 * Parent identifier common to content that is in a series.
-	 */
-	mediaId: `${number}`;
-	progression: number;
-	completed: boolean;
-	title: string;
-	season: `${number}` | '';
-	episode: `${number}` | '';
-	contentType: 'episode' | 'feature' | 'promo';
-	/**
-	 * UTC file time in ms.
-	 */
-	timestamp: number;
-}
+type GraphQLResponse<T> = { data: T } & { errors: Array<{ errorType: string; message: string }> };
 
-type GraphQLResponse<T> = { data: T } & { errors: Array<{ message: string }> };
+type CraveWatchHistoryPage = {
+	cursor: string; // Used for pagination.
+	items: Array<CraveHistoryItem>;
+};
 
-export interface CraveAxisContent {
-	axisId: number;
+type CraveHistoryItem = {
+	contentId: string;
+	mediaName: string;
+	displayLabel: string; // This is year of movie, or Season/Episode for TV shows.
+	createdDateSecs: number; // Epoch seconds since first watched.
+};
+
+type CraveContentItem = {
+	id: string;
 	title: string;
-	seasonNumber: number;
-	episodeNumber: number;
-	axisMedia: CraveAxisMedia;
 	contentType: 'EPISODE' | 'FEATURE' | 'PROMO';
-}
+	seasonNumber: string;
+	episodeNumber: string;
+	duration: {
+		progressPercentage: number; // Percentage as an int between 0 and 100.
+		remainingTimeInSecs: number;
+		lastModifiedTimestamp: number; // Seconds since epoch.
+	};
+	media: {
+		mediaId: string;
+		title: string;
+		productionYear: string;
+		isInWatchList: boolean;
+	};
+};
 
-export interface CraveAxisMedia {
-	axisId: number;
-	title: string;
-	firstAirYear: number;
-}
+type CraveItemByPath = {
+	id: string;
+	type: 'ContentMetadata' | 'MediaMetadata';
+};
 
-export interface CraveProfile {
+type CraveProfile = {
 	id: string;
 	nickname: string;
-}
+};
 
-interface CraveSessionNoAuth extends ServiceApiSession {
-	profileName: null;
+type CraveSessionNoAuth = ServiceApiSession & {
 	isAuthenticated: false;
-	expirationDate: null;
-}
+	profileName: null;
+};
 
-interface CraveSession extends ServiceApiSession {
+type CraveSession = ServiceApiSession & {
 	isAuthenticated: true;
 	accessToken: string;
 	refreshToken: string;
-	expirationDate: number;
-}
+	expirationDate: number; // Expiration time as milliseconds since epoch.
+};
 
-interface CraveWatchHistoryPageResponse {
-	content: Array<CraveHistoryItem>;
-	last: boolean;
-}
+type CraveServiceApiSession = CraveSession | CraveSessionNoAuth;
 
-interface CraveAxisContentsResponse {
-	contentData: {
-		items: Array<CraveAxisContent>;
-	};
-}
-
-interface CraveResolvedPathResponse {
-	resolvedPath: {
-		lastSegment: {
-			content: CraveAxisContent;
-		};
-	};
-}
-
-interface CraveAuthorizeResponse {
+type CraveAuthorizeResponse = {
 	access_token: string;
 	refresh_token: string;
+	scope: string;
+	token_type: string;
 	expires_in: number;
-	creation_date: number;
-}
+};
 
-interface RetryPolicy<T> {
+type CraveJwtPayload = {
+	context: {
+		profile_id: string;
+	};
+	exp: number; // Expiration time in seconds since epoch.
+	iat: number; // Issued at time in seconds since epoch.
+	authorities: string[]; // Eg: ["REGULAR_USER"];
+	client_id: string; // Eg: "crave-web"
+};
+
+type RetryPolicy<T> = {
 	numberOfTries: number;
 	action: () => Promise<T>;
 	onBeforeRetry: () => Promise<void>;
-}
+};
+
+// Default values
+const DEFAULT_CRAVE_SESSION: CraveSessionNoAuth = Object.freeze({
+	isAuthenticated: false,
+	profileName: null,
+});
+
+const DEFAULT_GRAPHQL_TOKEN = btoa(JSON.stringify({ platform: 'platform_web' }));
+
+// Helpers
+const parseGraphQLResponse = <T>(responseText: string): T => {
+	const graphResponse = JSON.parse(responseText) as GraphQLResponse<T>;
+	if (graphResponse.errors && graphResponse.errors.length > 0) {
+		throw new Error(
+			'GraphQL Error:\n' +
+				graphResponse.errors.map((error) => `  ${error.errorType}: ${error.message}`).join('\n')
+		);
+	}
+	return graphResponse.data;
+};
+
+const getGraphQLAccessTokenFromSession = (session: CraveSession): string => {
+	// The GraphQL endpoint double-embeds the session access token.
+	return btoa(
+		JSON.stringify({
+			platform: 'platform_web',
+			accessToken: session.accessToken,
+		})
+	);
+};
+
+const mapContentToScrobbleItem = (content: CraveContentItem): ScrobbleItem => {
+	const baseScrobbleItem: BaseItemValues = {
+		serviceId: CraveApi.id,
+		id: content.id,
+		title: content.title,
+		year: parseInt(content.media.productionYear, 10),
+		progress: content.duration.progressPercentage,
+		watchedAt: content.duration.lastModifiedTimestamp,
+	};
+	if (content.contentType === 'EPISODE') {
+		return new EpisodeItem({
+			...baseScrobbleItem,
+			season: parseInt(content.seasonNumber, 10),
+			number: parseInt(content.episodeNumber, 10),
+			show: {
+				serviceId: CraveApi.id,
+				id: content.media.mediaId,
+				title: content.media.title,
+			},
+		});
+	} else if (content.contentType === 'FEATURE') {
+		return new MovieItem(baseScrobbleItem);
+	}
+	throw new Error(`Unsupported content type: ${content.contentType}`);
+};
 
 class _CraveApi extends ServiceApi {
 	isActivated = false;
-	session?: CraveSession | CraveSessionNoAuth;
-	pageNumber = 0;
-	pageSize = 500;
+	session: CraveSession | CraveSessionNoAuth = DEFAULT_CRAVE_SESSION;
+	pageSize = 30;
+	pageCursor: string | null = null;
 	allowedContentTypes = ['episode', 'feature'];
 
 	constructor() {
 		super(CraveService.id);
 	}
 
-	async activate() {
+	async activate(): Promise<void> {
 		try {
 			this.session = await this.getInitialSession();
 			this.isActivated = true;
@@ -137,116 +186,72 @@ class _CraveApi extends ServiceApi {
 		return await super.checkLogin();
 	}
 
-	async loadHistoryItems(cancelKey?: string): Promise<CraveHistoryItem[]> {
-		const auth = await this.authorize();
+	async loadHistoryItems(cancelKey?: string): Promise<CraveContentItem[]> {
+		const session = await this.authorize();
 
-		const watchHistoryPage = await this.queryWatchHistoryPage(auth, cancelKey);
-		if (watchHistoryPage.last) {
+		const watchHistoryItemsPage = await this.queryWatchHistoryPage(
+			session,
+			this.pageSize,
+			this.pageCursor,
+			cancelKey
+		);
+		this.pageCursor = watchHistoryItemsPage.cursor;
+		if (!watchHistoryItemsPage.cursor) {
 			this.hasReachedHistoryEnd = true;
-		} else {
-			this.pageNumber++;
 		}
 
-		// Exclude non-episode or feature items, such as trailers.
-		return watchHistoryPage.content.filter((p) => this.allowedContentTypes.includes(p.contentType));
+		const historyItems = watchHistoryItemsPage.items;
+
+		// Perform an additional query to get the full content details for each history item.
+		const contentItems = [];
+		const chunkSize = 30;
+		for (let i = 0; i < historyItems.length; i += chunkSize) {
+			const chunk = historyItems.slice(i, i + chunkSize).map((item) => item.contentId);
+			contentItems.push(...(await this.queryContents(chunk, session)));
+		}
+		return contentItems.filter((item) =>
+			this.allowedContentTypes.includes(item.contentType.toLowerCase())
+		);
 	}
 
-	isNewHistoryItem(historyItem: CraveHistoryItem, lastSync: number) {
-		return historyItem.timestamp / 1000 > lastSync;
+	isNewHistoryItem(historyItem: CraveContentItem, lastSync: number): boolean {
+		return historyItem.duration.lastModifiedTimestamp > lastSync;
 	}
 
-	getHistoryItemId(historyItem: CraveHistoryItem): string {
-		return historyItem.contentId;
+	getHistoryItemId(historyItem: CraveContentItem): string {
+		return historyItem.id;
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem | null> {
-		let resolvedPath;
+		let resolvedPath: CraveItemByPath | null;
 		try {
-			resolvedPath = await this.queryResolvedPath(path);
+			resolvedPath = await this.queryItemByPath(path);
+
+			if (!resolvedPath || resolvedPath.type !== 'ContentMetadata') {
+				throw new Error(`Item not found for path: ${path}`);
+			}
+			const contents = await this.queryContents([resolvedPath.id], this.session);
+			const contentItem = contents[0];
+			if (!contentItem) {
+				// Not a trackable content item, so return null.
+				throw new Error(`Content is not trackable: ${resolvedPath.type}`);
+			}
+			return mapContentToScrobbleItem(contentItem);
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.error('Failed to get item.', err);
 			}
 			return null;
 		}
-
-		const baseScrobbleItem: BaseItemValues = {
-			serviceId: this.id,
-			id: resolvedPath.axisId.toString(),
-			title: resolvedPath.title,
-			year: resolvedPath.axisMedia.firstAirYear,
-		};
-		if (resolvedPath.contentType === 'FEATURE') {
-			return new MovieItem(baseScrobbleItem);
-		} else if (resolvedPath.contentType === 'EPISODE') {
-			return new EpisodeItem({
-				...baseScrobbleItem,
-				season: resolvedPath.seasonNumber,
-				number: resolvedPath.episodeNumber,
-				show: {
-					serviceId: this.id,
-					id: resolvedPath.axisMedia.axisId.toString(),
-					title: resolvedPath.axisMedia.title,
-				},
-			});
-		}
-		// Not a trackable content item, so return null.
-		Shared.errors.log(
-			'Failed to get item.',
-			new Error(`Content is not trackable: ${resolvedPath.contentType}`)
-		);
-		return null;
 	}
 
-	async convertHistoryItems(historyItems: CraveHistoryItem[]): Promise<ScrobbleItem[]> {
-		const itemsWithMetadata = await this.loadHistoryItemsMetadata(historyItems);
-		const items = itemsWithMetadata.map(({ watchedItem, axisItem }) => {
-			const baseScrobbleItem: BaseItemValues = {
-				serviceId: this.id,
-				id: watchedItem.contentId,
-				// Use Crave's completion flag in place of the progress threshold checked by the add-on.
-				// This can avoid causing the add-on to sync the same viewing twice.
-				progress: watchedItem.completed ? watchedItem.progression : 0,
-				title: axisItem?.title ?? watchedItem.title,
-				watchedAt: watchedItem.timestamp / 1000,
-				year: axisItem?.axisMedia.firstAirYear,
-			};
-			if (watchedItem.contentType === 'episode') {
-				return new EpisodeItem({
-					...baseScrobbleItem,
-					season: Number(watchedItem.season),
-					number: Number(watchedItem.episode),
-					show: {
-						serviceId: this.id,
-						id: watchedItem.mediaId,
-						title: axisItem?.axisMedia.title ?? '',
-					},
-				});
-			} else {
-				return new MovieItem(baseScrobbleItem);
-			}
-		});
-
-		return Promise.resolve(items);
+	convertHistoryItems(historyItems: CraveContentItem[]): ScrobbleItem[] {
+		return historyItems.map(mapContentToScrobbleItem);
 	}
 
-	updateItemFromHistory(item: ScrobbleItemValues, historyItem: CraveHistoryItem): void {
-		item.progress = historyItem.progression;
-		item.watchedAt = historyItem.timestamp / 1000;
-	}
-
-	private async loadHistoryItemsMetadata(historyItems: CraveHistoryItem[]) {
-		type WatchedItemMetadata = { watchedItem: CraveHistoryItem; axisItem?: CraveAxisContent };
-
-		const axisIds = historyItems.map((p) => Number(p.contentId));
-		const axisItems = await this.queryAxisContentsByAxisIds(axisIds);
-
-		return historyItems.reduce<Array<WatchedItemMetadata>>((metadata, watchedItem) => {
-			const axisItem = axisItems.find((p) => p.axisId == +watchedItem.contentId);
-			metadata.push({ watchedItem, axisItem });
-
-			return metadata;
-		}, []);
+	updateItemFromHistory(item: ScrobbleItemValues, historyItem: CraveContentItem): void {
+		item.watchedAt = historyItem.duration.lastModifiedTimestamp;
+		item.progress = historyItem.duration.progressPercentage;
 	}
 
 	private async authorize(): Promise<CraveSession> {
@@ -254,7 +259,7 @@ class _CraveApi extends ServiceApi {
 			await this.activate();
 		}
 
-		if (!this.session || !this.session?.isAuthenticated) {
+		if (!this.session.isAuthenticated) {
 			throw new Error('User is not authorized.');
 		}
 
@@ -280,152 +285,162 @@ class _CraveApi extends ServiceApi {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				Authorization: `Basic ${btoa('crave-web:default')}`,
 			},
-			body: `refresh_token=${session.refreshToken}`,
+			body: `grant_type=refresh_token&refresh_token=${session.refreshToken}`,
 		});
 		const craveAuthorizeResponse = JSON.parse(responseText) as CraveAuthorizeResponse;
 		session.accessToken = craveAuthorizeResponse.access_token;
 		session.refreshToken = craveAuthorizeResponse.refresh_token;
-		session.expirationDate =
-			craveAuthorizeResponse.creation_date + craveAuthorizeResponse.expires_in;
+		const jwtPayload = JSON.parse(atob(session.accessToken.split('.')[1])) as CraveJwtPayload;
+		session.expirationDate = jwtPayload.exp * 1000; // Convert seconds to milliseconds.
 	}
 
-	private async queryAxisContentsByAxisIds(axisIds: number[]) {
-		const requestDetails = {
+	private async queryContents(
+		ids: string[],
+		session?: CraveServiceApiSession
+	): Promise<CraveContentItem[]> {
+		// Note that the endpoint is limited to 30 IDs per request.
+		if (ids.length > 30) {
+			throw new Error('Too many IDs provided. The maximum is 30 per request.');
+		}
+		const accessToken =
+			session && session.isAuthenticated
+				? getGraphQLAccessTokenFromSession(session) // A user token allows getting watch duration.
+				: DEFAULT_GRAPHQL_TOKEN; // The default token is capable of getting basic info.
+		const responseText = await Requests.send({
 			url: GRAPHQL_URL,
 			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
 			body: {
-				operationName: 'AxisContents',
-				variables: {
-					axisIds,
-					subscriptions: ['CRAVE', 'STARZ', 'SUPER_ECRAN'],
-					maturity: 'ADULT',
-					language: 'ENGLISH',
-					authenticationState: 'AUTH',
-					playbackLanguage: 'ENGLISH',
-				},
-				query: `query AxisContents($axisIds: [Int], $subscriptions: [Subscription]!, $maturity: Maturity!, $language: Language!, $authenticationState: AuthenticationState!, $playbackLanguage: PlaybackLanguage!) @uaContext(subscriptions: $subscriptions, maturity: $maturity, language: $language, authenticationState: $authenticationState, playbackLanguage: $playbackLanguage) {
-					contentData: axisContents(axisIds: $axisIds) {
-						items: contents {
+				query: `
+					query GetContents($sessionContext: SessionContext!, $ids: [String!]!) {
+						contents(sessionContext: $sessionContext, ids: $ids) {
 							id
-							axisId
 							title
-							__typename
-							... on AxisContent {
-								seasonNumber
-								episodeNumber
-								path
-								axisMedia {
-									id
-									axisId
-									title
-									firstAirYear
-									__typename
-								}
-								contentType
-								__typename
+							seasonNumber
+							episodeNumber
+							contentType
+							duration {
+								progressPercentage
+								remainingTimeInSecs
+								lastModifiedTimestamp
+							}
+							media {
+								title
+								productionYear
+								isInWatchList
 							}
 						}
-						__typename
 					}
-				}`,
+				`,
+				variables: {
+					sessionContext: { userMaturity: 'ADULT', userLanguage: 'EN' },
+					ids,
+				},
 			},
-		};
-		const responseText = await Requests.send(requestDetails);
-		const response = JSON.parse(responseText) as GraphQLResponse<CraveAxisContentsResponse>;
-		if (response.errors) {
-			Shared.errors.warning(
-				'AxisContents GraphQL query responded with errors',
-				new Error(response.errors.join('\n'))
-			);
-			return [];
-		}
-		return response.data.contentData.items;
+		});
+
+		const graphResponse = parseGraphQLResponse<{ contents: CraveContentItem[] }>(responseText);
+		return graphResponse.contents.filter((p) =>
+			this.allowedContentTypes.includes(p.contentType.toLowerCase())
+		);
 	}
 
-	private async queryResolvedPath(path: string) {
-		const requestDetails = {
+	private async queryItemByPath(path: string): Promise<CraveItemByPath | null> {
+		const accessToken = DEFAULT_GRAPHQL_TOKEN;
+		const responseText = await Requests.send({
 			url: GRAPHQL_URL,
 			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
 			body: {
-				operationName: 'resolvePath',
+				query: `
+					query GetItemByPath($path: String!) {
+						itemByPath(path: $path) {
+							id
+							type
+						}
+					}
+				`,
 				variables: {
 					path,
-					subscriptions: ['CRAVE', 'STARZ', 'SUPER_ECRAN'],
-					maturity: 'ADULT',
-					language: 'ENGLISH',
-					authenticationState: 'AUTH',
-					playbackLanguage: 'ENGLISH',
+					enabled: true,
 				},
-				query: `query resolvePath($path: String!, $subscriptions: [Subscription]!, $maturity: Maturity!, $language: Language!, $authenticationState: AuthenticationState!, $playbackLanguage: PlaybackLanguage!) @uaContext(subscriptions: $subscriptions, maturity: $maturity, language: $language, authenticationState: $authenticationState, playbackLanguage: $playbackLanguage) {
-					resolvedPath(path: $path) {
-						redirected
-						path
-						lastSegment {
-							position
-							content {
-								id
-								title
-								path
-								__typename
-								... on AxisContent {
-									axisId
-									__typename
-									seasonNumber
-									episodeNumber
-									path
-									axisMedia {
-										id
-										axisId
-										title
-										firstAirYear
-										__typename
-									}
-									contentType
-									__typename
-								}
-								__typename
-							}
-							__typename
-						}
-					}
-				}`,
 			},
-		};
-		const responseText = await Requests.send(requestDetails);
-		const response = JSON.parse(responseText) as GraphQLResponse<CraveResolvedPathResponse>;
-		if (response.errors) {
-			throw new Error(`resolvePath GraphQL query responded with errors.
-				${response.errors.join('\n')}`);
-		}
-		return response.data.resolvedPath.lastSegment.content;
+		});
+
+		const graphResponse = parseGraphQLResponse<{ itemByPath: CraveItemByPath | null }>(
+			responseText
+		);
+		// Result is null if the item was not found.
+		return graphResponse.itemByPath;
 	}
 
-	private async queryWatchHistoryPage(auth: CraveSession, cancelKey: string | undefined) {
-		const params = `?pageNumber=${this.pageNumber}&pageSize=${this.pageSize}`;
+	private async queryWatchHistoryPage(
+		session: CraveSession,
+		limit: number,
+		cursor: string | null,
+		cancelKey?: string
+	): Promise<CraveWatchHistoryPage> {
 		const responseText = await Requests.send({
-			url: `${WATCH_HISTORY_URL}${params}`,
-			method: 'GET',
+			url: GRAPHQL_URL,
+			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${auth.accessToken}`,
+				Authorization: `Bearer ${getGraphQLAccessTokenFromSession(session)}`,
+			},
+			body: {
+				query: `
+					query GetWatchHistory($sessionContext: SessionContext!, $limit: Int, $cursor: String) {
+						watchHistoryItemsPage(sessionContext: $sessionContext, limit: $limit, cursor: $cursor) {
+							cursor
+							items {
+								contentId
+								mediaName
+								displayLabel
+								createdDateSecs
+							}
+						}
+					}
+				`,
+				variables: {
+					sessionContext: { userMaturity: 'ADULT', userLanguage: 'EN' },
+					limit,
+					cursor,
+				},
 			},
 			cancelKey,
 		});
-		const response = JSON.parse(responseText) as CraveWatchHistoryPageResponse;
-		return response;
+		const graphResponse = parseGraphQLResponse<{
+			watchHistoryItemsPage: CraveWatchHistoryPage;
+		}>(responseText);
+		return graphResponse.watchHistoryItemsPage;
 	}
 
-	private async queryProfiles(auth: CraveSession) {
+	private async queryProfiles(session: CraveSession): Promise<Array<CraveProfile>> {
 		const responseText = await Requests.send({
 			url: PROFILES_URL,
 			method: 'GET',
 			headers: {
-				Authorization: `Bearer ${auth.accessToken}`,
+				Authorization: `Bearer ${session.accessToken}`,
 			},
 		});
 		return JSON.parse(responseText) as Array<CraveProfile>;
 	}
 
 	private async getInitialSession(): Promise<CraveSession | CraveSessionNoAuth> {
+		const servicesData = await Cache.get('servicesData');
+		const cacheData = (servicesData.get(CraveService.id) as { session: CraveSession | null }) ?? {
+			session: null,
+		};
+		if (cacheData.session) {
+			if (!this.verifyAccessToken(cacheData.session)) {
+				// The access token has expired, so refresh it.
+				await this.refresh(cacheData.session);
+			}
+			return cacheData.session;
+		}
 		const auth = await ScriptInjector.inject<CraveSession>(this.id, 'session', HOST_URL);
 		if (auth) {
 			// The initial access token might have expired, so refresh and retry if this first query fails.
@@ -438,9 +453,12 @@ class _CraveApi extends ServiceApi {
 			if (profileInfo) {
 				auth.profileName = profileInfo.nickname;
 			}
+			cacheData.session = auth;
+			servicesData.set(CraveService.id, cacheData);
+			await Cache.set({ servicesData });
 			return auth;
 		}
-		return { isAuthenticated: false, profileName: null, expirationDate: null };
+		return DEFAULT_CRAVE_SESSION;
 	}
 
 	private async retry<T>({ numberOfTries, action, onBeforeRetry }: RetryPolicy<T>) {
@@ -472,20 +490,17 @@ Shared.functionsToInject[`${CraveService.id}-session`] = (): CraveSession | null
 		return cookiesMap;
 	}, new Map<string, string>());
 
-	const accessToken = cookies.get('access') ?? '';
+	const accessToken = cookies.get('ce_access') ?? '';
 	if (!accessToken) {
 		return null;
 	}
 
-	const jwtPayload = JSON.parse(atob(accessToken.split('.')[1])) as {
-		exp: number;
-		profile_id: string;
-	};
+	const jwtPayload = JSON.parse(atob(accessToken.split('.')[1])) as CraveJwtPayload;
 	return {
-		profileName: jwtPayload.profile_id,
+		profileName: jwtPayload.context.profile_id,
 		isAuthenticated: true,
 		accessToken: accessToken,
-		refreshToken: cookies.get('refresh') ?? '',
+		refreshToken: cookies.get('ce_refresh') ?? '',
 		expirationDate: jwtPayload.exp * 1000,
 	};
 };
