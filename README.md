@@ -130,19 +130,19 @@ Never delete the `translations` branch after merging PRs from Crowdin, as Crowdi
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
 2. In `Redirect uri:`, put `https://trakt.tv/apps`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
-4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension.
+4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension. The "CHROME_EXTENSION_KEY" can remain empty.
 
 ```bash
 cp .env.example .env
 ```
 
-5. Use [nvm](https://github.com/creationix/nvm) to run the correct version of Node.js.
+5. Use [nvm](https://github.com/creationix/nvm) to run the correct version of Node.js. You may need to install it with `nvm install "lts/*"`
 
 ```bash
 nvm use
 ```
 
-6. Install the dependencies.
+6. Install the dependencies. You may need to install pnpm with `npm install -g pnpm`
 
 ```bash
 pnpm install
@@ -153,6 +153,8 @@ pnpm install
 ```bash
 pnpm start
 ```
+
+- In your browser's extension page in development mode, load the extension from `src/build/{browser}`
 
 - To get the build version for development mode (does not watch files):
 
