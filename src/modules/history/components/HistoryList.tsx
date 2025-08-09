@@ -197,14 +197,18 @@ export const HistoryList = (): JSX.Element => {
 		for (const item of items) {
 			const doHide = item.doHide();
 			const isSelectable = item.isSelectable();
-			if (item.isHidden !== doHide || (item.isSelected && !isSelectable)) {
+
+			// Don't hide items that are still loading or not selectable - they need time to be processed
+			const shouldHide = doHide && !item.isLoading && isSelectable;
+
+			if (item.isHidden !== shouldHide || (item.isSelected && !isSelectable)) {
 				if (index < 0) {
 					index = item.index;
 				}
 
 				const newItem = item.clone();
-				if (item.isHidden !== doHide) {
-					newItem.isHidden = doHide;
+				if (item.isHidden !== shouldHide) {
+					newItem.isHidden = shouldHide;
 				}
 				if (item.isSelected && !isSelectable) {
 					newItem.isSelected = false;
