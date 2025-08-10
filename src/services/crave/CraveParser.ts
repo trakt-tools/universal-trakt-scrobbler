@@ -10,12 +10,13 @@ class _CraveParser extends ScrobbleParser {
 	constructor() {
 		super(CraveApi, {
 			/**
-			 * When actively watching, the path will match tv-shows or movies followed by 2 path segments.
+			 * When actively watching, the path will be /play/ followed by the content path.
+			 * Crave's API does a lookup based on that content path to get the content info.
 			 * Examples:
-			 * https://www.crave.ca/en/tv-shows/30-rock/cutbacks-s3e17 => /tv-shows/30-rock/cutbacks-s3e17
-			 * https://www.crave.ca/en/movies/ghostbusters-51932/ghostbusters => /movies/ghostbusters-51932/ghostbusters
+			 * https://www.crave.ca/en/play/30-rock/cutbacks-s3e17-458963 => play/30-rock/cutbacks-s3e17-458963
+			 * https://www.crave.ca/en/play/ghostbusters-2362155 => play/ghostbusters-2362155
 			 */
-			watchingUrlRegex: /(?<id>\/(?:tv-shows|movies)\/.+\/.+)/,
+			watchingUrlRegex: /(?<id>play\/.+)/,
 		});
 	}
 
