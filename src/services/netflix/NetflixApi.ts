@@ -294,7 +294,15 @@ class _NetflixApi extends ServiceApi {
 		historyItem: NetflixHistoryItem
 	): Promisable<void> {
 		item.watchedAt = Utils.unix(historyItem.date);
-		item.progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
+
+		// Handle missing bookmark/duration data with fallback
+		// If no bookmark/duration data, assume 100% progress since item appears in viewing history
+		const bookmark = historyItem.bookmark ?? 0;
+		const duration = historyItem.duration ?? 1;
+		const hasValidData = historyItem.bookmark !== undefined && historyItem.duration !== undefined;
+		const calculatedProgress = hasValidData ? Math.ceil((bookmark / duration) * 100) : 100;
+
+		item.progress = calculatedProgress;
 	}
 
 	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
@@ -370,7 +378,13 @@ class _NetflixApi extends ServiceApi {
 		const id = historyItem.movieID.toString();
 		const year = historyItem.releaseYear;
 		const watchedAt = Utils.unix(historyItem.date);
-		const progress = Math.ceil((historyItem.bookmark / historyItem.duration) * 100);
+		// Handle missing bookmark/duration data with fallback
+		// If no bookmark/duration data, assume 100% progress since item appears in viewing history
+		const bookmark = historyItem.bookmark ?? 0;
+		const duration = historyItem.duration ?? 1;
+		const hasValidData = historyItem.bookmark !== undefined && historyItem.duration !== undefined;
+		const progress = hasValidData ? Math.ceil((bookmark / duration) * 100) : 100;
+
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
 
