@@ -5,6 +5,23 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 
+export interface ViaplayGlobalObject {
+	storeState: {
+		profiles: {
+			activeProfile: string | null;
+			profileList: [
+				{
+					id: string;
+					name: string | null;
+				}
+			];
+		};
+	};
+	userData: {
+		firstName: string | null;
+	};
+}
+
 export interface ViaplayAuthResponse {
 	success: boolean;
 	userData?: {
@@ -14,6 +31,14 @@ export interface ViaplayAuthResponse {
 		userId: string;
 	};
 }
+
+interface ViaplayProfile {
+	id: string;
+	name: string;
+	isOwner: boolean;
+}
+
+export interface ViaplayProfilesArray extends Array<ViaplayProfile> {}
 
 export interface ViaplayWatchedTopResponse {
 	_embedded: {
@@ -94,11 +119,13 @@ export interface ViaplayProductUserInfo {
 }
 
 class _ViaplayApi extends ServiceApi {
-	INITIAL_URL = 'https://viaplay.com/requirements';
+	INITIAL_URL = 'https://viaplay.com/';
 	HOST_URL = '';
 	API_BASE_URL = '';
 	HISTORY_API_URL = '';
 	AUTH_URL = '';
+	PROFILES_URL = '';
+	PROFILES_ID = '';
 	isActivated = false;
 
 	constructor() {
@@ -130,17 +157,40 @@ class _ViaplayApi extends ServiceApi {
 		}
 		this.HOST_URL = `https://content.${host}/`;
 		this.API_BASE_URL = `${this.HOST_URL}pcdash-${region}/`;
-		this.HISTORY_API_URL = `${this.API_BASE_URL}watched`;
 		this.AUTH_URL = `https://login.${host}/api/persistentLogin/v1?deviceKey=pcdash-${region}`;
-		this.nextHistoryUrl = this.HISTORY_API_URL;
+		this.PROFILES_URL = `https://${host}/profiles`;
 
 		const authResponseText = await Requests.send({
 			url: this.AUTH_URL,
 			method: 'GET',
 		});
 		const authResponse = JSON.parse(authResponseText) as ViaplayAuthResponse;
+
+		const responseProfilesText = await Requests.send({
+			url: this.PROFILES_URL,
+			method: 'GET',
+		});
+		const profileIdRegex = /"profiles":.*"activeProfile":"(?<activeProfileId>.*?)"/;
+		const { activeProfileId = '' } = profileIdRegex.exec(responseProfilesText)?.groups ?? {};
+		this.PROFILES_ID = activeProfileId;
+
+		this.HISTORY_API_URL = `${this.API_BASE_URL}watched?profileId=${this.PROFILES_ID}`;
+		this.nextHistoryUrl = this.HISTORY_API_URL;
+
+		const profilesRegex = /"profilesList":(?<profilesArray>\[.*?\])/;
+		const { profilesArray = '[]' } = profilesRegex.exec(responseProfilesText)?.groups ?? {};
+
+		const profiles = JSON.parse(profilesArray) as ViaplayProfilesArray;
+		const activeProfile = profiles.find(({ id }) => this.PROFILES_ID === id);
+
+		let profileName = '';
+		if (activeProfile) {
+			profileName = activeProfile.name;
+		}
+
 		this.session = {
-			profileName: authResponse.userData?.firstName || authResponse.userData?.username || null,
+			profileName:
+				profileName || authResponse.userData?.firstName || authResponse.userData?.username || null,
 		};
 
 		this.isActivated = true;
@@ -172,7 +222,7 @@ class _ViaplayApi extends ServiceApi {
 		}
 		const responseItems = historyPage._embedded['viaplay:products'];
 		const url = historyPage._links?.next?.href;
-		this.nextHistoryUrl = url;
+		this.nextHistoryUrl = url + '&profileId=' + this.PROFILES_ID;
 		this.hasReachedHistoryEnd = !url || responseItems.length === 0;
 		return responseItems;
 	}

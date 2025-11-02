@@ -131,6 +131,7 @@ class _AmazonPrimeApi extends ServiceApi {
 	CONFIG_URL = '';
 	ITEM_URL = '';
 	NEXT_ITEM_URL = '';
+	DEVICE_ID = '1a740c71-27ac-409a-a360-549a3dadacc6'; // randomly generated to follow UUID v4 standard
 
 	/**
 	 * These values were retrieved by watching network requests.
@@ -186,8 +187,8 @@ class _AmazonPrimeApi extends ServiceApi {
 				throw new Error('Failed to activate API');
 			}
 
-			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
-			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
+			this.ITEM_URL = `${this.API_URL}/cdp/catalog/GetPlaybackResources?asin={id}&consumptionType=Streaming&desiredResources=CatalogMetadata&deviceID=${this.DEVICE_ID}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&resourceUsage=CacheResources&videoMaterialType=Feature&titleDecorationScheme=primary-content&uxLocale=en_US`;
+			this.NEXT_ITEM_URL = `${this.API_URL}/cdp/discovery/GetSections?decorationScheme=none&deviceID=${this.DEVICE_ID}&deviceTypeID=${this.DEVICE_TYPE_ID}&firmware=1&gascEnabled=true&pageId={id}&pageType=player&sectionTypes=bottom&uxLocale=en_US&version=default`;
 
 			this.session = {
 				profileName: null,
@@ -375,13 +376,14 @@ class _AmazonPrimeApi extends ServiceApi {
 		const serviceId = this.id;
 		const { catalog, family } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
+		const versionTagRegex = / \[[\w.]+\/[\w.]+\]$/; // some media with dub/subtitle will add [version/tag] to the title (issue #342)
 
 		if (entityType === 'TV Show' || entityType === 'Bonus Content') {
 			let title = '';
 			let season = 0;
 			if (family) {
 				const [seasonInfo, showInfo] = family.tvAncestors;
-				title = showInfo.catalog.title;
+				title = showInfo.catalog.title.replace(versionTagRegex, '');
 				season = seasonInfo.catalog.seasonNumber;
 			}
 			const { episodeNumber: number = 0, title: episodeTitle } = catalog;
@@ -397,7 +399,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				},
 			});
 		} else {
-			const { title } = catalog;
+			const title = catalog.title.replace(versionTagRegex, '');
 			item = new MovieItem({
 				serviceId,
 				id,

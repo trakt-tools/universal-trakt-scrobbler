@@ -21,8 +21,9 @@ class _KijkNlParser extends ScrobbleParser {
 			return null;
 		}
 
-		// Shows get a title like this (dutch example): "Steenrijk, straatarm - seizoen 2 aflevering 1"
-		const matches = /(?<showTitle>.+) - seizoen (?<seasonId>\d+) aflevering (?<episodeId>\d+)/.exec(
+		// Shows get a title like this (dutch example): "Lang Leve de Liefde: Seizoen 7 Aflevering 175 gemist? Bekijk hier de hele uitzending - kijk.nl"
+		//De Bondgenoten: Seizoen 2 Aflevering 156 gemist? Bekijk hier de hele uitzending - kijk.nl
+		const matches = /(?<showTitle>.+): Seizoen (?<seasonId>\d+) Aflevering (?<episodeId>\d+)/.exec(
 			titleElement?.textContent ?? ''
 		);
 

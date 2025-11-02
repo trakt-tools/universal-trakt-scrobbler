@@ -385,7 +385,7 @@ export const HistoryList = (): JSX.Element => {
 					width: '100%',
 				}}
 			>
-				{({ height }) => (
+				{({ height }: { height: number }) => (
 					<InfiniteLoader
 						isItemLoaded={isItemLoaded}
 						itemCount={itemCount}

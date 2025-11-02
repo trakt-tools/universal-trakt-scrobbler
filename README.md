@@ -39,13 +39,19 @@ Extension will be enabled until you restart Firefox.
 
 ### Table of Contents
 
+- [Loading the extension manually in Chrome](#loading-the-extension-manually-in-chrome)
+- [Loading the extension manually in Firefox](#loading-the-extension-manually-in-firefox)
+- [Table of Contents](#table-of-contents)
 - [What is Universal Trakt Scrobbler?](#what-is-universal-trakt-scrobbler)
 - [Why do I need this extension?](#why-do-i-need-this-extension)
 - [Which streaming services are supported?](#which-streaming-services-are-supported)
 - [How does the extension work?](#how-does-the-extension-work)
-- [Problems](#problems)
+- [Known Issues](#known-issues)
+- [Other Problems](#other-problems)
 - [Help Translate](#help-translate)
 - [Development](#development)
+  - [How to add more streaming services](#how-to-add-more-streaming-services)
+  - [How to add scrobbler/sync to streaming services](#how-to-add-scrobblersync-to-streaming-services)
 - [Credits](#credits)
 
 ### What is Universal Trakt Scrobbler?
@@ -65,7 +71,9 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 | :---------------: | :------: | :--: | :------------------------------ |
 |   Amazon Prime    |    ✔️    |  ✔️  | -                               |
 |       AMC+        |    ✔️    |  ❌  | -                               |
+|       Crave       |    ✔️    |  ✔️  | -                               |
 |    Crunchyroll    |    ❌    |  ✔️  | Can't identify movies as movies |
+|    discovery+     |    ✔️    |  ✔️  | -                               |
 |      Disney+      |    ✔️    |  ❌  | -                               |
 |        Go3        |    ✔️    |  ❌  | -                               |
 |     GoPlay BE     |    ✔️    |  ❌  | -                               |
@@ -123,19 +131,19 @@ Never delete the `translations` branch after merging PRs from Crowdin, as Crowdi
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
 2. In `Redirect uri:`, put `https://trakt.tv/apps`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
-4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension.
+4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension. The "CHROME_EXTENSION_KEY" can remain empty.
 
 ```bash
 cp .env.example .env
 ```
 
-5. Use [nvm](https://github.com/creationix/nvm) to run the correct version of Node.js.
+5. Use [nvm](https://github.com/creationix/nvm) to run the correct version of Node.js. You may need to install it with `nvm install "lts/*"`
 
 ```bash
 nvm use
 ```
 
-6. Install the dependencies.
+6. Install the dependencies. You may need to install pnpm with `npm install -g pnpm`
 
 ```bash
 pnpm install
@@ -146,6 +154,8 @@ pnpm install
 ```bash
 pnpm start
 ```
+
+- In your browser's extension page in development mode, load the extension from `src/build/{browser}`
 
 - To get the build version for development mode (does not watch files):
 
@@ -171,7 +181,7 @@ pnpm run zip
 
 ### Credits
 
-This extension is based on [traktflix](https://github.com/tegon/traktflix), the original Netflix sync developed by [tegon](https://github.com/user/tegon), which was discontinued in favor of Universal Trakt Sync.
+This extension is based on [traktflix](https://github.com/tegon/traktflix), the original Netflix sync developed by [tegon](https://github.com/tegon), which was discontinued in favor of Universal Trakt Sync.
 
 <h3 align="center">
   <img alt="TMDb API" src="https://github.com/trakt-tools/universal-trakt-scrobbler/raw/master/assets/tmdb-api-logo.png" width="150">

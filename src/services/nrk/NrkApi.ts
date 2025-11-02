@@ -247,7 +247,7 @@ class _NrkApi extends ServiceApi {
 		 * 23.10.2020             (airdate is the only information)
 		 */
 		const regExp =
-			/(?<fullStr>S(?<seasonStr>[0-9]) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
+			/(?<fullStr>S(?<seasonStr>[0-9]+) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
 		const [matches] = [...titleInfo.subtitle.matchAll(regExp)];
 		let episodeTitle;
 		let season = 0;
