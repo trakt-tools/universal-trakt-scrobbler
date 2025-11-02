@@ -3,6 +3,8 @@ import { Requests, withHeaders } from '@common/Requests';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { Tv2PlayService } from '@/services/tv2-play/Tv2PlayService';
 import { Utils } from '@common/Utils';
+import { Shared } from '@common/Shared';
+import { ScriptInjector } from '@common/ScriptInjector';
 
 interface Asset {
 	id: number;
@@ -18,9 +20,9 @@ export interface Tv2PlayHistoryItem {
 	show: Asset;
 }
 
-type TV2SumoMetadataResponse = TV2SumoMetadataResponseEpisode | TV2SumoMetadataResponseMovie;
+type TV2PlayMetadataResponse = TV2PlayMetadataResponseEpisode | TV2PlayMetadataResponseMovie;
 
-interface TV2SumoMetadataResponseEpisode {
+interface TV2PlayMetadataResponseEpisode {
 	id: number;
 	title: string;
 	asset_type: 'episode';
@@ -33,7 +35,7 @@ interface TV2SumoMetadataResponseEpisode {
 	};
 }
 
-interface TV2SumoMetadataResponseMovie {
+interface TV2PlayMetadataResponseMovie {
 	id: number;
 	title: string;
 	asset_type: 'movie';
@@ -45,10 +47,20 @@ interface TV2PlayUserInfo {
 	lastname: string;
 }
 
-interface TokenResponse {
-	access_token: string;
+interface Auth0TokenData {
+	body: {
+		access_token: string;
+		refresh_token?: string;
+		expires_in: number;
+		token_type: string;
+	};
+	expiresAt: number;
 }
-// Define any types you need here
+
+interface Tv2PlaySession {
+	accessToken: string;
+	refreshToken?: string;
+}
 
 class _Tv2PlayApi extends ServiceApi {
 	HISTORY_URL: string;
@@ -62,28 +74,33 @@ class _Tv2PlayApi extends ServiceApi {
 
 	constructor() {
 		super(Tv2PlayService.id);
-		this.HISTORY_URL = 'https://ai.sumo.tv2.no/v4/viewinghistory/?start=0&size=10';
+		this.HISTORY_URL = 'https://ai.play.tv2.no/v4/viewinghistory/?start=0&size=10';
 		this.TOKEN_URL = 'https://id.tv2.no/oauth/token';
-		this.PROFILE_URL = 'https://api.sumo.tv2.no/user/';
+		this.PROFILE_URL = 'https://api.play.tv2.no/user/';
 		this.token = '';
 		this.isActivated = false;
 	}
 
 	async activate() {
-		// const authData = await Requests.send({
-		// 	url: this.TOKEN_URL,
-		// 	method: 'GET',
-		// 	body: {
-		// 	},
-		// });
+		// Get the Auth0 token from localStorage via script injection
+		const sessionData = await ScriptInjector.inject<Tv2PlaySession>(
+			Tv2PlayService.id,
+			'session',
+			'https://play.tv2.no'
+		);
 
-		//TODO find a way to get the token automatically
-		this.token =
-			'log into tv2 play and inspect other network calls to manually paste the token here';
-		console.log('token got', this.token);
+		if (!sessionData || !sessionData.accessToken) {
+			throw new Error('Could not retrieve Auth0 access token from TV2 Play');
+		}
+
+		this.token = sessionData.accessToken;
+		console.log('Token retrieved successfully');
+
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${this.token}`,
 		});
+
+		// Fetch user profile to get the profile name
 		const profileData = await this.authRequests.send({
 			url: this.PROFILE_URL,
 			method: 'GET',
@@ -108,7 +125,7 @@ class _Tv2PlayApi extends ServiceApi {
 
 		// Retrieve the history items
 		const responseText = await this.authRequests.send({
-			url: `https://ai.sumo.tv2.no/v4/viewinghistory/?start=${
+			url: `https://ai.play.tv2.no/v4/viewinghistory/?start=${
 				this.nextHistoryPage * this.pageSize
 			}&size=${this.pageSize}`,
 			method: 'GET',
@@ -150,10 +167,10 @@ class _Tv2PlayApi extends ServiceApi {
 
 	async getItem(id: string): Promise<ScrobbleItem> {
 		const responseText = await Requests.send({
-			url: `https://sumo.tv2.no/rest/assets/${id}`,
+			url: `https://play.tv2.no/rest/assets/${id}`,
 			method: 'GET',
 		});
-		const responseJson = JSON.parse(responseText) as TV2SumoMetadataResponse;
+		const responseJson = JSON.parse(responseText) as TV2PlayMetadataResponse;
 
 		if (responseJson.asset_type === 'episode') {
 			const values = {
@@ -177,5 +194,34 @@ class _Tv2PlayApi extends ServiceApi {
 		});
 	}
 }
+
+// Inject this function into the TV2 Play page to retrieve the Auth0 token from localStorage
+Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Tv2PlaySession | null => {
+	const auth0Key = Object.keys(window.localStorage).find((key) => key.startsWith('@@auth0spajs@@'));
+
+	if (!auth0Key) {
+		return null;
+	}
+
+	try {
+		const auth0DataStr = window.localStorage.getItem(auth0Key);
+		if (!auth0DataStr) {
+			return null;
+		}
+
+		const auth0Data = JSON.parse(auth0DataStr) as Auth0TokenData;
+
+		if (!auth0Data.body?.access_token) {
+			return null;
+		}
+
+		return {
+			accessToken: auth0Data.body.access_token,
+			refreshToken: auth0Data.body.refresh_token,
+		};
+	} catch (error) {
+		return null;
+	}
+};
 
 export const Tv2PlayApi = new _Tv2PlayApi();
