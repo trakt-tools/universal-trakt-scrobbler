@@ -31,21 +31,21 @@ interface Tv2PlayMovieHistoryItem {
 export type Tv2PlayHistoryItem = Tv2PlayMovieHistoryItem | Tv2PlayEpisodeHistoryItem;
 
 interface TV2PlayProgress {
-	position: number;
+	position?: number;
 	duration: number;
 	label: string;
 	watched: number;
 }
 
 interface TV2PlayContentResponse {
-	player?: {
+	player: {
 		content_id: string;
 		title: string;
 		url: string;
 		asset_id: string;
-		progress?: TV2PlayProgress;
+		progress: TV2PlayProgress;
 	};
-	details?: {
+	details: {
 		title: string;
 		description: string;
 		content_id: string;
@@ -208,8 +208,8 @@ class _Tv2PlayApi extends ServiceApi {
 			const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
 
 			return {
-				progress: responseJson.player?.progress || null,
-				year: this.parseYearFromMetainfo(responseJson.details?.metainfo),
+				progress: responseJson.player.progress,
+				year: this.parseYearFromMetainfo(responseJson.details.metainfo),
 			};
 		} catch (error) {
 			console.error('Failed to fetch progress for item:', path, error);
@@ -294,25 +294,25 @@ class _Tv2PlayApi extends ServiceApi {
 
 			const values = {
 				serviceId: this.id,
-				id: responseJson.player?.asset_id || responseJson.details?.content_id || '',
-				title: responseJson.details?.title || responseJson.player?.title || '',
+				id: responseJson.player.asset_id,
+				title: responseJson.details.title,
 				season: seasonNumber,
 				number: episodeNumber,
 				show: {
 					serviceId: this.id,
-					id: responseJson.details?.content_id || '',
-					title: responseJson.details?.title || responseJson.player?.title || '',
+					id: responseJson.details.content_id,
+					title: responseJson.details.title,
 				},
 			};
 			return new EpisodeItem(values);
 		}
 
 		// Otherwise, treat it as a movie
-		const year = this.parseYearFromMetainfo(responseJson.details?.metainfo);
+		const year = this.parseYearFromMetainfo(responseJson.details.metainfo);
 		return new MovieItem({
 			serviceId: this.id,
-			id: responseJson.player?.asset_id || responseJson.details?.content_id || '',
-			title: responseJson.details?.title || responseJson.player?.title || '',
+			id: responseJson.player.asset_id,
+			title: responseJson.details.title,
 			year,
 		});
 	}
