@@ -7,38 +7,41 @@ import { Shared } from '@common/Shared';
 import { ScriptInjector } from '@common/ScriptInjector';
 
 interface Asset {
-	id: number;
+	id: string;
 	path: string;
 	title: string;
 }
 
 export interface Tv2PlayHistoryItem {
-	id: number;
+	id: string;
 	date: string;
 	asset: Asset;
 	season: Asset;
 	show: Asset;
 }
 
-type TV2PlayMetadataResponse = TV2PlayMetadataResponseEpisode | TV2PlayMetadataResponseMovie;
-
-interface TV2PlayMetadataResponseEpisode {
-	id: number;
-	title: string;
-	asset_type: 'episode';
-	episode_number: number;
-	episode_title: string;
-	season_number: number;
-	show: {
-		id: number;
-		title: string;
-	};
+interface TV2PlayProgress {
+	position: number;
+	duration: number;
+	label: string;
+	watched: number;
 }
 
-interface TV2PlayMetadataResponseMovie {
-	id: number;
-	title: string;
-	asset_type: 'movie';
+interface TV2PlayContentResponse {
+	player?: {
+		content_id: string;
+		title: string;
+		url: string;
+		asset_id: string;
+		progress?: TV2PlayProgress;
+	};
+	details?: {
+		title: string;
+		description: string;
+		content_id: string;
+		metainfo?: Array<{ text: string; type?: string }>;
+	};
+	layout: string;
 }
 
 interface TV2PlayUserInfo {
@@ -149,48 +152,127 @@ class _Tv2PlayApi extends ServiceApi {
 
 	async convertHistoryItems(historyItems: Tv2PlayHistoryItem[]) {
 		const promises = historyItems.map(async (historyItem) => {
-			const item = await this.getItem(`${historyItem.id}`);
-			await this.updateItemFromHistory(item, historyItem);
+			const item = this.parseHistoryItem(historyItem);
+
+			// Fetch progress information from content API
+			const progress = await this.getProgressForItem(historyItem.asset.path);
+
+			await this.updateItemFromHistory(item, historyItem, progress);
 			return item;
 		});
 
 		return Promise.all(promises);
 	}
 
-	updateItemFromHistory(
-		item: ScrobbleItemValues,
-		historyItem: Tv2PlayHistoryItem
-	): Promisable<void> {
-		item.watchedAt = historyItem.date ? Utils.unix(historyItem.date) : undefined;
-		item.progress = 100; //TODO not present in API. There might be a separate progress API.
+	async getProgressForItem(path: string): Promise<TV2PlayProgress | null> {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+
+		try {
+			const responseText = await this.authRequests.send({
+				url: `https://ai.play.tv2.no/v4/content/path${path}`,
+				method: 'GET',
+			});
+			const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
+
+			return responseJson.player?.progress || null;
+		} catch (error) {
+			console.error('Failed to fetch progress for item:', path, error);
+			return null;
+		}
 	}
 
-	async getItem(id: string): Promise<ScrobbleItem> {
-		const responseText = await Requests.send({
-			url: `https://play.tv2.no/rest/assets/${id}`,
-			method: 'GET',
-		});
-		const responseJson = JSON.parse(responseText) as TV2PlayMetadataResponse;
+	parseHistoryItem(historyItem: Tv2PlayHistoryItem): ScrobbleItem {
+		// Check if it's an episode by looking for season info
+		if (historyItem.season && historyItem.season.title) {
+			// Parse season number from "Sesong 1" format
+			const seasonMatch = historyItem.season.title.match(/\d+/);
+			const seasonNumber = seasonMatch ? parseInt(seasonMatch[0], 10) : 0;
 
-		if (responseJson.asset_type === 'episode') {
+			// Parse episode number from path like "/serier/nepobaby-e6rrt3cb/sesong-1/episode-1"
+			const episodeMatch = historyItem.asset.path.match(/episode-(?<episode>\d+)/i);
+			const episodeNumber = episodeMatch?.groups?.episode
+				? parseInt(episodeMatch.groups.episode, 10)
+				: 0;
+
 			const values = {
 				serviceId: this.id,
-				id,
-				title: responseJson.episode_title,
-				season: responseJson.season_number,
-				number: responseJson.episode_number,
+				id: historyItem.asset.id,
+				title: historyItem.asset.title,
+				season: seasonNumber,
+				number: episodeNumber,
 				show: {
 					serviceId: this.id,
-					id: responseJson.show.id.toString(),
-					title: responseJson.show.title,
+					id: historyItem.show.id,
+					title: historyItem.show.title,
 				},
 			};
 			return new EpisodeItem(values);
 		}
+
+		// Otherwise, treat it as a movie
 		return new MovieItem({
 			serviceId: this.id,
-			id,
-			title: responseJson.title,
+			id: historyItem.asset.id,
+			title: historyItem.asset.title,
+		});
+	}
+
+	updateItemFromHistory(
+		item: ScrobbleItemValues,
+		historyItem: Tv2PlayHistoryItem,
+		progress?: TV2PlayProgress | null
+	): Promisable<void> {
+		item.watchedAt = historyItem.date ? Utils.unix(historyItem.date) : undefined;
+
+		// Use the watched percentage directly from the API
+		if (progress && typeof progress.watched === 'number') {
+			item.progress = progress.watched;
+		} else {
+			// Fallback to 100 if progress information is not available
+			item.progress = 100;
+		}
+	}
+
+	async getItem(path: string): Promise<ScrobbleItem> {
+		if (!this.isActivated) {
+			await this.activate();
+		}
+
+		const responseText = await this.authRequests.send({
+			url: `https://ai.play.tv2.no/v4/content/path${path}`,
+			method: 'GET',
+		});
+		const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
+
+		// Check if it's an episode by looking at the URL structure
+		const episodeMatch = path.match(/\/sesong-(?<season>\d+)\/episode-(?<episode>\d+)/i);
+
+		if (episodeMatch?.groups) {
+			const seasonNumber = parseInt(episodeMatch.groups.season, 10);
+			const episodeNumber = parseInt(episodeMatch.groups.episode, 10);
+
+			const values = {
+				serviceId: this.id,
+				id: responseJson.player?.asset_id || responseJson.details?.content_id || '',
+				title: responseJson.details?.title || responseJson.player?.title || '',
+				season: seasonNumber,
+				number: episodeNumber,
+				show: {
+					serviceId: this.id,
+					id: responseJson.details?.content_id || '',
+					title: responseJson.details?.title || responseJson.player?.title || '',
+				},
+			};
+			return new EpisodeItem(values);
+		}
+
+		// Otherwise, treat it as a movie
+		return new MovieItem({
+			serviceId: this.id,
+			id: responseJson.player?.asset_id || responseJson.details?.content_id || '',
+			title: responseJson.details?.title || responseJson.player?.title || '',
 		});
 	}
 }
