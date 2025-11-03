@@ -12,13 +12,23 @@ interface Asset {
 	title: string;
 }
 
-export interface Tv2PlayHistoryItem {
+interface Tv2PlayEpisodeHistoryItem {
 	id: string;
 	date: string;
 	asset: Asset;
 	season: Asset;
 	show: Asset;
 }
+
+interface Tv2PlayMovieHistoryItem {
+	id: string;
+	date: string;
+	asset: Asset;
+	season: null;
+	show: null;
+}
+
+export type Tv2PlayHistoryItem = Tv2PlayMovieHistoryItem | Tv2PlayEpisodeHistoryItem;
 
 interface TV2PlayProgress {
 	position: number;
@@ -154,17 +164,38 @@ class _Tv2PlayApi extends ServiceApi {
 		const promises = historyItems.map(async (historyItem) => {
 			const item = this.parseHistoryItem(historyItem);
 
-			// Fetch progress information from content API
-			const progress = await this.getProgressForItem(historyItem.asset.path);
+			// Fetch progress and year information from content API
+			let contentInfo;
+			try {
+				contentInfo = await this.getProgressForItem(historyItem.asset.path);
+			} catch (error) {
+				console.error('Failed to get progress for item:', historyItem.asset.path, error);
+				// contentInfo will remain undefined, updateItemFromHistory will handle it
+			}
 
-			await this.updateItemFromHistory(item, historyItem, progress);
+			await this.updateItemFromHistory(item, historyItem, contentInfo);
 			return item;
 		});
 
 		return Promise.all(promises);
 	}
 
-	async getProgressForItem(path: string): Promise<TV2PlayProgress | null> {
+	parseYearFromMetainfo(metainfo?: Array<{ text: string; type?: string }>): number {
+		if (!metainfo) return 0;
+
+		// Look for a 4-digit year (19xx or 20xx) in metainfo
+		for (const info of metainfo) {
+			const yearMatch = info.text.match(/^(?:19|20)\d{2}$/);
+			if (yearMatch) {
+				return parseInt(yearMatch[0], 10);
+			}
+		}
+		return 0;
+	}
+
+	async getProgressForItem(
+		path: string
+	): Promise<{ progress: TV2PlayProgress | null; year: number }> {
 		if (!this.isActivated) {
 			await this.activate();
 		}
@@ -176,10 +207,13 @@ class _Tv2PlayApi extends ServiceApi {
 			});
 			const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
 
-			return responseJson.player?.progress || null;
+			return {
+				progress: responseJson.player?.progress || null,
+				year: this.parseYearFromMetainfo(responseJson.details?.metainfo),
+			};
 		} catch (error) {
 			console.error('Failed to fetch progress for item:', path, error);
-			return null;
+			return { progress: null, year: 0 };
 		}
 	}
 
@@ -222,16 +256,21 @@ class _Tv2PlayApi extends ServiceApi {
 	updateItemFromHistory(
 		item: ScrobbleItemValues,
 		historyItem: Tv2PlayHistoryItem,
-		progress?: TV2PlayProgress | null
+		contentInfo?: { progress: TV2PlayProgress | null; year: number }
 	): Promisable<void> {
 		item.watchedAt = historyItem.date ? Utils.unix(historyItem.date) : undefined;
 
 		// Use the watched percentage directly from the API
-		if (progress && typeof progress.watched === 'number') {
-			item.progress = progress.watched;
+		if (contentInfo?.progress && typeof contentInfo.progress.watched === 'number') {
+			item.progress = contentInfo.progress.watched;
 		} else {
 			// Fallback to 100 if progress information is not available
 			item.progress = 100;
+		}
+
+		// Set year for movies
+		if (item.type === 'movie' && contentInfo?.year && contentInfo.year > 0) {
+			item.year = contentInfo.year;
 		}
 	}
 
@@ -269,10 +308,12 @@ class _Tv2PlayApi extends ServiceApi {
 		}
 
 		// Otherwise, treat it as a movie
+		const year = this.parseYearFromMetainfo(responseJson.details?.metainfo);
 		return new MovieItem({
 			serviceId: this.id,
 			id: responseJson.player?.asset_id || responseJson.details?.content_id || '',
 			title: responseJson.details?.title || responseJson.player?.title || '',
+			year,
 		});
 	}
 }
