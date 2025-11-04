@@ -90,7 +90,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |       Star+       |    ✔️    |  ❌  | -                               |
 |    Streamz BE     |    ✔️    |  ❌  | -                               |
 |      Tet TV+      |    ✔️    |  ❌  | -                               |
-|     TV 2 PLAY     |    ✔️    |  ❌  | -                               |
+|     TV 2 PLAY     |    ✔️    |  ✔️  | -                               |
 |      Viaplay      |    ✔️    |  ✔️  | -                               |
 |       Vidio       |    ✔️    |  ❌  | -                               |
 |     VRTNu BE      |    ✔️    |  ❌  | -                               |
