@@ -57,8 +57,8 @@ importers:
         specifier: ^1.0.9
         version: 1.0.9(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       rollbar:
-        specifier: ^2.26.4
-        version: 2.26.4
+        specifier: ^2.26.5
+        version: 2.26.5
       type-fest:
         specifier: ^3.13.1
         version: 3.13.1
@@ -1057,6 +1057,7 @@ packages:
   '@mui/base@5.0.0-beta.40':
     resolution: {integrity: sha512-I/lGHztkCzvwlXpjD2+SNmvNQvB4227xBXhISPjEaJUXGImOQ9f3D2Yj/T3KasSI/h0MLWy74X0J6clhPmsRbQ==}
     engines: {node: '>=12.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
@@ -1647,6 +1648,9 @@ packages:
   async@3.2.5:
     resolution: {integrity: sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==}
 
+  async@3.2.6:
+    resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
+
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
@@ -2048,9 +2052,6 @@ packages:
       supports-color:
         optional: true
 
-  decache@3.1.0:
-    resolution: {integrity: sha512-p7D6wJ5EJFFq1CcF2lu1XeqKFLBob8jRQGNAvFLTsV3CbSKBl3VtliAVlUIGz2i9H6kEFnI2Amaft5ZopIG2Fw==}
-
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
@@ -2266,6 +2267,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -2360,9 +2362,6 @@ packages:
   find-up@6.3.0:
     resolution: {integrity: sha512-v2ZsoEuVHYy8ZIlYqwPe/39Cy+cFDzp4dXPaxNvkEuouymu+2Jbz0PxpKarJHYJTmv2HWT3O382qY8l4jMWthw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  find@0.2.9:
-    resolution: {integrity: sha512-7a4/LCiInB9xYMnAUEjLilL9FKclwbwK7VlXw+h5jMvT2TDFeYFCHM24O1XdnC/on/hx8mxVO3FTQkyHZnOghQ==}
 
   flat-cache@3.2.0:
     resolution: {integrity: sha512-CYcENa+FtcUKLmhhqyctpclsq7QF38pKjZHsGNiSQF5r4FtoKDWabFDl3hzaEQMvT1LHEysw5twgLvpYYb4vbw==}
@@ -3462,8 +3461,8 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rollbar@2.26.4:
-    resolution: {integrity: sha512-JKmrj6riYm9ZPJisgxljgH4uCsvjMHDHXrinDF7aAFaP+eoF51HomVPtLcDTYLsrJ568aKVNLUhedFajONBwSg==}
+  rollbar@2.26.5:
+    resolution: {integrity: sha512-4Of0ALl5+CU2glyDy5dWMRRy9Ty81DrY2r46ucbqjtCikbgHoWJNGXbQUWpDaLxsc8Q71LT/yj1bPb9NHbJIFQ==}
 
   run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
@@ -3740,9 +3739,6 @@ packages:
 
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
-
-  traverse-chain@0.1.0:
-    resolution: {integrity: sha512-up6Yvai4PYKhpNp5PkYtx50m3KbwQrqDwbuZP/ItyL64YEWHAvH6Md83LFLV/GRSk/BoUVwwgUzX6SOQSbsfAg==}
 
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
@@ -5825,6 +5821,8 @@ snapshots:
 
   async@3.2.5: {}
 
+  async@3.2.6: {}
+
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.0.0
@@ -6243,11 +6241,6 @@ snapshots:
     dependencies:
       ms: 2.1.2
 
-  decache@3.1.0:
-    dependencies:
-      find: 0.2.9
-    optional: true
-
   deep-is@0.1.4: {}
 
   deepmerge@4.3.1: {}
@@ -6662,11 +6655,6 @@ snapshots:
     dependencies:
       locate-path: 7.2.0
       path-exists: 5.0.0
-
-  find@0.2.9:
-    dependencies:
-      traverse-chain: 0.1.0
-    optional: true
 
   flat-cache@3.2.0:
     dependencies:
@@ -7810,17 +7798,15 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rollbar@2.26.4:
+  rollbar@2.26.5:
     dependencies:
-      async: 3.2.5
+      async: 3.2.6
       console-polyfill: 0.3.0
       error-stack-parser: 2.1.4
       json-stringify-safe: 5.0.1
       lru-cache: 2.2.4
       request-ip: 3.3.0
       source-map: 0.5.7
-    optionalDependencies:
-      decache: 3.1.0
 
   run-async@2.4.1: {}
 
@@ -8106,9 +8092,6 @@ snapshots:
   token-stream@1.0.0: {}
 
   tr46@0.0.3: {}
-
-  traverse-chain@0.1.0:
-    optional: true
 
   ts-node@10.9.2(@types/node@18.19.39)(typescript@4.9.5):
     dependencies:

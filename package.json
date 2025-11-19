@@ -50,7 +50,7 @@
 		"react-virtualized-auto-sizer": "^1.0.24",
 		"react-window": "^1.8.10",
 		"react-window-infinite-loader": "^1.0.9",
-		"rollbar": "^2.26.4",
+		"rollbar": "^2.26.5",
 		"type-fest": "^3.13.1",
 		"webextension-polyfill": "^0.10.0"
 	},
