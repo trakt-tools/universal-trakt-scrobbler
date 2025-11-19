@@ -88,8 +88,8 @@ importers:
         specifier: ^7.24.7
         version: 7.24.7(@babel/core@7.24.7)
       '@babel/runtime':
-        specifier: ^7.24.7
-        version: 7.24.7
+        specifier: ^7.26.10
+        version: 7.26.10
       '@octokit/rest':
         specifier: ^19.0.13
         version: 19.0.13
@@ -864,8 +864,8 @@ packages:
   '@babel/regjsgen@0.8.0':
     resolution: {integrity: sha512-x/rqGMdzj+fWZvCOYForTghzbtqPDZ5gPwaoNGHdgDfF2QA/XZbCBp4Moo5scrkAMPhB7z26XM/AaHuIJdgauA==}
 
-  '@babel/runtime@7.24.7':
-    resolution: {integrity: sha512-UwgBRMjJP+xv857DCngvqXI3Iq6J4v0wXmwc6sapg+zyhbwmQX67LUEFrkK5tbyJ30jGuG3ZvWpBiB9LCy1kWw==}
+  '@babel/runtime@7.26.10':
+    resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.24.7':
@@ -1057,6 +1057,7 @@ packages:
   '@mui/base@5.0.0-beta.40':
     resolution: {integrity: sha512-I/lGHztkCzvwlXpjD2+SNmvNQvB4227xBXhISPjEaJUXGImOQ9f3D2Yj/T3KasSI/h0MLWy74X0J6clhPmsRbQ==}
     engines: {node: '>=12.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
@@ -2266,6 +2267,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -4859,7 +4861,7 @@ snapshots:
 
   '@babel/regjsgen@0.8.0': {}
 
-  '@babel/runtime@7.24.7':
+  '@babel/runtime@7.26.10':
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -4919,7 +4921,7 @@ snapshots:
   '@emotion/babel-plugin@11.11.0':
     dependencies:
       '@babel/helper-module-imports': 7.24.7
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@emotion/hash': 0.9.1
       '@emotion/memoize': 0.8.1
       '@emotion/serialize': 1.1.4
@@ -4950,7 +4952,7 @@ snapshots:
 
   '@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@emotion/babel-plugin': 11.11.0
       '@emotion/cache': 11.11.0
       '@emotion/serialize': 1.1.4
@@ -4976,7 +4978,7 @@ snapshots:
 
   '@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@emotion/babel-plugin': 11.11.0
       '@emotion/is-prop-valid': 1.2.2
       '@emotion/react': 11.11.4(@types/react@17.0.80)(react@17.0.2)
@@ -5084,7 +5086,7 @@ snapshots:
 
   '@mui/base@5.0.0-beta.40(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@floating-ui/react-dom': 2.1.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@mui/types': 7.2.14(@types/react@17.0.80)
       '@mui/utils': 5.16.0(@types/react@17.0.80)(react@17.0.2)
@@ -5100,7 +5102,7 @@ snapshots:
 
   '@mui/icons-material@5.16.0(@mui/material@5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@mui/material': 5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       react: 17.0.2
     optionalDependencies:
@@ -5108,7 +5110,7 @@ snapshots:
 
   '@mui/material@5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@mui/base': 5.0.0-beta.40(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@mui/core-downloads-tracker': 5.16.0
       '@mui/system': 5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2)
@@ -5129,7 +5131,7 @@ snapshots:
 
   '@mui/private-theming@5.16.0(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@mui/utils': 5.16.0(@types/react@17.0.80)(react@17.0.2)
       prop-types: 15.8.1
       react: 17.0.2
@@ -5138,7 +5140,7 @@ snapshots:
 
   '@mui/styled-engine@5.15.14(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@emotion/cache': 11.11.0
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -5149,7 +5151,7 @@ snapshots:
 
   '@mui/system@5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@mui/private-theming': 5.16.0(@types/react@17.0.80)(react@17.0.2)
       '@mui/styled-engine': 5.15.14(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(react@17.0.2)
       '@mui/types': 7.2.14(@types/react@17.0.80)
@@ -5169,7 +5171,7 @@ snapshots:
 
   '@mui/utils@5.16.0(@types/react@17.0.80)(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@types/prop-types': 15.7.12
       prop-types: 15.8.1
       react: 17.0.2
@@ -5179,7 +5181,7 @@ snapshots:
 
   '@mui/x-date-pickers@5.0.20(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@mui/material@5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(@mui/system@5.16.0(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(react@17.0.2))(@types/react@17.0.80)(date-fns@2.30.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       '@date-io/core': 2.17.0
       '@date-io/date-fns': 2.17.0(date-fns@2.30.0)
       '@date-io/dayjs': 2.17.0
@@ -5852,7 +5854,7 @@ snapshots:
 
   babel-plugin-macros@3.1.0:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       cosmiconfig: 7.1.0
       resolve: 1.22.8
 
@@ -6233,7 +6235,7 @@ snapshots:
 
   date-fns@2.30.0:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
 
   debug@4.3.4:
     dependencies:
@@ -6292,7 +6294,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       csstype: 3.1.3
 
   dom-serializer@1.4.1:
@@ -6794,7 +6796,7 @@ snapshots:
 
   history@4.10.1:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -7625,7 +7627,7 @@ snapshots:
 
   react-router-dom@5.3.4(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       history: 4.10.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -7636,7 +7638,7 @@ snapshots:
 
   react-router@5.3.4(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -7649,7 +7651,7 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -7668,7 +7670,7 @@ snapshots:
 
   react-window@1.8.10(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
       memoize-one: 5.2.1
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
@@ -7728,7 +7730,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.10
 
   regexp.prototype.flags@1.5.2:
     dependencies:
