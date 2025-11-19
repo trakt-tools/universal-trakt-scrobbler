@@ -62,7 +62,7 @@
 		"@babel/preset-env": "^7.24.7",
 		"@babel/preset-react": "^7.24.7",
 		"@babel/preset-typescript": "^7.24.7",
-		"@babel/runtime": "^7.24.7",
+		"@babel/runtime": "^7.26.10",
 		"@octokit/rest": "^19.0.13",
 		"@trakt-tools/cli": "^0.3.3",
 		"@types/archiver": "^5.3.4",
