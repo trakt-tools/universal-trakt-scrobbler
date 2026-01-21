@@ -166,45 +166,48 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 			path: path.resolve(BASE_PATH, 'build', 'output'),
 			clean: true,
 		},
-		plugins: [
-			new plugins.progress(),
-			new plugins.html({
-				template: './src/templates/main.pug',
-				templateParameters: {
-					title: 'Universal Trakt Scrobbler - Popup',
-					script: 'popup.js',
-				},
-				filename: 'popup.html',
-				inject: false,
-			}),
-			new plugins.html({
-				template: './src/templates/main.pug',
-				templateParameters: {
-					title: 'Universal Trakt Scrobbler - History',
-					script: 'history.js',
-				},
-				filename: 'history.html',
-				inject: false,
-			}),
-			new plugins.html({
-				template: './src/templates/main.pug',
-				templateParameters: {
-					title: 'Universal Trakt Scrobbler - Options',
-					script: 'options.js',
-				},
-				filename: 'options.html',
-				inject: false,
-			}),
-			new plugins.circularDependency({
-				exclude: /node_modules/,
-				include: /src/,
-				failOnError: true,
-			}),
-			new plugins.dotenv({
-				systemvars: true,
-			}),
-			...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env))]),
-		],
+		plugins: (() => {
+			const titlePrefix = env.production ? '' : '[dev] ';
+			return [
+				new plugins.progress(),
+				new plugins.html({
+					template: './src/templates/main.pug',
+					templateParameters: {
+						title: `${titlePrefix}Universal Trakt Scrobbler - Popup`,
+						script: 'popup.js',
+					},
+					filename: 'popup.html',
+					inject: false,
+				}),
+				new plugins.html({
+					template: './src/templates/main.pug',
+					templateParameters: {
+						title: `${titlePrefix}Universal Trakt Scrobbler - History`,
+						script: 'history.js',
+					},
+					filename: 'history.html',
+					inject: false,
+				}),
+				new plugins.html({
+					template: './src/templates/main.pug',
+					templateParameters: {
+						title: `${titlePrefix}Universal Trakt Scrobbler - Options`,
+						script: 'options.js',
+					},
+					filename: 'options.html',
+					inject: false,
+				}),
+				new plugins.circularDependency({
+					exclude: /node_modules/,
+					include: /src/,
+					failOnError: true,
+				}),
+				new plugins.dotenv({
+					systemvars: true,
+				}),
+				...(env.test ? [] : [new plugins.runAfterBuild(() => runFinalSteps(env))]),
+			];
+		})(),
 		resolve: {
 			extensions: ['.js', '.ts', '.tsx', '.json'],
 			plugins: [new plugins.tsConfigPaths()],
@@ -218,9 +221,9 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 	};
 };
 
-const getManifest = (browserName: string): string => {
+const getManifest = (browserName: string, isDev: boolean): string => {
 	const manifest: Partial<WebExtManifest.WebExtensionManifest> & { key?: string } = {
-		name: 'Universal Trakt Scrobbler',
+		name: isDev ? '[dev] Universal Trakt Scrobbler' : 'Universal Trakt Scrobbler',
 		version: packageJson.version,
 		description: '__MSG_appDescription__',
 		icons: {
@@ -261,7 +264,7 @@ const getManifest = (browserName: string): string => {
 					38: 'images/uts-icon-38.png',
 				},
 				default_popup: 'popup.html',
-				default_title: 'Universal Trakt Scrobbler',
+				default_title: isDev ? '[dev] Universal Trakt Scrobbler' : 'Universal Trakt Scrobbler',
 			};
 			if (process.env.CHROME_EXTENSION_KEY) {
 				manifest.key = process.env.CHROME_EXTENSION_KEY;
@@ -300,7 +303,7 @@ const getManifest = (browserName: string): string => {
 					38: 'images/uts-icon-38.png',
 				},
 				default_popup: 'popup.html',
-				default_title: 'Universal Trakt Scrobbler',
+				default_title: isDev ? '[dev] Universal Trakt Scrobbler' : 'Universal Trakt Scrobbler',
 			};
 			// Uncomment this to connect to react-devtools
 			// manifest.content_security_policy =
@@ -324,7 +327,7 @@ const runFinalSteps = async (env: Environment) => {
 	const browsers = ['chrome', 'firefox'];
 	for (const browser of browsers) {
 		fs.copySync('./build/output', `./build/${browser}`);
-		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(browser));
+		fs.writeFileSync(`./build/${browser}/manifest.json`, getManifest(browser, !env.production));
 
 		if (env.production) {
 			const distPath = path.resolve(BASE_PATH, 'dist');
