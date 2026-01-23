@@ -5,7 +5,7 @@ import { HistoryInfo } from '@components/HistoryInfo';
 import { useHistory } from '@contexts/HistoryContext';
 import { getServices, Service } from '@models/Service';
 import { Divider, List, ListItemButton, ListItemText, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 export const HomePage = (): JSX.Element => {
 	const history = useHistory();
@@ -50,12 +50,12 @@ export const HomePage = (): JSX.Element => {
 					<Typography variant="h6">{I18N.translate('selectService')}</Typography>
 					<List>
 						{services.map((service, index) => (
-							<>
-								<ListItemButton key={service.id} onClick={() => onRouteClick(service.path)}>
+							<Fragment key={service.id}>
+								<ListItemButton onClick={() => onRouteClick(service.path)}>
 									<ListItemText primary={service.name} />
 								</ListItemButton>
 								{index < services.length - 1 && <Divider />}
-							</>
+							</Fragment>
 						))}
 					</List>
 				</>
