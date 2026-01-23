@@ -7,7 +7,7 @@ import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
 import { HistoryApp } from '@history/HistoryApp';
 import { GlobalStyles } from '@mui/material';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 Shared.pageType = 'popup';
 
@@ -19,30 +19,32 @@ const init = async () => {
 	EventDispatcher.init();
 	RequestsManager.init();
 	Messaging.init();
-	const root = document.querySelector('#root');
-	ReactDOM.render(
-		<AppWrapper usesHistory={true} usesSession={true}>
-			<GlobalStyles
-				styles={{
-					html: {
-						height: '100%',
-					},
+	const container = document.querySelector('#root');
+	if (container) {
+		const root = createRoot(container);
+		root.render(
+			<AppWrapper usesSession={true} usesRouting={true}>
+				<GlobalStyles
+					styles={{
+						html: {
+							height: '100%',
+						},
 
-					body: {
-						height: '100%',
-					},
+						body: {
+							height: '100%',
+						},
 
-					'#root': {
-						display: 'flex',
-						flexDirection: 'column',
-						height: '100%',
-					},
-				}}
-			/>
-			<HistoryApp />
-		</AppWrapper>,
-		root
-	);
+						'#root': {
+							display: 'flex',
+							flexDirection: 'column',
+							height: '100%',
+						},
+					}}
+				/>
+				<HistoryApp />
+			</AppWrapper>
+		);
+	}
 };
 
 Messaging.addHandlers({});

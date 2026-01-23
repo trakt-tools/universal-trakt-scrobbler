@@ -24,8 +24,8 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import { ChangeEvent, CSSProperties, useEffect, useState } from 'react';
+import { List as VirtualList } from 'react-window';
 
 interface CorrectionDialogState {
 	isOpen: boolean;
@@ -48,10 +48,11 @@ interface CorrectionItemProps {
 
 const SuggestionListItem = ({
 	index,
-	data,
+	suggestions,
+	onCorrectButtonClick,
 	style,
-}: ListChildComponentProps<SuggestionListItemData>): JSX.Element => {
-	const suggestion = data.suggestions[index];
+}: SuggestionListItemData & { index: number; style: CSSProperties }): JSX.Element => {
+	const suggestion = suggestions[index];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
 			<ListItemText
@@ -63,7 +64,7 @@ const SuggestionListItem = ({
 				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 			/>
 			<ListItemSecondaryAction>
-				<Button variant="contained" onClick={() => data.onCorrectButtonClick(suggestion)}>
+				<Button variant="contained" onClick={() => onCorrectButtonClick(suggestion)}>
 					{I18N.translate('use')}
 				</Button>
 			</ListItemSecondaryAction>
@@ -347,18 +348,16 @@ export const CorrectionDialog = (): JSX.Element => {
 								>
 									{I18N.translate('suggestions')}:
 								</DialogContentText>
-								<FixedSizeList
-									height={72 * 3} // Show a maximum of 3 items at all times
-									itemCount={dialog.item.suggestions.length}
-									itemData={{
+								<VirtualList
+									rowCount={dialog.item.suggestions.length}
+									rowProps={{
 										suggestions: dialog.item.suggestions,
 										onCorrectButtonClick,
 									}}
-									itemSize={72}
-									width="100%"
-								>
-									{SuggestionListItem}
-								</FixedSizeList>
+									rowHeight={72}
+									rowComponent={SuggestionListItem as never}
+									style={{ width: '100%', height: 72 * 3 }}
+								/>
 								<Divider />
 							</>
 						)}

@@ -28,8 +28,7 @@ const _ServiceOptionRow = ({
 }: ServiceOptionRowProps): JSX.Element => {
 	return (
 		<Grid
-			item
-			xs={12}
+			size={12}
 			sx={{
 				overflow: 'hidden',
 			}}

@@ -9,25 +9,20 @@ import { getService } from '@models/Service';
 import { Sync as SyncIcon } from '@mui/icons-material';
 import { Box, Button, Checkbox, Tooltip, Typography } from '@mui/material';
 import { green, grey, red } from '@mui/material/colors';
-import { ChangeEvent, memo, useEffect, useState } from 'react';
-import { areEqual, ListChildComponentProps } from 'react-window';
+import { ChangeEvent, CSSProperties, memo, useEffect, useState } from 'react';
 
 export interface HistoryListItemProps {
 	onContinueLoadingClick: () => Promise<void>;
 }
 
 const _HistoryListItem = ({
-	data,
-	index,
+	onContinueLoadingClick,
+	index: rawIndex,
 	style,
-}: ListChildComponentProps<HistoryListItemProps>): JSX.Element => {
+}: HistoryListItemProps & { index: number; style: CSSProperties }): JSX.Element | null => {
 	const { serviceId, store } = useSync();
 
-	const { onContinueLoadingClick } = data;
-
-	if (!serviceId) {
-		index -= 1;
-	}
+	const index = serviceId ? rawIndex : rawIndex - 1;
 	const [item, setItem] = useState<ScrobbleItem | null | undefined>(
 		store.data.items[index] ?? undefined
 	);
@@ -99,15 +94,20 @@ const _HistoryListItem = ({
 		return <></>;
 	}
 
+	// Combine react-window's translateY with our translateX
+	const combinedStyle = {
+		...style,
+		left: '50%',
+		width: 'auto',
+		transform: `${style.transform || ''} translateX(-50%)`.trim(),
+	};
+
 	return (
 		<Box
-			style={style}
+			style={combinedStyle}
 			sx={{
-				left: '50% !important',
 				display: 'flex',
 				justifyContent: 'end',
-				width: 'auto !important',
-				transform: 'translateX(-50%)',
 
 				'& > *': {
 					marginY: 0,
@@ -187,4 +187,4 @@ const _HistoryListItem = ({
 	);
 };
 
-export const HistoryListItem = memo(_HistoryListItem, areEqual);
+export const HistoryListItem = memo(_HistoryListItem);

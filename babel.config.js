@@ -1,16 +1,4 @@
 module.exports = {
-	env: {
-		production: {
-			presets: [
-				[
-					'minify',
-					{
-						builtIns: false,
-					},
-				],
-			],
-		},
-	},
 	plugins: [
 		[
 			'@babel/plugin-transform-runtime',

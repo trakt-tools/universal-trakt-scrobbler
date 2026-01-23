@@ -8,7 +8,7 @@ interface ServiceNameOptionProps {
 
 const _ServiceNameOption = ({ service }: ServiceNameOptionProps): JSX.Element => {
 	return (
-		<Grid item xs={3}>
+		<Grid size={3}>
 			<Typography>{service.name}</Typography>
 		</Grid>
 	);

@@ -5,7 +5,7 @@ import { Messaging } from '@common/Messaging';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
 import { OptionsApp } from '@options/OptionsApp';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 Shared.pageType = 'popup';
 
@@ -16,13 +16,15 @@ const init = async () => {
 	Errors.init();
 	EventDispatcher.init();
 	Messaging.init();
-	const root = document.querySelector('#root');
-	ReactDOM.render(
-		<AppWrapper usesHistory={false} usesSession={false}>
-			<OptionsApp />
-		</AppWrapper>,
-		root
-	);
+	const container = document.querySelector('#root');
+	if (container) {
+		const root = createRoot(container);
+		root.render(
+			<AppWrapper usesSession={false} usesRouting={false}>
+				<OptionsApp />
+			</AppWrapper>
+		);
+	}
 };
 
 Messaging.addHandlers({});

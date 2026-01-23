@@ -18,7 +18,7 @@ const _ServiceScrobbleOption = ({
 	handleChange,
 }: ServiceScrobbleOptionProps): JSX.Element => {
 	return (
-		<CenteredGrid item xs={1}>
+		<CenteredGrid size={1}>
 			{service.hasScrobbler ? (
 				<SwitchOption
 					id="scrobble"

@@ -65,23 +65,22 @@ export const ServiceOptions = ({ option }: ServiceOptionsProps): JSX.Element => 
 			<ListItem>
 				<Grid container spacing={2}>
 					<Grid
-						item
-						xs={12}
+						size={12}
 						sx={{
 							overflow: 'hidden',
 						}}
 					>
 						<CenteredGrid container spacing={10}>
-							<Grid item xs={3}>
+							<Grid size={3}>
 								<Typography variant="caption">{I18N.translate('service')}</Typography>
 							</Grid>
-							<CenteredGrid item xs={1}>
+							<CenteredGrid size={1}>
 								<Typography variant="caption">{I18N.translate('serviceScrobble')}</Typography>
 							</CenteredGrid>
-							<CenteredGrid item xs={1}>
+							<CenteredGrid size={1}>
 								<Typography variant="caption">{I18N.translate('serviceSync')}</Typography>
 							</CenteredGrid>
-							<CenteredGrid item xs={2}>
+							<CenteredGrid size={2}>
 								<Typography variant="caption">{I18N.translate('autoSync')}</Typography>
 							</CenteredGrid>
 						</CenteredGrid>

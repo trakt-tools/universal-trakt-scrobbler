@@ -15,7 +15,6 @@ import {
 	FormControlLabel,
 	Radio,
 	RadioGroup,
-	TextField,
 } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -26,7 +25,7 @@ interface MissingWatchedDateDialogState {
 	isLoading: boolean;
 	items: ScrobbleItem[];
 	dateType: MissingWatchedDateType | null;
-	date: number | null;
+	date: Date | null;
 	dateError: ReactNode | null;
 }
 
@@ -57,14 +56,14 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 		}));
 	};
 
-	const onDateChange = (date: number | null): void => {
+	const onDateChange = (date: Date | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
 		}));
 	};
 
-	const onDateAccept = (date: number | null): void => {
+	const onDateAccept = (date: Date | null): void => {
 		setDialog((prevDialog) => ({
 			...prevDialog,
 			date,
@@ -114,7 +113,7 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 					if (!dialog.date || !!dialog.dateError) {
 						throw new Error('Missing date or invalid date');
 					}
-					const customDate = Utils.unix(dialog.date);
+					const customDate = Utils.unix(dialog.date.getTime());
 					for (const item of newItems) {
 						item.watchedAt = customDate;
 					}
@@ -232,18 +231,17 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 							<LocalizationProvider dateAdapter={AdapterDateFns}>
 								<DateTimePicker
 									value={dialog.date}
-									inputFormat="yyyy/MM/dd HH:mm"
-									maxDateTime={Date.now()}
+									format="yyyy/MM/dd HH:mm"
+									maxDateTime={new Date()}
 									onChange={onDateChange}
 									onAccept={onDateAccept}
 									onError={onDateError}
-									renderInput={(props) => (
-										<TextField
-											label={dialog.dateError ? invalidDateLabel : dateLabel}
-											error={!!dialog.dateError}
-											{...props}
-										/>
-									)}
+									slotProps={{
+										textField: {
+											label: dialog.dateError ? invalidDateLabel : dateLabel,
+											error: !!dialog.dateError,
+										},
+									}}
 								/>
 							</LocalizationProvider>
 						)}

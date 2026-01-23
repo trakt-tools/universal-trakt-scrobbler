@@ -9,16 +9,16 @@ import {
 	StorageOptionsChangeData,
 } from '@common/Events';
 import { Shared } from '@common/Shared';
-import { HistoryListItem, HistoryListItemProps } from '@components/HistoryListItem';
+import { HistoryListItem } from '@components/HistoryListItem';
 import { useHistory } from '@contexts/HistoryContext';
 import { useSync } from '@contexts/SyncContext';
 import { createScrobbleItem, ScrobbleItem } from '@models/Item';
 import { Box } from '@mui/material';
 import { SyncStore } from '@stores/SyncStore';
-import { RefCallback, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import { VariableSizeList } from 'react-window';
-import InfiniteLoader from 'react-window-infinite-loader';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AutoSizer } from 'react-virtualized-auto-sizer';
+import { List, ListImperativeAPI } from 'react-window';
+import { useInfiniteLoader } from 'react-window-infinite-loader';
 
 export type LastSyncValues = Record<string, LastSyncValue>;
 
@@ -47,7 +47,7 @@ export const HistoryList = (): JSX.Element => {
 	const [itemCount, setItemCount] = useState(calculateItemCount(serviceId, store));
 	const [continueLoading, setContinueLoading] = useState(false);
 
-	const listRef = useRef<VariableSizeList<HistoryListItemProps> | null>(null);
+	const listRef = useRef<ListImperativeAPI | null>(null);
 	if (service && !lastSyncValues[service.id]) {
 		const serviceOptions = Shared.storage.options.services[service.id];
 		lastSyncValues[service.id] =
@@ -102,6 +102,7 @@ export const HistoryList = (): JSX.Element => {
 		}
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const loadMoreItems = async (startIndex: number, stopIndex: number) => {
 		if (!serviceId || !service || !api) {
 			return;
@@ -217,9 +218,6 @@ export const HistoryList = (): JSX.Element => {
 		}
 		if (itemsToUpdate.length > 0 && index > -1) {
 			await store.update(itemsToUpdate, true);
-			if (listRef.current) {
-				listRef.current.resetAfterIndex(index);
-			}
 		}
 		return newItems;
 	};
@@ -359,15 +357,18 @@ export const HistoryList = (): JSX.Element => {
 				let newItems = await startLoading(store.data.items);
 				newItems = await loadData(newItems);
 				await stopLoading(newItems);
-
-				if (listRef.current) {
-					listRef.current.resetAfterIndex(-1);
-				}
 			}
 		};
 
 		void checkLoad();
 	}, []);
+
+	const onRowsRendered = useInfiniteLoader({
+		isRowLoaded: isItemLoaded,
+		loadMoreRows: loadMoreItems,
+		rowCount: itemCount,
+		threshold: 1,
+	});
 
 	return (
 		<Box
@@ -380,42 +381,24 @@ export const HistoryList = (): JSX.Element => {
 			}}
 		>
 			<AutoSizer
-				disableWidth
 				style={{
 					width: '100%',
 				}}
-			>
-				{({ height }: { height: number }) => (
-					<InfiniteLoader
-						isItemLoaded={isItemLoaded}
-						itemCount={itemCount}
-						loadMoreItems={loadMoreItems}
-						threshold={1}
-					>
-						{({ onItemsRendered, ref }) => (
-							<VariableSizeList
-								height={height}
-								itemCount={itemCount}
-								itemSize={itemSize}
-								itemData={itemData}
-								onItemsRendered={onItemsRendered}
-								overscanCount={3}
-								ref={(list) => {
-									const infiniteLoaderRef = ref as RefCallback<
-										VariableSizeList<HistoryListItemProps>
-									>;
-									infiniteLoaderRef(list);
-
-									listRef.current = list;
-								}}
-								width="100%"
-							>
-								{HistoryListItem}
-							</VariableSizeList>
-						)}
-					</InfiniteLoader>
-				)}
-			</AutoSizer>
+				renderProp={({ height }: { height: number | undefined }) =>
+					height ? (
+						<List
+							rowCount={itemCount}
+							rowHeight={itemSize}
+							rowProps={itemData}
+							onRowsRendered={onRowsRendered}
+							overscanCount={3}
+							listRef={listRef}
+							rowComponent={HistoryListItem as never}
+							style={{ width: '100%', height }}
+						/>
+					) : null
+				}
+			/>
 		</Box>
 	);
 };

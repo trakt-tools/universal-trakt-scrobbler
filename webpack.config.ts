@@ -222,7 +222,10 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 };
 
 const getManifest = (browserName: string, isDev: boolean): string => {
-	const manifest: Partial<WebExtManifest.WebExtensionManifest> & { key?: string } = {
+	const manifest: Partial<WebExtManifest.WebExtensionManifest> & {
+		key?: string;
+		optional_host_permissions?: string[];
+	} = {
 		name: isDev ? '[dev] Universal Trakt Scrobbler' : 'Universal Trakt Scrobbler',
 		version: packageJson.version,
 		description: '__MSG_appDescription__',
@@ -245,7 +248,6 @@ const getManifest = (browserName: string, isDev: boolean): string => {
 				service_worker: 'background.js',
 			};
 			manifest.optional_permissions = ['notifications'];
-			// @ts-expect-error This is a newer key, so it's missing from the types.
 			manifest.optional_host_permissions = [
 				'*://api.rollbar.com/*',
 				...Object.values(services)
