@@ -693,7 +693,7 @@ class _BrowserStorage {
 
 			for (let i = 0; i < numChunks; i++) {
 				const chunkKey = this.getChunkKey(actualKey, i);
-				stringifiedValue += values[chunkKey];
+				stringifiedValue += values[chunkKey] as string;
 			}
 
 			newValues[actualKey] = JSON.parse(stringifiedValue);

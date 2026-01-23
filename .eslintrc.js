@@ -83,6 +83,13 @@ const getTsOverride = () => {
 	tsOverride.rules['no-shadow'] = 'off';
 	tsOverride.rules['prefer-arrow/prefer-arrow-functions'] = 'error';
 	tsOverride.rules['@typescript-eslint/no-empty-interface'] = 'warn';
+	tsOverride.rules['@typescript-eslint/no-unused-vars'] = [
+		'error',
+		{
+			argsIgnorePattern: '^_',
+			varsIgnorePattern: '^_',
+		},
+	];
 
 	return tsOverride;
 };

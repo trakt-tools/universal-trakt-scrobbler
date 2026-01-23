@@ -107,7 +107,7 @@ class _MubiApi extends ServiceApi {
 		item.progress = 100;
 	}
 
-	isNewHistoryItem(historyItem: MubiHistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: MubiHistoryItem, lastSync: number, _lastSyncId: string) {
 		const watchedAt = Utils.unix(historyItem.watched_at);
 		return watchedAt > lastSync;
 	}
