@@ -1,12 +1,44 @@
 import { DisneyplusApi } from '@/disneyplus/DisneyplusApi';
-import { ScrobbleParser } from '@common/ScrobbleParser';
+import { ScrobbleParser, ScrobblePlayback } from '@common/ScrobbleParser';
 import { EpisodeItem, MovieItem } from '@models/Item';
 
 class _DisneyplusParser extends ScrobbleParser {
 	constructor() {
 		super(DisneyplusApi, {
-			watchingUrlRegex: /\/video\/(?<id>.+)/, // https://www.disneyplus.com/nl-nl/video/f3f11053-d810-4b92-9c95-567bef5f215d => f3f11053-d810-4b92-9c95-567bef5f215d
+			watchingUrlRegex: /\/play\/(?<id>.+)/, // https://www.disneyplus.com/nl-nl/play/f3f11053-d810-4b92-9c95-567bef5f215d => f3f11053-d810-4b92-9c95-567bef5f215d
 		});
+	}
+
+	parsePlaybackFromDom(): Partial<ScrobblePlayback> | null {
+		const progressBarElement = document.querySelector('progress-bar');
+		if (!progressBarElement || !progressBarElement.shadowRoot) {
+			return null;
+		}
+
+		const progressWithInfo = progressBarElement.shadowRoot.querySelector('div.progress-bar__thumb');
+		if (!progressWithInfo) {
+			return null;
+		}
+
+		let paused = false;
+		const togglePause = document.querySelector('toggle-play-pause');
+		if (togglePause) {
+			const button = togglePause.shadowRoot?.querySelector('button');
+			// If there is button with class pause-button control == playing
+			if (button) {
+				if (button.className.includes('play-button')) {
+					paused = true;
+				} else if (button.className.includes('pause-button')) {
+					paused = false;
+				}
+			}
+		}
+
+		return {
+			progress:
+				(Number(progressWithInfo.ariaValueNow) / Number(progressWithInfo.ariaValueMax)) * 100.0,
+			isPaused: paused,
+		};
 	}
 
 	parseItemFromDom() {
