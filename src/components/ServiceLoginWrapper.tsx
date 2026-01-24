@@ -35,8 +35,8 @@ export const ServiceLoginWrapper = ({ children }: ServiceLoginWrapperProps): JSX
 							{I18N.translate('notLoggedInDescription')}
 							<br />
 							<br />
-							<Link href={service.homePage} target="_blank" rel="noopener">
-								{service.homePage}
+							<Link href={service.loginPage} target="_blank" rel="noopener">
+								{service.loginPage}
 							</Link>
 						</>
 					),

@@ -7,6 +7,8 @@ export interface ServiceValues {
 	hasSync: boolean;
 	hasAutoSync: boolean;
 	limitations?: string[];
+	/** Page that requires login for sync functionality. Falls back to homePage if not set. */
+	loginPage?: string;
 }
 
 const services = new Map<string, Service>();
@@ -36,6 +38,7 @@ export class Service implements ServiceValues {
 	readonly hasSync: boolean;
 	readonly hasAutoSync: boolean;
 	readonly limitations: string[];
+	readonly loginPage: string;
 
 	constructor(values: ServiceValues) {
 		this.id = values.id;
@@ -46,6 +49,7 @@ export class Service implements ServiceValues {
 		this.hasSync = values.hasSync;
 		this.hasAutoSync = values.hasAutoSync;
 		this.limitations = values.limitations ?? [];
+		this.loginPage = values.loginPage ?? values.homePage;
 
 		registerService(this.id, this);
 	}
