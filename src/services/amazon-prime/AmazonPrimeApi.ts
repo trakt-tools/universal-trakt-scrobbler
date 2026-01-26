@@ -221,7 +221,20 @@ class _AmazonPrimeApi extends ServiceApi {
 		if (!this.isActivated) {
 			await this.activate();
 		}
-		return !!this.session && !!this.session.profileName;
+		if (!this.session || !this.session.profileName) {
+			return false;
+		}
+		// Verify session is fresh enough for history access
+		// getProfiles can succeed with a stale session, but history API requires fresher auth
+		try {
+			await this.requests.send({
+				url: Utils.replace(this.HISTORY_URL, { args: '' }),
+				method: 'GET',
+			});
+			return true;
+		} catch {
+			return false;
+		}
 	}
 
 	async loadHistoryItems(cancelKey = 'default') {
