@@ -7,7 +7,7 @@ class _StremioApi extends ServiceApi {
 		super(StremioService.id);
 	}
 
-	getItem(id: string): Promise<MovieItem | EpisodeItem | null> {
+	getItem(_id: string): Promise<MovieItem | EpisodeItem | null> {
 		return Promise.resolve(null);
 	}
 }
