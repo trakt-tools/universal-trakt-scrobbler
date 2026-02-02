@@ -26,7 +26,7 @@ export const _ServiceAutoSyncOptions = ({
 	handleChange,
 }: ServiceAutoSyncOptionsProps): JSX.Element => {
 	return (
-		<CenteredGrid item xs={2}>
+		<CenteredGrid size={2}>
 			{service.hasSync && service.hasAutoSync ? (
 				<>
 					<ServiceAutoSyncOption sync={sync} autoSync={autoSync} handleChange={handleChange} />

@@ -6,7 +6,7 @@ import { RequestsManager } from '@common/RequestsManager';
 import { Shared } from '@common/Shared';
 import { AppWrapper } from '@components/AppWrapper';
 import { PopupApp } from '@popup/PopupApp';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 Shared.pageType = 'popup';
 
@@ -18,13 +18,15 @@ const init = async () => {
 	EventDispatcher.init();
 	RequestsManager.init();
 	Messaging.init();
-	const root = document.querySelector('#root');
-	ReactDOM.render(
-		<AppWrapper usesHistory={true} usesSession={true}>
-			<PopupApp />
-		</AppWrapper>,
-		root
-	);
+	const container = document.querySelector('#root');
+	if (container) {
+		const root = createRoot(container);
+		root.render(
+			<AppWrapper usesSession={true} usesRouting={true}>
+				<PopupApp />
+			</AppWrapper>
+		);
+	}
 };
 
 Messaging.addHandlers({});

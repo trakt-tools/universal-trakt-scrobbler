@@ -1,7 +1,7 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { TetPlusService } from '@/tet-plus/TetPlusService';
 import { Shared } from '@common/Shared';
-import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 import { Requests } from '@common/Requests';
 
 export interface TetPlusSingleMetadataItem {

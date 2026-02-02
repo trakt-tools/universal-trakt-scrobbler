@@ -1,5 +1,4 @@
 import { ServiceApi } from '@apis/ServiceApi';
-import { Item } from '@models/Item';
 import { HotstarService } from '@/hotstar/HotstarService';
 
 class _HotstarApi extends ServiceApi {

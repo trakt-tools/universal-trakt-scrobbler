@@ -24,7 +24,7 @@ const _ServiceSyncOption = ({
 	};
 
 	return (
-		<CenteredGrid item xs={1}>
+		<CenteredGrid size={1}>
 			{service.hasSync ? (
 				<>
 					<SwitchOption id="sync" value={sync} isDisabled={false} handleChange={handleChange} />

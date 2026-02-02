@@ -1,20 +1,26 @@
-import { createHashHistory } from 'history';
-import { createContext, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export interface HistoryProviderProps extends WithChildren {}
+export interface HistoryCompatible {
+	push: (path: string) => void;
+	replace: (path: string) => void;
+	location: {
+		pathname: string;
+		search: string;
+		hash: string;
+	};
+}
 
-const history = createHashHistory();
+export const useHistory = (): HistoryCompatible => {
+	const navigate = useNavigate();
+	const location = useLocation();
 
-export const HistoryContext = createContext(history);
-
-export const useHistory = (): typeof history => {
-	const historyContext = useContext(HistoryContext);
-	if (typeof historyContext === 'undefined') {
-		throw new Error('useHistory() must be called from <HistoryProvider/>');
-	}
-	return historyContext;
-};
-
-export const HistoryProvider = ({ children }: HistoryProviderProps): JSX.Element => {
-	return <HistoryContext.Provider value={history}>{children}</HistoryContext.Provider>;
+	return {
+		push: (path: string) => void navigate(path),
+		replace: (path: string) => void navigate(path, { replace: true }),
+		location: {
+			pathname: location.pathname,
+			search: location.search,
+			hash: location.hash,
+		},
+	};
 };

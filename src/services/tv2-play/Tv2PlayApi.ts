@@ -197,7 +197,7 @@ class _Tv2PlayApi extends ServiceApi {
 		return historyItems;
 	}
 
-	isNewHistoryItem(historyItem: Tv2PlayHistoryItem, lastSync: number, lastSyncId: string) {
+	isNewHistoryItem(historyItem: Tv2PlayHistoryItem, lastSync: number, _lastSyncId: string) {
 		return new Date(historyItem.date).getTime() > lastSync;
 	}
 

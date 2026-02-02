@@ -320,11 +320,11 @@ class _NetflixApi extends ServiceApi {
 		paths.push(
 			...Array.from(
 				new Set(
-					(
-						historyItems.filter(
-							(historyItem) => 'series' in historyItem
-						) as NetflixHistoryEpisodeItem[]
-					).map((historyItem) => historyItem.series)
+					historyItems
+						.filter(
+							(historyItem): historyItem is NetflixHistoryEpisodeItem => 'series' in historyItem
+						)
+						.map((historyItem) => historyItem.series)
 				)
 			).map((seriesId) => `path=["videos",${seriesId},"seasonList","current","summary"]`)
 		);

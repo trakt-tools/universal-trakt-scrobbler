@@ -28,6 +28,12 @@ declare interface WithChildren {
 	children?: React.ReactNode;
 }
 
+// React 19 JSX namespace
+declare namespace JSX {
+	type Element = React.JSX.Element;
+	type IntrinsicElements = React.JSX.IntrinsicElements;
+}
+
 declare interface WithSx {
 	sx?: import('@mui/system').SxProps<import('@mui/material').Theme>;
 }

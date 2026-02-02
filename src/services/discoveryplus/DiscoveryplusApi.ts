@@ -174,7 +174,7 @@ class _DiscoveryplusApi extends ServiceApi {
 	}
 
 	/** Load all history items */
-	async loadHistoryItems(cancelKey = 'default'): Promise<DiscoveryplusHistoryItem[]> {
+	async loadHistoryItems(_cancelKey = 'default'): Promise<DiscoveryplusHistoryItem[]> {
 		if (!this.isActivated) await this.activate();
 		if (!this.session) throw new Error('Invalid API session');
 
