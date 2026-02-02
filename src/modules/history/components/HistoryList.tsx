@@ -130,7 +130,7 @@ export const HistoryList = (): JSX.Element => {
 			);
 			items = await checkHiddenSelected(items);
 			items = await loadData(items);
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 		await stopLoading(items);
@@ -295,7 +295,7 @@ export const HistoryList = (): JSX.Element => {
 					const oldItem = createScrobbleItem(data.oldItem);
 					await TraktSync.removeHistory(oldItem);
 				}
-			} catch (err) {
+			} catch (_err) {
 				// Do nothing
 			}
 			await store.update([newItem], true);

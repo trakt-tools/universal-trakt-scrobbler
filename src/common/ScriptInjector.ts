@@ -196,7 +196,7 @@ class _ScriptInjector {
 
 				const event = new CustomEvent(`uts-get-${id}`);
 				window.dispatchEvent(event);
-			} catch (err) {
+			} catch (_err) {
 				resolve(null);
 			}
 		});
@@ -280,7 +280,7 @@ class _ScriptInjector {
 				let value: T | null = null;
 				try {
 					value = fn(fnParams);
-				} catch (err) {
+				} catch (_err) {
 					// Do nothing
 				}
 

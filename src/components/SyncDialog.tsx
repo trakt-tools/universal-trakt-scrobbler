@@ -63,7 +63,7 @@ export const SyncDialog = (): JSX.Element => {
 					await Shared.storage.remove('syncCache');
 					await store.resetData();
 				}
-			} catch (err) {
+			} catch (_err) {
 				// Do nothing
 			}
 

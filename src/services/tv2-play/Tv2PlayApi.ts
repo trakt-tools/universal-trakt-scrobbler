@@ -510,7 +510,7 @@ Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Tv2PlaySession | 
 			accessToken: auth0Data.body.access_token,
 			refreshToken: auth0Data.body.refresh_token,
 		};
-	} catch (error) {
+	} catch (_error) {
 		return null;
 	}
 };

@@ -84,7 +84,7 @@ class _AmcPlusApi extends ServiceApi {
 			};
 
 			this.isActivated = true;
-		} catch (err) {
+		} catch (_err) {
 			this.session = null;
 		}
 	}
