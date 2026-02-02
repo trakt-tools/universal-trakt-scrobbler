@@ -79,7 +79,7 @@
 		"css-loader": "^6.11.0",
 		"dotenv": "^16.6.1",
 		"dotenv-webpack": "^8.1.1",
-		"eslint": "^8.57.1",
+		"eslint": "^9.26.0",
 		"eslint-config-prettier": "^8.10.2",
 		"eslint-plugin-mui": "^0.1.1",
 		"eslint-plugin-prefer-arrow": "^1.2.3",
