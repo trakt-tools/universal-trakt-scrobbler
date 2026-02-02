@@ -23,7 +23,7 @@ export const LeftRight = ({
 				...(centerVertically
 					? {
 							alignItems: 'center',
-					  }
+						}
 					: {}),
 				...sx,
 			}}
@@ -50,7 +50,7 @@ export const LeftRight = ({
 					...(center
 						? {
 								flex: 1,
-						  }
+							}
 						: {}),
 				}}
 			>

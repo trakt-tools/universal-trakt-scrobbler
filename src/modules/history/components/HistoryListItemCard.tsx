@@ -139,7 +139,7 @@ export const HistoryListItemCard = ({
 				...(hasImage
 					? {
 							color: '#fff',
-					  }
+						}
 					: {}),
 			}}
 		>

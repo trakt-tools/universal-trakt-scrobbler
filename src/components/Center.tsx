@@ -14,11 +14,11 @@ export const Center = ({ children, isHorizontal = true, sx = {} }: CenterProps):
 				...(isHorizontal
 					? {
 							height: 1,
-					  }
+						}
 					: {
 							flexDirection: 'column',
 							width: 1,
-					  }),
+						}),
 				...sx,
 			}}
 		>

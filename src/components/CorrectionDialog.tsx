@@ -332,9 +332,9 @@ export const CorrectionDialog = (): JSX.Element => {
 											dialog.item.type === 'episode'
 												? `S${dialog.item.season?.toString() ?? '0'} E${
 														dialog.item.number?.toString() ?? '0'
-												  }`
+													}`
 												: `(${dialog.item.year.toString()})`
-									  }`
+										}`
 									: I18N.translate('unknown')
 							)}
 						</DialogContentText>

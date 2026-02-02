@@ -100,7 +100,7 @@ export interface AmazonPrimeMetadataItem {
 					catalog: {
 						title: string;
 					};
-				}
+				},
 			];
 		};
 	};
@@ -115,7 +115,7 @@ export interface AmazonPrimeNextItemResponse {
 						items: {
 							itemList: [{ titleId: string }];
 						};
-					}
+					},
 				];
 			};
 		};

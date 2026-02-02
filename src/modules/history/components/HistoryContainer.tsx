@@ -21,7 +21,7 @@ export const HistoryContainer = ({
 							flex: 1,
 							flexDirection: 'column',
 							padding: 0,
-					  }
+						}
 					: {}),
 				...sx,
 			}}

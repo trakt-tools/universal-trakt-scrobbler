@@ -19,7 +19,7 @@ export const HistoryListItemDivider = ({
 				...(useDarkMode
 					? {
 							borderColor: 'rgba(255, 255, 255, 0.75)',
-					  }
+						}
 					: {}),
 				...sx,
 			}}

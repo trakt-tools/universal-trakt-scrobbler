@@ -73,7 +73,7 @@ const BaseTextFieldOption = <T extends string | number>({
 							max: maxValue,
 							min: minValue,
 							step,
-					  }
+						}
 					: {}
 			}
 			onChange={onChange}

@@ -193,17 +193,17 @@ export const MissingWatchedDateDialog = (): JSX.Element => {
 								? I18N.translate(
 										'missingWatchedDateDialogContentMultiple',
 										dialog.items.length.toString()
-								  )
+									)
 								: I18N.translate(
 										'missingWatchedDateDialogContent',
 										`${dialog.items[0].title} ${
 											dialog.items[0].type === 'episode'
 												? `S${dialog.items[0].season?.toString() ?? '0'} E${
 														dialog.items[0].number?.toString() ?? '0'
-												  }`
+													}`
 												: `(${dialog.items[0].year.toString()})`
 										}`
-								  )}
+									)}
 						</DialogContentText>
 						<RadioGroup
 							name="date-type"

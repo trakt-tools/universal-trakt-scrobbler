@@ -55,18 +55,18 @@ export const HistoryList = (): JSX.Element => {
 				? {
 						lastSync: serviceOptions.lastSync,
 						lastSyncId: serviceOptions.lastSyncId,
-				  }
+					}
 				: {
 						lastSync: 0,
 						lastSyncId: '',
-				  };
+					};
 	}
 	const lastSyncValue = serviceId
 		? lastSyncValues[serviceId]
 		: {
 				lastSync: 0,
 				lastSyncId: '',
-		  };
+			};
 
 	const startLoading = async (items: ScrobbleItem[]) => {
 		store.data.isLoading = true;

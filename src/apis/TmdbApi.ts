@@ -184,7 +184,7 @@ class _TmdbApi {
 									? {
 											season: item.trakt?.season,
 											episode: item.trakt?.number,
-									  }
+										}
 									: {}),
 							})),
 						},

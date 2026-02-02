@@ -13,7 +13,7 @@ export interface ViaplayGlobalObject {
 				{
 					id: string;
 					name: string | null;
-				}
+				},
 			];
 		};
 	};

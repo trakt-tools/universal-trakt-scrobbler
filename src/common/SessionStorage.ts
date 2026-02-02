@@ -9,7 +9,7 @@ class _SessionStorage {
 	instance =
 		Shared.manifestVersion === 3
 			? // @ts-expect-error `session` is a newer key, so it's missing from the types.
-			  (browser.storage.session as WebExtStorage.LocalStorageArea)
+				(browser.storage.session as WebExtStorage.LocalStorageArea)
 			: browser.storage.local;
 
 	async set(values: SessionStorageValues): Promise<void> {

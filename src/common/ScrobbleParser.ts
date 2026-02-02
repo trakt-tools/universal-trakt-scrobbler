@@ -165,7 +165,7 @@ export abstract class ScrobbleParser {
 					isPaused: this.videoPlayer.paused,
 					currentTime: this.videoPlayer.currentTime,
 					duration: this.videoPlayer.duration,
-			  }
+				}
 			: null;
 	}
 
