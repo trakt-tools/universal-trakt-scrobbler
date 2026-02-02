@@ -253,7 +253,7 @@ class _HboMaxApi extends ServiceApi {
 			);
 
 			this.isActivated = true;
-		} catch (err) {
+		} catch (_err) {
 			this.session = null;
 		}
 
@@ -281,7 +281,7 @@ class _HboMaxApi extends ServiceApi {
 					this.session.profileName = profile.name;
 				}
 			}
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 	}

@@ -171,18 +171,18 @@ export type OptionDetails<T, K extends keyof T = keyof T> =
 export type OptionDetailsByType<
 	T,
 	U extends OptionDetails<T, K>['type'],
-	K extends keyof T = keyof T
+	K extends keyof T = keyof T,
 > = U extends 'select'
 	? SelectOptionDetails<T, K>
 	: U extends 'switch'
-	? SwitchOptionDetails<T, K>
-	: U extends 'text'
-	? TextFieldOptionDetails<T, K>
-	: U extends 'number'
-	? NumericTextFieldOptionDetails<T, K>
-	: U extends 'custom'
-	? CustomOptionDetails<T, K>
-	: OptionDetails<T, K>;
+		? SwitchOptionDetails<T, K>
+		: U extends 'text'
+			? TextFieldOptionDetails<T, K>
+			: U extends 'number'
+				? NumericTextFieldOptionDetails<T, K>
+				: U extends 'custom'
+					? CustomOptionDetails<T, K>
+					: OptionDetails<T, K>;
 
 export type BaseOptionDetails<T, K extends keyof T> = {
 	id: K;
@@ -841,7 +841,7 @@ class _BrowserStorage {
 
 		for (const [id, value] of Object.entries(partialOptions) as [
 			keyof StorageValuesOptions,
-			PartialDeep<StorageValuesOptions>[keyof StorageValuesOptions]
+			PartialDeep<StorageValuesOptions>[keyof StorageValuesOptions],
 		][]) {
 			if (!value) {
 				continue;

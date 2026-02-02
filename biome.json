@@ -1,0 +1,46 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": { "includes": ["**", "!!**/dist"] },
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 100,
+		"attributePosition": "auto",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"expand": "auto",
+		"useEditorconfig": true,
+		"includes": ["**", "!node_modules/*", "!build/*", "!**/pnpm-lock.yaml"]
+	},
+	"linter": {
+		"enabled": true,
+		"rules": { "recommended": false },
+		"includes": ["**", "!build/*"]
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "es5",
+			"semicolons": "always",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	},
+	"html": { "formatter": { "indentScriptAndStyle": false, "selfCloseVoidElements": "always" } },
+	"overrides": [
+		{ "includes": ["**/*.{js,jsx}"], "linter": { "rules": {} } },
+		{
+			"includes": ["**/*.{ts,tsx}"],
+			"linter": { "rules": { "correctness": { "noUnusedVariables": "error" } } }
+		}
+	],
+	"assist": { "enabled": true, "actions": { "source": { "organizeImports": "off" } } }
+}

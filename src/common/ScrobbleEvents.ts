@@ -112,7 +112,7 @@ export class ScrobbleEvents {
 				} else if (!playback.isPaused && this.isPaused) {
 					await this.controller.startScrobble();
 				}
-			} catch (err) {
+			} catch (_err) {
 				// Do nothing
 			}
 			this.playbackStarted = true;

@@ -184,13 +184,13 @@ class _TmdbApi {
 									? {
 											season: item.trakt?.season,
 											episode: item.trakt?.number,
-									  }
+										}
 									: {}),
 							})),
 						},
 					});
 					json = JSON.parse(response) as ImagesDatabaseResponse;
-				} catch (err) {
+				} catch (_err) {
 					// Do nothing
 				}
 				for (const item of itemsToFetch) {
@@ -201,7 +201,7 @@ class _TmdbApi {
 					item.trakt.imageUrl = json?.result[databaseId] || (await this.findImage(item.trakt));
 				}
 			}
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 		// Set all undefined images to `null` so that we don't try to load them again

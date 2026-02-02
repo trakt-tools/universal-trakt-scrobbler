@@ -85,11 +85,11 @@ class _CorrectionApi {
 							return 0;
 						});
 					}
-				} catch (err) {
+				} catch (_err) {
 					// Do nothing
 				}
 			}
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 		// Set all undefined suggestions to `null` so that we don't try to load them again

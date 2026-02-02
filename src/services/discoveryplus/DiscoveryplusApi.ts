@@ -53,7 +53,8 @@ class _DiscoveryplusApi extends ServiceApi {
 
 	private API_URL = 'https://default.any-any.prd.api.discoveryplus.com';
 	private PROFILE_URL = `${this.API_URL}/users/me/profiles/selected`;
-	private ALLSHOWS_URL = `${this.API_URL}/cms/routes/my-stuff?include=default&decorators=viewingHistory,isFavorite,contentAction,badges&page[items.size]=100`;
+	private ALLSHOWS_URL =
+		`${this.API_URL}/cms/routes/my-stuff?include=default&decorators=viewingHistory,isFavorite,contentAction,badges&page[items.size]=100`;
 
 	constructor() {
 		super(DiscoveryplusService.id);

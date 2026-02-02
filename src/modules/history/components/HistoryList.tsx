@@ -55,18 +55,18 @@ export const HistoryList = (): JSX.Element => {
 				? {
 						lastSync: serviceOptions.lastSync,
 						lastSyncId: serviceOptions.lastSyncId,
-				  }
+					}
 				: {
 						lastSync: 0,
 						lastSyncId: '',
-				  };
+					};
 	}
 	const lastSyncValue = serviceId
 		? lastSyncValues[serviceId]
 		: {
 				lastSync: 0,
 				lastSyncId: '',
-		  };
+			};
 
 	const startLoading = async (items: ScrobbleItem[]) => {
 		store.data.isLoading = true;
@@ -130,7 +130,7 @@ export const HistoryList = (): JSX.Element => {
 			);
 			items = await checkHiddenSelected(items);
 			items = await loadData(items);
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 		await stopLoading(items);
@@ -295,7 +295,7 @@ export const HistoryList = (): JSX.Element => {
 					const oldItem = createScrobbleItem(data.oldItem);
 					await TraktSync.removeHistory(oldItem);
 				}
-			} catch (err) {
+			} catch (_err) {
 				// Do nothing
 			}
 			await store.update([newItem], true);

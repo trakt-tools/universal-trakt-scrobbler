@@ -72,7 +72,7 @@ class _TraktAuth extends TraktApi {
 				interactive: true,
 			});
 			return this.getToken(redirectUrl);
-		} catch (err) {
+		} catch (_err) {
 			this.isIdentityAvailable = false;
 			return new Promise<TraktAuthDetails>((resolve) => void this.startManualAuth(resolve));
 		}

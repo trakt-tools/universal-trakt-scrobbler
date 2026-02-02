@@ -54,7 +54,7 @@ class _TraktSettings extends TraktApi {
 			} else {
 				dateFormat += ', h:mm:ss aaa';
 			}
-		} catch (err) {
+		} catch (_err) {
 			dateFormat += 'd MMM yyyy, H:mm:ss';
 		}
 		return dateFormat;

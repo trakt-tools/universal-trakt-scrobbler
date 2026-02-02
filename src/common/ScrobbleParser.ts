@@ -100,7 +100,7 @@ export abstract class ScrobbleParser {
 		for (const [_name, method] of methods) {
 			try {
 				partialPlayback = await method();
-			} catch (err) {
+			} catch (_err) {
 				//console.log(`Failed to parse playback from ${_name}!`, err);
 			}
 			if (partialPlayback) {
@@ -165,7 +165,7 @@ export abstract class ScrobbleParser {
 					isPaused: this.videoPlayer.paused,
 					currentTime: this.videoPlayer.currentTime,
 					duration: this.videoPlayer.duration,
-			  }
+				}
 			: null;
 	}
 
@@ -209,7 +209,7 @@ export abstract class ScrobbleParser {
 		for (const [_name, method] of methods) {
 			try {
 				item = await method();
-			} catch (err) {
+			} catch (_err) {
 				//console.log(`Failed to parse item from ${_name}!`, err);
 			}
 			if (item) {
@@ -270,7 +270,7 @@ export abstract class ScrobbleParser {
 		for (const [_name, method] of methods) {
 			try {
 				id = await method();
-			} catch (err) {
+			} catch (_err) {
 				//console.log(`Failed to parse item ID from ${_name}!`, err);
 			}
 			if (id) {

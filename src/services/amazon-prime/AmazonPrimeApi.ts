@@ -100,7 +100,7 @@ export interface AmazonPrimeMetadataItem {
 					catalog: {
 						title: string;
 					};
-				}
+				},
 			];
 		};
 	};
@@ -115,7 +115,7 @@ export interface AmazonPrimeNextItemResponse {
 						items: {
 							itemList: [{ titleId: string }];
 						};
-					}
+					},
 				];
 			};
 		};
@@ -194,7 +194,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				profileName: null,
 			};
 			this.isActivated = true;
-		} catch (err) {
+		} catch (_err) {
 			this.session = null;
 		}
 
@@ -212,7 +212,7 @@ class _AmazonPrimeApi extends ServiceApi {
 			if (profile) {
 				this.session.profileName = profile.name;
 			}
-		} catch (err) {
+		} catch (_err) {
 			// Do nothing
 		}
 	}

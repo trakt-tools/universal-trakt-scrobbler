@@ -60,7 +60,7 @@ export const HomePage = (): JSX.Element => {
 							...data.item,
 							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
-					  })
+						})
 					: null,
 				isPaused: false,
 			}));
@@ -89,7 +89,7 @@ export const HomePage = (): JSX.Element => {
 							...data.item,
 							suggestions: prevContent.scrobblingItem?.suggestions,
 							imageUrl: prevContent.scrobblingItem?.imageUrl,
-					  })
+						})
 					: null,
 			}));
 		};
