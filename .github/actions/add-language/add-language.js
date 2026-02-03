@@ -1,11 +1,44 @@
 const { getInput, setFailed } = require('@actions/core');
 const { context, getOctokit } = require('@actions/github');
-const axios = require('axios');
 const packageJson = require('../../../package.json');
 
 const defaultParams = {
 	owner: packageJson.author,
 	repo: packageJson.name,
+};
+
+const CROWDIN_BASE_URL = 'https://api.crowdin.com/api/v2';
+
+/**
+ * @param {string} endpoint
+ * @param {object} [options]
+ * @returns {Promise<any>}
+ */
+const crowdinFetch = async (endpoint, options = {}) => {
+	const url = new URL(CROWDIN_BASE_URL + endpoint);
+	if (options.params) {
+		for (const [key, value] of Object.entries(options.params)) {
+			url.searchParams.set(key, String(value));
+		}
+	}
+
+	const response = await fetch(url, {
+		method: options.method || 'GET',
+		headers: {
+			Authorization: `Bearer ${getInput('crowdin-api-key')}`,
+			'Content-Type': 'application/json',
+		},
+		body: options.body ? JSON.stringify(options.body) : undefined,
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		const error = new Error(`Crowdin API error: ${response.status} ${response.statusText}`);
+		error.response = { data: errorData };
+		throw error;
+	}
+
+	return response.json();
 };
 
 /**
@@ -101,17 +134,14 @@ const languagesMappings = {
 };
 
 /**
- * @param {AxiosInstance} api
  * @param {string} query
- * @returns {Promise<CrowdinLanguage[]}
+ * @returns {Promise<CrowdinLanguage[]>}
  */
-const getLanguages = async (api, query) => {
-	const response = await api.get('/languages', {
-		params: {
-			limit: 500,
-		},
+const getLanguages = async (query) => {
+	const response = await crowdinFetch('/languages', {
+		params: { limit: 500 },
 	});
-	const languages = /** @type {CrowdinData<CrowdinData<CrowdinLanguage>[]>} */ (response.data);
+	const languages = /** @type {CrowdinData<CrowdinData<CrowdinLanguage>[]>} */ (response);
 
 	const languagesMatches = languages.data
 		.filter(
@@ -139,17 +169,11 @@ const addLanguage = async () => {
 		const octokit = getOctokit(getInput('trakt-tools-bot-token'), {
 			userAgent: 'universal-trakt-scrobbler',
 		});
-		const api = axios.create({
-			baseURL: 'https://api.crowdin.com/api/v2/',
-			headers: {
-				Authorization: `Bearer ${getInput('crowdin-api-key')}`,
-			},
-		});
 		const [, isExactMatch, query] = matches;
 
 		console.log(`Getting languages for query: ${query}`);
 
-		const languages = await getLanguages(api, query);
+		const languages = await getLanguages(query);
 
 		if (languages.length === 0) {
 			await octokit.rest.issues.createComment({
@@ -204,8 +228,8 @@ const addLanguage = async () => {
 		console.log('Getting project');
 
 		const projectUrl = `/projects/${getInput('crowdin-project-id')}`;
-		const projectResponse = await api.get(projectUrl);
-		const project = /** @type {CrowdinData<CrowdinProject>} */ (projectResponse.data);
+		const projectResponse = await crowdinFetch(projectUrl);
+		const project = /** @type {CrowdinData<CrowdinProject>} */ (projectResponse);
 
 		if (project.data.targetLanguageIds.includes(language.id)) {
 			console.log('Creating comment');
@@ -246,7 +270,7 @@ const addLanguage = async () => {
 			});
 		}
 
-		await api.patch(projectUrl, data);
+		await crowdinFetch(projectUrl, { method: 'PATCH', body: data });
 
 		console.log('Creating comment');
 
@@ -272,11 +296,7 @@ const main = async () => {
 	} catch (err) {
 		let message = err.message;
 
-		if (err.toJSON) {
-			message += ` ${JSON.stringify(err.toJSON())}`;
-		}
-
-		if (err.response) {
+		if (err.response?.data) {
 			message += ` ${JSON.stringify(err.response.data)}`;
 		}
 
