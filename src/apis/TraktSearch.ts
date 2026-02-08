@@ -177,6 +177,12 @@ class _TraktSearch extends TraktApi {
 			| TraktEpisodeItemEpisode
 			| TraktSearchMovieItemMovie;
 		if (Array.isArray(searchItem)) {
+			if (!searchItem[0]) {
+				throw new RequestError({
+					status: 404,
+					text: searchItemResponse,
+				});
+			}
 			return searchItem[0];
 		} else if ('season' in searchItem) {
 			const showUrl = url.replace(/\/seasons\/.*/, '');
@@ -290,8 +296,7 @@ class _TraktSearch extends TraktApi {
 		});
 		const response = JSON.parse(responseText) as TraktEpisodeItemEpisode | TraktSearchEpisodeItem[];
 		if (Array.isArray(response)) {
-			const episodeItems = response;
-			return this.findEpisodeByTitle(item, showItem, episodeItems);
+			return this.findEpisodeByTitle(item, showItem, response);
 		} else {
 			episodeItem = {
 				episode: response,
