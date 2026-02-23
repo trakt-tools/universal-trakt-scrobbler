@@ -6,6 +6,6 @@ export const KinoPubService = new Service({
 	homePage: 'https://kino.pub/',
 	hostPatterns: ['*://*.kino.pub/*'],
 	hasScrobbler: true,
-	hasSync: false,
+	hasSync: true,
 	hasAutoSync: false,
 });
