@@ -1,6 +1,8 @@
 import { ServiceApi } from '@apis/ServiceApi';
-import { Requests } from '@common/Requests';
+import { KinoPubAuthDetails } from '@common/BrowserStorage';
+import { Requests, withHeaders } from '@common/Requests';
 import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { KinoPubService } from '@/kino-pub/KinoPubService';
@@ -13,29 +15,71 @@ export interface KinoPubHistoryItem {
 	year?: number;
 	season?: number;
 	episode?: number;
+	episodeTitle?: string;
 	showTitle?: string;
 	watchedAt: number;
 }
 
-const RUSSIAN_MONTHS: Record<string, number> = {
-	января: 0,
-	февраля: 1,
-	марта: 2,
-	апреля: 3,
-	мая: 4,
-	июня: 5,
-	июля: 6,
-	августа: 7,
-	сентября: 8,
-	октября: 9,
-	ноября: 10,
-	декабря: 11,
-};
+interface KinoPubHistoryResponse {
+	history: KinoPubHistoryEntry[];
+	pagination: {
+		total: number;
+		current: number;
+		perpage: number;
+		total_items: number;
+	};
+}
+
+interface KinoPubHistoryEntry {
+	time: number;
+	counter: number;
+	first_seen: number;
+	last_seen: number;
+	item: KinoPubItemResponse;
+	media: KinoPubMediaResponse;
+}
+
+interface KinoPubItemResponse {
+	id: number;
+	title: string;
+	type: string;
+	subtype: string;
+	year: number;
+	imdb: number;
+	imdb_rating: number;
+	kinopoisk: number;
+	kinopoisk_rating: number;
+	posters: { small: string; medium: string; big: string };
+}
+
+interface KinoPubMediaResponse {
+	id: number;
+	number: number;
+	snumber: number;
+	title: string;
+}
+
+interface KinoPubDeviceCodeResponse {
+	code: string;
+	user_code: string;
+	verification_uri: string;
+	expires_in: number;
+	interval: number;
+}
+
+interface KinoPubTokenResponse {
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	refresh_token: string;
+}
+
+const SERIAL_TYPES = ['serial', 'docuserial', 'tvshow'];
 
 class _KinoPubApi extends ServiceApi {
-	HOST_URL = 'https://kino.pub';
-	private phase: 'movies' | 'episodes' = 'movies';
-	private username = '';
+	API_URL = 'https://api.service-kp.com';
+	private authRequests = Requests;
+	private isActivated = false;
 
 	constructor() {
 		super(KinoPubService.id);
@@ -43,68 +87,48 @@ class _KinoPubApi extends ServiceApi {
 
 	override reset(): void {
 		super.reset();
-		this.phase = 'movies';
-		this.username = '';
+		this.isActivated = false;
 	}
 
 	async checkLogin(): Promise<boolean> {
 		try {
-			const responseText = await Requests.send({
-				url: `${this.HOST_URL}/history`,
-				method: 'GET',
-			});
-			const usernameMatch = /\/watchlist\/([^"\/\s]+)/.exec(responseText);
-			if (usernameMatch) {
-				this.username = usernameMatch[1];
-				return true;
+			const valid = await this.ensureValidToken();
+			if (!valid) {
+				return await this.startDeviceFlow();
 			}
+			return true;
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
 				Shared.errors.log(`Failed to check login for ${this.id}`, err);
 			}
+			return false;
 		}
-		return false;
 	}
 
 	async loadHistoryItems(cancelKey = 'default'): Promise<KinoPubHistoryItem[]> {
-		if (!this.username) {
-			const loggedIn = await this.checkLogin();
-			if (!loggedIn) {
-				this.hasReachedHistoryEnd = true;
-				return [];
-			}
+		const loggedIn = await this.checkLogin();
+		if (!loggedIn) {
+			this.hasReachedHistoryEnd = true;
+			return [];
 		}
 
-		if (this.nextHistoryUrl === 'episodes') {
-			this.phase = 'episodes';
-		}
-
-		const isEpisodes = this.phase === 'episodes';
-		const url = `${this.HOST_URL}/history/index/${this.username}${isEpisodes ? '/episodes' : ''}?page=${this.nextHistoryPage + 1}&per-page=50`;
-
-		const responseText = await Requests.send({
-			url,
+		const page = this.nextHistoryPage + 1;
+		const responseText = await this.authRequests.send({
+			url: `${this.API_URL}/v1/history?page=${page}&perpage=50`,
 			method: 'GET',
 			cancelKey,
 		});
 
-		const items = isEpisodes
-			? this.parseEpisodesHtml(responseText)
-			: this.parseMoviesHtml(responseText);
+		const response = JSON.parse(responseText) as KinoPubHistoryResponse;
+		const { history, pagination } = response;
 
-		if (items.length < 50) {
-			if (this.phase === 'movies') {
-				this.phase = 'episodes';
-				this.nextHistoryPage = 0;
-				this.nextHistoryUrl = 'episodes';
-			} else {
-				this.hasReachedHistoryEnd = true;
-			}
+		if (pagination.current >= pagination.total) {
+			this.hasReachedHistoryEnd = true;
 		} else {
-			this.nextHistoryPage += 1;
+			this.nextHistoryPage = pagination.current;
 		}
 
-		return items;
+		return history.map((entry) => this.mapHistoryEntry(entry));
 	}
 
 	isNewHistoryItem(
@@ -125,7 +149,7 @@ class _KinoPubApi extends ServiceApi {
 				return new EpisodeItem({
 					serviceId: this.id,
 					id: `${historyItem.itemId}_s${historyItem.season}e${historyItem.episode}`,
-					title: '',
+					title: historyItem.episodeTitle ?? '',
 					season: historyItem.season ?? 0,
 					number: historyItem.episode ?? 0,
 					watchedAt: historyItem.watchedAt,
@@ -152,124 +176,169 @@ class _KinoPubApi extends ServiceApi {
 		item.progress = 100;
 	}
 
-	private parseMoviesHtml(html: string): KinoPubHistoryItem[] {
-		const items: KinoPubHistoryItem[] = [];
-		const sections = html.split(/<h4[^>]*>/);
-
-		for (const section of sections) {
-			const dateMatch = /^([\s\S]*?)<\/h4>/.exec(section);
-			if (!dateMatch) continue;
-			const dateText = dateMatch[1].replace(/<[^>]+>/g, '').trim();
-			const watchedAt = this.parseDate(dateText);
-			if (!watchedAt) continue;
-
-			const itemStarts: { mediaId: string; index: number }[] = [];
-			const mediaRegex = /id="media-(\d+)"/g;
-			let m: RegExpExecArray | null;
-			while ((m = mediaRegex.exec(section)) !== null) {
-				itemStarts.push({ mediaId: m[1], index: m.index });
-			}
-
-			for (let i = 0; i < itemStarts.length; i++) {
-				const start = itemStarts[i].index;
-				const end = i + 1 < itemStarts.length ? itemStarts[i + 1].index : section.length;
-				const chunk = section.slice(start, end);
-
-				const hrefMatch = /href="\/item\/view\/(\d+)\/[^"]*"/.exec(chunk);
-				if (!hrefMatch) continue;
-				const itemId = hrefMatch[1];
-
-				const titleMatch = /class="item-title[^"]*"[^>]*>\s*<a[^>]*>([^<]+)<\/a>/.exec(chunk);
-				const authorMatches = [
-					...chunk.matchAll(/class="item-author[^"]*"[^>]*>\s*<a[^>]*>([^<]+)<\/a>/g),
-				];
-				const yearMatch = /(\d{4}),\s*<span/.exec(chunk);
-
-				const russianTitle = titleMatch?.[1]?.replace(/&nbsp;/g, ' ').trim() ?? '';
-				const englishTitle = authorMatches[0]?.[1]?.replace(/&nbsp;/g, ' ').trim() ?? '';
-				const year = yearMatch ? Number.parseInt(yearMatch[1], 10) : undefined;
-
-				items.push({
-					mediaId: itemStarts[i].mediaId,
-					itemId,
-					type: 'movie',
-					title: englishTitle || russianTitle,
-					year,
-					watchedAt,
-				});
+	private async ensureValidToken(): Promise<boolean> {
+		if (this.isActivated) {
+			const { kinoPubAuth } = await Shared.storage.get('kinoPubAuth');
+			if (kinoPubAuth && !this.hasTokenExpired(kinoPubAuth)) {
+				return true;
 			}
 		}
 
-		return items;
+		const { kinoPubAuth } = await Shared.storage.get('kinoPubAuth');
+		if (!kinoPubAuth) {
+			return false;
+		}
+
+		if (!this.hasTokenExpired(kinoPubAuth)) {
+			this.setAuthRequests(kinoPubAuth.access_token);
+			await this.notifyDevice();
+			return true;
+		}
+
+		return this.refreshToken(kinoPubAuth.refresh_token);
 	}
 
-	private parseEpisodesHtml(html: string): KinoPubHistoryItem[] {
-		const items: KinoPubHistoryItem[] = [];
-		const sections = html.split(/<h4[^>]*>/);
-
-		for (const section of sections) {
-			const dateMatch = /^([\s\S]*?)<\/h4>/.exec(section);
-			if (!dateMatch) continue;
-			const dateText = dateMatch[1].replace(/<[^>]+>/g, '').trim();
-			const watchedAt = this.parseDate(dateText);
-			if (!watchedAt) continue;
-
-			const itemStarts: { mediaId: string; index: number }[] = [];
-			const mediaRegex = /id="media-(\d+)"/g;
-			let m: RegExpExecArray | null;
-			while ((m = mediaRegex.exec(section)) !== null) {
-				itemStarts.push({ mediaId: m[1], index: m.index });
-			}
-
-			for (let i = 0; i < itemStarts.length; i++) {
-				const start = itemStarts[i].index;
-				const end = i + 1 < itemStarts.length ? itemStarts[i + 1].index : section.length;
-				const chunk = section.slice(start, end);
-
-				const hrefMatch = /href="\/item\/view\/(\d+)\/s(\d+)e(\d+)"/.exec(chunk);
-				if (!hrefMatch) continue;
-				const itemId = hrefMatch[1];
-				const season = Number.parseInt(hrefMatch[2], 10);
-				const episode = Number.parseInt(hrefMatch[3], 10);
-
-				const titleMatch = /class="item-title[^"]*"[^>]*>\s*<a[^>]*>([^<]+)<\/a>/.exec(chunk);
-				const authorMatch = /class="item-author[^"]*"[^>]*>\s*<a[^>]*>([^<]+)<\/a>/.exec(chunk);
-
-				const russianTitle = titleMatch?.[1]?.replace(/&nbsp;/g, ' ').trim() ?? '';
-				const englishTitle = authorMatch?.[1]?.replace(/&nbsp;/g, ' ').trim() ?? '';
-
-				items.push({
-					mediaId: itemStarts[i].mediaId,
-					itemId,
-					type: 'episode',
-					title: englishTitle || russianTitle,
-					season,
-					episode,
-					showTitle: englishTitle || russianTitle,
-					watchedAt,
-				});
-			}
-		}
-
-		return items;
+	private hasTokenExpired(auth: KinoPubAuthDetails): boolean {
+		const now = Utils.unix();
+		return auth.created_at + auth.expires_in < now;
 	}
 
-	private parseDate(dateStr: string): number {
-		const parts = dateStr.split(/\s+/);
-		if (parts.length === 3) {
-			const day = Number.parseInt(parts[0], 10);
-			const monthStr = parts[1].toLowerCase();
-			const year = Number.parseInt(parts[2], 10);
-			const month = RUSSIAN_MONTHS[monthStr];
-			if (!Number.isNaN(day) && month !== undefined && !Number.isNaN(year)) {
-				return Utils.unix(new Date(year, month, day));
+	private async refreshToken(refreshToken: string): Promise<boolean> {
+		try {
+			const responseText = await Requests.send({
+				url: `${this.API_URL}/oauth2/token?grant_type=refresh_token&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}&refresh_token=${refreshToken}`,
+				method: 'POST',
+			});
+			const tokenData = JSON.parse(responseText) as KinoPubTokenResponse;
+			await this.saveToken(tokenData);
+			return true;
+		} catch {
+			await Shared.storage.remove('kinoPubAuth');
+			this.isActivated = false;
+			return false;
+		}
+	}
+
+	private async startDeviceFlow(): Promise<boolean> {
+		try {
+			const codeResponseText = await Requests.send({
+				url: `${this.API_URL}/oauth2/device?grant_type=device_code&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}`,
+				method: 'POST',
+			});
+			const codeData = JSON.parse(codeResponseText) as KinoPubDeviceCodeResponse;
+
+			await Tabs.open(codeData.verification_uri);
+
+			if (typeof window !== 'undefined') {
+				window.prompt(
+					`Enter this code on the Kino.pub device page:\n${codeData.verification_uri}`,
+					codeData.user_code
+				);
 			}
+
+			const tokenData = await this.pollForToken(
+				codeData.code,
+				codeData.interval,
+				Date.now() + codeData.expires_in * 1000
+			);
+
+			await this.saveToken(tokenData);
+			await this.notifyDevice();
+			return true;
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.log('Kino.pub device flow failed', err);
+			}
+			return false;
 		}
-		const date = new Date(dateStr);
-		if (!Number.isNaN(date.getTime())) {
-			return Utils.unix(date);
+	}
+
+	private pollForToken(
+		code: string,
+		interval: number,
+		expiresAt: number
+	): Promise<KinoPubTokenResponse> {
+		return new Promise((resolve, reject) => {
+			const poll = async () => {
+				if (Date.now() > expiresAt) {
+					reject(new Error('Device code expired'));
+					return;
+				}
+				try {
+					const responseText = await Requests.send({
+						url: `${this.API_URL}/oauth2/device?grant_type=device_token&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}&code=${code}`,
+						method: 'POST',
+					});
+					resolve(JSON.parse(responseText) as KinoPubTokenResponse);
+				} catch {
+					setTimeout(() => void poll(), interval * 1000);
+				}
+			};
+			void poll();
+		});
+	}
+
+	private async saveToken(tokenData: KinoPubTokenResponse): Promise<void> {
+		const kinoPubAuth: KinoPubAuthDetails = {
+			access_token: tokenData.access_token,
+			token_type: tokenData.token_type,
+			expires_in: tokenData.expires_in,
+			refresh_token: tokenData.refresh_token,
+			created_at: Utils.unix(),
+		};
+		await Shared.storage.set({ kinoPubAuth }, true);
+		this.setAuthRequests(kinoPubAuth.access_token);
+	}
+
+	private setAuthRequests(accessToken: string): void {
+		this.authRequests = withHeaders({
+			Authorization: `Bearer ${accessToken}`,
+		});
+		this.isActivated = true;
+	}
+
+	private async notifyDevice(): Promise<void> {
+		try {
+			await this.authRequests.send({
+				url: `${this.API_URL}/v1/device/notify`,
+				method: 'POST',
+				body: {
+					title: 'Universal Trakt Scrobbler',
+					hardware: 'Browser Extension',
+					software: 'Universal Trakt Scrobbler',
+				},
+			});
+		} catch {
+			// Device notification is best-effort, don't fail the flow
 		}
-		return 0;
+	}
+
+	private mapHistoryEntry(entry: KinoPubHistoryEntry): KinoPubHistoryItem {
+		const { item, media } = entry;
+
+		if (SERIAL_TYPES.includes(item.type)) {
+			return {
+				mediaId: String(media.id),
+				itemId: String(item.id),
+				type: 'episode',
+				title: item.title,
+				year: item.year,
+				season: media.snumber,
+				episode: media.number,
+				episodeTitle: media.title,
+				showTitle: item.title,
+				watchedAt: entry.last_seen,
+			};
+		}
+
+		return {
+			mediaId: String(media.id),
+			itemId: String(item.id),
+			type: 'movie',
+			title: item.title,
+			year: item.year,
+			watchedAt: entry.last_seen,
+		};
 	}
 }
 
