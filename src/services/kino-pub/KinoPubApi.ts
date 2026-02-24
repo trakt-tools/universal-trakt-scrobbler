@@ -230,6 +230,10 @@ class _KinoPubApi extends ServiceApi {
 			await Tabs.open(codeData.verification_uri);
 
 			if (typeof window !== 'undefined') {
+				console.log(
+					`Enter this code on the Kino.pub device page:\n${codeData.verification_uri}`,
+					codeData.user_code
+				);
 				window.prompt(
 					`Enter this code on the Kino.pub device page:\n${codeData.verification_uri}`,
 					codeData.user_code

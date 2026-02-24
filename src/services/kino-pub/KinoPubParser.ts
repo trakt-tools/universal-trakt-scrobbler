@@ -54,7 +54,7 @@ class _KinoPubParser extends ScrobbleParser {
 
 		return new EpisodeItem({
 			serviceId,
-			id,
+			id: `${id}_s${season}e${episode}`,
 			title: episodeTitle,
 			season,
 			number: episode,

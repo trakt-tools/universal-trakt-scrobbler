@@ -15,7 +15,8 @@
 		"tsc": "tsc --noEmit",
 		"check": "tsc --noEmit && biome check",
 		"fix": "biome check --write",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"start-chrome-ext": "open -a 'Google Chrome' --args --load-extension=$(pwd)/src/build/chrome --remote-debugging-port=9222 --user-data-dir=/tmp/uts-chrome-profile"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
