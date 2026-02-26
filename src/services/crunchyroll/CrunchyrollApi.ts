@@ -1,6 +1,6 @@
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
-import { EpisodeItem, ScrobbleItem } from '@models/Item';
+import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 import { CrunchyrollService } from '@/crunchyroll/CrunchyrollService';
 import { Utils } from '@common/Utils';
 
@@ -30,6 +30,7 @@ export interface CrunchyrollHistoryItem {
 	fully_watched: boolean;
 	playhead: number;
 	parent_id: string;
+	parent_type?: string;
 	panel: {
 		title: string;
 		episode_metadata: {
@@ -38,7 +39,9 @@ export interface CrunchyrollHistoryItem {
 			season_id: string;
 			episode: string;
 			episode_number?: number;
+			sequence_number?: number;
 			episode_air_date: Date;
+			season_title: string;
 			series_title: string;
 			duration_ms: number;
 		};
@@ -156,31 +159,60 @@ class _CrunchyrollApi extends ServiceApi {
 		return historyItem.id;
 	}
 
+	updateItemFromHistory(item: ScrobbleItem): Promise<void> {
+		// Nothing to update, as Crunchyroll provides all the info in the history endpoint.
+		return Promise.resolve();
+	}
+
 	convertHistoryItems(historyItems: CrunchyrollHistoryItem[]): Promise<ScrobbleItem[]> {
 		const items: ScrobbleItem[] = [];
-		for (const historyItem of historyItems) {
-			const item = new EpisodeItem({
-				id: historyItem.id,
-				serviceId: this.id,
-				title: historyItem.panel.title,
-				// Although we have episode and season info, we omit these,
-				// because the numbers used by Crunchyroll often don't correspond with the Trakt ones.
-				// We are more likely to find a match just using the series name and title.
-				number: 0,
-				season: 0,
-				year: new Date(historyItem.panel.episode_metadata.episode_air_date).getUTCFullYear(),
-				watchedAt: Utils.unix(historyItem.date_played),
-				progress: historyItem.fully_watched
-					? 100
-					: (historyItem.playhead / (historyItem.panel.episode_metadata.duration_ms / 1000)) * 100,
-				show: {
-					id: historyItem.panel.episode_metadata.series_id,
-					serviceId: this.id,
-					title: historyItem.panel.episode_metadata.series_title,
-				},
-			});
+		const dubSubSuffix = / \((?:\w+ )?(?:Dub|Dubbed|Sub|Subbed|Subtitled)\)/;
 
-			items.push(item);
+		for (const historyItem of historyItems) {
+			const metadata = historyItem.panel.episode_metadata;
+			const isMovie =
+				metadata.season_title?.includes('Movie') ||
+				historyItem.panel.title === 'Movie' ||
+				metadata.episode_number?.toString() === 'Movie';
+
+			const title = historyItem.panel.title.replace(dubSubSuffix, '');
+
+			if (isMovie) {
+				const item = new MovieItem({
+					id: historyItem.id,
+					serviceId: this.id,
+					title: title,
+					year: new Date(metadata.episode_air_date).getUTCFullYear(),
+					watchedAt: Utils.unix(historyItem.date_played),
+					progress: historyItem.fully_watched
+						? 100
+						: (historyItem.playhead / (metadata.duration_ms / 1000)) * 100,
+				});
+				items.push(item);
+			} else {
+				const item = new EpisodeItem({
+					id: historyItem.id,
+					serviceId: this.id,
+					title:
+						title.toLowerCase() === 'episode'
+							? `${title} ${metadata.episode || metadata.sequence_number}`
+							: title,
+					number: metadata.episode_number || 0,
+					season: metadata.season_number || 0,
+					isAbsolute: true,
+					year: new Date(metadata.episode_air_date).getUTCFullYear(),
+					watchedAt: Utils.unix(historyItem.date_played),
+					progress: historyItem.fully_watched
+						? 100
+						: (historyItem.playhead / (metadata.duration_ms / 1000)) * 100,
+					show: {
+						id: metadata.series_id,
+						serviceId: this.id,
+						title: metadata.series_title,
+					},
+				});
+				items.push(item);
+			}
 		}
 
 		return Promise.resolve(items);
