@@ -47,6 +47,30 @@ class _Requests {
 			const response = await this.fetch(request, tabId);
 			responseStatus = response.status;
 			responseText = await response.text();
+
+			// Check for Cloudflare rate limiting HTML response
+			if (responseText.includes('Cloudflare') && responseText.includes('Ray ID:')) {
+				// Extract error code if present (e.g., Error 1015)
+				const errorMatch = responseText.match(/Error\s*(\d+)/);
+				const errorCode = errorMatch ? errorMatch[1] : 'unknown';
+
+				// Set appropriate status code for rate limiting
+				if (responseText.includes('rate limit') || errorCode === '1015') {
+					responseStatus = 429; // Use standard rate limit status
+					// Cloudflare doesn't provide Retry-After header in HTML error pages
+					// Use a reasonable default wait time (60 seconds)
+					const retryAfter = 60000;
+					console.warn(
+						`Cloudflare rate limit detected (Error ${errorCode}). Retrying in ${retryAfter / 1000}s`
+					);
+					setTimeout(() => void this.sendDirectly(request, tabId, resolve, reject), retryAfter);
+					return;
+				}
+
+				responseStatus = responseStatus || 503;
+				throw `Cloudflare blocked request (Error ${errorCode})`;
+			}
+
 			if (responseStatus === 429) {
 				const retryAfterStr = response.headers.get('Retry-After');
 				if (retryAfterStr) {
@@ -59,19 +83,35 @@ class _Requests {
 				throw responseText;
 			}
 		} catch (err) {
+			// Handle manually thrown errors from above (where status >= 400)
+			if (typeof err === 'string' && responseStatus >= 400) {
+				reject(
+					new RequestError({
+						request,
+						status: responseStatus, // Use the captured status code
+						text: responseText,
+						isCanceled: request.signal?.aborted ?? false,
+					})
+				);
+				return;
+			}
+
 			let errRespStatus = -1;
-			let errRespData: string | undefined = undefined;
-			// Making sure all accessed data is actually there
+			let errRespData: undefined | string = undefined;
+
+			// Attempt to extract status from error object if it mimics axios/similar structure, or default to -1
 			if (
 				typeof err === 'object' &&
 				err &&
 				'response' in err &&
-				typeof err.response === 'object' &&
-				err.response
+				typeof (err as any).response === 'object' &&
+				(err as any).response
 			) {
-				if ('status' in err.response) errRespStatus = err.response.status as number;
-				if ('data' in err.response) errRespData = err.response.data as string;
+				const errAny = err as any;
+				if ('status' in errAny.response) errRespStatus = errAny.response.status as number;
+				if ('data' in errAny.response) errRespData = errAny.response.data as string;
 			}
+
 			reject(
 				new RequestError({
 					request,
@@ -80,6 +120,7 @@ class _Requests {
 					isCanceled: request.signal?.aborted ?? false,
 				})
 			);
+			return;
 		}
 		resolve(responseText);
 	}
