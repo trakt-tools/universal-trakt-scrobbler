@@ -34,6 +34,22 @@ export interface ImagesDatabaseResponse {
 	result: Partial<Record<string, string>>;
 }
 
+export interface TmdbEpisodeSearchResult {
+	season_number: number;
+	episode_number: number;
+	name: string;
+	id: number;
+}
+
+export interface TmdbTvSearchResult {
+	id: number;
+	name: string;
+	first_air_date?: string;
+	origin_country?: string[];
+	genre_ids?: number[];
+	vote_count?: number;
+}
+
 /**
  * @see https://developers.themoviedb.org/3/getting-started/introduction
  */
@@ -215,6 +231,125 @@ class _TmdbApi {
 		}
 		await Cache.set({ tmdbImageUrls: cache });
 		return newItems;
+	}
+
+	/**
+	 * Searches for a TV show by title on TMDB.
+	 * If year is provided, filters results to match the year.
+	 * If serviceId is 'crunchyroll', prioritizes anime (genre 16) and Japanese productions.
+	 */
+	async searchTvShow(
+		title: string,
+		year?: number,
+		serviceId?: string
+	): Promise<TmdbTvSearchResult | null> {
+		try {
+			const url = `${this.API_URL}/search/tv?api_key=${Shared.tmdbApiKey}&query=${encodeURIComponent(title)}`;
+
+			const responseText = await Requests.send({
+				url: url,
+				method: 'GET',
+			});
+			const response = JSON.parse(responseText) as { results?: TmdbTvSearchResult[] };
+
+			if (!response.results || response.results.length === 0) {
+				return null;
+			}
+
+			// If year is provided, try to find a match with the same year
+			if (year) {
+				const matchingYear = response.results.find((result) => {
+					if (!result.first_air_date) return false;
+					const resultYear = parseInt(result.first_air_date.split('-')[0], 10);
+					return resultYear === year;
+				});
+				if (matchingYear) {
+					return matchingYear;
+				}
+			}
+
+			// Only prioritize anime for Crunchyroll (they primarily offer anime)
+			if (serviceId === 'crunchyroll') {
+				// Genre ID 16 = Animation
+				const animeResults = response.results.filter(
+					(result) => result.genre_ids?.includes(16) || result.origin_country?.includes('JP')
+				);
+
+				if (animeResults.length > 0) {
+					// Sort by popularity (vote_count) and prefer older series (original versions)
+					animeResults.sort((a, b) => {
+						// First, prioritize by vote count (higher = more popular)
+						const voteCountDiff = (b.vote_count || 0) - (a.vote_count || 0);
+						if (voteCountDiff !== 0) return voteCountDiff;
+
+						// If vote counts are similar, prefer older (original) series
+						const aYear = a.first_air_date ? parseInt(a.first_air_date.split('-')[0], 10) : 9999;
+						const bYear = b.first_air_date ? parseInt(b.first_air_date.split('-')[0], 10) : 9999;
+						return aYear - bYear;
+					});
+					return animeResults[0];
+				}
+			}
+
+			// Return first result (default TMDB ranking)
+			return response.results[0];
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.warning('Failed to search TV show on TMDB.', err);
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Finds an episode by title within a TMDB TV show.
+	 * Returns the season and episode number if found.
+	 */
+	async findEpisodeByTitle(
+		tmdbShowId: number,
+		episodeTitle: string
+	): Promise<{ season: number; episode: number } | null> {
+		try {
+			// Get all seasons for the show
+			const url = `${this.API_URL}/tv/${tmdbShowId}?api_key=${Shared.tmdbApiKey}`;
+			const responseText = await Requests.send({
+				url: url,
+				method: 'GET',
+			});
+			const show = JSON.parse(responseText) as { seasons?: { season_number: number }[] };
+
+			if (!show.seasons) {
+				return null;
+			}
+
+			// Search through each season's episodes
+			for (const season of show.seasons) {
+				if (season.season_number === 0) continue; // Skip specials
+
+				const seasonUrl = `${this.API_URL}/tv/${tmdbShowId}/season/${season.season_number}?api_key=${Shared.tmdbApiKey}`;
+				const seasonResponse = await Requests.send({
+					url: seasonUrl,
+					method: 'GET',
+				});
+				const seasonData = JSON.parse(seasonResponse) as { episodes?: TmdbEpisodeSearchResult[] };
+
+				const match = seasonData.episodes?.find(
+					(ep) => ep.name.toLowerCase() === episodeTitle.toLowerCase()
+				);
+
+				if (match) {
+					return {
+						season: match.season_number,
+						episode: match.episode_number,
+					};
+				}
+			}
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.warning('Failed to find episode by title on TMDB.', err);
+			}
+		}
+		return null;
 	}
 }
 
