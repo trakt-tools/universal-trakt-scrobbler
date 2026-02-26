@@ -122,7 +122,7 @@ class _CrunchyrollApi extends ServiceApi {
 		await this.checkLogin();
 
 		if (!this.nextHistoryUrl && this.session?.accountId) {
-			this.nextHistoryUrl = `${this.HOST_URL}/content/v1/watch-history/${this.session.accountId}?locale=en-US&page=1&page_size=10`;
+			this.nextHistoryUrl = `${this.HOST_URL}/content/v1/watch-history/${this.session.accountId}?locale=en-US&page=1&page_size=20`;
 		}
 
 		// Retrieve the history items
@@ -186,7 +186,7 @@ class _CrunchyrollApi extends ServiceApi {
 					watchedAt: Utils.unix(historyItem.date_played),
 					progress: historyItem.fully_watched
 						? 100
-						: (historyItem.playhead / (metadata.duration_ms / 1000)) * 100,
+						: (historyItem.playhead / metadata.duration_ms) * 100,
 				});
 				items.push(item);
 			} else {
@@ -199,12 +199,11 @@ class _CrunchyrollApi extends ServiceApi {
 							: title,
 					number: metadata.episode_number || 0,
 					season: metadata.season_number || 0,
-					isAbsolute: true,
 					year: new Date(metadata.episode_air_date).getUTCFullYear(),
 					watchedAt: Utils.unix(historyItem.date_played),
 					progress: historyItem.fully_watched
 						? 100
-						: (historyItem.playhead / (metadata.duration_ms / 1000)) * 100,
+						: (historyItem.playhead / metadata.duration_ms) * 100,
 					show: {
 						id: metadata.series_id,
 						serviceId: this.id,

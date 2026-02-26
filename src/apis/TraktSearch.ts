@@ -289,26 +289,59 @@ class _TraktSearch extends TraktApi {
 		const showItem = await this.findShow(item, caches, cancelKey);
 		await this.activate();
 
-		const { foundSeason, foundEpisodeNumber } = await this.resolveAbsoluteEpisodeNumber(
-			item,
-			showItem,
-			cancelKey
-		);
+		// Try with the provided season/episode numbers first
+		let url = this.getEpisodeUrl(item, showItem.show.ids.trakt);
+		let responseText: string | null = null;
 
-		const url = this.buildEpisodeUrl(item, showItem, foundSeason, foundEpisodeNumber);
-		const responseText = await this.tryFetchEpisodeWithTmdbFallback(
-			url,
-			item,
-			showItem,
-			foundSeason,
-			foundEpisodeNumber,
-			cancelKey
-		);
+		try {
+			responseText = await this.requests.send({
+				url: url,
+				method: 'GET',
+				cancelKey,
+			});
+		} catch (error) {
+			// If provided numbers don't work, try TMDB fallback first
+			if (
+				Shared.errors.validate(error) &&
+				((error as RequestError).status === 404 || (error as RequestError).status === -1) &&
+				item.title &&
+				!item.title.startsWith('Episode')
+			) {
+				const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
+				if (tmdbResult) {
+					return this.parseEpisodeResponse(tmdbResult, item, showItem);
+				}
+
+				// If TMDB also fails, try treating numbers as absolute
+				const { foundSeason, foundEpisodeNumber } = await this.tryAbsoluteEpisodeNumberFallback(
+					item,
+					showItem,
+					cancelKey
+				);
+
+				if (foundSeason !== null) {
+					const absoluteUrl = this.buildEpisodeUrl(item, showItem, foundSeason, foundEpisodeNumber);
+					try {
+						responseText = await this.requests.send({
+							url: absoluteUrl,
+							method: 'GET',
+							cancelKey,
+						});
+					} catch (_absoluteError) {
+						throw error; // Throw original error if absolute fallback also fails
+					}
+				} else {
+					throw error;
+				}
+			} else {
+				throw error;
+			}
+		}
 
 		return this.parseEpisodeResponse(responseText, item, showItem);
 	}
 
-	private async resolveAbsoluteEpisodeNumber(
+	private async tryAbsoluteEpisodeNumberFallback(
 		item: EpisodeItem,
 		showItem: TraktSearchShowItem,
 		cancelKey: string
@@ -316,27 +349,16 @@ class _TraktSearch extends TraktApi {
 		let foundSeason: number | null = null;
 		let foundEpisodeNumber = 0;
 
-		if (!item.isAbsolute || !item.number) {
+		if (!item.number) {
 			return { foundSeason, foundEpisodeNumber };
 		}
 
 		const seasons = await this.fetchSeasons(showItem, cancelKey);
 
-		// 1. Try to treat it as a relative number first (if season info matches)
-		if (item.season) {
-			const currentSeason = seasons.find((s) => s.number === item.season);
-			if (currentSeason && item.number <= currentSeason.episode_count) {
-				foundSeason = currentSeason.number;
-				foundEpisodeNumber = item.number;
-			}
-		}
-
-		// 2. Fallback: If not found as relative, treat as absolute
-		if (foundSeason === null) {
-			const result = this.calculateAbsoluteEpisodePosition(item, seasons);
-			foundSeason = result.season;
-			foundEpisodeNumber = result.episode;
-		}
+		// Try to treat provided numbers as absolute (e.g., anime episodes from Crunchyroll)
+		const result = this.calculateAbsoluteEpisodePosition(item, seasons);
+		foundSeason = result.season;
+		foundEpisodeNumber = result.episode;
 
 		return { foundSeason, foundEpisodeNumber };
 	}
@@ -397,40 +419,9 @@ class _TraktSearch extends TraktApi {
 			const tempItem = item.clone();
 			tempItem.season = foundSeason;
 			tempItem.number = foundEpisodeNumber;
-			tempItem.isAbsolute = false;
 			return this.getEpisodeUrl(tempItem, showItem.show.ids.trakt);
 		}
 		return this.getEpisodeUrl(item, showItem.show.ids.trakt);
-	}
-
-	private async tryFetchEpisodeWithTmdbFallback(
-		url: string,
-		item: EpisodeItem,
-		showItem: TraktSearchShowItem,
-		foundSeason: number | null,
-		foundEpisodeNumber: number,
-		cancelKey: string
-	): Promise<string> {
-		try {
-			return await this.requests.send({
-				url: url,
-				method: 'GET',
-				cancelKey,
-			});
-		} catch (error) {
-			if (
-				Shared.errors.validate(error) &&
-				((error as RequestError).status === 404 || (error as RequestError).status === -1) &&
-				item.title &&
-				!item.title.startsWith('Episode')
-			) {
-				const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
-				if (tmdbResult) {
-					return tmdbResult;
-				}
-			}
-			throw error;
-		}
 	}
 
 	private async tryTmdbFallback(

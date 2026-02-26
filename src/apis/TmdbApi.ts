@@ -324,8 +324,6 @@ class _TmdbApi {
 
 			// Search through each season's episodes
 			for (const season of show.seasons) {
-				if (season.season_number === 0) continue; // Skip specials
-
 				const seasonUrl = `${this.API_URL}/tv/${tmdbShowId}/season/${season.season_number}?api_key=${Shared.tmdbApiKey}`;
 				const seasonResponse = await Requests.send({
 					url: seasonUrl,
