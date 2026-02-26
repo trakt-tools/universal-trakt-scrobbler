@@ -56,6 +56,7 @@ export interface EpisodeItemValues extends BaseItemValues {
 	number: number;
 	show: ShowItemValues;
 	trakt?: TraktEpisodeItemValues | null;
+	isAbsolute?: boolean;
 }
 
 export type EpisodeItemParams = Omit<EpisodeItemValues, 'type' | 'show' | 'trakt'> & {
@@ -188,6 +189,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 	number: number;
 	show: ShowItem;
 	trakt?: TraktEpisodeItem | null;
+	isAbsolute?: boolean;
 
 	constructor(values: EpisodeItemParams) {
 		super(values);
@@ -195,6 +197,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 		this.number = values.number;
 		this.show = new ShowItem(values.show);
 		this.trakt = values.trakt && new TraktEpisodeItem(values.trakt);
+		this.isAbsolute = values.isAbsolute;
 	}
 
 	save(): EpisodeItemValues {
@@ -205,6 +208,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 			number: this.number,
 			show: this.show.save(),
 			trakt: this.trakt?.save(),
+			isAbsolute: this.isAbsolute,
 		};
 	}
 
