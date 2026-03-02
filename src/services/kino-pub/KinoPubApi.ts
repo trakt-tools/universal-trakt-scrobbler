@@ -319,6 +319,8 @@ class _KinoPubApi extends ServiceApi {
 
 	private mapHistoryEntry(entry: KinoPubHistoryEntry): KinoPubHistoryItem {
 		const { item, media } = entry;
+		const titleParts = item.title.split(' / ');
+		const originalTitle = titleParts[titleParts.length - 1];
 
 		if (SERIAL_TYPES.includes(item.type)) {
 			return {
@@ -330,7 +332,7 @@ class _KinoPubApi extends ServiceApi {
 				season: media.snumber,
 				episode: media.number,
 				episodeTitle: media.title,
-				showTitle: item.title,
+				showTitle: originalTitle,
 				watchedAt: entry.last_seen,
 			};
 		}
@@ -339,7 +341,7 @@ class _KinoPubApi extends ServiceApi {
 			mediaId: String(media.id),
 			itemId: String(item.id),
 			type: 'movie',
-			title: item.title,
+			title: originalTitle,
 			year: item.year,
 			watchedAt: entry.last_seen,
 		};
