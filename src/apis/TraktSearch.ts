@@ -286,23 +286,189 @@ class _TraktSearch extends TraktApi {
 		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
 		cancelKey = 'default'
 	): Promise<TraktSearchEpisodeItem> {
-		let episodeItem: TraktSearchEpisodeItemEpisode;
 		const showItem = await this.findShow(item, caches, cancelKey);
 		await this.activate();
-		const responseText = await this.requests.send({
-			url: this.getEpisodeUrl(item, showItem.show.ids.trakt),
+
+		// Try with the provided season/episode numbers first
+		let url = this.getEpisodeUrl(item, showItem.show.ids.trakt);
+		let responseText: string | null = null;
+
+		try {
+			responseText = await this.requests.send({
+				url: url,
+				method: 'GET',
+				cancelKey,
+			});
+		} catch (error) {
+			// If provided numbers don't work, try TMDB fallback first
+			if (
+				Shared.errors.validate(error) &&
+				((error as RequestError).status === 404 || (error as RequestError).status === -1) &&
+				item.title &&
+				!item.title.startsWith('Episode')
+			) {
+				const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
+				if (tmdbResult) {
+					return this.parseEpisodeResponse(tmdbResult, item, showItem);
+				}
+
+				// If TMDB also fails, try treating numbers as absolute
+				const { foundSeason, foundEpisodeNumber } = await this.tryAbsoluteEpisodeNumberFallback(
+					item,
+					showItem,
+					cancelKey
+				);
+
+				if (foundSeason !== null) {
+					const absoluteUrl = this.buildEpisodeUrl(item, showItem, foundSeason, foundEpisodeNumber);
+					try {
+						responseText = await this.requests.send({
+							url: absoluteUrl,
+							method: 'GET',
+							cancelKey,
+						});
+					} catch (_absoluteError) {
+						throw error; // Throw original error if absolute fallback also fails
+					}
+				} else {
+					throw error;
+				}
+			} else {
+				throw error;
+			}
+		}
+
+		return this.parseEpisodeResponse(responseText, item, showItem);
+	}
+
+	private async tryAbsoluteEpisodeNumberFallback(
+		item: EpisodeItem,
+		showItem: TraktSearchShowItem,
+		cancelKey: string
+	): Promise<{ foundSeason: number | null; foundEpisodeNumber: number }> {
+		let foundSeason: number | null = null;
+		let foundEpisodeNumber = 0;
+
+		if (!item.number) {
+			return { foundSeason, foundEpisodeNumber };
+		}
+
+		const seasons = await this.fetchSeasons(showItem, cancelKey);
+
+		// Try to treat provided numbers as absolute (e.g., anime episodes from Crunchyroll)
+		const result = this.calculateAbsoluteEpisodePosition(item, seasons);
+		foundSeason = result.season;
+		foundEpisodeNumber = result.episode;
+
+		return { foundSeason, foundEpisodeNumber };
+	}
+
+	private async fetchSeasons(
+		showItem: TraktSearchShowItem,
+		cancelKey: string
+	): Promise<{ number: number; episode_count: number }[]> {
+		const seasonsResponse = await this.requests.send({
+			url: `${this.API_URL}/shows/${showItem.show.ids.trakt}/seasons?extended=full`,
 			method: 'GET',
 			cancelKey,
 		});
+		return (
+			JSON.parse(seasonsResponse) as {
+				number: number;
+				episode_count: number;
+			}[]
+		).filter((s) => s.number > 0); // Filter out specials (season 0)
+	}
+
+	private calculateAbsoluteEpisodePosition(
+		item: EpisodeItem,
+		seasons: { number: number; episode_count: number }[]
+	): { season: number; episode: number } {
+		const maxSeason = seasons.length > 0 ? seasons[seasons.length - 1].number : 0;
+
+		// Heuristic: If the episode number is small (e.g. <= 25) and the season is > max known season,
+		// it's likely a new season that Trakt doesn't have yet.
+		// In this case, absolute calculation would erroneously map it to Season 1.
+		if (item.number && item.number <= 25 && item.season && item.season > maxSeason) {
+			return { season: item.season, episode: item.number };
+		}
+
+		let absoluteCount = 0;
+		seasons.sort((a, b) => a.number - b.number);
+		for (const season of seasons) {
+			if (item.number && item.number <= absoluteCount + season.episode_count) {
+				return {
+					season: season.number,
+					episode: item.number - absoluteCount,
+				};
+			}
+			absoluteCount += season.episode_count;
+		}
+
+		// Fallback: Use the original provided season and number if absolute calc failed
+		return { season: item.season || 0, episode: item.number || 0 };
+	}
+
+	private buildEpisodeUrl(
+		item: EpisodeItem,
+		showItem: TraktSearchShowItem,
+		foundSeason: number | null,
+		foundEpisodeNumber: number
+	): string {
+		if (foundSeason !== null) {
+			const tempItem = item.clone();
+			tempItem.season = foundSeason;
+			tempItem.number = foundEpisodeNumber;
+			return this.getEpisodeUrl(tempItem, showItem.show.ids.trakt);
+		}
+		return this.getEpisodeUrl(item, showItem.show.ids.trakt);
+	}
+
+	private async tryTmdbFallback(
+		item: EpisodeItem,
+		showItem: TraktSearchShowItem,
+		cancelKey: string
+	): Promise<string | null> {
+		try {
+			const { TmdbApi } = await import('@apis/TmdbApi');
+			const tmdbShow = await TmdbApi.searchTvShow(item.show.title, item.show.year, item.serviceId);
+
+			if (!tmdbShow) {
+				return null;
+			}
+
+			const tmdbEpisode = await TmdbApi.findEpisodeByTitle(tmdbShow.id, item.title);
+
+			if (!tmdbEpisode) {
+				return null;
+			}
+
+			const tmdbBasedUrl = `${this.SHOWS_URL}/${showItem.show.ids.trakt}/seasons/${tmdbEpisode.season}/episodes/${tmdbEpisode.episode}?extended=full`;
+			return await this.requests.send({
+				url: tmdbBasedUrl,
+				method: 'GET',
+				cancelKey,
+			});
+		} catch (_tmdbError) {
+			return null;
+		}
+	}
+
+	private parseEpisodeResponse(
+		responseText: string,
+		item: EpisodeItem,
+		showItem: TraktSearchShowItem
+	): TraktSearchEpisodeItem {
 		const response = JSON.parse(responseText) as TraktEpisodeItemEpisode | TraktSearchEpisodeItem[];
+
 		if (Array.isArray(response)) {
 			return this.findEpisodeByTitle(item, showItem, response);
-		} else {
-			episodeItem = {
-				episode: response,
-			};
-			return Object.assign({}, episodeItem, showItem);
 		}
+
+		return {
+			episode: response,
+			show: showItem.show,
+		};
 	}
 
 	findEpisodeByTitle(
