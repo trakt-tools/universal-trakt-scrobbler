@@ -226,12 +226,28 @@ class _NetflixApi extends ServiceApi {
 			throw new Error('Invalid session');
 		}
 
-		const pageSize = 50;
-		const callPath = `["aui","viewingActivity",${this.nextHistoryPage},${pageSize}]`;
+		const responseItems = await this.fetchHistoryItems(this.nextHistoryPage, 50, cancelKey, 10);
+
+		this.nextHistoryPage += 1;
+		this.hasReachedHistoryEnd = Array.isArray(responseItems) && responseItems.length === 0;
+
+		return responseItems;
+	}
+
+	private async fetchHistoryItems(
+		page: number,
+		pageSize: number,
+		cancelKey = 'default',
+		maxRetries = 10
+	): Promise<NetflixHistoryItem[]> {
+		if (!this.session) {
+			throw new Error('Invalid session');
+		}
+
+		const callPath = `["aui","viewingActivity",${page},${pageSize}]`;
 		const encodedCallPath = encodeURIComponent(callPath);
 		const url = `${this.HOST_URL}/api/aui/pathEvaluator/web/%5E2.0.0?method=call&callPath=${encodedCallPath}&falcor_server=0.1.0`;
 
-		// URL-encode the JSON payload for application/x-www-form-urlencoded content type
 		const paramValue = JSON.stringify({ guid: this.session.userGuid });
 		const body = `param=${encodeURIComponent(paramValue)}`;
 
@@ -240,9 +256,8 @@ class _NetflixApi extends ServiceApi {
 				'{"path":"/nq/aui/endpoint/%5E1.0.0-web/pathEvaluator","control_tag":"auinqweb"}',
 		};
 
-		const MAX_RETRIES = 10;
 		let responseText: string | undefined;
-		for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				responseText = await Requests.send({
 					url,
@@ -251,12 +266,11 @@ class _NetflixApi extends ServiceApi {
 					headers,
 					cancelKey,
 				});
-
 				if (responseText) {
 					break;
 				}
 			} catch (err) {
-				if (attempt === MAX_RETRIES) {
+				if (attempt === maxRetries) {
 					throw err;
 				}
 			}
@@ -266,14 +280,8 @@ class _NetflixApi extends ServiceApi {
 			throw new Error('Failed to fetch history from Netflix API');
 		}
 
-		// Type-safe parsing and access
 		const responseJson = JSON.parse(responseText) as NetflixAuiHistoryResponse;
-		const responseItems = responseJson.jsonGraph.aui.viewingActivity?.value?.viewedItems ?? [];
-
-		this.nextHistoryPage += 1;
-		this.hasReachedHistoryEnd = Array.isArray(responseItems) && responseItems.length === 0;
-
-		return responseItems;
+		return responseJson.jsonGraph.aui.viewingActivity?.value?.viewedItems ?? [];
 	}
 
 	isNewHistoryItem(historyItem: NetflixHistoryItem, lastSync: number) {
@@ -430,25 +438,68 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	async getItem(id: string): Promise<ScrobbleItem | null> {
-		let item: ScrobbleItem | null = null;
 		if (!this.isActivated) {
 			await this.activate();
 		}
 		if (!this.session) {
 			throw new Error('Invalid session');
 		}
-		try {
-			const responseText = await Requests.send({
-				url: `${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}`,
-				method: 'GET',
-			});
-			item = this.parseMetadata(JSON.parse(responseText) as NetflixSingleMetadataItem);
-		} catch (err) {
-			if (Shared.errors.validate(err)) {
-				Shared.errors.error('Failed to get item.', err);
+
+		const item = await this.getItemFromMetadata(id);
+		if (item) {
+			return item;
+		}
+
+		return this.getItemFromRecentHistory(id);
+	}
+
+	private async getItemFromMetadata(id: string): Promise<ScrobbleItem | null> {
+		const metadataUrls = [
+			`${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}`,
+			`${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}&authURL=${encodeURIComponent(this.session?.authUrl ?? '')}`,
+		];
+
+		for (const metadataUrl of metadataUrls) {
+			try {
+				const responseText = await Requests.send({
+					url: metadataUrl,
+					method: 'GET',
+				});
+				const metadata = JSON.parse(responseText) as NetflixSingleMetadataItem;
+				if (metadata?.video) {
+					return this.parseMetadata(metadata);
+				}
+			} catch (_err) {
+				// Do nothing
 			}
 		}
-		return item;
+
+		return null;
+	}
+
+	private async getItemFromRecentHistory(id: string): Promise<ScrobbleItem | null> {
+		if (!this.session?.userGuid) {
+			return null;
+		}
+
+		try {
+			const historyItems = await this.fetchHistoryItems(0, 50, `item-fallback-${id}`, 3);
+			if (historyItems.length === 0) {
+				return null;
+			}
+
+			const historyItem = historyItems.find((currentItem) => currentItem.movieID.toString() === id);
+			if (!historyItem) {
+				return null;
+			}
+
+			const [historyItemWithMetadata] = await this.getHistoryMetadata([historyItem]);
+			return historyItemWithMetadata ? this.parseHistoryItem(historyItemWithMetadata) : null;
+		} catch (_err) {
+			// Do nothing
+		}
+
+		return null;
 	}
 
 	parseMetadata(metadata: NetflixSingleMetadataItem): ScrobbleItem {
@@ -547,6 +598,77 @@ Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
 		}
 	}
 	return session;
+};
+
+Shared.functionsToInject[`${NetflixService.id}-playback`] = () => {
+	const getPlayback = (): NetflixScrobbleSession | null => {
+		let playback: NetflixScrobbleSession | null = null;
+		const { netflix } = window;
+		if (
+			netflix &&
+			netflix.appContext &&
+			netflix.appContext.state &&
+			netflix.appContext.state.playerApp &&
+			typeof netflix.appContext.state.playerApp.getState === 'function'
+		) {
+			const state = netflix.appContext.state.playerApp.getState();
+			const sessions = state && state.videoPlayer && state.videoPlayer.playbackStateBySessionId;
+			if (sessions) {
+				const allSessions = Object.keys(sessions)
+					.map((sessionId) => sessions[sessionId])
+					.filter((session): session is NetflixScrobbleSession => !!session);
+				playback =
+					allSessions.find((session) => session.playing) ||
+					allSessions.find((session) => !session.paused) ||
+					allSessions[0] ||
+					null;
+			}
+		}
+		return playback;
+	};
+
+	const playback = getPlayback();
+	if (!playback || playback.duration <= 0) {
+		return null;
+	}
+
+	return {
+		currentTime: playback.currentTime,
+		duration: playback.duration,
+		isPaused: playback.paused,
+		progress: (playback.currentTime / playback.duration) * 100,
+	};
+};
+
+Shared.functionsToInject[`${NetflixService.id}-item-id`] = () => {
+	const getPlayback = (): NetflixScrobbleSession | null => {
+		let playback: NetflixScrobbleSession | null = null;
+		const { netflix } = window;
+		if (
+			netflix &&
+			netflix.appContext &&
+			netflix.appContext.state &&
+			netflix.appContext.state.playerApp &&
+			typeof netflix.appContext.state.playerApp.getState === 'function'
+		) {
+			const state = netflix.appContext.state.playerApp.getState();
+			const sessions = state && state.videoPlayer && state.videoPlayer.playbackStateBySessionId;
+			if (sessions) {
+				const allSessions = Object.keys(sessions)
+					.map((sessionId) => sessions[sessionId])
+					.filter((session): session is NetflixScrobbleSession => !!session);
+				playback =
+					allSessions.find((session) => session.playing) ||
+					allSessions.find((session) => !session.paused) ||
+					allSessions[0] ||
+					null;
+			}
+		}
+		return playback;
+	};
+
+	const playback = getPlayback();
+	return playback && playback.videoId ? playback.videoId.toString() : null;
 };
 
 export const NetflixApi = new _NetflixApi();
