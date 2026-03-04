@@ -14,9 +14,22 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV11;
+export type StorageValues = StorageValuesV12;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
+
+export type KinoPubAuthDetails = {
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	refresh_token: string;
+	created_at: number;
+};
+
+export type StorageValuesV12 = Omit<StorageValuesV11, 'version'> & {
+	version?: 12;
+	kinoPubAuth?: KinoPubAuthDetails;
+};
 
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
 	version?: 11;
@@ -231,7 +244,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 11;
+	readonly currentVersion = 12;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -403,6 +416,10 @@ class _BrowserStorage {
 			}
 		}
 
+		if (version < 12 && this.currentVersion >= 12) {
+			console.log('Upgrading to v12...');
+		}
+
 		await this.set({ version: this.currentVersion }, true);
 
 		console.log('Upgraded!');
@@ -413,6 +430,11 @@ class _BrowserStorage {
 	 * They are only separated by type, to make it easier to understand the downgrade process.
 	 */
 	async downgrade(version: number) {
+		if (version > 11 && this.currentVersion <= 11) {
+			console.log('Downgrading to v11...');
+			await this.doRemove(['kinoPubAuth'] as unknown as (keyof StorageValues)[], true);
+		}
+
 		if (version > 10 && this.currentVersion <= 10) {
 			console.log('Downgrading to v10...');
 			const values = await this.get('options');

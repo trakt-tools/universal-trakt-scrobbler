@@ -259,6 +259,7 @@ const getManifest = (browserName: string, isDev: boolean): string => {
 				'*://*.trakt.tv/*',
 				'*://*.themoviedb.org/*',
 				'*://*.uts.rafaelgomes.xyz/*',
+				'*://api.service-kp.com/*',
 			];
 			manifest.action = {
 				default_icon: {
@@ -298,6 +299,7 @@ const getManifest = (browserName: string, isDev: boolean): string => {
 				'*://*.trakt.tv/*',
 				'*://*.themoviedb.org/*',
 				'*://*.uts.rafaelgomes.xyz/*',
+				'*://api.service-kp.com/*',
 			];
 			manifest.browser_action = {
 				default_icon: {
