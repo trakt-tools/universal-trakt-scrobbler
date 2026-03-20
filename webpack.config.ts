@@ -108,6 +108,7 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 			popup: ['./src/modules/popup/popup.tsx'],
 			history: ['./src/modules/history/history.tsx'],
 			options: ['./src/modules/options/options.tsx'],
+			'kino-pub-auth': ['./src/modules/kino-pub-auth/kino-pub-auth.tsx'],
 			...serviceEntries,
 		},
 		mode,
@@ -195,6 +196,15 @@ const getWebpackConfig = (env: Environment): webpack.Configuration => {
 						script: 'options.js',
 					},
 					filename: 'options.html',
+					inject: false,
+				}),
+				new plugins.html({
+					template: './src/templates/main.pug',
+					templateParameters: {
+						title: `${titlePrefix}Universal Trakt Scrobbler - Kino.pub Auth`,
+						script: 'kino-pub-auth.js',
+					},
+					filename: 'kino-pub-auth.html',
 					inject: false,
 				}),
 				new plugins.circularDependency({

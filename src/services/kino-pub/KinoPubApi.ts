@@ -1,6 +1,5 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { KinoPubAuthDetails } from '@common/BrowserStorage';
-import { Notifications } from '@common/Notifications';
 import { RequestError } from '@common/RequestError';
 import { Requests, withHeaders } from '@common/Requests';
 import { Shared } from '@common/Shared';
@@ -8,6 +7,7 @@ import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { KinoPubService } from '@/kino-pub/KinoPubService';
+import browser from 'webextension-polyfill';
 
 // Public Kodi/XBMC client credentials widely used by unofficial Kino.pub clients
 const KINOPUB_CLIENT_ID = 'xbmc';
@@ -230,18 +230,23 @@ class _KinoPubApi extends ServiceApi {
 			});
 			const codeData = JSON.parse(codeResponseText) as KinoPubDeviceCodeResponse;
 
-			await Promise.all([
-				Tabs.open(codeData.verification_uri),
-				Notifications.show('Kino.pub login required', `Enter code: ${codeData.user_code}`),
-			]);
+			const authPageUrl = new URL(browser.runtime.getURL('kino-pub-auth.html'));
+			authPageUrl.searchParams.set('code', codeData.user_code);
+			authPageUrl.searchParams.set('uri', codeData.verification_uri);
+			const authTab = await Tabs.open(authPageUrl.toString());
 
-			const tokenData = await this.pollForToken(
-				codeData.code,
-				codeData.interval,
-				Date.now() + codeData.expires_in * 1000
-			);
-
-			await this.saveToken(tokenData);
+			try {
+				const tokenData = await this.pollForToken(
+					codeData.code,
+					codeData.interval,
+					Date.now() + codeData.expires_in * 1000
+				);
+				await this.saveToken(tokenData);
+			} finally {
+				if (authTab?.id) {
+					await browser.tabs.remove(authTab.id).catch(() => undefined);
+				}
+			}
 			return true;
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
