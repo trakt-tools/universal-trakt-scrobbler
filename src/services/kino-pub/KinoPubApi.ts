@@ -1,11 +1,20 @@
 import { ServiceApi } from '@apis/ServiceApi';
 import { KinoPubAuthDetails } from '@common/BrowserStorage';
+import { Notifications } from '@common/Notifications';
+import { RequestError } from '@common/RequestError';
 import { Requests, withHeaders } from '@common/Requests';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { KinoPubService } from '@/kino-pub/KinoPubService';
+
+// Public Kodi/XBMC client credentials widely used by unofficial Kino.pub clients
+const KINOPUB_CLIENT_ID = 'xbmc';
+const KINOPUB_CLIENT_SECRET = 'cgg3gtifu46urtfp2zp1nqtba0k2ezxh';
+
+/** Kino.pub titles are formatted as "Russian Title / Original Title". Extract the original. */
+export const extractOriginalTitle = (title: string): string => title.split(' / ').at(-1) ?? title;
 
 export interface KinoPubHistoryItem {
 	mediaId: string;
@@ -177,21 +186,15 @@ class _KinoPubApi extends ServiceApi {
 	}
 
 	private async ensureValidToken(): Promise<boolean> {
-		if (this.isActivated) {
-			const { kinoPubAuth } = await Shared.storage.get('kinoPubAuth');
-			if (kinoPubAuth && !this.hasTokenExpired(kinoPubAuth)) {
-				return true;
-			}
-		}
-
 		const { kinoPubAuth } = await Shared.storage.get('kinoPubAuth');
 		if (!kinoPubAuth) {
 			return false;
 		}
 
 		if (!this.hasTokenExpired(kinoPubAuth)) {
-			this.setAuthRequests(kinoPubAuth.access_token);
-			await this.notifyDevice();
+			if (!this.isActivated) {
+				await this.saveToken(kinoPubAuth);
+			}
 			return true;
 		}
 
@@ -206,7 +209,7 @@ class _KinoPubApi extends ServiceApi {
 	private async refreshToken(refreshToken: string): Promise<boolean> {
 		try {
 			const responseText = await Requests.send({
-				url: `${this.API_URL}/oauth2/token?grant_type=refresh_token&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}&refresh_token=${refreshToken}`,
+				url: `${this.API_URL}/oauth2/token?grant_type=refresh_token&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}&refresh_token=${refreshToken}`,
 				method: 'POST',
 			});
 			const tokenData = JSON.parse(responseText) as KinoPubTokenResponse;
@@ -222,23 +225,15 @@ class _KinoPubApi extends ServiceApi {
 	private async startDeviceFlow(): Promise<boolean> {
 		try {
 			const codeResponseText = await Requests.send({
-				url: `${this.API_URL}/oauth2/device?grant_type=device_code&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}`,
+				url: `${this.API_URL}/oauth2/device?grant_type=device_code&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}`,
 				method: 'POST',
 			});
 			const codeData = JSON.parse(codeResponseText) as KinoPubDeviceCodeResponse;
 
-			await Tabs.open(codeData.verification_uri);
-
-			if (typeof window !== 'undefined') {
-				console.log(
-					`Enter this code on the Kino.pub device page:\n${codeData.verification_uri}`,
-					codeData.user_code
-				);
-				window.prompt(
-					`Enter this code on the Kino.pub device page:\n${codeData.verification_uri}`,
-					codeData.user_code
-				);
-			}
+			await Promise.all([
+				Tabs.open(codeData.verification_uri),
+				Notifications.show('Kino.pub login required', `Enter code: ${codeData.user_code}`),
+			]);
 
 			const tokenData = await this.pollForToken(
 				codeData.code,
@@ -247,7 +242,6 @@ class _KinoPubApi extends ServiceApi {
 			);
 
 			await this.saveToken(tokenData);
-			await this.notifyDevice();
 			return true;
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
@@ -270,11 +264,16 @@ class _KinoPubApi extends ServiceApi {
 				}
 				try {
 					const responseText = await Requests.send({
-						url: `${this.API_URL}/oauth2/device?grant_type=device_token&client_id=${Shared.kinoPubClientId}&client_secret=${Shared.kinoPubClientSecret}&code=${code}`,
+						url: `${this.API_URL}/oauth2/device?grant_type=device_token&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}&code=${code}`,
 						method: 'POST',
 					});
 					resolve(JSON.parse(responseText) as KinoPubTokenResponse);
-				} catch {
+				} catch (err) {
+					// Only retry on network/transient errors; fail fast on fatal HTTP errors
+					if (err instanceof RequestError && err.status && err.status < 500) {
+						reject(err);
+						return;
+					}
 					setTimeout(() => void poll(), interval * 1000);
 				}
 			};
@@ -282,16 +281,20 @@ class _KinoPubApi extends ServiceApi {
 		});
 	}
 
-	private async saveToken(tokenData: KinoPubTokenResponse): Promise<void> {
-		const kinoPubAuth: KinoPubAuthDetails = {
-			access_token: tokenData.access_token,
-			token_type: tokenData.token_type,
-			expires_in: tokenData.expires_in,
-			refresh_token: tokenData.refresh_token,
-			created_at: Utils.unix(),
-		};
+	private async saveToken(tokenData: KinoPubTokenResponse | KinoPubAuthDetails): Promise<void> {
+		const kinoPubAuth: KinoPubAuthDetails =
+			'created_at' in tokenData
+				? tokenData
+				: {
+						access_token: tokenData.access_token,
+						token_type: tokenData.token_type,
+						expires_in: tokenData.expires_in,
+						refresh_token: tokenData.refresh_token,
+						created_at: Utils.unix(),
+					};
 		await Shared.storage.set({ kinoPubAuth }, true);
 		this.setAuthRequests(kinoPubAuth.access_token);
+		await this.notifyDevice();
 	}
 
 	private setAuthRequests(accessToken: string): void {
@@ -319,15 +322,14 @@ class _KinoPubApi extends ServiceApi {
 
 	private mapHistoryEntry(entry: KinoPubHistoryEntry): KinoPubHistoryItem {
 		const { item, media } = entry;
-		const titleParts = item.title.split(' / ');
-		const originalTitle = titleParts[titleParts.length - 1];
+		const originalTitle = extractOriginalTitle(item.title);
 
 		if (SERIAL_TYPES.includes(item.type)) {
 			return {
 				mediaId: String(media.id),
 				itemId: String(item.id),
 				type: 'episode',
-				title: item.title,
+				title: originalTitle,
 				year: item.year,
 				season: media.snumber,
 				episode: media.number,

@@ -63,7 +63,10 @@ class _ScriptInjector {
 			)
 			.map((service) => ({
 				matches: service.hostPatterns.map((hostPattern) =>
-					hostPattern.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?').replace(/\/\*$/, '')
+					hostPattern
+						.replace(/^\*:\/\/\*\./, 'https?:\\/\\/([^/]*\\.)?')
+						.replace(/^\*:\/\//, 'https?:\\/\\/')
+						.replace(/\/\*$/, '')
 				),
 				js: [`${service.id}.js`],
 			}));

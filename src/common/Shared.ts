@@ -11,8 +11,6 @@ export interface SharedValues {
 	clientSecret: string;
 	rollbarToken: string;
 	tmdbApiKey: string;
-	kinoPubClientId: string;
-	kinoPubClientSecret: string;
 
 	manifestVersion: number;
 	browser: BrowserName;
@@ -60,8 +58,6 @@ export const Shared: SharedValues = {
 	clientSecret: process.env.TRAKT_CLIENT_SECRET || '',
 	rollbarToken: process.env.ROLLBAR_TOKEN || '',
 	tmdbApiKey: process.env.TMDB_API_KEY || '',
-	kinoPubClientId: process.env.KINOPUB_CLIENT_ID || '',
-	kinoPubClientSecret: process.env.KINOPUB_CLIENT_SECRET || '',
 
 	manifestVersion: browser.runtime.getManifest().manifest_version,
 	browser: browsers[browserPrefix] || 'unknown',

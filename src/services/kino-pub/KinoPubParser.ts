@@ -1,5 +1,5 @@
 import { ScrobbleParser } from '@common/ScrobbleParser';
-import { KinoPubApi } from '@/kino-pub/KinoPubApi';
+import { KinoPubApi, extractOriginalTitle } from '@/kino-pub/KinoPubApi';
 import { EpisodeItem, MovieItem, type ScrobbleItem } from '@models/Item';
 
 class _KinoPubParser extends ScrobbleParser {
@@ -29,23 +29,13 @@ class _KinoPubParser extends ScrobbleParser {
 		const yearElement = document.querySelector('a[href*="years="]');
 		const year = yearElement ? parseInt(yearElement.textContent ?? '') || undefined : undefined;
 
-		if (season === 0) {
-			// Movie: use original title (after " / ") if available
-			const titleParts = rawTitle.split(' / ');
-			const title = titleParts.length > 1 ? titleParts[titleParts.length - 1] : rawTitle;
+		const showTitle = extractOriginalTitle(rawTitle);
 
-			return new MovieItem({
-				serviceId,
-				id,
-				title,
-				year,
-			});
+		if (season === 0) {
+			return new MovieItem({ serviceId, id, title: showTitle, year });
 		}
 
 		// Episode: show title from document.title, episode title from aria-label
-		const showTitleParts = rawTitle.split(' / ');
-		const showTitle =
-			showTitleParts.length > 1 ? showTitleParts[showTitleParts.length - 1] : rawTitle;
 
 		const player = document.querySelector('media-player');
 		const ariaLabel = player?.getAttribute('aria-label') ?? '';
