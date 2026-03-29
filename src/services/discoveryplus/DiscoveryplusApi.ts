@@ -174,6 +174,19 @@ class _DiscoveryplusApi extends ServiceApi {
 		return historyItems;
 	}
 
+	async loadHistoryForShow(showId: string): Promise<DiscoveryplusHistoryItem[]> {
+		this.showIdsParam = showId;
+		this.currentHistoryPage = 1;
+		this.hasReachedHistoryEnd = false;
+
+		const items: DiscoveryplusHistoryItem[] = [];
+		while (!this.hasReachedHistoryEnd) {
+			const pageItems = await this.loadNextHistoryPage();
+			items.push(...pageItems);
+		}
+		return items;
+	}
+
 	/** Load all history items */
 	async loadHistoryItems(_cancelKey = 'default'): Promise<DiscoveryplusHistoryItem[]> {
 		if (!this.isActivated) await this.activate();
@@ -182,15 +195,10 @@ class _DiscoveryplusApi extends ServiceApi {
 		const showIds = await this.fetchSeriesShowIds();
 		if (!showIds.length) return [];
 
-		this.showIdsParam = showIds.join(',');
-		this.currentHistoryPage = 1;
-		this.hasReachedHistoryEnd = false;
+		// Load all shows in parallel
+		const results = await Promise.all(showIds.map((id) => this.loadHistoryForShow(id)));
 
-		const allHistoryItems: DiscoveryplusHistoryItem[] = [];
-		while (!this.hasReachedHistoryEnd) {
-			const pageItems = await this.loadNextHistoryPage();
-			allHistoryItems.push(...pageItems);
-		}
+		const allHistoryItems = results.flat();
 
 		const viewedEpisodes = allHistoryItems.filter(
 			(i) => i.attributes.videoType === 'EPISODE' && i.attributes.viewingHistory.viewed
