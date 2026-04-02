@@ -132,7 +132,7 @@ Never delete the `translations` branch after merging PRs from Crowdin, as Crowdi
 ### Development
 
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
-2. In `Redirect uri:`, put `https://trakt.tv/apps`. If the Trakt authorisation fails. for Chome extensions you can also add the extension ID as the first url e.g. `https://{extension ID}.chromiumapp.org/`.
+2. In `Redirect uri:`, put `https://trakt.tv/apps`. If the Trakt authorisation fails. for Chrome extensions you can also add the extension ID as the first url e.g. `https://{extension ID}.chromiumapp.org/`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
 4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension. The "CHROME_EXTENSION_KEY" can remain empty.
 
