@@ -209,8 +209,14 @@ class _KinoPubApi extends ServiceApi {
 	private async refreshToken(refreshToken: string): Promise<boolean> {
 		try {
 			const responseText = await Requests.send({
-				url: `${this.API_URL}/oauth2/token?grant_type=refresh_token&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}&refresh_token=${refreshToken}`,
+				url: `${this.API_URL}/oauth2/token`,
 				method: 'POST',
+				body: new URLSearchParams({
+					grant_type: 'refresh_token',
+					client_id: KINOPUB_CLIENT_ID,
+					client_secret: KINOPUB_CLIENT_SECRET,
+					refresh_token: refreshToken,
+				}).toString(),
 			});
 			const tokenData = JSON.parse(responseText) as KinoPubTokenResponse;
 			await this.saveToken(tokenData);
@@ -225,8 +231,13 @@ class _KinoPubApi extends ServiceApi {
 	private async startDeviceFlow(): Promise<boolean> {
 		try {
 			const codeResponseText = await Requests.send({
-				url: `${this.API_URL}/oauth2/device?grant_type=device_code&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}`,
+				url: `${this.API_URL}/oauth2/device`,
 				method: 'POST',
+				body: new URLSearchParams({
+					grant_type: 'device_code',
+					client_id: KINOPUB_CLIENT_ID,
+					client_secret: KINOPUB_CLIENT_SECRET,
+				}).toString(),
 			});
 			const codeData = JSON.parse(codeResponseText) as KinoPubDeviceCodeResponse;
 
@@ -269,8 +280,14 @@ class _KinoPubApi extends ServiceApi {
 				}
 				try {
 					const responseText = await Requests.send({
-						url: `${this.API_URL}/oauth2/device?grant_type=device_token&client_id=${KINOPUB_CLIENT_ID}&client_secret=${KINOPUB_CLIENT_SECRET}&code=${code}`,
+						url: `${this.API_URL}/oauth2/device`,
 						method: 'POST',
+						body: new URLSearchParams({
+							grant_type: 'device_token',
+							client_id: KINOPUB_CLIENT_ID,
+							client_secret: KINOPUB_CLIENT_SECRET,
+							code,
+						}).toString(),
 					});
 					resolve(JSON.parse(responseText) as KinoPubTokenResponse);
 				} catch (err) {
