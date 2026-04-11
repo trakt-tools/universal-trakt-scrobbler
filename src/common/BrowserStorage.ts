@@ -18,8 +18,17 @@ export type StorageValues = StorageValuesV11;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
+export type KinoPubAuthDetails = {
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	refresh_token: string;
+	created_at: number;
+};
+
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
 	version?: 11;
+	kinoPubAuth?: KinoPubAuthDetails;
 };
 
 export type StorageValuesV10 = Omit<StorageValuesV9, 'version' | 'options'> & {
