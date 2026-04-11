@@ -216,6 +216,27 @@ class _TraktSearch extends TraktApi {
 
 				return title === itemTitle && (!itemYear || !year || itemYear === year);
 			});
+			if (!searchItem && item.type === 'show' && searchItems.length > 1) {
+				// No exact title match — try TMDB cross-reference.
+				// TMDB has better localized title support, so searching TMDB for the
+				// original title and matching the TMDB ID against Trakt results can
+				// resolve cases where Trakt lists a show under a different (e.g. English) name.
+				try {
+					const { TmdbApi } = await import('@apis/TmdbApi');
+					const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
+					if (tmdbShow) {
+						const tmdbMatch = searchItems.find((si) => {
+							const info = 'show' in si ? si.show : null;
+							return info?.ids?.tmdb === tmdbShow.id;
+						});
+						if (tmdbMatch) {
+							searchItem = tmdbMatch;
+						}
+					}
+				} catch (_err) {
+					// TMDB cross-reference failed, will fall back to first result
+				}
+			}
 			if (!searchItem) {
 				// Couldn't match, so just use the first result
 				searchItem = searchItems[0];
