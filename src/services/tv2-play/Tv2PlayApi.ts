@@ -6,8 +6,7 @@ import { Utils } from '@common/Utils';
 import { Shared } from '@common/Shared';
 import { ScriptInjector } from '@common/ScriptInjector';
 
-interface Asset {
-	id: string;
+interface HistoryAsset {
 	path: string;
 	title: string;
 }
@@ -15,87 +14,46 @@ interface Asset {
 interface Tv2PlayEpisodeHistoryItem {
 	id: string;
 	date: string;
-	asset: Asset;
-	season: Asset;
-	show: Asset;
+	asset: HistoryAsset;
+	season: HistoryAsset;
+	show: HistoryAsset;
 }
 
 interface Tv2PlayMovieHistoryItem {
 	id: string;
 	date: string;
-	asset: Asset;
+	asset: HistoryAsset;
 	season: null;
 	show: null;
 }
 
 export type Tv2PlayHistoryItem = Tv2PlayMovieHistoryItem | Tv2PlayEpisodeHistoryItem;
 
+// Content API response types
 interface TV2PlayProgress {
 	position?: number;
 	duration: number;
-	label: string;
 	watched: number;
 }
 
-interface TV2PlaySeasonContent {
-	title: string;
-	long_title: string;
-	id: string;
-	self_uri: string;
-	url: string;
-}
-
-interface TV2PlayEpisodeInCollection {
-	content_id: string;
-	title: string;
-	url: string;
-	description: string;
-	progress?: TV2PlayProgress;
-}
-
-interface TV2PlaySeasonCollectionResponse {
-	title: string;
-	long_title: string;
-	content: TV2PlayEpisodeInCollection[];
-	id: string;
-	self_uri: string;
-	size: number;
-	start: number;
-	total: number;
-	url: string;
-	sort_order: string;
-}
-
-interface TV2PlayContentResponseBase {
+interface TV2PlayContentResponse {
+	layout: 'seasonal' | 'movie' | 'plain'; // seasonal=series, movie=film, plain=sport
 	player: {
 		content_id: string;
-		title: string;
-		url: string;
 		asset_id: string;
+		title: string; // Show title, NOT episode title
 		progress: TV2PlayProgress;
+		// Episode title is in metainfo[1].text (metainfo[0] is "S1E2" format)
+		metainfo?: Array<{ text: string }>;
 	};
 	details: {
-		title: string;
-		description: string;
 		content_id: string;
-		image: string;
+		title: string;
+		image: { src: string };
+		// Used to parse year for movies
 		metainfo?: Array<{ text: string; type?: string }>;
 	};
 }
-
-interface TV2PlayEpisodeContentResponse extends TV2PlayContentResponseBase {
-	layout: 'seasonal';
-	seasons: {
-		selected_index: number;
-		content: TV2PlaySeasonContent[];
-	};
-}
-
-interface TV2PlayMovieContentResponse extends TV2PlayContentResponseBase {
-	layout: 'movie';
-}
-
-type TV2PlayContentResponse = TV2PlayEpisodeContentResponse | TV2PlayMovieContentResponse;
 
 interface TV2PlayUserInfo {
 	email: string;
@@ -127,9 +85,6 @@ class _Tv2PlayApi extends ServiceApi {
 	pageSize = 10;
 
 	authRequests = Requests;
-
-	// Cache for season collections to avoid duplicate API calls
-	private seasonCollectionCache = new Map<string, TV2PlaySeasonCollectionResponse>();
 
 	constructor() {
 		super(Tv2PlayService.id);
@@ -213,7 +168,6 @@ class _Tv2PlayApi extends ServiceApi {
 				contentInfo = await this.getProgressForItem(historyItem.asset.path);
 			} catch (error) {
 				console.error('Failed to get progress for item:', historyItem.asset.path, error);
-				// contentInfo will remain undefined
 			}
 
 			const item = await this.parseHistoryItemWithTitle(historyItem, contentInfo?.contentResponse);
@@ -269,8 +223,10 @@ class _Tv2PlayApi extends ServiceApi {
 		historyItem: Tv2PlayHistoryItem,
 		contentResponse?: TV2PlayContentResponse
 	): Promise<ScrobbleItem> {
-		// Check if it's an episode by looking for season info
-		if (historyItem.season && historyItem.season.title) {
+		// Check if it's an episode by looking for season info AND show info
+		// Also verify the path contains /serier/ to exclude sports content
+		const isSeriesPath = historyItem.asset.path.startsWith('/serier/');
+		if (isSeriesPath && historyItem.season && historyItem.season.title && historyItem.show) {
 			const seasonMatch = historyItem.season.title.match(/\d+/);
 			const seasonNumber = seasonMatch ? parseInt(seasonMatch[0], 10) : 0;
 
@@ -280,38 +236,36 @@ class _Tv2PlayApi extends ServiceApi {
 				? parseInt(episodeMatch.groups.episode, 10)
 				: 0;
 
-			// Try to get episode title from content response (with caching and cleanup)
+			// Use historyItem.id as the identifier (asset.id was removed by TV2)
+			const assetId = historyItem.id;
+
+			// Try to get episode title from content response
+			// Episode title is in player.metainfo[1].text (metainfo[0] is "S1E2" format)
 			let episodeTitle = `Episode ${episodeNumber}`; // Fallback
-			if (contentResponse) {
-				const fetchedTitle = await this.getEpisodeTitleFromCollection(
-					contentResponse,
-					historyItem.asset.id,
-					episodeNumber
-				);
-				if (fetchedTitle) {
-					episodeTitle = fetchedTitle;
-				}
+			if (contentResponse?.player?.metainfo?.[1]?.text) {
+				episodeTitle = contentResponse.player.metainfo[1].text;
 			}
 
 			const values = {
 				serviceId: this.id,
-				id: historyItem.asset.id,
+				id: assetId,
 				title: episodeTitle,
 				season: seasonNumber,
 				number: episodeNumber,
 				show: {
 					serviceId: this.id,
-					id: historyItem.show.id,
+					// show.id was removed by TV2, use title as identifier
+					id: historyItem.show.title,
 					title: historyItem.show.title,
 				},
 			};
 			return new EpisodeItem(values);
 		}
 
-		// Otherwise, treat it as a movie
+		// Otherwise, treat it as a movie (includes sport content)
 		return new MovieItem({
 			serviceId: this.id,
-			id: historyItem.asset.id,
+			id: historyItem.id,
 			title: historyItem.asset.title,
 		});
 	}
@@ -347,6 +301,13 @@ class _Tv2PlayApi extends ServiceApi {
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
+
+		// Use asset_id if available, otherwise fall back to content_id
+		const itemId =
+			responseJson.player.asset_id ||
+			responseJson.player.content_id ||
+			responseJson.details.content_id;
+
 		if (responseJson.layout === 'seasonal') {
 			// Parse season and episode numbers from the URL
 			const episodeMatch = path.match(/\/sesong-(?<season>\d+)\/episode-(?<episode>\d+)/i);
@@ -357,20 +318,15 @@ class _Tv2PlayApi extends ServiceApi {
 				? parseInt(episodeMatch.groups.episode, 10)
 				: 0;
 
-			// Fetch episode title from season collection (with caching and cleanup)
+			// Episode title is in player.metainfo[1].text (metainfo[0] is "S1E2" format)
 			let episodeTitle = `Episode ${episodeNumber}`; // Fallback
-			const fetchedTitle = await this.getEpisodeTitleFromCollection(
-				responseJson,
-				responseJson.player.asset_id,
-				episodeNumber
-			);
-			if (fetchedTitle) {
-				episodeTitle = fetchedTitle;
+			if (responseJson.player?.metainfo?.[1]?.text) {
+				episodeTitle = responseJson.player.metainfo[1].text;
 			}
 
 			const values = {
 				serviceId: this.id,
-				id: responseJson.player.asset_id,
+				id: itemId,
 				title: episodeTitle,
 				season: seasonNumber,
 				number: episodeNumber,
@@ -386,103 +342,10 @@ class _Tv2PlayApi extends ServiceApi {
 		const year = this.parseYearFromMetainfo(responseJson.details.metainfo);
 		return new MovieItem({
 			serviceId: this.id,
-			id: responseJson.player.asset_id,
+			id: itemId,
 			title: responseJson.details.title,
 			year,
 		});
-	}
-
-	/**
-	 * Strip episode number prefix from episode titles
-	 * Examples: "1. Title" -> "Title", "1. – Title" -> "Title"
-	 */
-	cleanEpisodeTitle(title: string, episodeNumber: number): string {
-		// Remove patterns like "1. ", "1. – ", "01. ", etc.
-		const patterns = [
-			new RegExp(`^0*${episodeNumber}\\.\\s*–\\s*`, 'i'), // "1. – "
-			new RegExp(`^0*${episodeNumber}\\.\\s*`, 'i'), // "1. "
-		];
-
-		for (const pattern of patterns) {
-			const cleaned = title.replace(pattern, '');
-			if (cleaned !== title) {
-				return cleaned;
-			}
-		}
-
-		return title;
-	}
-
-	/**
-	 * Fetch episode details from season collection with caching
-	 */
-	async getEpisodeFromCollection(
-		collectionUri: string,
-		episodeId: string
-	): Promise<TV2PlayEpisodeInCollection | null> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
-
-		try {
-			// Check cache first
-			let collectionData = this.seasonCollectionCache.get(collectionUri);
-
-			if (!collectionData) {
-				// Cache miss - fetch from API
-				const responseText = await this.authRequests.send({
-					url: `https://ai.play.tv2.no${collectionUri}?size=100&start=0`,
-					method: 'GET',
-				});
-				collectionData = JSON.parse(responseText) as TV2PlaySeasonCollectionResponse;
-
-				// Store in cache
-				this.seasonCollectionCache.set(collectionUri, collectionData);
-			}
-
-			// Find the episode by content_id
-			const episode = collectionData.content.find((ep) => ep.content_id === episodeId);
-			return episode || null;
-		} catch (error) {
-			console.error('Failed to fetch collection:', collectionUri, error);
-			return null;
-		}
-	}
-
-	/**
-	 * Fetch episode title from season collection
-	 * Handles caching and title cleanup
-	 */
-	async getEpisodeTitleFromCollection(
-		contentResponse: TV2PlayContentResponse,
-		episodeId: string,
-		episodeNumber: number
-	): Promise<string | null> {
-		if (contentResponse.layout !== 'seasonal' || !contentResponse.seasons) {
-			return null;
-		}
-
-		try {
-			const selectedSeason =
-				contentResponse.seasons.content[contentResponse.seasons.selected_index];
-			if (!selectedSeason?.self_uri) {
-				return null;
-			}
-
-			const episodeDetails = await this.getEpisodeFromCollection(
-				selectedSeason.self_uri,
-				episodeId
-			);
-
-			if (episodeDetails) {
-				// Clean up the title (remove episode number prefix)
-				return this.cleanEpisodeTitle(episodeDetails.title, episodeNumber);
-			}
-		} catch (error) {
-			console.error('Failed to fetch episode title from collection:', error);
-		}
-
-		return null;
 	}
 }
 
