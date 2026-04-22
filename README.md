@@ -67,36 +67,38 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 <!-- services-start -->
 <!-- Update this section with `npx trakt-tools dev update-readme` -->
 
-| Streaming Service | Scrobble | Sync | Limitations                      |
-| :---------------: | :------: | :--: | :------------------------------- |
-|   Amazon Prime    |    ✔️    |  ✔️  | Scrobbling only works in English |
-|       AMC+        |    ✔️    |  ❌  | -                                |
-|       Crave       |    ✔️    |  ✔️  | -                                |
-|    Crunchyroll    |    ❌    |  ✔️  | -                                |
-|    discovery+     |    ✔️    |  ✔️  | -                                |
-|      Disney+      |    ✔️    |  ❌  | -                                |
-|        Go3        |    ✔️    |  ❌  | -                                |
-|     GoPlay BE     |    ✔️    |  ❌  | -                                |
-|      HBO Go       |    ✔️    |  ❌  | -                                |
-|      HBO Max      |    ✔️    |  ✔️  | -                                |
-|      Hotstar      |    ✔️    |  ❌  | -                                |
-|      Kijk.nl      |    ✔️    |  ❌  | -                                |
-|       MUBI        |    ✔️    |  ✔️  | -                                |
-|      Netflix      |    ✔️    |  ✔️  | -                                |
-|        NRK        |    ✔️    |  ✔️  | -                                |
-|     Player.pl     |    ✔️    |  ❌  | -                                |
-|  Polsatboxgo.pl   |    ✔️    |  ❌  | -                                |
-|    SkyShowtime    |    ✔️    |  ❌  | -                                |
-|       Star+       |    ✔️    |  ❌  | -                                |
-|    Streamz BE     |    ✔️    |  ❌  | -                                |
-|      Stremio      |    ✔️    |  ❌  | -                                |
-|      Tet TV+      |    ✔️    |  ❌  | -                                |
-|     TV 2 PLAY     |    ✔️    |  ✔️  | -                                |
-|      Viaplay      |    ✔️    |  ✔️  | -                                |
-|       Vidio       |    ✔️    |  ❌  | -                                |
-|     VRTNu BE      |    ✔️    |  ❌  | -                                |
-|     VTMGo BE      |    ✔️    |  ❌  | -                                |
-|    Wakanim.tv     |    ✔️    |  ❌  | -                                |
+| Streaming Service | Scrobble | Sync | Limitations                                                                                                                                              |
+| :---------------: | :------: | :--: | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   Amazon Prime    |    ✔️    |  ✔️  | - Scrobbling only works in English                                                                                                                       |
+|       AMC+        |    ✔️    |  ❌  | -                                                                                                                                                        |
+|    BBC iPlayer    |    ❌    |  ✔️  | - iPlayer homepage needs opening before use<br>- iPlayer history only retains the last 50 watched shows<br>- iPlayer uses Shadow DOM preventing scrobble |
+|     Channel 4     |    ✔️    |  ✔️  | - Channel4 history only retains the last 50 watched shows                                                                                                |
+|       Crave       |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|    Crunchyroll    |    ❌    |  ✔️  | -                                                                                                                                                        |
+|    discovery+     |    ✔️    |  ✔️  | - Full history loads by show only, D+ removed ability to load several items at once.                                                                     |
+|      Disney+      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|        Go3        |    ✔️    |  ❌  | -                                                                                                                                                        |
+|     GoPlay BE     |    ✔️    |  ❌  | -                                                                                                                                                        |
+|      HBO Go       |    ✔️    |  ❌  | -                                                                                                                                                        |
+|      HBO Max      |    ✔️    |  ✔️  | - Full history loads by show only, HBO Max removed ability to load several items at once.                                                                |
+|      Hotstar      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|      Kijk.nl      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|       MUBI        |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|      Netflix      |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|        NRK        |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|     Player.pl     |    ✔️    |  ❌  | -                                                                                                                                                        |
+|  Polsatboxgo.pl   |    ✔️    |  ❌  | -                                                                                                                                                        |
+|    SkyShowtime    |    ✔️    |  ❌  | -                                                                                                                                                        |
+|       Star+       |    ✔️    |  ❌  | -                                                                                                                                                        |
+|    Streamz BE     |    ✔️    |  ❌  | -                                                                                                                                                        |
+|      stremio      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|      Tet TV+      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|     TV 2 Play     |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|      Viaplay      |    ✔️    |  ✔️  | -                                                                                                                                                        |
+|       Vidio       |    ✔️    |  ❌  | -                                                                                                                                                        |
+|    VRT Max BE     |    ✔️    |  ❌  | -                                                                                                                                                        |
+|     VTMGo BE      |    ✔️    |  ❌  | -                                                                                                                                                        |
+|    Wakanim.tv     |    ✔️    |  ❌  | -                                                                                                                                                        |
 
 <!-- services-end -->
 
@@ -130,7 +132,7 @@ Never delete the `translations` branch after merging PRs from Crowdin, as Crowdi
 ### Development
 
 1. Create an application in the [Trakt API](https://trakt.tv/oauth/applications/new) (don't forget to check the `/scrobble` permission).
-2. In `Redirect uri:`, put `https://trakt.tv/apps`.
+2. In `Redirect uri:`, put `https://trakt.tv/apps`. If the Trakt authorisation fails. for Chrome extensions you can also add the extension ID as the first url e.g. `https://{extension ID}.chromiumapp.org/`.
 3. In `Javascript (cors) origins:`, put `moz-extension://` and `chrome-extension://`.
 4. Copy the `.env.example` example file and change the Trakt.tv credentials. Make sure to also set the extension ID to an arbitrary but unique string, otherwise some browser features might not be available to the extension. The "CHROME_EXTENSION_KEY" can remain empty.
 

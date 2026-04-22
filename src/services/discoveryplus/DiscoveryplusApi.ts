@@ -60,25 +60,24 @@ class _DiscoveryplusApi extends ServiceApi {
 		super(DiscoveryplusService.id);
 	}
 
-	/** Initialize the API URL using cached routing or bootstrap */
+	/* ---------------- API ROUTING ---------------- */
+
 	private async initApiUrl(): Promise<void> {
 		const env = 'prd';
 		const domain = 'api.discoveryplus.com';
 		const cacheKey = 'servicesData';
-		const ttl = 7 * 24 * 60 * 60 * 1000; // 7 days
+		const ttl = 7 * 24 * 60 * 60 * 1000;
 
-		// Fetch cache wrapper
 		const cacheItem: CacheItem<'servicesData'> | undefined = await Cache.get(cacheKey);
-
-		// Read cached routing for this service
 		const cached = cacheItem?.get(this.id) as CachedRouting | undefined;
+
 		if (cached?.routing && Date.now() - cached.timestamp < ttl) {
 			this.applyRouting(cached.routing);
 			return;
 		}
 
-		// Fetch bootstrap routing from Discovery+
 		const bootstrapUrl = `https://default.any-any.${env}.${domain}/session-context/headwaiter/v1/bootstrap`;
+
 		const responseText = await Requests.send({
 			url: bootstrapUrl,
 			method: 'POST',
@@ -90,26 +89,23 @@ class _DiscoveryplusApi extends ServiceApi {
 		});
 
 		const bootstrap = JSON.parse(responseText) as { routing?: DiscoveryplusRouting };
-		if (!bootstrap.routing) throw new Error('Invalid bootstrap: missing routing');
+		if (!bootstrap.routing) throw new Error('Invalid bootstrap');
 
 		this.applyRouting(bootstrap.routing);
-
-		// Save routing back to cache
 		cacheItem?.set(this.id, { routing: bootstrap.routing, timestamp: Date.now() });
 	}
 
-	/** Apply routing to API URLs */
 	private applyRouting(routing: DiscoveryplusRouting): void {
 		this.API_URL = `https://default.${routing.tenant}-${routing.homeMarket}.${routing.env}.${routing.domain}`;
 		this.PROFILE_URL = `${this.API_URL}/users/me/profiles/selected`;
 		this.ALLSHOWS_URL = `${this.API_URL}/cms/routes/my-stuff?include=default&decorators=viewingHistory,isFavorite,contentAction,badges&page[items.size]=100`;
 	}
 
-	/** Activate service session */
+	/* ---------------- SESSION ---------------- */
+
 	async activate(): Promise<void> {
 		try {
 			await this.initApiUrl();
-
 			const response = await Requests.send({ url: this.PROFILE_URL, method: 'GET' });
 			const profileData = JSON.parse(response) as DiscoveryplusProfileData;
 
@@ -121,15 +117,16 @@ class _DiscoveryplusApi extends ServiceApi {
 		}
 	}
 
-	/** Check if user is logged in */
 	async checkLogin(): Promise<boolean> {
 		if (!this.isActivated) await this.activate();
 		return !!this.session?.profileName;
 	}
 
-	/** Fetch all series show IDs and populate showNameMap */
+	/* ---------------- SHOW LIST ---------------- */
+
 	private async fetchSeriesShowIds(): Promise<string[]> {
 		const responseText = await Requests.send({ url: this.ALLSHOWS_URL, method: 'GET' });
+
 		const allShowsResponse = JSON.parse(responseText) as {
 			included?: Array<{ id: string; attributes?: { showType?: string; name?: string } }>;
 		};
@@ -138,16 +135,19 @@ class _DiscoveryplusApi extends ServiceApi {
 			allShowsResponse.included
 				?.filter((item) => item.attributes?.showType === 'SERIES')
 				.map((item) => {
-					if (item.attributes?.name) this.showNameMap[item.id] = item.attributes.name;
+					if (item.attributes?.name) {
+						this.showNameMap[item.id] = item.attributes.name;
+					}
 					return item.id;
 				}) ?? [];
 
 		return showIds;
 	}
 
-	/** Load the next page of history items */
+	/* ---------------- HISTORY PAGING ---------------- */
+
 	private async loadNextHistoryPage(): Promise<DiscoveryplusHistoryItem[]> {
-		if (!this.showIdsParam) throw new Error('No show IDs set for history request');
+		if (!this.showIdsParam) throw new Error('No show IDs set');
 
 		const params = new URLSearchParams({
 			decorators: 'viewingHistory',
@@ -160,7 +160,11 @@ class _DiscoveryplusApi extends ServiceApi {
 		const historyApiUrl = new URL(`${this.API_URL}/content/videos`);
 		historyApiUrl.search = params.toString();
 
-		const responseText = await Requests.send({ url: historyApiUrl.toString(), method: 'GET' });
+		const responseText = await Requests.send({
+			url: historyApiUrl.toString(),
+			method: 'GET',
+		});
+
 		const responseJson = JSON.parse(responseText) as {
 			data: DiscoveryplusHistoryItem[];
 			meta: { totalPages: number };
@@ -171,31 +175,55 @@ class _DiscoveryplusApi extends ServiceApi {
 
 		this.hasReachedHistoryEnd = this.currentHistoryPage >= totalPages;
 		this.currentHistoryPage++;
+
 		return historyItems;
 	}
 
-	/** Load all history items */
-	async loadHistoryItems(_cancelKey = 'default'): Promise<DiscoveryplusHistoryItem[]> {
+	async loadHistoryForShow(showId: string): Promise<DiscoveryplusHistoryItem[]> {
+		this.showIdsParam = showId;
+		this.currentHistoryPage = 1;
+		this.hasReachedHistoryEnd = false;
+
+		const items: DiscoveryplusHistoryItem[] = [];
+
+		while (!this.hasReachedHistoryEnd) {
+			const pageItems = await this.loadNextHistoryPage();
+			items.push(...pageItems);
+		}
+
+		return items;
+	}
+
+	/* ---------------- LOAD ALL HISTORY ---------------- */
+
+	async loadHistoryItems(): Promise<DiscoveryplusHistoryItem[]> {
 		if (!this.isActivated) await this.activate();
 		if (!this.session) throw new Error('Invalid API session');
 
 		const showIds = await this.fetchSeriesShowIds();
 		if (!showIds.length) return [];
 
-		this.showIdsParam = showIds.join(',');
-		this.currentHistoryPage = 1;
-		this.hasReachedHistoryEnd = false;
-
 		const allHistoryItems: DiscoveryplusHistoryItem[] = [];
-		while (!this.hasReachedHistoryEnd) {
-			const pageItems = await this.loadNextHistoryPage();
-			allHistoryItems.push(...pageItems);
+
+		// Limited concurrency batching
+		const concurrency = 5;
+
+		for (let i = 0; i < showIds.length; i += concurrency) {
+			const batch = showIds.slice(i, i + concurrency);
+
+			const results = await Promise.all(batch.map((id) => this.loadHistoryForShow(id)));
+
+			for (const items of results) {
+				allHistoryItems.push(...items);
+			}
 		}
 
+		// Filter watched episodes
 		const viewedEpisodes = allHistoryItems.filter(
 			(i) => i.attributes.videoType === 'EPISODE' && i.attributes.viewingHistory.viewed
 		);
 
+		// Sort entire combined list by watched date
 		viewedEpisodes.sort((a, b) => {
 			const t1 = Utils.unix(
 				a.attributes.viewingHistory?.lastReportedTimestamp ?? a.attributes.airDate
@@ -209,47 +237,49 @@ class _DiscoveryplusApi extends ServiceApi {
 		return viewedEpisodes;
 	}
 
-	/** Convert history items to ScrobbleItem array */
+	/* ---------------- CONVERT TO SCROBBLES ---------------- */
+
 	async convertHistoryItems(historyItems: DiscoveryplusHistoryItem[]): Promise<ScrobbleItem[]> {
 		const items: ScrobbleItem[] = [];
 
 		for (const ep of historyItems) {
 			const showId = ep.relationships.show.data.id ?? '';
 			const showName = this.showNameMap[showId] ?? 'Unknown Show';
+
 			const watchedAt = Utils.unix(
 				ep.attributes.viewingHistory?.lastReportedTimestamp ?? ep.attributes.airDate
 			);
 
-			// Simulate async processing if needed (or replace with actual async calls)
 			items.push(
-				await Promise.resolve(
-					new EpisodeItem({
+				new EpisodeItem({
+					serviceId: this.id,
+					id: ep.id,
+					title: ep.attributes.name,
+					season: ep.attributes.seasonNumber,
+					number: ep.attributes.episodeNumber,
+					year: new Date(ep.attributes.airDate ?? ep.attributes.firstAvailableDate).getFullYear(),
+					watchedAt,
+					progress: ep.attributes.viewingHistory?.completed ? 100 : 0,
+					show: {
 						serviceId: this.id,
-						id: ep.id,
-						title: ep.attributes.name,
-						season: ep.attributes.seasonNumber,
-						number: ep.attributes.episodeNumber,
-						year: new Date(ep.attributes.airDate ?? ep.attributes.firstAvailableDate).getFullYear(),
-						watchedAt,
-						progress: ep.attributes.viewingHistory?.completed ? 100 : 0,
-						show: { serviceId: this.id, id: showId, title: showName },
-					})
-				)
+						id: showId,
+						title: showName,
+					},
+				})
 			);
 		}
 
 		return items;
 	}
 
-	/** Update existing item from history */
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: DiscoveryplusHistoryItem): void {
 		item.watchedAt = Utils.unix(
 			historyItem.attributes.viewingHistory?.lastReportedTimestamp ?? historyItem.attributes.airDate
 		);
+
 		item.progress = historyItem.attributes.viewingHistory?.completed ? 100 : 0;
 	}
 
-	/** Check if history item is new */
 	isNewHistoryItem(historyItem: DiscoveryplusHistoryItem, lastSync: number): boolean {
 		return (
 			Utils.unix(
@@ -259,14 +289,13 @@ class _DiscoveryplusApi extends ServiceApi {
 		);
 	}
 
-	/** Get unique history item ID */
 	getHistoryItemId(historyItem: DiscoveryplusHistoryItem): string {
 		return historyItem.id;
 	}
 
-	/** Get a single item by ID */
 	async getItem(id: string): Promise<ScrobbleItem | null> {
 		const allItems = await this.convertHistoryItems(await this.loadHistoryItems());
+
 		return allItems.find((i) => i.id === id) ?? null;
 	}
 }
