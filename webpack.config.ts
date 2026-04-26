@@ -246,7 +246,8 @@ const getManifest = (browserName: string, isDev: boolean): string => {
 		content_scripts: [
 			{
 				js: ['trakt.js'],
-				matches: ['*://*.trakt.tv/apps*'],
+				// Trakt redirects oauth callback from trakt.tv/apps to app.trakt.tv
+				matches: ['*://*.trakt.tv/apps*', '*://app.trakt.tv/*'],
 			},
 		],
 		default_locale: 'en',

@@ -47,7 +47,8 @@ class _TraktAuth extends TraktApi {
 	}
 
 	getCode(redirectUrl: string): string {
-		return redirectUrl.split('?')[1].split('=')[1];
+		const search = redirectUrl.includes('?') ? redirectUrl.split('?')[1] : redirectUrl;
+		return new URLSearchParams(search).get('code') ?? '';
 	}
 
 	hasTokenExpired(auth: TraktAuthDetails): boolean {
