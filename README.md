@@ -72,7 +72,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |   Amazon Prime    |    ✔️    |  ✔️  | Scrobbling only works in English |
 |       AMC+        |    ✔️    |  ❌  | -                                |
 |       Crave       |    ✔️    |  ✔️  | -                                |
-|    Crunchyroll    |    ❌    |  ✔️  | Can't identify movies as movies  |
+|    Crunchyroll    |    ❌    |  ✔️  | -                                |
 |    discovery+     |    ✔️    |  ✔️  | -                                |
 |      Disney+      |    ✔️    |  ❌  | -                                |
 |        Go3        |    ✔️    |  ❌  | -                                |
