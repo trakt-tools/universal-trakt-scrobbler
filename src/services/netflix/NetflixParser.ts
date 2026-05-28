@@ -1,4 +1,5 @@
-import { NetflixApi } from '@/netflix/NetflixApi';
+import { NetflixApi, NetflixInjectedPlayback } from '@/netflix/NetflixApi';
+import { ScriptInjector } from '@common/ScriptInjector';
 import { ScrobbleParser } from '@common/ScrobbleParser';
 
 class _NetflixParser extends ScrobbleParser {
@@ -14,6 +15,15 @@ class _NetflixParser extends ScrobbleParser {
 			return id;
 		}
 		return super.parseItemId();
+	}
+
+	protected async parseItemIdFromInjectedScript(): Promise<string | null> {
+		const playback = await ScriptInjector.inject<NetflixInjectedPlayback>(
+			this.api.id,
+			'playback',
+			''
+		);
+		return playback?.videoId ?? null;
 	}
 
 	protected async parseItemFromApi() {

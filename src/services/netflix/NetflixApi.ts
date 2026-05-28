@@ -51,6 +51,14 @@ export interface NetflixScrobbleSession {
 	videoId: number;
 }
 
+export interface NetflixInjectedPlayback {
+	currentTime: number;
+	duration: number;
+	isPaused: boolean;
+	progress: number;
+	videoId: string | null;
+}
+
 export interface NetflixHistoryResponse {
 	viewedItems: NetflixHistoryItem[];
 }
@@ -469,8 +477,10 @@ class _NetflixApi extends ServiceApi {
 				if (metadata?.video) {
 					return this.parseMetadata(metadata);
 				}
-			} catch (_err) {
-				// Do nothing
+			} catch (err) {
+				if (Shared.errors.validate(err)) {
+					Shared.errors.warning('Failed to get item from metadata.', err);
+				}
 			}
 		}
 
@@ -495,8 +505,10 @@ class _NetflixApi extends ServiceApi {
 
 			const [historyItemWithMetadata] = await this.getHistoryMetadata([historyItem]);
 			return historyItemWithMetadata ? this.parseHistoryItem(historyItemWithMetadata) : null;
-		} catch (_err) {
-			// Do nothing
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.warning('Failed to get item from recent history.', err);
+			}
 		}
 
 		return null;
@@ -600,34 +612,30 @@ Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
 	return session;
 };
 
-Shared.functionsToInject[`${NetflixService.id}-playback`] = () => {
-	const getPlayback = (): NetflixScrobbleSession | null => {
-		let playback: NetflixScrobbleSession | null = null;
-		const { netflix } = window;
-		if (
-			netflix &&
-			netflix.appContext &&
-			netflix.appContext.state &&
-			netflix.appContext.state.playerApp &&
-			typeof netflix.appContext.state.playerApp.getState === 'function'
-		) {
-			const state = netflix.appContext.state.playerApp.getState();
-			const sessions = state && state.videoPlayer && state.videoPlayer.playbackStateBySessionId;
-			if (sessions) {
-				const allSessions = Object.keys(sessions)
-					.map((sessionId) => sessions[sessionId])
-					.filter((session): session is NetflixScrobbleSession => !!session);
-				playback =
-					allSessions.find((session) => session.playing) ||
-					allSessions.find((session) => !session.paused) ||
-					allSessions[0] ||
-					null;
-			}
+Shared.functionsToInject[`${NetflixService.id}-playback`] = (): NetflixInjectedPlayback | null => {
+	let playback: NetflixScrobbleSession | null = null;
+	const { netflix } = window;
+	if (
+		netflix &&
+		netflix.appContext &&
+		netflix.appContext.state &&
+		netflix.appContext.state.playerApp &&
+		typeof netflix.appContext.state.playerApp.getState === 'function'
+	) {
+		const state = netflix.appContext.state.playerApp.getState();
+		const sessions = state && state.videoPlayer && state.videoPlayer.playbackStateBySessionId;
+		if (sessions) {
+			const allSessions = Object.keys(sessions)
+				.map((sessionId) => sessions[sessionId])
+				.filter((session): session is NetflixScrobbleSession => !!session);
+			playback =
+				allSessions.find((session) => session.playing) ||
+				allSessions.find((session) => !session.paused) ||
+				allSessions[0] ||
+				null;
 		}
-		return playback;
-	};
+	}
 
-	const playback = getPlayback();
 	if (!playback || playback.duration <= 0) {
 		return null;
 	}
@@ -637,38 +645,8 @@ Shared.functionsToInject[`${NetflixService.id}-playback`] = () => {
 		duration: playback.duration,
 		isPaused: playback.paused,
 		progress: (playback.currentTime / playback.duration) * 100,
+		videoId: playback.videoId ? playback.videoId.toString() : null,
 	};
-};
-
-Shared.functionsToInject[`${NetflixService.id}-item-id`] = () => {
-	const getPlayback = (): NetflixScrobbleSession | null => {
-		let playback: NetflixScrobbleSession | null = null;
-		const { netflix } = window;
-		if (
-			netflix &&
-			netflix.appContext &&
-			netflix.appContext.state &&
-			netflix.appContext.state.playerApp &&
-			typeof netflix.appContext.state.playerApp.getState === 'function'
-		) {
-			const state = netflix.appContext.state.playerApp.getState();
-			const sessions = state && state.videoPlayer && state.videoPlayer.playbackStateBySessionId;
-			if (sessions) {
-				const allSessions = Object.keys(sessions)
-					.map((sessionId) => sessions[sessionId])
-					.filter((session): session is NetflixScrobbleSession => !!session);
-				playback =
-					allSessions.find((session) => session.playing) ||
-					allSessions.find((session) => !session.paused) ||
-					allSessions[0] ||
-					null;
-			}
-		}
-		return playback;
-	};
-
-	const playback = getPlayback();
-	return playback && playback.videoId ? playback.videoId.toString() : null;
 };
 
 export const NetflixApi = new _NetflixApi();
