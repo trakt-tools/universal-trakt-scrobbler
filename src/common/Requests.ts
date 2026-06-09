@@ -207,10 +207,22 @@ class _Requests {
 		console.warn(
 			`[UTS] ${reason} for ${request.url}: retrying in ${retryAfter / 1000}s (attempt ${rateLimitAttempt + 1}/${this.MAX_RATE_LIMIT_RETRIES})`
 		);
-		setTimeout(
-			() => void this.sendDirectly(request, tabId, resolve, reject, rateLimitAttempt + 1),
-			retryAfter
-		);
+		setTimeout(() => {
+			// Re-check the abort signal: the request may have been canceled while waiting for the
+			// backoff timer, and `fetch()` would otherwise create a new `AbortController` for it,
+			// effectively "uncanceling" the retry.
+			if (request.signal?.aborted) {
+				reject(
+					new RequestError({
+						request,
+						status: 429,
+						isCanceled: true,
+					})
+				);
+				return;
+			}
+			void this.sendDirectly(request, tabId, resolve, reject, rateLimitAttempt + 1);
+		}, retryAfter);
 		return true;
 	}
 
