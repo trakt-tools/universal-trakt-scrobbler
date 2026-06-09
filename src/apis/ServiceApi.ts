@@ -120,6 +120,10 @@ export abstract class ServiceApi {
 				}
 			}
 		} catch (err) {
+			console.debug(
+				`[UTS] Failed to load Trakt data for "${item.getFullTitle()}" (${item.serviceId})`,
+				err
+			);
 			if (item.trakt) {
 				delete item.trakt.watchedAt;
 			} else {
