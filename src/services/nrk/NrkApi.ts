@@ -181,7 +181,9 @@ class _NrkApi extends ServiceApi {
 	}
 
 	async loadHistoryItems(cancelKey = 'default'): Promise<NrkProgressItem[]> {
-		if (!this.isActivated) {
+		// `reset()` clears `nextHistoryUrl` without clearing `isActivated`, so re-activate
+		// whenever the URL is missing to avoid sending a request with an empty URL.
+		if (!this.isActivated || !this.nextHistoryUrl) {
 			await this.activate();
 		}
 		const responseText = await this.authRequests.send({

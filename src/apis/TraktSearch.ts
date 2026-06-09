@@ -314,6 +314,16 @@ class _TraktSearch extends TraktApi {
 		let url = this.getEpisodeUrl(item, showItem.show.ids.trakt);
 		let responseText: string | null = null;
 
+		// `getEpisodeUrl` returns an empty string when the item has no season/episode numbers and
+		// no title to search by (e.g. NRK history items with an empty subtitle). There is nothing
+		// to send a request with, so fail fast and let the caller mark the item as unmatched.
+		if (!url) {
+			console.debug(
+				`[UTS] Not enough information to search for episode "${item.getFullTitle()}" (${item.serviceId})`
+			);
+			throw new Error(`Not enough information to search for episode: ${item.getFullTitle()}`);
+		}
+
 		try {
 			responseText = await this.requests.send({
 				url: url,
