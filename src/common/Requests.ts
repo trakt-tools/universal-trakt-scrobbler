@@ -24,6 +24,16 @@ class _Requests {
 	readonly withHeaders: Record<string, string> = {};
 
 	async send(request: RequestDetails, tabId = Shared.tabId): Promise<string> {
+		if (!request.url || !/^https?:\/\//.test(request.url)) {
+			// An empty or relative URL would make the background page fetch its own bundle,
+			// which the Cloudflare detection below used to misinterpret as a rate limit response.
+			console.error('[UTS] Request with invalid URL', request, new Error().stack);
+			throw new RequestError({
+				request,
+				status: -1,
+				text: `Invalid request URL: "${request.url}"`,
+			});
+		}
 		return new Promise((resolve, reject) => {
 			if (Shared.pageType === 'background') {
 				void this.sendDirectly(request, tabId, resolve, reject);
@@ -35,11 +45,19 @@ class _Requests {
 		});
 	}
 
+	/**
+	 * The maximum number of times a rate-limited request (Cloudflare 1015 or HTTP 429) is retried
+	 * before rejecting. Without a cap, the request promise never settles, which leaves callers
+	 * (e.g. the history sync page) hanging forever. Rejecting lets the UI surface an error instead.
+	 */
+	readonly MAX_RATE_LIMIT_RETRIES = 2;
+
 	async sendDirectly(
 		request: RequestDetails,
 		tabId = Shared.tabId,
 		resolve: PromiseResolve<string>,
-		reject: PromiseReject
+		reject: PromiseReject,
+		rateLimitAttempt = 0
 	): Promise<void> {
 		let responseStatus = 0;
 		let responseText = '';
@@ -48,8 +66,15 @@ class _Requests {
 			responseStatus = response.status;
 			responseText = await response.text();
 
-			// Check for Cloudflare rate limiting HTML response
-			if (responseText.includes('Cloudflare') && responseText.includes('Ray ID:')) {
+			// Check for Cloudflare rate limiting HTML response.
+			// Only sniff error responses: Cloudflare error pages always come with an error status
+			// (429 for rate limiting, 403/503 for blocks). Sniffing successful responses caused
+			// false positives when the response body happened to contain these strings.
+			if (
+				responseStatus >= 400 &&
+				responseText.includes('Cloudflare') &&
+				responseText.includes('Ray ID:')
+			) {
 				// Extract error code if present (e.g., Error 1015)
 				const errorMatch = responseText.match(/Error\s*(\d+)/);
 				const errorCode = errorMatch ? errorMatch[1] : 'unknown';
@@ -60,11 +85,20 @@ class _Requests {
 					// Cloudflare doesn't provide Retry-After header in HTML error pages
 					// Use a reasonable default wait time (60 seconds)
 					const retryAfter = 60000;
-					console.warn(
-						`Cloudflare rate limit detected (Error ${errorCode}). Retrying in ${retryAfter / 1000}s`
-					);
-					setTimeout(() => void this.sendDirectly(request, tabId, resolve, reject), retryAfter);
-					return;
+					if (
+						this.scheduleRateLimitRetry(
+							request,
+							tabId,
+							resolve,
+							reject,
+							rateLimitAttempt,
+							retryAfter,
+							`Cloudflare rate limit (Error ${errorCode})`
+						)
+					) {
+						return;
+					}
+					throw responseText;
 				}
 
 				responseStatus = responseStatus || 503;
@@ -75,8 +109,20 @@ class _Requests {
 				const retryAfterStr = response.headers.get('Retry-After');
 				if (retryAfterStr) {
 					const retryAfter = Number.parseInt(retryAfterStr) * 1000;
-					setTimeout(() => void this.sendDirectly(request, tabId, resolve, reject), retryAfter);
-					return;
+					if (
+						this.scheduleRateLimitRetry(
+							request,
+							tabId,
+							resolve,
+							reject,
+							rateLimitAttempt,
+							retryAfter,
+							'HTTP 429'
+						)
+					) {
+						return;
+					}
+					throw responseText;
 				}
 			}
 			if (responseStatus < 200 || responseStatus >= 400) {
@@ -123,6 +169,49 @@ class _Requests {
 			return;
 		}
 		resolve(responseText);
+	}
+
+	/**
+	 * Schedules a retry for a rate-limited request, unless the retry limit has been reached or the
+	 * request has been canceled. Returns `true` if a retry was scheduled (or the request was
+	 * rejected as canceled), `false` if the caller should give up and throw.
+	 */
+	private scheduleRateLimitRetry(
+		request: RequestDetails,
+		tabId: number | null,
+		resolve: PromiseResolve<string>,
+		reject: PromiseReject,
+		rateLimitAttempt: number,
+		retryAfter: number,
+		reason: string
+	): boolean {
+		if (request.signal?.aborted) {
+			console.debug(`[UTS] ${reason} for ${request.url}, but request was canceled. Giving up.`);
+			reject(
+				new RequestError({
+					request,
+					status: 429,
+					isCanceled: true,
+				})
+			);
+			return true;
+		}
+
+		if (rateLimitAttempt >= this.MAX_RATE_LIMIT_RETRIES) {
+			console.warn(
+				`[UTS] ${reason} for ${request.url}: giving up after ${rateLimitAttempt} retries`
+			);
+			return false;
+		}
+
+		console.warn(
+			`[UTS] ${reason} for ${request.url}: retrying in ${retryAfter / 1000}s (attempt ${rateLimitAttempt + 1}/${this.MAX_RATE_LIMIT_RETRIES})`
+		);
+		setTimeout(
+			() => void this.sendDirectly(request, tabId, resolve, reject, rateLimitAttempt + 1),
+			retryAfter
+		);
+		return true;
 	}
 
 	async fetch(request: RequestDetails, tabId = Shared.tabId): Promise<Response> {
