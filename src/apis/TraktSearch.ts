@@ -321,7 +321,12 @@ class _TraktSearch extends TraktApi {
 			console.debug(
 				`[UTS] Not enough information to search for episode "${item.getFullTitle()}" (${item.serviceId})`
 			);
-			throw new Error(`Not enough information to search for episode: ${item.getFullTitle()}`);
+			// Throw a 404 so the notification layer surfaces this as "not found"
+			// rather than a Trakt connectivity problem
+			throw new RequestError({
+				status: 404,
+				text: `Not enough information to search for episode: ${item.getFullTitle()}`,
+			});
 		}
 
 		try {
