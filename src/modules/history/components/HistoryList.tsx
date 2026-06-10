@@ -130,8 +130,8 @@ export const HistoryList = (): JSX.Element => {
 			);
 			items = await checkHiddenSelected(items);
 			items = await loadData(items);
-		} catch (_err) {
-			// Do nothing
+		} catch (err) {
+			console.debug('[UTS] Failed to load history items', err);
 		}
 		await stopLoading(items);
 		await checkEnd();
