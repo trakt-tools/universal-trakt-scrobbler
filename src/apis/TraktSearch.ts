@@ -336,16 +336,27 @@ class _TraktSearch extends TraktApi {
 				cancelKey,
 			});
 		} catch (error) {
-			// If provided numbers don't work, try TMDB fallback first
+			// If provided numbers don't work, try TMDB fallback first.
+			// The fallbacks are gated behind `isAbsolute` because they cost several extra requests
+			// per item; running them for every failed lookup from every service can trigger Trakt's
+			// rate limit during history sync. Only services with absolute episode numbering
+			// (e.g. Crunchyroll) set the flag.
 			if (
+				item.isAbsolute &&
 				Shared.errors.validate(error) &&
-				((error as RequestError).status === 404 || (error as RequestError).status === -1) &&
-				item.title &&
-				!item.title.startsWith('Episode')
+				((error as RequestError).status === 404 || (error as RequestError).status === -1)
 			) {
-				const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
-				if (tmdbResult) {
-					return this.parseEpisodeResponse(tmdbResult, item, showItem);
+				console.debug(
+					`[UTS] Episode lookup failed for "${item.getFullTitle()}", trying TMDB/absolute-numbering fallbacks`
+				);
+				// The TMDB fallback searches by episode title, so it requires a meaningful one.
+				// Generic titles like "Episode 12" skip straight to the absolute-numbering
+				// fallback, which doesn't depend on the title.
+				if (item.title && !item.title.startsWith('Episode')) {
+					const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
+					if (tmdbResult) {
+						return this.parseEpisodeResponse(tmdbResult, item, showItem);
+					}
 				}
 
 				// If TMDB also fails, try treating numbers as absolute

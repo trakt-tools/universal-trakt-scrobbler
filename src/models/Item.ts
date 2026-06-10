@@ -54,6 +54,12 @@ export interface EpisodeItemValues extends BaseItemValues {
 	type: 'episode';
 	season: number;
 	number: number;
+	/**
+	 * Indicates that `number` may be an absolute episode number (numbered sequentially across all
+	 * seasons, e.g. anime episodes from Crunchyroll) rather than a per-season number, so episode
+	 * matching is allowed to fall back to resolving it against the show's season data.
+	 */
+	isAbsolute?: boolean;
 	show: ShowItemValues;
 	trakt?: TraktEpisodeItemValues | null;
 }
@@ -186,6 +192,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 	type = 'episode' as const;
 	season: number;
 	number: number;
+	isAbsolute?: boolean;
 	show: ShowItem;
 	trakt?: TraktEpisodeItem | null;
 
@@ -193,6 +200,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 		super(values);
 		this.season = values.season;
 		this.number = values.number;
+		this.isAbsolute = values.isAbsolute;
 		this.show = new ShowItem(values.show);
 		this.trakt = values.trakt && new TraktEpisodeItem(values.trakt);
 	}
@@ -203,6 +211,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 			type: this.type,
 			season: this.season,
 			number: this.number,
+			isAbsolute: this.isAbsolute,
 			show: this.show.save(),
 			trakt: this.trakt?.save(),
 		};

@@ -199,6 +199,9 @@ class _CrunchyrollApi extends ServiceApi {
 							: title,
 					number: metadata.episode_number || 0,
 					season: metadata.season_number || 0,
+					// Crunchyroll often numbers anime episodes sequentially across all seasons,
+					// so allow episode matching to resolve the number as absolute.
+					isAbsolute: true,
 					year: new Date(metadata.episode_air_date).getUTCFullYear(),
 					watchedAt: Utils.unix(historyItem.date_played),
 					progress: historyItem.fully_watched
