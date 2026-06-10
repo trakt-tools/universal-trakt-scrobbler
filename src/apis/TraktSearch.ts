@@ -344,16 +344,19 @@ class _TraktSearch extends TraktApi {
 			if (
 				item.isAbsolute &&
 				Shared.errors.validate(error) &&
-				((error as RequestError).status === 404 || (error as RequestError).status === -1) &&
-				item.title &&
-				!item.title.startsWith('Episode')
+				((error as RequestError).status === 404 || (error as RequestError).status === -1)
 			) {
 				console.debug(
 					`[UTS] Episode lookup failed for "${item.getFullTitle()}", trying TMDB/absolute-numbering fallbacks`
 				);
-				const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
-				if (tmdbResult) {
-					return this.parseEpisodeResponse(tmdbResult, item, showItem);
+				// The TMDB fallback searches by episode title, so it requires a meaningful one.
+				// Generic titles like "Episode 12" skip straight to the absolute-numbering
+				// fallback, which doesn't depend on the title.
+				if (item.title && !item.title.startsWith('Episode')) {
+					const tmdbResult = await this.tryTmdbFallback(item, showItem, cancelKey);
+					if (tmdbResult) {
+						return this.parseEpisodeResponse(tmdbResult, item, showItem);
+					}
 				}
 
 				// If TMDB also fails, try treating numbers as absolute
