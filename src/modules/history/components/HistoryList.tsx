@@ -45,6 +45,11 @@ export const HistoryList = (): JSX.Element => {
 	const { serviceId, service, api, store } = useSync();
 
 	const [itemCount, setItemCount] = useState(calculateItemCount(serviceId, store));
+	// Bumped on every ITEMS_LOAD so that `itemSize` gets a new identity. react-window only
+	// recalculates row heights when `rowCount` or the `rowHeight` function changes, so without
+	// this, items that become hidden after they were measured (e.g. once Trakt data arrives and
+	// `doHide()` turns true) would keep their 250px row and leave an empty gap in the list.
+	const [itemsChangeId, setItemsChangeId] = useState(0);
 	const [continueLoading, setContinueLoading] = useState(false);
 
 	const listRef = useRef<ListImperativeAPI | null>(null);
@@ -228,8 +233,13 @@ export const HistoryList = (): JSX.Element => {
 	);
 
 	const itemSize = useCallback(
-		(index: number) => (store.data.items[index]?.isHidden ? 0 : 250),
-		[]
+		(index: number) => {
+			// In the multi-service view, the first row is a message, so the item indices are
+			// offset by one (see the corresponding offset in `HistoryListItem`)
+			const itemIndex = serviceId ? index : index - 1;
+			return store.data.items[itemIndex]?.isHidden ? 0 : 250;
+		},
+		[itemsChangeId]
 	);
 
 	const itemData = useMemo(() => ({ onContinueLoadingClick }), []);
@@ -335,6 +345,7 @@ export const HistoryList = (): JSX.Element => {
 
 		const onItemsLoad = () => {
 			setItemCount(calculateItemCount(serviceId, store));
+			setItemsChangeId((id) => id + 1);
 		};
 
 		startListeners();
