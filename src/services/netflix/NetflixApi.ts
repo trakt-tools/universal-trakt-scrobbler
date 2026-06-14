@@ -41,6 +41,7 @@ export interface NetflixPlayerState {
 export interface NetflixSession extends ServiceApiSession {
 	authUrl: string;
 	userGuid?: string;
+	buildIdentifier?: string;
 }
 
 export interface NetflixScrobbleSession {
@@ -98,6 +99,7 @@ export type NetflixMetadataItem =
 
 export interface NetflixMetadataEpisodeItem {
 	releaseYear: number;
+	title?: string;
 	summary: {
 		episode: number;
 		id: number;
@@ -116,6 +118,7 @@ export type NetflixMetadataEpisodeItemWithSeason = NetflixMetadataEpisodeItem & 
 };
 
 export interface NetflixMetadataShowItem {
+	title?: string;
 	seasonList: {
 		current: ['seasons', string];
 	};
@@ -123,6 +126,7 @@ export interface NetflixMetadataShowItem {
 
 export interface NetflixMetadataMovieItem {
 	releaseYear: number;
+	title?: string;
 	summary: {
 		id: number;
 	};
@@ -186,6 +190,8 @@ class _NetflixApi extends ServiceApi {
 	ACTIVATE_URL: string;
 	isActivated: boolean;
 	session: NetflixSession | null = null;
+	private metadataUrlTemplate: string | null = null;
+	private metadataCache = new Map<string, NetflixSingleMetadataItem | null>();
 
 	constructor() {
 		super(NetflixService.id);
@@ -197,15 +203,33 @@ class _NetflixApi extends ServiceApi {
 		this.isActivated = false;
 	}
 
+	private async fetchActivatePage(maxRetries = 3): Promise<string> {
+		// The request occasionally fails at the network level (status -1) right after
+		// the extension starts, which would incorrectly show the login prompt,
+		// so retry a few times before giving up.
+		let lastError: unknown;
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
+			try {
+				return await Requests.send({
+					url: this.ACTIVATE_URL,
+					method: 'GET',
+				});
+			} catch (err) {
+				lastError = err;
+				if (attempt < maxRetries) {
+					await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+				}
+			}
+		}
+		throw lastError;
+	}
+
 	async activate() {
 		// If we can access the global netflix object from the page, there is no need to send a request to Netflix in order to retrieve the session.
 		try {
 			this.session = await this.getSession();
 			if (!this.session) {
-				const responseText = await Requests.send({
-					url: this.ACTIVATE_URL,
-					method: 'GET',
-				});
+				const responseText = await this.fetchActivatePage();
 				this.session = this.extractSession(responseText);
 			}
 			if (this.session?.profileName != null) {
@@ -321,65 +345,152 @@ class _NetflixApi extends ServiceApi {
 		item.progress = calculatedProgress;
 	}
 
+	/**
+	 * Netflix has been moving the member web API around. The `release` route is the
+	 * one that currently works, so it goes first; the others are kept as fallbacks
+	 * in case Netflix moves it again.
+	 */
+	private getApiBaseUrls(): string[] {
+		const baseUrls: string[] = [`${this.HOST_URL}/nq/website/memberapi/release`];
+		const buildIdentifier = this.session?.buildIdentifier;
+		if (buildIdentifier) {
+			baseUrls.push(`${this.HOST_URL}/nq/website/memberapi/${buildIdentifier}`);
+			baseUrls.push(`${this.API_URL}/${buildIdentifier}`);
+		}
+		baseUrls.push(`${this.API_URL}/mre`);
+		return baseUrls;
+	}
+
 	async getHistoryMetadata(historyItems: NetflixHistoryItem[]) {
 		if (!this.session) {
 			throw new Error('Invalid session');
 		}
-		let historyItemsWithMetadata: NetflixHistoryItemWithMetadata[] = [];
+		// Netflix removed the bulk `pathEvaluator` endpoint (the routes return
+		// 502/412/421/404 now), so the metadata is fetched through single metadata
+		// requests, one per unique show/movie.
+		return this.getHistoryMetadataFromSingleRequests(historyItems);
+	}
 
-		const paths = historyItems.map(
-			(historyItem) => `path=["videos",${historyItem.movieID},["releaseYear","summary"]]`
-		);
+	/**
+	 * Fallback for when the bulk pathEvaluator endpoint is unavailable: the single
+	 * metadata endpoint returns a whole show (all seasons and episodes, with English
+	 * titles because of `languages=en-US`), so one request per unique show/movie
+	 * is enough to combine the history items with their metadata.
+	 */
+	private async getHistoryMetadataFromSingleRequests(
+		historyItems: NetflixHistoryItem[]
+	): Promise<NetflixHistoryItemWithMetadata[]> {
+		const ids = new Set<number>();
+		for (const historyItem of historyItems) {
+			ids.add('series' in historyItem ? historyItem.series : historyItem.movieID);
+		}
 
-		// In order to have `hiddenEpisodeNumbers` available in the response,
-		// we need to request the summary for the current season of each unique show in the history
-		paths.push(
-			...Array.from(
-				new Set(
-					historyItems
-						.filter(
-							(historyItem): historyItem is NetflixHistoryEpisodeItem => 'series' in historyItem
-						)
-						.map((historyItem) => historyItem.series)
-				)
-			).map((seriesId) => `path=["videos",${seriesId},"seasonList","current","summary"]`)
-		);
+		const metadataById = new Map<number, NetflixSingleMetadataItem | null>();
+		let failures = 0;
+		for (const id of ids) {
+			const metadata = await this.getSingleMetadata(id.toString());
+			metadataById.set(id, metadata);
+			if (!metadata && !this.metadataUrlTemplate) {
+				failures += 1;
+				// If no metadata endpoint variation works at all,
+				// stop probing for the remaining items
+				if (failures >= 2) {
+					break;
+				}
+			}
+		}
 
-		const responseText = await Requests.send({
-			url: `${this.API_URL}/mre/pathEvaluator?languages=en-US`,
-			method: 'POST',
-			body: `authURL=${this.session.authUrl}&${paths.join('&')}`,
-		});
-		const responseJson = JSON.parse(responseText) as NetflixMetadataResponse;
-		if (responseJson && responseJson.value.videos) {
-			historyItemsWithMetadata = historyItems.map((historyItem) => {
-				const metadata = responseJson.value.videos[historyItem.movieID];
-				let combinedItem: NetflixHistoryItemWithMetadata;
-				if (metadata && !('seasonList' in metadata)) {
-					combinedItem = Object.assign({}, historyItem, metadata);
-
-					// We lookup the current season metadata using the show metadata
-					// and assign it to the `season` prop in `NetflixHistoryItemWithMetadata`
-					if (responseJson.value.seasons && 'series' in historyItem && historyItem.series) {
-						const showMetadata = responseJson.value.videos[historyItem.series];
-						if (showMetadata && 'seasonList' in showMetadata && showMetadata.seasonList) {
-							const seasonMetadata = responseJson.value.seasons[showMetadata.seasonList.current[1]];
-							if (seasonMetadata) {
-								combinedItem = Object.assign({}, combinedItem, {
-									season: seasonMetadata,
-								});
-							}
+		let hasFailed = false;
+		const historyItemsWithMetadata = historyItems.map((historyItem) => {
+			let combinedItem: NetflixHistoryItemWithMetadata | null = null;
+			if ('series' in historyItem) {
+				const video = metadataById.get(historyItem.series)?.video;
+				if (video && video.type === 'show') {
+					for (const season of video.seasons) {
+						const episode = season.episodes.find(
+							(currentEpisode) => currentEpisode.id === historyItem.movieID
+						);
+						if (episode) {
+							combinedItem = {
+								...historyItem,
+								releaseYear: video.year,
+								seriesTitle: video.title || historyItem.seriesTitle,
+								episodeTitle: episode.title || historyItem.episodeTitle,
+								summary: {
+									episode: episode.seq,
+									id: historyItem.movieID,
+									season: season.seq,
+								},
+								season: {
+									summary: { hiddenEpisodeNumbers: video.hiddenEpisodeNumbers },
+								},
+							};
+							break;
 						}
 					}
-				} else {
-					combinedItem = historyItem as NetflixHistoryItemWithMetadata;
 				}
-				return combinedItem;
-			});
-		} else {
-			throw responseText;
+			} else {
+				const video = metadataById.get(historyItem.movieID)?.video;
+				if (video && video.type === 'movie') {
+					combinedItem = {
+						...historyItem,
+						releaseYear: video.year,
+						title: video.title || historyItem.title,
+						summary: { id: historyItem.movieID },
+					};
+				}
+			}
+			if (!combinedItem) {
+				hasFailed = true;
+			}
+			return combinedItem ?? (historyItem as NetflixHistoryItemWithMetadata);
+		});
+
+		if (hasFailed) {
+			// Without metadata we lose the year and season/episode numbers, but the
+			// history can still be loaded and matched on Trakt by title, so don't fail
+			Shared.errors.warning(
+				'Failed to get metadata for some Netflix history items.',
+				new Error('Metadata requests failed')
+			);
 		}
+
 		return historyItemsWithMetadata;
+	}
+
+	private async getSingleMetadata(id: string): Promise<NetflixSingleMetadataItem | null> {
+		if (!this.metadataCache.has(id)) {
+			this.metadataCache.set(id, await this.fetchSingleMetadata(id));
+		}
+		return this.metadataCache.get(id) ?? null;
+	}
+
+	private async fetchSingleMetadata(id: string): Promise<NetflixSingleMetadataItem | null> {
+		const templates = this.getApiBaseUrls().flatMap((baseUrl) => [
+			`${baseUrl}/metadata?languages=en-US&movieid={id}`,
+			`${baseUrl}/metadata?languages=en-US&movieid={id}&authURL=${encodeURIComponent(this.session?.authUrl ?? '')}`,
+		]);
+		if (this.metadataUrlTemplate) {
+			templates.unshift(this.metadataUrlTemplate);
+		}
+
+		for (const template of templates) {
+			try {
+				const responseText = await Requests.send({
+					url: template.replace('{id}', id),
+					method: 'GET',
+				});
+				const metadata = JSON.parse(responseText) as NetflixSingleMetadataItem;
+				if (metadata?.video) {
+					this.metadataUrlTemplate = template;
+					return metadata;
+				}
+			} catch (_err) {
+				// Try the next URL variation
+			}
+		}
+
+		return null;
 	}
 
 	isShow(
@@ -462,29 +573,8 @@ class _NetflixApi extends ServiceApi {
 	}
 
 	private async getItemFromMetadata(id: string): Promise<ScrobbleItem | null> {
-		const metadataUrls = [
-			`${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}`,
-			`${this.API_URL}/mre/metadata?languages=en-US&movieid=${id}&authURL=${encodeURIComponent(this.session?.authUrl ?? '')}`,
-		];
-
-		for (const metadataUrl of metadataUrls) {
-			try {
-				const responseText = await Requests.send({
-					url: metadataUrl,
-					method: 'GET',
-				});
-				const metadata = JSON.parse(responseText) as NetflixSingleMetadataItem;
-				if (metadata?.video) {
-					return this.parseMetadata(metadata);
-				}
-			} catch (err) {
-				if (Shared.errors.validate(err)) {
-					Shared.errors.warning('Failed to get item from metadata.', err);
-				}
-			}
-		}
-
-		return null;
+		const metadata = await this.fetchSingleMetadata(id);
+		return metadata ? this.parseMetadata(metadata) : null;
 	}
 
 	private async getItemFromRecentHistory(id: string): Promise<ScrobbleItem | null> {
@@ -576,18 +666,39 @@ class _NetflixApi extends ServiceApi {
 		return ScriptInjector.inject<NetflixSession>(this.id, 'session', '');
 	}
 
+	/**
+	 * Values captured by regex from the `/settings/viewed/` HTML are raw JavaScript
+	 * string literals, so they keep their escapes (e.g. the `==` at the end of
+	 * `authURL` arrives as `\x3D\x3D`). Decode the common JS escapes so the values
+	 * can be used in requests. The injected-session path doesn't need this because
+	 * it reads the already-decoded values straight off the `netflix` object.
+	 */
+	private decodeJsString(value: string): string {
+		return value
+			.replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+			.replace(/\\u([0-9A-Fa-f]{4})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+			.replace(/\\\//g, '/');
+	}
+
 	extractSession(text: string): NetflixSession | null {
 		let session: NetflixSession | null = null;
 		const authUrlRegex = /"authURL":"(?<authUrl>.*?)"/;
 		const profileNameRegex = /"userInfo":\{"data":\{"name":"(?<profileName>.*?)"/;
 		const userGuidRegex = /"userInfo":\{"data":\{[^}]*"userGuid":"(?<userGuid>.*?)"/;
-		const { authUrl } = authUrlRegex.exec(text)?.groups ?? {};
-		const { profileName = null } = profileNameRegex.exec(text)?.groups ?? {};
+		const buildIdentifierRegex = /"BUILD_IDENTIFIER":"(?<buildIdentifier>.*?)"/;
+		const { authUrl: rawAuthUrl } = authUrlRegex.exec(text)?.groups ?? {};
+		const { profileName: rawProfileName } = profileNameRegex.exec(text)?.groups ?? {};
+		const authUrl = rawAuthUrl ? this.decodeJsString(rawAuthUrl) : rawAuthUrl;
+		const profileName = rawProfileName ? this.decodeJsString(rawProfileName) : null;
 		const { userGuid = undefined } = userGuidRegex.exec(text)?.groups ?? {};
+		const { buildIdentifier = undefined } = buildIdentifierRegex.exec(text)?.groups ?? {};
 		if (authUrl) {
 			session = { authUrl, profileName };
 			if (userGuid) {
 				session.userGuid = userGuid;
+			}
+			if (buildIdentifier) {
+				session.buildIdentifier = buildIdentifier;
 			}
 		}
 		return session;
@@ -602,10 +713,14 @@ Shared.functionsToInject[`${NetflixService.id}-session`] = () => {
 		const authUrl = userInfo.data.authURL;
 		const profileName = userInfo.data.name;
 		const userGuid = userInfo.data.userGuid;
+		const buildIdentifier = netflix.reactContext.models.serverDefs?.data?.BUILD_IDENTIFIER;
 		if (authUrl) {
 			session = { authUrl, profileName };
 			if (userGuid) {
 				session.userGuid = userGuid;
+			}
+			if (buildIdentifier) {
+				session.buildIdentifier = buildIdentifier;
 			}
 		}
 	}
