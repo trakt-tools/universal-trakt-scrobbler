@@ -107,7 +107,6 @@ export const HistoryList = (): JSX.Element => {
 		}
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const loadMoreItems = async (startIndex: number, stopIndex: number) => {
 		if (!serviceId || !service || !api) {
 			return;
