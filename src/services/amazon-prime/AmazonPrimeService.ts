@@ -16,4 +16,5 @@ export const AmazonPrimeService = new Service({
 	hasSync: true,
 	hasAutoSync: true,
 	loginPage: 'https://www.primevideo.com/settings/watch-history/',
+	limitations: ['Scrobbling only works in English'],
 });
