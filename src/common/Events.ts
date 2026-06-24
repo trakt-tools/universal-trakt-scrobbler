@@ -145,7 +145,6 @@ export interface ItemsLoadData {
 
 export type EventDispatcherListeners = Record<
 	string,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	Record<string, EventDispatcherListener<any>[]>
 >;
 
