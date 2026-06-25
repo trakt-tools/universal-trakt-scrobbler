@@ -1,5 +1,6 @@
 import { TraktApi } from '@apis/TraktApi';
 import { Messaging } from '@common/Messaging';
+import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { Tabs } from '@common/Tabs';
 import { Utils } from '@common/Utils';
@@ -22,6 +23,7 @@ export type TraktAuthDetails = {
 class _TraktAuth extends TraktApi {
 	isIdentityAvailable: boolean;
 	manualAuth: TraktManualAuth;
+	private refreshPromise: Promise<TraktAuthDetails> | null = null;
 
 	constructor() {
 		super();
@@ -128,7 +130,12 @@ class _TraktAuth extends TraktApi {
 			auth = JSON.parse(responseText) as TraktAuthDetails;
 			await Shared.storage.set({ auth }, true);
 		} catch (err) {
-			await Shared.storage.remove('auth', true);
+			// Only drop the stored auth when Trakt rejects the credentials themselves
+			// (invalid/expired refresh token). Transient failures — 429 rate limiting,
+			// 5xx, network — must keep the refresh_token so the session can recover.
+			if (err instanceof RequestError && (err.status === 400 || err.status === 401)) {
+				await Shared.storage.remove('auth', true);
+			}
 			throw err;
 		}
 		return auth;
@@ -153,16 +160,21 @@ class _TraktAuth extends TraktApi {
 		if (Shared.pageType !== 'background') {
 			return Messaging.toExtension({ action: 'validate-trakt-token' });
 		}
-		let auth: TraktAuthDetails | null = null;
 		const values = await Shared.storage.get('auth');
-		if (values.auth) {
-			if (values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
-				auth = await this.refreshToken(values.auth.refresh_token);
-			} else {
-				auth = values.auth;
-			}
+		if (!values.auth) {
+			return null;
 		}
-		return auth;
+		if (values.auth.refresh_token && this.hasTokenExpired(values.auth)) {
+			// Collapse concurrent refreshes (BrowserStorage.init + LoginPage +
+			// content scripts) into a single /oauth/token request.
+			const refreshPromise = (this.refreshPromise ??= this.refreshToken(
+				values.auth.refresh_token
+			).finally(() => {
+				this.refreshPromise = null;
+			}));
+			return refreshPromise;
+		}
+		return values.auth;
 	}
 }
 
