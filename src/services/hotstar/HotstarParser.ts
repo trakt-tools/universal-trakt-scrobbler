@@ -2,6 +2,27 @@ import { ScrobbleParser } from '@common/ScrobbleParser';
 import { HotstarApi } from '@/hotstar/HotstarApi';
 import { EpisodeItem, MovieItem } from '@models/Item';
 
+interface HotstarLdEpisode {
+	'@type'?: string;
+	episodeNumber?: string;
+	name?: string;
+	url?: string;
+}
+
+interface HotstarLdSeason {
+	'@type'?: string;
+	seasonNumber?: string;
+	episode?: HotstarLdEpisode;
+}
+
+interface HotstarLd {
+	'@type'?: string | string[];
+	name?: string;
+	url?: string;
+	releaseYear?: string;
+	containsSeason?: HotstarLdSeason | HotstarLdSeason[];
+}
+
 class _HotstarParser extends ScrobbleParser {
 	constructor() {
 		super(HotstarApi, {
@@ -9,56 +30,79 @@ class _HotstarParser extends ScrobbleParser {
 		});
 	}
 
+	/**
+	 * JioHotstar renders the player with build-hashed, obfuscated class names (e.g.
+	 * `bO4AyXwRYHuSKMa5...`) that change on every deploy, so the player DOM can't be
+	 * scraped reliably. The page does embed schema.org JSON-LD metadata (a `Movie` or
+	 * `TVSeries` node), which is stable and is what we parse instead.
+	 */
+	private parseLdJson(): HotstarLd | null {
+		const scripts = document.querySelectorAll<HTMLScriptElement>(
+			'script[type="application/ld+json"]'
+		);
+		for (const script of Array.from(scripts)) {
+			let data: HotstarLd;
+			try {
+				data = JSON.parse(script.textContent ?? '') as HotstarLd;
+			} catch (_err) {
+				continue;
+			}
+			const types = Array.isArray(data['@type']) ? data['@type'] : [data['@type']];
+			if (types.includes('Movie') || types.includes('TVSeries')) {
+				return data;
+			}
+		}
+		return null;
+	}
+
 	parseItemFromDom() {
 		const serviceId = this.api.id;
 		const id = this.parseItemIdFromUrl();
-		const titleElement = document.querySelector(
-			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>div.flex>p.ON_IMAGE.BUTTON1_MEDIUM'
-		);
+		const ld = this.parseLdJson();
 
-		if (!titleElement) {
+		if (!id || !ld) {
 			return null;
 		}
 
-		const title = titleElement?.textContent ?? '';
-		const subTitleElement = document.querySelector(
-			'div#page-container>div>div>div>div>div>div>div>div>div>div.flex.flex-col>p.ON_IMAGE_ALT2.BUTTON3_MEDIUM'
-		);
+		const types = Array.isArray(ld['@type']) ? ld['@type'] : [ld['@type']];
 
-		let seasonId: string | null = null;
-		let episodeId: string | null = null;
-		let subTitle: string | null = '';
+		if (types.includes('TVSeries')) {
+			const season = Array.isArray(ld.containsSeason) ? ld.containsSeason[0] : ld.containsSeason;
+			const episode = season?.episode;
 
-		const matches = /(?<seasonId>[\d]+)\s.(?<episodeId>[\d]+)\s(?<subTitle>.*)/.exec(
-			subTitleElement?.textContent ?? ''
-		);
-
-		if (matches?.groups) {
-			({ seasonId, episodeId, subTitle } = matches.groups);
-		}
-
-		if (seasonId) {
-			const season = parseInt(seasonId ?? '') || 0;
-			const number = parseInt(episodeId ?? '') || 0;
+			// Guard against stale metadata after an in-app (SPA) navigation: only trust
+			// the JSON-LD if it points at the episode the URL currently references.
+			if (!episode || (episode.url && !episode.url.includes(id))) {
+				return null;
+			}
 
 			return new EpisodeItem({
 				serviceId,
 				id,
-				title: subTitle,
-				season,
-				number,
+				title: episode.name ?? '',
+				season: parseInt(season?.seasonNumber ?? '') || 0,
+				number: parseInt(episode.episodeNumber ?? '') || 0,
 				show: {
 					serviceId,
-					title,
+					title: ld.name ?? '',
 				},
 			});
 		}
 
-		return new MovieItem({
-			serviceId,
-			id,
-			title,
-		});
+		if (types.includes('Movie')) {
+			if (ld.url && !ld.url.includes(id)) {
+				return null;
+			}
+
+			return new MovieItem({
+				serviceId,
+				id,
+				title: ld.name ?? '',
+				year: parseInt(ld.releaseYear ?? '') || 0,
+			});
+		}
+
+		return null;
 	}
 }
 
