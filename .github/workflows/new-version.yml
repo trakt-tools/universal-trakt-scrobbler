@@ -35,7 +35,7 @@ jobs:
         with:
           version-type: '${{ inputs.versionType }}'
       - name: Format package.json
-        run: pnpm run format-other
+        run: pnpm run fix
       - name: Setup git config
         run: |
           git config user.name "trakt-tools-bot"
