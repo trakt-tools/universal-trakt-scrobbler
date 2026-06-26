@@ -26,6 +26,12 @@ interface HotstarLd {
 class _HotstarParser extends ScrobbleParser {
 	constructor() {
 		super(HotstarApi, {
+			// JioHotstar renders two <video> elements: the content player inside
+			// `#video-container` and pre-roll/mid-roll ads inside `#ad-video-container`.
+			// The default `video` selector grabs whichever comes first in the DOM (often
+			// the ad), so playback tracking attached to the ad element and dropped out
+			// when it ended. Scope to the content player so tracking is consistent.
+			videoPlayerSelector: '#video-container video',
 			watchingUrlRegex: /(?:movies|shows)\/.+\/(?<id>\d+)\//,
 		});
 	}
