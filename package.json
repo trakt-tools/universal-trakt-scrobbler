@@ -40,7 +40,7 @@
 	"devDependencies": {
 		"@actions/core": "^1.11.1",
 		"@actions/github": "^5.1.1",
-		"@babel/core": "^7.28.6",
+		"@babel/core": "^7.29.6",
 		"@babel/plugin-transform-runtime": "^7.28.5",
 		"@babel/preset-env": "^7.28.6",
 		"@babel/preset-react": "^7.28.5",
