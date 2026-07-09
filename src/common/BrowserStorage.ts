@@ -14,7 +14,7 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV11;
+export type StorageValues = StorageValuesV12;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
@@ -24,6 +24,10 @@ export type KinoPubAuthDetails = {
 	expires_in: number;
 	refresh_token: string;
 	created_at: number;
+};
+
+export type StorageValuesV12 = Omit<StorageValuesV11, 'version'> & {
+	version?: 12;
 };
 
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
@@ -240,7 +244,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 11;
+	readonly currentVersion = 12;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -409,6 +413,30 @@ class _BrowserStorage {
 				delete options.services['crunchyroll-beta'];
 
 				await this.doSet({ options }, true);
+			}
+		}
+
+		if (version < 12 && this.currentVersion >= 12) {
+			console.log('Upgrading to v12...');
+
+			// `*://api.service-kp.com/*` was moved from the required permissions to the optional
+			// ones, so it might no longer be granted. `permissions.request()` requires a user
+			// gesture, so disable the service instead - re-enabling it in the options will
+			// request the permission again.
+			const { options } = await this.get('options');
+
+			const kinoPub = options?.services?.['kino-pub'];
+			if (kinoPub && (kinoPub.scrobble || kinoPub.sync)) {
+				const hasPermission = await browser.permissions.contains({
+					origins: ['*://api.service-kp.com/*'],
+				});
+				if (!hasPermission) {
+					kinoPub.scrobble = false;
+					kinoPub.sync = false;
+					kinoPub.autoSync = false;
+
+					await this.doSet({ options }, true);
+				}
 			}
 		}
 
