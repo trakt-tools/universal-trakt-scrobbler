@@ -14,11 +14,7 @@ const getRequiredEnv = (name) => {
 };
 
 const base64Url = (value) =>
-	Buffer.from(value)
-		.toString('base64')
-		.replace(/=/g, '')
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_');
+	Buffer.from(value).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
 const createJwt = () => {
 	const issuedAt = Math.floor(Date.now() / 1000);
@@ -98,7 +94,9 @@ const uploadPackage = async (xpiPath) => {
 
 const waitForValidation = async (uploadUuid) => {
 	for (let attempt = 1; attempt <= 30; attempt += 1) {
-		const response = await request(`${amoBaseUrl}/addons/upload/${encodeURIComponent(uploadUuid)}/`);
+		const response = await request(
+			`${amoBaseUrl}/addons/upload/${encodeURIComponent(uploadUuid)}/`
+		);
 		console.log(`Firefox validation response: ${JSON.stringify(response)}`);
 
 		if (response.processed) {

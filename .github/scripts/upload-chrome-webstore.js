@@ -60,7 +60,9 @@ const getAccessToken = async () => {
 	});
 
 	if (!response.access_token) {
-		throw new Error(`Chrome token response did not include access_token: ${JSON.stringify(response)}`);
+		throw new Error(
+			`Chrome token response did not include access_token: ${JSON.stringify(response)}`
+		);
 	}
 
 	return response.access_token;
