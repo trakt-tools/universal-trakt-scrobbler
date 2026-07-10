@@ -17,6 +17,7 @@ jobs:
       TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
       CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
       CHROME_EXTENSION_KEY: ${{ secrets.CHROME_EXTENSION_KEY }}
+      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
       FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
     steps:
       - uses: actions/checkout@v3
@@ -36,20 +37,13 @@ jobs:
         with:
           trakt-tools-bot-token: '${{ secrets.TRAKT_TOOLS_BOT_TOKEN }}'
       - name: Upload to Chrome store
-        continue-on-error: true
-        uses: trmcnvn/chrome-addon@v2
-        with:
-          extension: ${{ secrets.CHROME_EXTENSION_ID }}
-          zip: ./dist/chrome.zip
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: node .github/scripts/upload-chrome-webstore.js ./dist/chrome.zip
       - name: Upload to Firefox store
-        continue-on-error: true
-        uses: trmcnvn/firefox-addon@v1
-        with:
-          uuid: ${{ secrets.FIREFOX_EXTENSION_ID }}
-          xpi: ./dist/firefox.zip
-          manifest: ./build/firefox/manifest.json
-          api-key: ${{ secrets.FIREFOX_CLIENT_ID }}
-          api-secret: ${{ secrets.FIREFOX_CLIENT_SECRET }}
+        env:
+          FIREFOX_CLIENT_ID: ${{ secrets.FIREFOX_CLIENT_ID }}
+          FIREFOX_CLIENT_SECRET: ${{ secrets.FIREFOX_CLIENT_SECRET }}
+        run: node .github/scripts/upload-firefox-addon.js ./dist/firefox.zip
