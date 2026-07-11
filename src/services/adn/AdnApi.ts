@@ -200,7 +200,9 @@ class _AdnApi extends ServiceApi {
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: AdnHistoryItem): void {
 		item.watchedAt = Utils.unix(historyItem.user.watchDate);
-		item.progress = 100;
+		item.progress = historyItem.user.isFullyWatched
+			? 100
+			: (historyItem.duration / historyItem.user.stoptime) * 100;
 	}
 
 	convertHistoryItems(historyItems: AdnHistoryItem[]) {
@@ -215,7 +217,9 @@ class _AdnApi extends ServiceApi {
 					imageUrl: historyItem.image,
 					year: Number.parseInt(historyItem.show.firstReleaseYear),
 					watchedAt: Utils.unix(historyItem.user.watchDate),
-					progress: 100,
+					progress: historyItem.user.isFullyWatched
+						? 100
+						: (historyItem.duration / historyItem.user.stoptime) * 100,
 				});
 				items.push(item);
 			} else {
@@ -228,7 +232,9 @@ class _AdnApi extends ServiceApi {
 					imageUrl: historyItem.image,
 					year: Number.parseInt(historyItem.show.firstReleaseYear),
 					watchedAt: Utils.unix(historyItem.user.watchDate),
-					progress: 100,
+					progress: historyItem.user.isFullyWatched
+						? 100
+						: (historyItem.duration / historyItem.user.stoptime) * 100,
 					show: {
 						id: historyItem.show.id.toString(),
 						serviceId: this.id,
