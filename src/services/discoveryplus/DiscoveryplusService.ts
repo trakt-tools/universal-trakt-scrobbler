@@ -7,5 +7,8 @@ export const DiscoveryplusService = new Service({
 	hostPatterns: ['*://*.discoveryplus.com/*'],
 	hasScrobbler: true,
 	hasSync: true,
-	hasAutoSync: false,
+	hasAutoSync: true,
+	limitations: [
+		'Full history loads by show only, D+ removed ability to load several items at once.',
+	],
 });

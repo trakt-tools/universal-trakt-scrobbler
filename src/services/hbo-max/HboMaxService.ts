@@ -8,4 +8,7 @@ export const HboMaxService = new Service({
 	hasScrobbler: true,
 	hasSync: true,
 	hasAutoSync: true,
+	limitations: [
+		'Full history loads by show only, HBO Max removed ability to load several items at once.',
+	],
 });
