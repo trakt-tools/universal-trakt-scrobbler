@@ -9,11 +9,11 @@ import { EpisodeItem, MovieItem, ScrobbleItem, ScrobbleItemValues } from '@model
 import { KinoPubService } from '@/kino-pub/KinoPubService';
 import browser from 'webextension-polyfill';
 
-// Public Kodi/XBMC client credentials widely used by unofficial Kino.pub clients
+// Public Kodi/XBMC client credentials widely used by unofficial Kinopub clients
 const KINOPUB_CLIENT_ID = 'xbmc';
 const KINOPUB_CLIENT_SECRET = 'cgg3gtifu46urtfp2zp1nqtba0k2ezxh';
 
-/** Kino.pub titles are formatted as "Russian Title / Original Title". Extract the original. */
+/** Kinopub titles are formatted as "Russian Title / Original Title". Extract the original. */
 export const extractOriginalTitle = (title: string): string => title.split(' / ').at(-1) ?? title;
 
 export interface KinoPubHistoryItem {
@@ -261,7 +261,7 @@ class _KinoPubApi extends ServiceApi {
 			return true;
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
-				Shared.errors.log('Kino.pub device flow failed', err);
+				Shared.errors.log('Kinopub device flow failed', err);
 			}
 			return false;
 		}
