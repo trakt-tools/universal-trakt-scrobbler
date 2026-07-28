@@ -5,7 +5,7 @@ export const AdnService = new Service({
 	name: 'ADN',
 	homePage: 'https://animationdigitalnetwork.com',
 	hostPatterns: ['*://*.animationdigitalnetwork.com/*'],
-	hasScrobbler: false,
+	hasScrobbler: true,
 	hasSync: true,
-	hasAutoSync: false,
+	hasAutoSync: true,
 });

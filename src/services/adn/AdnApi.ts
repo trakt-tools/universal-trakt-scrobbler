@@ -42,12 +42,16 @@ export interface AdnHistoryItem {
 	};
 	name: string;
 	title: string;
-	user: {
+	user?: {
 		id: number;
 		isFullyWatched: boolean;
 		stoptime: number;
 		watchDate: string;
 	};
+}
+
+export interface AdnVideoItemResponse {
+	video: AdnHistoryItem;
 }
 
 class _AdnApi extends ServiceApi {
@@ -56,6 +60,7 @@ class _AdnApi extends ServiceApi {
 	REFRESH_URL: string;
 	PROFILE_URL: string;
 	HISTORY_URL: string;
+	VIDEO_ITEM_URL: string;
 
 	isActivated: boolean;
 	session: AdnSession | null = null;
@@ -73,6 +78,7 @@ class _AdnApi extends ServiceApi {
 		this.REFRESH_URL = `${this.API_URL}/authentication/refresh`;
 		this.PROFILE_URL = `${this.API_URL}/user/public/profile`;
 		this.HISTORY_URL = `${this.API_URL}/viewing/history?limit=${this.pageSize}`;
+		this.VIDEO_ITEM_URL = `${this.API_URL}/video`;
 
 		this.lang = browser.i18n.getUILanguage();
 
@@ -191,7 +197,7 @@ class _AdnApi extends ServiceApi {
 	}
 
 	isNewHistoryItem(historyItem: AdnHistoryItem, lastSync: number, _lastSyncId: string) {
-		return Utils.unix(historyItem.user.watchDate) > lastSync;
+		return Utils.unix(historyItem.user?.watchDate) > lastSync;
 	}
 
 	getHistoryItemId(historyItem: AdnHistoryItem): string {
@@ -199,57 +205,83 @@ class _AdnApi extends ServiceApi {
 	}
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: AdnHistoryItem): void {
-		item.watchedAt = Utils.unix(historyItem.user.watchDate);
-		item.progress = historyItem.user.isFullyWatched
-			? 100
-			: (historyItem.duration / historyItem.user.stoptime) * 100;
+		item.watchedAt = Utils.unix(historyItem.user?.watchDate);
+		item.progress =
+			historyItem.user?.isFullyWatched || !historyItem.user
+				? 100
+				: (historyItem.user.stoptime / historyItem.duration) * 100;
+	}
+
+	parseMetadata(historyItem: AdnHistoryItem): ScrobbleItem {
+		if (this.isMovie(historyItem)) {
+			return new MovieItem({
+				id: historyItem.id.toString(),
+				serviceId: this.id,
+				title: historyItem.show.title,
+				imageUrl: historyItem.image,
+				year: Number.parseInt(historyItem.show.firstReleaseYear),
+			});
+		} else {
+			return new EpisodeItem({
+				id: historyItem.id.toString(),
+				serviceId: this.id,
+				title: historyItem.name,
+				number: Number.parseInt(historyItem.shortNumber) || 0,
+				season: Number.parseInt(historyItem.season) || 0,
+				imageUrl: historyItem.image,
+				year: Number.parseInt(historyItem.show.firstReleaseYear),
+				show: {
+					id: historyItem.show.id.toString(),
+					serviceId: this.id,
+					title: historyItem.show.title,
+				},
+			});
+		}
 	}
 
 	convertHistoryItems(historyItems: AdnHistoryItem[]) {
 		const items: ScrobbleItem[] = [];
 
 		for (const historyItem of historyItems) {
-			if (this.isMovie(historyItem)) {
-				const item = new MovieItem({
-					id: historyItem.id.toString(),
-					serviceId: this.id,
-					title: historyItem.show.title,
-					imageUrl: historyItem.image,
-					year: Number.parseInt(historyItem.show.firstReleaseYear),
-					watchedAt: Utils.unix(historyItem.user.watchDate),
-					progress: historyItem.user.isFullyWatched
+			const item = this.parseMetadata(historyItem);
+			if (item) {
+				item.progress =
+					historyItem.user?.isFullyWatched || !historyItem.user
 						? 100
-						: (historyItem.duration / historyItem.user.stoptime) * 100,
-				});
-				items.push(item);
-			} else {
-				const item = new EpisodeItem({
-					id: historyItem.id.toString(),
-					serviceId: this.id,
-					title: historyItem.name,
-					number: Number.parseInt(historyItem.shortNumber) || 0,
-					season: Number.parseInt(historyItem.season) || 0,
-					imageUrl: historyItem.image,
-					year: Number.parseInt(historyItem.show.firstReleaseYear),
-					watchedAt: Utils.unix(historyItem.user.watchDate),
-					progress: historyItem.user.isFullyWatched
-						? 100
-						: (historyItem.duration / historyItem.user.stoptime) * 100,
-					show: {
-						id: historyItem.show.id.toString(),
-						serviceId: this.id,
-						title: historyItem.show.title,
-					},
-				});
+						: (historyItem.user.stoptime / historyItem.duration) * 100;
+				item.watchedAt = Utils.unix(historyItem.user?.watchDate);
 				items.push(item);
 			}
 		}
-
-		return Promise.resolve(items);
+		return items;
 	}
 
 	isMovie(historyItem: AdnHistoryItem) {
 		return historyItem.type === 'MOV';
+	}
+
+	async getItem(id: string): Promise<ScrobbleItem | null> {
+		let item: ScrobbleItem | null = null;
+		if (!this.isActivated) {
+			await this.activate();
+		}
+		if (!this.session) {
+			throw new Error('Invalid session');
+		}
+		try {
+			const responseText = await this.request.send({
+				url: `${this.VIDEO_ITEM_URL}/${id}`,
+				method: 'GET',
+			});
+			const response = JSON.parse(responseText) as AdnVideoItemResponse;
+			console.log(response.video);
+			item = this.parseMetadata(response?.video);
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to get item.', err);
+			}
+		}
+		return item;
 	}
 
 	async getSession(): Promise<Partial<AdnSession> | null> {

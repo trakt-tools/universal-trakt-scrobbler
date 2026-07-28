@@ -69,7 +69,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 
 | Streaming Service | Scrobble | Sync | Limitations                      |
 | :---------------: | :------: | :--: | :------------------------------- |
-|       ADN         |    ❌    |  ✔️  | -                                |
+|       ADN         |    ✔️    |  ✔️  | -                                |
 |   Amazon Prime    |    ✔️    |  ✔️  | Scrobbling only works in English |
 |       AMC+        |    ✔️    |  ❌  | -                                |
 |       Crave       |    ✔️    |  ✔️  | -                                |
