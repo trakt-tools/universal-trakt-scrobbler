@@ -67,36 +67,38 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 <!-- services-start -->
 <!-- Update this section with `npx trakt-tools dev update-readme` -->
 
-| Streaming Service | Scrobble | Sync | Limitations                      |
-| :---------------: | :------: | :--: | :------------------------------- |
-|   Amazon Prime    |    ✔️    |  ✔️  | Scrobbling only works in English |
-|       AMC+        |    ✔️    |  ❌  | -                                |
-|       Crave       |    ✔️    |  ✔️  | -                                |
-|    Crunchyroll    |    ❌    |  ✔️  | -                                |
-|    discovery+     |    ✔️    |  ✔️  | -                                |
-|      Disney+      |    ✔️    |  ❌  | -                                |
-|        Go3        |    ✔️    |  ❌  | -                                |
-|     GoPlay BE     |    ✔️    |  ❌  | -                                |
-|      HBO Go       |    ✔️    |  ❌  | -                                |
-|      HBO Max      |    ✔️    |  ✔️  | -                                |
-|      Hotstar      |    ✔️    |  ❌  | -                                |
-|      Kijk.nl      |    ✔️    |  ❌  | -                                |
-|       MUBI        |    ✔️    |  ✔️  | -                                |
-|      Netflix      |    ✔️    |  ✔️  | -                                |
-|        NRK        |    ✔️    |  ✔️  | -                                |
-|     Player.pl     |    ✔️    |  ❌  | -                                |
-|  Polsatboxgo.pl   |    ✔️    |  ❌  | -                                |
-|    SkyShowtime    |    ✔️    |  ❌  | -                                |
-|       Star+       |    ✔️    |  ❌  | -                                |
-|    Streamz BE     |    ✔️    |  ❌  | -                                |
-|      Stremio      |    ✔️    |  ❌  | -                                |
-|      Tet TV+      |    ✔️    |  ❌  | -                                |
-|     TV 2 PLAY     |    ✔️    |  ✔️  | -                                |
-|      Viaplay      |    ✔️    |  ✔️  | -                                |
-|       Vidio       |    ✔️    |  ❌  | -                                |
-|     VRTNu BE      |    ✔️    |  ❌  | -                                |
-|     VTMGo BE      |    ✔️    |  ❌  | -                                |
-|    Wakanim.tv     |    ✔️    |  ❌  | -                                |
+| Streaming Service | Scrobble | Sync | Limitations                                                      |
+| :---------------: | :------: | :--: | :--------------------------------------------------------------- |
+|   Amazon Prime    |    ✔️    |  ✔️  | -                                                                |
+|       AMC+        |    ✔️    |  ❌  | -                                                                |
+|     Apple TV      |    ✔️    |  ❌  | - Live sports, trailers, extras, and previews are not scrobbled. |
+|       Crave       |    ✔️    |  ✔️  | -                                                                |
+|    Crunchyroll    |    ❌    |  ✔️  | -                                                                |
+|    discovery+     |    ✔️    |  ✔️  | -                                                                |
+|      Disney+      |    ✔️    |  ❌  | -                                                                |
+|        Go3        |    ✔️    |  ❌  | -                                                                |
+|     GoPlay BE     |    ✔️    |  ❌  | -                                                                |
+|      HBO Go       |    ✔️    |  ❌  | -                                                                |
+|      HBO Max      |    ✔️    |  ✔️  | -                                                                |
+|      Hotstar      |    ✔️    |  ❌  | -                                                                |
+|      Kijk.nl      |    ✔️    |  ❌  | -                                                                |
+|     Kino.pub      |    ✔️    |  ✔️  | -                                                                |
+|       MUBI        |    ✔️    |  ✔️  | -                                                                |
+|      Netflix      |    ✔️    |  ✔️  | -                                                                |
+|        NRK        |    ✔️    |  ✔️  | -                                                                |
+|     Player.pl     |    ✔️    |  ❌  | -                                                                |
+|  Polsatboxgo.pl   |    ✔️    |  ❌  | -                                                                |
+|    SkyShowtime    |    ✔️    |  ❌  | -                                                                |
+|       Star+       |    ✔️    |  ❌  | -                                                                |
+|    Streamz BE     |    ✔️    |  ❌  | -                                                                |
+|      stremio      |    ✔️    |  ❌  | -                                                                |
+|      Tet TV+      |    ✔️    |  ❌  | -                                                                |
+|     TV 2 Play     |    ✔️    |  ✔️  | -                                                                |
+|      Viaplay      |    ✔️    |  ✔️  | -                                                                |
+|       Vidio       |    ✔️    |  ❌  | -                                                                |
+|    VRT Max BE     |    ✔️    |  ❌  | -                                                                |
+|     VTMGo BE      |    ✔️    |  ❌  | -                                                                |
+|    Wakanim.tv     |    ✔️    |  ❌  | -                                                                |
 
 <!-- services-end -->
 
