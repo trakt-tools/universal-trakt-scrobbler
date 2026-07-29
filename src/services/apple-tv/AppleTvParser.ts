@@ -42,10 +42,11 @@ interface AppleTvEpisodeDetails {
 /**
  * Apple TV renders promotional videos throughout the site, while the actual long-form
  * player is mounted in a dedicated `video-container`. Item metadata is server-rendered
- * as semantic meta tags and JSON-LD, while series-page playback exposes the current
- * episode through player metadata and the episode shelf. Page metadata is checked
- * against the current `umc.cmc.*` URL ID, and player metadata is fingerprinted so an
- * autoplay transition cannot retain the previous episode.
+ * as semantic meta tags and JSON-LD, while active player overlays expose the current
+ * item through player metadata. Homepage playback can leave the URL at its locale root,
+ * so matching content links provide exact IDs when available. Page metadata is checked
+ * against the current `umc.cmc.*` URL ID, and player metadata is fingerprinted so SPA
+ * and autoplay transitions cannot retain the previous item.
  */
 class _AppleTvParser extends ScrobbleParser {
 	private itemIdentity: string | null = null;

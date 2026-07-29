@@ -45,6 +45,7 @@ Extension will be enabled until you restart Firefox.
 - [What is Universal Trakt Scrobbler?](#what-is-universal-trakt-scrobbler)
 - [Why do I need this extension?](#why-do-i-need-this-extension)
 - [Which streaming services are supported?](#which-streaming-services-are-supported)
+  - [Apple TV](#apple-tv)
 - [How does the extension work?](#how-does-the-extension-work)
 - [Known Issues](#known-issues)
 - [Other Problems](#other-problems)
@@ -101,6 +102,14 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |    Wakanim.tv     |    ✔️    |  ❌  | -                                                                |
 
 <!-- services-end -->
+
+#### Apple TV
+
+Apple TV support is scrobble-only; historical watch synchronization is not available. Enable Apple TV in the extension options and approve the optional `*://*.tv.apple.com/*` permission when prompted.
+
+The scrobbler supports on-demand movies and TV episodes played on `tv.apple.com`, including playback started from title pages, Continue Watching, featured content, and other homepage shelves. It follows in-page navigation and autoplay transitions even when Apple TV keeps the browser URL on the homepage.
+
+Live sports, trailers, extras, previews, promotional background videos, and other non-feature content are intentionally excluded.
 
 ### How does the extension work?
 
