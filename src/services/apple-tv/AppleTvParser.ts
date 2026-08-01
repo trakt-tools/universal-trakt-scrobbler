@@ -49,6 +49,7 @@ interface AppleTvEpisodeDetails {
  * and autoplay transitions cannot retain the previous item.
  */
 class _AppleTvParser extends ScrobbleParser {
+	private completionPending = false;
 	private itemIdentity: string | null = null;
 
 	constructor() {
@@ -59,18 +60,33 @@ class _AppleTvParser extends ScrobbleParser {
 	}
 
 	async parsePlayback(): Promise<ScrobblePlayback | null> {
+		if (this.completionPending && this.getItem()) {
+			// The previous tick persisted the final progress. An empty playback tick now
+			// lets ScrobbleEvents send /stop with that progress before clearing the item.
+			return null;
+		}
+
 		const route = this.parseRoute();
 		const identity = this.getPlaybackIdentity(route);
 		if (this.getItem() && this.itemIdentity !== identity) {
-			this.clearItem();
-			this.itemIdentity = null;
+			// Keep the previous item alive for one empty-playback cycle. ScrobbleEvents will
+			// stop it with its latest progress, then the controller clears it. Clearing here
+			// would make stopScrobble() return before sending Trakt's final /stop request.
+			return null;
 		}
 
 		const playback = await super.parsePlayback();
 		if (playback && this.getItem()) {
 			this.itemIdentity = identity;
+			this.completionPending = !!this.videoPlayer?.ended || playback.progress >= 99.9;
 		}
 		return playback;
+	}
+
+	override clearItem(): void {
+		super.clearItem();
+		this.completionPending = false;
+		this.itemIdentity = null;
 	}
 
 	protected parseItemFromApi(): Promise<ScrobbleItem | null> {
@@ -264,7 +280,15 @@ class _AppleTvParser extends ScrobbleParser {
 			return this.getEpisodeIdentity(showId ?? route?.id ?? 'player', details);
 		}
 		if (!title) {
-			return null;
+			// Player controls can hide without ending playback. Retain the last confirmed
+			// identity until either new metadata appears or the video itself disappears.
+			if (this.itemIdentity) {
+				return this.itemIdentity;
+			}
+			if (route?.type === 'episode') {
+				return `episode:${route.id}`;
+			}
+			return route?.type === 'movie' ? `movie:${route.id}` : null;
 		}
 
 		const movieId = route?.type === 'movie' ? route.id : this.findContentId('movie', title);
