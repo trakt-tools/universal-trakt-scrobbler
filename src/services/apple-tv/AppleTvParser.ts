@@ -103,7 +103,7 @@ class _AppleTvParser extends ScrobbleParser {
 		}
 
 		const metadataId = this.getMetaContent('apple:content_id');
-		if (route.type === 'movie' && metadataId === route.id && !this.playerMatchesPageTitle()) {
+		if (route.type === 'movie' && metadataId === route.id && !this.playerMatchesPageTitle(route)) {
 			return null;
 		}
 		if (metadataId !== route.id) {
@@ -135,7 +135,7 @@ class _AppleTvParser extends ScrobbleParser {
 
 	private parseMovie(route: AppleTvRoute): MovieItem | null {
 		const ld = this.getLdItem<AppleTvLdMovie>('Movie', route.id);
-		const title = this.getMetaContent('apple:title') || ld?.name?.trim() || '';
+		const title = this.getMovieTitle(ld);
 		if (!title) {
 			return null;
 		}
@@ -145,7 +145,7 @@ class _AppleTvParser extends ScrobbleParser {
 			ld?.datePublished ||
 			ld?.dateCreated ||
 			'';
-		const year = parseInt(/^(?<year>\d{4})/.exec(releaseDate)?.groups?.year ?? '') || 0;
+		const year = parseInt(/^(?<year>\d{4})/.exec(releaseDate)?.groups?.year ?? '', 10) || 0;
 
 		return new MovieItem({
 			serviceId: this.api.id,
@@ -364,13 +364,14 @@ class _AppleTvParser extends ScrobbleParser {
 
 	private normalizeTitle(value: string): string {
 		return value
-			.toLocaleLowerCase()
+			.toLowerCase()
 			.replace(/[^\p{L}\p{N}]+/gu, ' ')
 			.trim();
 	}
 
-	private playerMatchesPageTitle(): boolean {
-		const pageTitle = this.getMetaContent('apple:title');
+	private playerMatchesPageTitle(route: AppleTvRoute): boolean {
+		const ld = this.getLdItem<AppleTvLdMovie>('Movie', route.id);
+		const pageTitle = this.getMovieTitle(ld);
 		const playerTitle = document
 			.querySelector('[data-testid="video-player"] [data-testid="player-metadata-title"]')
 			?.textContent?.trim();
@@ -378,6 +379,14 @@ class _AppleTvParser extends ScrobbleParser {
 			!!pageTitle &&
 			!!playerTitle &&
 			this.normalizeTitle(pageTitle) === this.normalizeTitle(playerTitle)
+		);
+	}
+
+	private getMovieTitle(ld: AppleTvLdMovie | null): string {
+		return (
+			this.getMetaContent('apple:title') ||
+			ld?.name?.trim() ||
+			this.getMetaContent('og:title', 'property')
 		);
 	}
 
@@ -483,7 +492,7 @@ class _AppleTvParser extends ScrobbleParser {
 	}
 
 	private parseNonNegativeInteger(value: number | string | undefined): number | null {
-		const parsed = typeof value === 'number' ? value : parseInt(value ?? '');
+		const parsed = typeof value === 'number' ? value : parseInt(value ?? '', 10);
 		return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 	}
 }
