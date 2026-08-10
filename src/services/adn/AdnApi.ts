@@ -54,6 +54,8 @@ export interface AdnVideoItemResponse {
 	video: AdnHistoryItem;
 }
 
+const SUPPORTED_DIST_LANGUAGES = ['fr', 'pl', 'de'];
+
 class _AdnApi extends ServiceApi {
 	HOST_URL: string;
 	API_URL: string;
@@ -80,9 +82,15 @@ class _AdnApi extends ServiceApi {
 		this.HISTORY_URL = `${this.API_URL}/viewing/history?limit=${this.pageSize}`;
 		this.VIDEO_ITEM_URL = `${this.API_URL}/video`;
 
-		this.lang = browser.i18n.getUILanguage();
+		this.lang = this.getDistributionLang();
 
 		this.isActivated = false;
+	}
+
+	getDistributionLang() {
+		const uiLang = browser.i18n.getUILanguage();
+		// fallback to france, since this is the native service language (no english available)
+		return SUPPORTED_DIST_LANGUAGES.includes(uiLang) ? uiLang : 'fr';
 	}
 
 	async activate() {
