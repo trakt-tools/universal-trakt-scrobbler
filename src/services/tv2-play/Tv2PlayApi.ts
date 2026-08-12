@@ -84,6 +84,9 @@ interface Auth0TokenData {
 interface Tv2PlaySession {
 	accessToken: string;
 	refreshToken?: string;
+
+	// Unix timestamp in seconds
+	expiresAt?: number;
 }
 
 class _Tv2PlayApi extends ServiceApi {
@@ -93,6 +96,7 @@ class _Tv2PlayApi extends ServiceApi {
 	token: string;
 	isActivated: boolean;
 	pageSize = 10;
+	private tokenExpiresAt = 0;
 
 	authRequests = Requests;
 
@@ -116,8 +120,13 @@ class _Tv2PlayApi extends ServiceApi {
 		if (!sessionData || !sessionData.accessToken) {
 			throw new Error('Could not retrieve Auth0 access token from TV2 Play');
 		}
+		if (sessionData.expiresAt && Utils.unix() >= sessionData.expiresAt) {
+			// The page also only holds an expired token, so there is nothing fresher to pick up
+			throw new Error('The TV2 Play access token has expired');
+		}
 
 		this.token = sessionData.accessToken;
+		this.tokenExpiresAt = sessionData.expiresAt ?? 0;
 
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${this.token}`,
@@ -134,6 +143,16 @@ class _Tv2PlayApi extends ServiceApi {
 		};
 		this.isActivated = true;
 	}
+	/**
+	 * Re-activates when the access token has expired - the TV 2 Play page keeps a fresh
+	 * token in localStorage, so a new session injection picks it up.
+	 */
+	private async ensureActivated(): Promise<void> {
+		if (!this.isActivated || (this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt)) {
+			await this.activate();
+		}
+	}
+
 	async checkLogin() {
 		if (!this.isActivated) {
 			await this.activate();
@@ -142,9 +161,7 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 
 	async loadHistoryItems(): Promise<Tv2PlayHistoryItem[]> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 
 		// Retrieve the history items
 		const responseText = await this.authRequests.send({
@@ -220,9 +237,7 @@ class _Tv2PlayApi extends ServiceApi {
 		year: number;
 		contentResponse?: TV2PlayContentResponse;
 	}> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 
 		try {
 			const responseText = await this.authRequests.send({
@@ -315,9 +330,7 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 
 		const responseText = await this.authRequests.send({
 			url: `https://ai.play.tv2.no/v4/content/path${path}`,
@@ -395,6 +408,7 @@ Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Tv2PlaySession | 
 		return {
 			accessToken: auth0Data.body.access_token,
 			refreshToken: auth0Data.body.refresh_token,
+			expiresAt: auth0Data.expiresAt,
 		};
 	} catch (_error) {
 		return null;
