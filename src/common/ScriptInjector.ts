@@ -236,10 +236,26 @@ class _ScriptInjector {
 				return;
 			}
 
+			// If the content script never connects (for example, if the user is logged out and the
+			// page redirects to a domain where it isn't injected), the promise would never settle
+			// and callers (like the auto sync) would hang forever, so give up after a while.
+			const timeoutId = setTimeout(() => {
+				console.log(
+					`[UTS] ScriptInjector.injectInTab: ${id}: timed out waiting for the content script`
+				);
+				Shared.events.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+				if (tabId !== null) {
+					void browser.tabs.remove(tabId);
+				}
+				resolve(null);
+			}, 60e3);
+
 			const onScriptConnect = async (data: ContentScriptConnectData) => {
 				if (typeof tabId === 'undefined' || tabId !== data.tabId) {
 					return;
 				}
+
+				clearTimeout(timeoutId);
 
 				let value;
 				if (Shared.manifestVersion === 3) {
@@ -266,9 +282,21 @@ class _ScriptInjector {
 			Shared.events.subscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
 
 			Tabs.open(url, { active: false })
-				.then((tab) => (tabId = tab?.id ?? null))
-				.catch(() => {
-					// Do nothing
+				.then((tab) => {
+					tabId = tab?.id ?? null;
+					if (tabId === null) {
+						// Without a tab there is nothing to wait for, so give up instead of hanging
+						console.log(`[UTS] ScriptInjector.injectInTab: ${id}: could not open a tab`);
+						clearTimeout(timeoutId);
+						Shared.events.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+						resolve(null);
+					}
+				})
+				.catch((err) => {
+					console.log(`[UTS] ScriptInjector.injectInTab: ${id}: failed to open tab`, err);
+					clearTimeout(timeoutId);
+					Shared.events.unsubscribe('CONTENT_SCRIPT_CONNECT', null, onScriptConnect);
+					resolve(null);
 				});
 		});
 	}

@@ -24,17 +24,19 @@ class _Tabs {
 				extraProperties,
 			});
 		}
+		// There isn't always an active tab in a normal window (for example, when the background
+		// service worker runs while no browser window is focused), so only use it to position
+		// the new tab and to inherit the cookie store - never fail to open the tab because of it.
 		const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-		if (tabs.length === 0) {
-			return null;
-		}
 		const tabProperties: TabProperties = {
-			index: tabs[0].index + 1,
 			url,
 			...extraProperties,
 		};
-		if (Shared.storage.options.grantCookies && browser.cookies) {
-			tabProperties.cookieStoreId = tabs[0].cookieStoreId;
+		if (tabs.length > 0) {
+			tabProperties.index = tabs[0].index + 1;
+			if (Shared.storage.options.grantCookies && browser.cookies) {
+				tabProperties.cookieStoreId = tabs[0].cookieStoreId;
+			}
 		}
 		return browser.tabs.create(tabProperties);
 	}
