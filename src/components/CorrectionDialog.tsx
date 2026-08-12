@@ -248,31 +248,23 @@ export const CorrectionDialog = (): JSX.Element => {
 	const validUrlRegex =
 		/\/shows\/(?<show>[\w-]+)\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
 	const validAppUrlRegex =
-		/\/shows\/(?<show>[\w-]+)\?.*(season=(?<season>[\w-]+)|episode=(?<episode>[\w-]+)|\&){3,}|\/movies\/(?<movie>[\w-]+)/;
+		/\/shows\/(?<show>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
 
-	const isValidUrl = (url: string): boolean => {
-		return url.startsWith('https://app.trakt.tv')
-			? !!validAppUrlRegex.exec(url) && url.includes('?')
-			: !!validUrlRegex.exec(url);
-	};
+	const isValidUrl = (url: string): boolean => cleanUrl(url) !== '';
 
 	const cleanUrl = (url: string): string => {
 		if (url.startsWith('https://app.trakt.tv')) {
 			const matches = validAppUrlRegex.exec(url);
-
 			if (!matches?.groups) {
 				return '';
 			}
 			const { show, movie } = matches.groups;
-
 			const searchParams = new URLSearchParams(url.split('?')[1]);
 			const season = searchParams.get('season');
 			const episode = searchParams.get('episode');
-
 			if (show && season && episode) {
 				return `/shows/${show}/seasons/${season}/episodes/${episode}`;
 			}
-
 			if (movie) {
 				return `/movies/${movie}`;
 			}
