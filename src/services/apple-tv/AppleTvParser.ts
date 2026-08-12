@@ -39,6 +39,16 @@ interface AppleTvEpisodeDetails {
 	title: string;
 }
 
+interface AppleTvPlayerMetadata {
+	subtitle: string;
+	title: string;
+}
+
+interface AppleTvPlaybackIdentityCache {
+	identity: string;
+	key: string;
+}
+
 /**
  * Apple TV renders promotional videos throughout the site, while the actual long-form
  * player is mounted in a dedicated `video-container`. Item metadata is server-rendered
@@ -51,6 +61,7 @@ interface AppleTvEpisodeDetails {
 class _AppleTvParser extends ScrobbleParser {
 	private completionPending = false;
 	private itemIdentity: string | null = null;
+	private playbackIdentityCache: AppleTvPlaybackIdentityCache | null = null;
 
 	constructor() {
 		super(AppleTvApi, {
@@ -87,6 +98,7 @@ class _AppleTvParser extends ScrobbleParser {
 		super.clearItem();
 		this.completionPending = false;
 		this.itemIdentity = null;
+		this.playbackIdentityCache = null;
 	}
 
 	protected parseItemFromApi(): Promise<ScrobbleItem | null> {
@@ -193,13 +205,7 @@ class _AppleTvParser extends ScrobbleParser {
 	}
 
 	private parseItemFromPlayer(route: AppleTvRoute | null): ScrobbleItem | null {
-		const player = document.querySelector('[data-testid="video-player"]');
-		const title = player
-			?.querySelector('[data-testid="player-metadata-title"]')
-			?.textContent?.trim();
-		const subtitle = player
-			?.querySelector('[data-testid="player-metadata-subtitle"]')
-			?.textContent?.trim();
+		const { title, subtitle } = this.getPlayerMetadata();
 		if (!title) {
 			return null;
 		}
@@ -219,7 +225,7 @@ class _AppleTvParser extends ScrobbleParser {
 			return null;
 		}
 
-		const details = this.parsePlayerEpisode(title, subtitle ?? '');
+		const details = this.parsePlayerEpisode(title, subtitle);
 		if (details) {
 			const showId =
 				route?.type === 'show' ? route.id : (this.findContentId('show', details.showTitle) ?? null);
@@ -266,33 +272,48 @@ class _AppleTvParser extends ScrobbleParser {
 	}
 
 	private getPlaybackIdentity(route: AppleTvRoute | null): string | null {
-		const player = document.querySelector('[data-testid="video-player"]');
-		const title = player
-			?.querySelector('[data-testid="player-metadata-title"]')
-			?.textContent?.trim();
-		const subtitle = player
-			?.querySelector('[data-testid="player-metadata-subtitle"]')
-			?.textContent?.trim();
-		const details = title ? this.parsePlayerEpisode(title, subtitle ?? '') : null;
+		const { title, subtitle } = this.getPlayerMetadata();
+		const key = JSON.stringify([route?.type ?? '', route?.id ?? '', title, subtitle]);
+		if (this.playbackIdentityCache?.key === key) {
+			return this.playbackIdentityCache.identity;
+		}
+
+		const details = title ? this.parsePlayerEpisode(title, subtitle) : null;
+		let identity: string | null;
 		if (details) {
 			const showId =
 				route?.type === 'show' ? route.id : this.findContentId('show', details.showTitle);
-			return this.getEpisodeIdentity(showId ?? route?.id ?? 'player', details);
-		}
-		if (!title) {
+			identity = this.getEpisodeIdentity(showId ?? route?.id ?? 'player', details);
+		} else if (!title) {
 			// Player controls can hide without ending playback. Retain the last confirmed
 			// identity until either new metadata appears or the video itself disappears.
 			if (this.itemIdentity) {
-				return this.itemIdentity;
+				identity = this.itemIdentity;
+			} else if (route?.type === 'episode') {
+				identity = `episode:${route.id}`;
+			} else {
+				identity = route?.type === 'movie' ? `movie:${route.id}` : null;
 			}
-			if (route?.type === 'episode') {
-				return `episode:${route.id}`;
-			}
-			return route?.type === 'movie' ? `movie:${route.id}` : null;
+		} else {
+			const movieId = route?.type === 'movie' ? route.id : this.findContentId('movie', title);
+			identity = movieId ? `movie:${movieId}` : null;
 		}
 
-		const movieId = route?.type === 'movie' ? route.id : this.findContentId('movie', title);
-		return movieId ? `movie:${movieId}` : null;
+		// Do not cache misses: homepage shelves can load after player metadata, and a
+		// later tick must be able to resolve the same title against the updated DOM.
+		this.playbackIdentityCache = identity ? { identity, key } : null;
+		return identity;
+	}
+
+	private getPlayerMetadata(): AppleTvPlayerMetadata {
+		const player = document.querySelector('[data-testid="video-player"]');
+		return {
+			title:
+				player?.querySelector('[data-testid="player-metadata-title"]')?.textContent?.trim() ?? '',
+			subtitle:
+				player?.querySelector('[data-testid="player-metadata-subtitle"]')?.textContent?.trim() ??
+				'',
+		};
 	}
 
 	private getEpisodeIdentity(routeId: string, details: AppleTvEpisodeDetails): string {
@@ -372,9 +393,7 @@ class _AppleTvParser extends ScrobbleParser {
 	private playerMatchesPageTitle(route: AppleTvRoute): boolean {
 		const ld = this.getLdItem<AppleTvLdMovie>('Movie', route.id);
 		const pageTitle = this.getMovieTitle(ld);
-		const playerTitle = document
-			.querySelector('[data-testid="video-player"] [data-testid="player-metadata-title"]')
-			?.textContent?.trim();
+		const { title: playerTitle } = this.getPlayerMetadata();
 		return (
 			!!pageTitle &&
 			!!playerTitle &&
