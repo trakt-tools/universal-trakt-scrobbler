@@ -220,10 +220,14 @@ export abstract class ServiceApi {
 					hasReachedLastSyncDate;
 			} while (!hasReachedEnd && itemsToLoad > 0);
 			if (historyItems.length > 0) {
+				const preparedHistoryItems = await this.prepareHistoryItems(historyItems);
+				if (preparedHistoryItems.length !== historyItems.length) {
+					throw new Error('prepareHistoryItems() must preserve the number of history items');
+				}
 				const tmpItems: (ScrobbleItem | null)[] = [];
 				const historyItemsToConvert = [];
 
-				for (const historyItem of historyItems) {
+				for (const historyItem of preparedHistoryItems) {
 					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
 					const itemId = caches.historyItemsToItems.get(historyItemId);
 					if (itemId) {
@@ -257,7 +261,7 @@ export abstract class ServiceApi {
 					items = tmpItems as ScrobbleItem[];
 				}
 
-				for (const [index, historyItem] of historyItems.entries()) {
+				for (const [index, historyItem] of preparedHistoryItems.entries()) {
 					const historyItemId = `${this.id}_${this.getHistoryItemId(historyItem)}`;
 					const item = items[index];
 					const itemDatabaseId = item.getDatabaseId();
@@ -316,6 +320,14 @@ export abstract class ServiceApi {
 	getHistoryItemId(_historyItem: unknown): string {
 		Shared.errors.error('getHistoryItemId() is not implemented in this service!', new Error());
 		return '';
+	}
+
+	/**
+	 * Enriches history items before cached items and new items take separate paths.
+	 * Implementations must preserve the number and order of the supplied items.
+	 */
+	prepareHistoryItems(historyItems: unknown[]): Promisable<unknown[]> {
+		return historyItems;
 	}
 
 	/**
