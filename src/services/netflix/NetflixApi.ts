@@ -1,4 +1,10 @@
 import { NetflixService } from '@/netflix/NetflixService';
+import {
+	getNetflixHistoryProgress,
+	mergeNetflixHistoryProgress,
+	NetflixHistoryProgress,
+	NetflixPlaybackMetadata,
+} from '@/netflix/NetflixProgress';
 import { ServiceApi, ServiceApiSession } from '@apis/ServiceApi';
 import { Requests } from '@common/Requests';
 import { ScriptInjector } from '@common/ScriptInjector';
@@ -66,10 +72,8 @@ export interface NetflixHistoryResponse {
 
 export type NetflixHistoryItem = NetflixHistoryEpisodeItem | NetflixHistoryMovieItem;
 
-export interface NetflixHistoryEpisodeItem {
-	bookmark: number;
+export interface NetflixHistoryEpisodeItem extends NetflixHistoryProgress {
 	date: number;
-	duration: number;
 	episodeTitle: string;
 	movieID: number;
 	series: number;
@@ -77,10 +81,8 @@ export interface NetflixHistoryEpisodeItem {
 	title: string;
 }
 
-export interface NetflixHistoryMovieItem {
-	bookmark: number;
+export interface NetflixHistoryMovieItem extends NetflixHistoryProgress {
 	date: number;
-	duration: number;
 	movieID: number;
 	title: string;
 }
@@ -136,7 +138,7 @@ export interface NetflixSingleMetadataItem {
 	video: NetflixMetadataShow | NetflixMetadataMovie;
 }
 
-export interface NetflixMetadataGeneric {
+export interface NetflixMetadataGeneric extends NetflixPlaybackMetadata {
 	id: number;
 	title: string;
 	year: number;
@@ -154,7 +156,7 @@ export interface NetflixMetadataShowSeason {
 	seq: number;
 }
 
-export interface NetflixMetadataShowEpisode {
+export interface NetflixMetadataShowEpisode extends NetflixPlaybackMetadata {
 	id: number;
 	seq: number;
 	title: string;
@@ -201,6 +203,11 @@ class _NetflixApi extends ServiceApi {
 		this.ACTIVATE_URL = `${this.HOST_URL}/settings/viewed/`;
 
 		this.isActivated = false;
+	}
+
+	reset(): void {
+		super.reset();
+		this.metadataCache.clear();
 	}
 
 	private async fetchActivatePage(maxRetries = 3): Promise<string> {
@@ -324,25 +331,20 @@ class _NetflixApi extends ServiceApi {
 		return historyItem.movieID.toString();
 	}
 
-	async convertHistoryItems(historyItems: NetflixHistoryItem[]) {
-		const historyItemsWithMetadata = await this.getHistoryMetadata(historyItems);
-		return historyItemsWithMetadata.map((historyItem) => this.parseHistoryItem(historyItem));
+	prepareHistoryItems(historyItems: NetflixHistoryItem[]) {
+		return this.getHistoryMetadata(historyItems);
+	}
+
+	convertHistoryItems(historyItems: NetflixHistoryItemWithMetadata[]) {
+		return historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
 	}
 
 	updateItemFromHistory(
 		item: ScrobbleItemValues,
-		historyItem: NetflixHistoryItem
+		historyItem: NetflixHistoryItemWithMetadata
 	): Promisable<void> {
 		item.watchedAt = Utils.unix(historyItem.date);
-
-		// Handle missing bookmark/duration data with fallback
-		// If no bookmark/duration data, assume 100% progress since item appears in viewing history
-		const bookmark = historyItem.bookmark ?? 0;
-		const duration = historyItem.duration ?? 1;
-		const hasValidData = historyItem.bookmark !== undefined && historyItem.duration !== undefined;
-		const calculatedProgress = hasValidData ? Math.ceil((bookmark / duration) * 100) : 100;
-
-		item.progress = calculatedProgress;
+		item.progress = getNetflixHistoryProgress(historyItem.bookmark, historyItem.duration);
 	}
 
 	/**
@@ -413,6 +415,7 @@ class _NetflixApi extends ServiceApi {
 						if (episode) {
 							combinedItem = {
 								...historyItem,
+								...mergeNetflixHistoryProgress(historyItem, episode),
 								releaseYear: video.year,
 								seriesTitle: video.title || historyItem.seriesTitle,
 								episodeTitle: episode.title || historyItem.episodeTitle,
@@ -434,6 +437,7 @@ class _NetflixApi extends ServiceApi {
 				if (video && video.type === 'movie') {
 					combinedItem = {
 						...historyItem,
+						...mergeNetflixHistoryProgress(historyItem, video),
 						releaseYear: video.year,
 						title: video.title || historyItem.title,
 						summary: { id: historyItem.movieID },
@@ -505,12 +509,7 @@ class _NetflixApi extends ServiceApi {
 		const id = historyItem.movieID.toString();
 		const year = historyItem.releaseYear;
 		const watchedAt = Utils.unix(historyItem.date);
-		// Handle missing bookmark/duration data with fallback
-		// If no bookmark/duration data, assume 100% progress since item appears in viewing history
-		const bookmark = historyItem.bookmark ?? 0;
-		const duration = historyItem.duration ?? 1;
-		const hasValidData = historyItem.bookmark !== undefined && historyItem.duration !== undefined;
-		const progress = hasValidData ? Math.ceil((bookmark / duration) * 100) : 100;
+		const progress = getNetflixHistoryProgress(historyItem.bookmark, historyItem.duration);
 
 		if (this.isShow(historyItem)) {
 			const title = historyItem.seriesTitle.trim();
