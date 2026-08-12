@@ -90,8 +90,7 @@ interface Tv2PlaySession {
 }
 
 class _Tv2PlayApi extends ServiceApi {
-	HISTORY_URL: string;
-	TOKEN_URL: string;
+	API_URL: string;
 	PROFILE_URL: string;
 	token: string;
 	isActivated: boolean;
@@ -102,8 +101,7 @@ class _Tv2PlayApi extends ServiceApi {
 
 	constructor() {
 		super(Tv2PlayService.id);
-		this.HISTORY_URL = 'https://ai.play.tv2.no/v4/viewinghistory/?start=0&size=10';
-		this.TOKEN_URL = 'https://id.tv2.no/oauth/token';
+		this.API_URL = 'https://ai.play.tv2.no/v4';
 		this.PROFILE_URL = 'https://api.play.tv2.no/user/';
 		this.token = '';
 		this.isActivated = false;
@@ -160,15 +158,16 @@ class _Tv2PlayApi extends ServiceApi {
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<Tv2PlayHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<Tv2PlayHistoryItem[]> {
 		await this.ensureActivated();
 
 		// Retrieve the history items
 		const responseText = await this.authRequests.send({
-			url: `https://ai.play.tv2.no/v4/viewinghistory/?start=${
+			url: `${this.API_URL}/viewinghistory/?start=${
 				this.nextHistoryPage * this.pageSize
 			}&size=${this.pageSize}`,
 			method: 'GET',
+			cancelKey,
 		});
 		const historyItems = JSON.parse(responseText) as Tv2PlayHistoryItem[];
 
@@ -241,7 +240,7 @@ class _Tv2PlayApi extends ServiceApi {
 
 		try {
 			const responseText = await this.authRequests.send({
-				url: `https://ai.play.tv2.no/v4/content/path${path}`,
+				url: `${this.API_URL}/content/path${path}`,
 				method: 'GET',
 			});
 			const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
@@ -252,7 +251,7 @@ class _Tv2PlayApi extends ServiceApi {
 				contentResponse: responseJson,
 			};
 		} catch (error) {
-			console.error('Failed to fetch progress for item:', path, error);
+			console.debug('[UTS] Failed to fetch progress for TV 2 Play item', path, error);
 			return { progress: null, year: 0 };
 		}
 	}
@@ -333,7 +332,7 @@ class _Tv2PlayApi extends ServiceApi {
 		await this.ensureActivated();
 
 		const responseText = await this.authRequests.send({
-			url: `https://ai.play.tv2.no/v4/content/path${path}`,
+			url: `${this.API_URL}/content/path${path}`,
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
