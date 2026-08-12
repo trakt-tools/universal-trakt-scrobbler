@@ -33,9 +33,9 @@ class _Tabs {
 			...extraProperties,
 		};
 		if (tabs.length > 0) {
-			tabProperties.index = tabs[0].index + 1;
+			tabProperties.index ??= tabs[0].index + 1;
 			if (Shared.storage.options.grantCookies && browser.cookies) {
-				tabProperties.cookieStoreId = tabs[0].cookieStoreId;
+				tabProperties.cookieStoreId ??= tabs[0].cookieStoreId;
 			}
 		}
 		return browser.tabs.create(tabProperties);

@@ -106,9 +106,11 @@ class _BrowserAction {
 		if (!rotating) {
 			return;
 		}
+		const icon = this.currentIcon;
 		const image = await this.createIconBitmap();
-		// The rotation may have been replaced or stopped while the image was loading
-		if (this.rotating === rotating) {
+		// The rotation may have been replaced or stopped, or the icon may have changed again,
+		// while the image was loading - in that case the loaded bitmap is stale
+		if (this.rotating === rotating && this.currentIcon === icon) {
 			rotating.image = image;
 		}
 	}

@@ -255,24 +255,29 @@ class _ScriptInjector {
 					return;
 				}
 
-				clearTimeout(timeoutId);
-
-				let value;
-				if (Shared.manifestVersion === 3) {
-					const results = await browser.scripting.executeScript({
-						target: { tabId },
-						func: Shared.functionsToInject[id],
-						args: [params],
-						// @ts-expect-error This is a newer value, so it's missing from the types.
-						world: 'MAIN',
-					});
-					value = results[0].result as T | null;
-				} else {
-					value = (await Messaging.toContent(
-						{ action: 'inject-function', serviceId, key, url, params },
-						tabId
-					)) as T | null;
+				// Keep the timeout active until the injection has settled, so that a hanging
+				// injection cannot leave the promise pending forever. Failures resolve with null.
+				let value: T | null = null;
+				try {
+					if (Shared.manifestVersion === 3) {
+						const results = await browser.scripting.executeScript({
+							target: { tabId },
+							func: Shared.functionsToInject[id],
+							args: [params],
+							// @ts-expect-error This is a newer value, so it's missing from the types.
+							world: 'MAIN',
+						});
+						value = results[0].result as T | null;
+					} else {
+						value = (await Messaging.toContent(
+							{ action: 'inject-function', serviceId, key, url, params },
+							tabId
+						)) as T | null;
+					}
+				} catch (err) {
+					console.log(`[UTS] ScriptInjector.injectInTab: ${id}: injection failed`, err);
 				}
+				clearTimeout(timeoutId);
 				void browser.tabs.remove(tabId);
 				resolve(value);
 
