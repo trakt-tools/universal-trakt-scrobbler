@@ -1,4 +1,5 @@
 import { CorrectionApi } from '@apis/CorrectionApi';
+import { TmdbApi } from '@apis/TmdbApi';
 import { TraktApi } from '@apis/TraktApi';
 import { CacheItems } from '@common/Cache';
 import { RequestError } from '@common/RequestError';
@@ -222,7 +223,6 @@ class _TraktSearch extends TraktApi {
 				// original title and matching the TMDB ID against Trakt results can
 				// resolve cases where Trakt lists a show under a different (e.g. English) name.
 				try {
-					const { TmdbApi } = await import('@apis/TmdbApi');
 					const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
 					if (tmdbShow) {
 						const tmdbMatch = searchItems.find((si) => {
@@ -477,7 +477,6 @@ class _TraktSearch extends TraktApi {
 		cancelKey: string
 	): Promise<string | null> {
 		try {
-			const { TmdbApi } = await import('@apis/TmdbApi');
 			const tmdbShow = await TmdbApi.searchTvShow(item.show.title, item.show.year, item.serviceId);
 
 			if (!tmdbShow) {
