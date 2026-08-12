@@ -42,8 +42,9 @@ class _BrowserAction {
 		if (Shared.pageType === 'background') {
 			this.currentIcon = browser.runtime.getURL('images/uts-icon-selected-38.png');
 			if (this.rotating) {
-				await this.setStaticIcon();
-				await this.setRotatingIcon();
+				// Only swap the image being rotated - restarting the rotation here would
+				// clear a pending cancellation and could leave the icon spinning forever.
+				await this.updateRotatingIcon();
 			} else {
 				await this.instance.setIcon({
 					path: this.currentIcon,
@@ -58,8 +59,9 @@ class _BrowserAction {
 		if (Shared.pageType === 'background') {
 			this.currentIcon = browser.runtime.getURL('images/uts-icon-38.png');
 			if (this.rotating) {
-				await this.setStaticIcon();
-				await this.setRotatingIcon();
+				// Only swap the image being rotated - restarting the rotation here would
+				// clear a pending cancellation and could leave the icon spinning forever.
+				await this.updateRotatingIcon();
 			} else {
 				await this.instance.setIcon({
 					path: this.currentIcon,
@@ -72,12 +74,7 @@ class _BrowserAction {
 
 	async setRotatingIcon(): Promise<void> {
 		if (Shared.pageType === 'background') {
-			const imageResponse = await Requests.fetch({
-				method: 'GET',
-				url: this.currentIcon,
-			});
-			const imageBlob = await imageResponse.blob();
-			const image = await createImageBitmap(imageBlob);
+			const image = await this.createIconBitmap();
 			const canvas = new OffscreenCanvas(image.width, image.height);
 			const context = canvas.getContext('2d', {
 				willReadFrequently: true,
@@ -89,9 +86,30 @@ class _BrowserAction {
 				degrees: 0,
 				canceled: false,
 			};
-			await this.rotateIcon();
+			await this.rotateIcon(this.rotating);
 		} else {
 			await Messaging.toExtension({ action: 'set-rotating-icon' });
+		}
+	}
+
+	private async createIconBitmap(): Promise<ImageBitmap> {
+		const imageResponse = await Requests.fetch({
+			method: 'GET',
+			url: this.currentIcon,
+		});
+		const imageBlob = await imageResponse.blob();
+		return createImageBitmap(imageBlob);
+	}
+
+	private async updateRotatingIcon(): Promise<void> {
+		const rotating = this.rotating;
+		if (!rotating) {
+			return;
+		}
+		const image = await this.createIconBitmap();
+		// The rotation may have been replaced or stopped while the image was loading
+		if (this.rotating === rotating) {
+			rotating.image = image;
 		}
 	}
 
@@ -105,12 +123,22 @@ class _BrowserAction {
 		}
 	}
 
-	async rotateIcon(): Promise<void> {
-		if (!this.rotating) {
+	async rotateIcon(rotating: BrowserActionRotating): Promise<void> {
+		if (this.rotating !== rotating) {
+			// A newer rotation has taken over, so let it drive the icon instead
 			return;
 		}
 
-		const { image, canvas, context, degrees } = this.rotating;
+		if (rotating.canceled) {
+			// Restore the static icon - otherwise it would remain stuck on the last rotated frame
+			this.rotating = null;
+			await this.instance.setIcon({
+				path: this.currentIcon,
+			});
+			return;
+		}
+
+		const { image, canvas, context, degrees } = rotating;
 		if (!image || !canvas || !context) {
 			return;
 		}
@@ -131,17 +159,9 @@ class _BrowserAction {
 			) as WebExtAction.ImageDataType,
 		});
 
-		this.rotating.degrees += 15;
-		if (this.rotating.degrees >= 360) {
-			if (this.rotating.canceled) {
-				this.rotating = null;
-				return;
-			}
+		rotating.degrees = (rotating.degrees + 15) % 360;
 
-			this.rotating.degrees = 0;
-		}
-
-		setTimeout(() => void this.rotateIcon(), 30);
+		setTimeout(() => void this.rotateIcon(rotating), 30);
 	}
 }
 
