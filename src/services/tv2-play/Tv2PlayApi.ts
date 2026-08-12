@@ -153,7 +153,9 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 
 	isNewHistoryItem(historyItem: Tv2PlayHistoryItem, lastSync: number, _lastSyncId: string) {
-		return new Date(historyItem.date).getTime() > lastSync;
+		// `lastSync` is a unix timestamp in seconds, so the item date must be converted to
+		// seconds as well - comparing milliseconds to seconds would treat every item as new.
+		return Utils.unix(historyItem.date) > lastSync;
 	}
 
 	getHistoryItemId(historyItem: Tv2PlayHistoryItem) {
