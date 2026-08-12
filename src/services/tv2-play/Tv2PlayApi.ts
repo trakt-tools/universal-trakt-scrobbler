@@ -29,6 +29,16 @@ interface Tv2PlayMovieHistoryItem {
 
 export type Tv2PlayHistoryItem = Tv2PlayMovieHistoryItem | Tv2PlayEpisodeHistoryItem;
 
+export type Tv2PlayHistoryItemWithContent = Tv2PlayHistoryItem & {
+	contentInfo?: Tv2PlayContentInfo;
+};
+
+interface Tv2PlayContentInfo {
+	progress: TV2PlayProgress | null;
+	year: number;
+	contentResponse?: TV2PlayContentResponse;
+}
+
 // Content API response types
 interface TV2PlayProgress {
 	position?: number;
@@ -162,19 +172,30 @@ class _Tv2PlayApi extends ServiceApi {
 		return historyItem.id.toString();
 	}
 
-	async convertHistoryItems(historyItems: Tv2PlayHistoryItem[]) {
+	/**
+	 * Enriches history items with content info (progress, year, and episode title for episodes)
+	 * before cached items and new items take separate paths, so that
+	 * `updateItemFromHistory()` can keep the progress of cached items up-to-date.
+	 */
+	prepareHistoryItems(
+		historyItems: Tv2PlayHistoryItem[]
+	): Promise<Tv2PlayHistoryItemWithContent[]> {
+		return Promise.all(
+			historyItems.map(async (historyItem) => ({
+				...historyItem,
+				contentInfo: await this.getProgressForItem(historyItem.asset.path),
+			}))
+		);
+	}
+
+	async convertHistoryItems(historyItems: Tv2PlayHistoryItemWithContent[]) {
 		const promises = historyItems.map(async (historyItem) => {
-			// Fetch content info (progress, year, and episode title for episodes)
-			let contentInfo;
-			try {
-				contentInfo = await this.getProgressForItem(historyItem.asset.path);
-			} catch (error) {
-				console.error('Failed to get progress for item:', historyItem.asset.path, error);
-			}
+			const item = await this.parseHistoryItemWithTitle(
+				historyItem,
+				historyItem.contentInfo?.contentResponse
+			);
 
-			const item = await this.parseHistoryItemWithTitle(historyItem, contentInfo?.contentResponse);
-
-			await this.updateItemFromHistory(item, historyItem, contentInfo);
+			await this.updateItemFromHistory(item, historyItem);
 			return item;
 		});
 
@@ -274,9 +295,9 @@ class _Tv2PlayApi extends ServiceApi {
 
 	updateItemFromHistory(
 		item: ScrobbleItemValues,
-		historyItem: Tv2PlayHistoryItem,
-		contentInfo?: { progress: TV2PlayProgress | null; year: number }
+		historyItem: Tv2PlayHistoryItemWithContent
 	): Promisable<void> {
+		const { contentInfo } = historyItem;
 		item.watchedAt = historyItem.date ? Utils.unix(historyItem.date) : undefined;
 
 		// Use the watched percentage directly from the API
