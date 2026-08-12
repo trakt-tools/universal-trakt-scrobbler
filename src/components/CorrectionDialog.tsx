@@ -247,8 +247,7 @@ export const CorrectionDialog = (): JSX.Element => {
 
 	const validUrlRegex =
 		/\/shows\/(?<show>[\w-]+)\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
-	const validAppUrlRegex =
-		/\/shows\/(?<show>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
+	const validAppUrlRegex = /\/shows\/(?<show>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
 
 	const isValidUrl = (url: string): boolean => cleanUrl(url) !== '';
 
