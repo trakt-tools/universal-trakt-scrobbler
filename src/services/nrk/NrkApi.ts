@@ -216,32 +216,38 @@ class _NrkApi extends ServiceApi {
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: NrkProgressItem): Promisable<void> {
 		item.watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
-		item.progress = historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
+		item.progress = this.getProgress(historyItem);
+	}
+
+	private getProgress(historyItem: NrkProgressItem): number {
+		return historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
 	}
 
 	async parseHistoryItem(historyItem: NrkProgressItem): Promise<ScrobbleItem> {
 		const serviceId = this.id;
 		const id = historyItem.id;
 		const programInfo = historyItem._embedded.programs;
-		const programPage = await this.lookupNrkItem(programInfo._links.self.href);
-		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
+		let programPage: NrkProgramPage | null = null;
+		try {
+			programPage = await this.lookupNrkItem(programInfo._links.self.href);
+		} catch (err) {
+			// The program may have been removed from NRK - the history item still embeds
+			// enough information (the titles) to build a searchable item, so degrade
+			// gracefully instead of failing the whole history load
+			console.debug('[UTS] Failed to look up NRK program, using embedded titles', id, err);
+		}
 		const titleInfo = programInfo.titles;
-		//TODO This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
-		const title = this.getTitle(programPage);
+		const title = programPage ? this.getTitle(programPage) : titleInfo.title;
 		const watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
 
 		const baseItem: BaseItemValues = {
 			serviceId,
 			id,
 			title,
-			year: programPage.moreInformation.productionYear,
-			progress: historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
+			year: programPage?.moreInformation.productionYear,
+			progress: this.getProgress(historyItem),
 			watchedAt,
 		};
-
-		if (type === 'movie') {
-			return new MovieItem(baseItem);
-		}
 
 		/* Known formats:
 		 * S2 / 7. Episode Title
@@ -251,6 +257,19 @@ class _NrkApi extends ServiceApi {
 		const regExp =
 			/(?<fullStr>S(?<seasonStr>[0-9]+) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
 		const [matches] = [...titleInfo.subtitle.matchAll(regExp)];
+
+		// Without the program page, fall back to the subtitle format to detect episodes
+		const type = programPage
+			? programPage._links.seriesPage !== undefined
+				? 'show'
+				: 'movie'
+			: matches
+				? 'show'
+				: 'movie';
+
+		if (type === 'movie') {
+			return new MovieItem(baseItem);
+		}
 		let episodeTitle;
 		let season = 0;
 		let number = 0;
