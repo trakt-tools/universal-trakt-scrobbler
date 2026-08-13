@@ -141,6 +141,7 @@ class _NrkApi extends ServiceApi {
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
+	private tokenExpiresAt = 0;
 
 	authRequests = Requests;
 
@@ -161,8 +162,9 @@ class _NrkApi extends ServiceApi {
 			method: 'GET',
 		});
 		const data = JSON.parse(authData) as NrkAuth;
-		const { accessToken, user } = data.session;
+		const { accessToken, expiresIn, user } = data.session;
 		this.token = accessToken.split('"').join('');
+		this.tokenExpiresAt = expiresIn > 0 ? Utils.unix() + expiresIn : 0;
 		this.session = {
 			profileName: user.name,
 		};
@@ -183,7 +185,8 @@ class _NrkApi extends ServiceApi {
 	async loadHistoryItems(cancelKey = 'default'): Promise<NrkProgressItem[]> {
 		// `reset()` clears `nextHistoryUrl` without clearing `isActivated`, so re-activate
 		// whenever the URL is missing to avoid sending a request with an empty URL.
-		if (!this.isActivated || !this.nextHistoryUrl) {
+		// Also re-activate when the access token has expired, to pick up a fresh one.
+		if (!this.isActivated || !this.nextHistoryUrl || this.isTokenExpired()) {
 			await this.activate();
 		}
 		const responseText = await this.authRequests.send({
@@ -199,6 +202,10 @@ class _NrkApi extends ServiceApi {
 			this.hasReachedHistoryEnd = true;
 		}
 		return responseItems;
+	}
+
+	private isTokenExpired(): boolean {
+		return this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt;
 	}
 
 	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number) {
