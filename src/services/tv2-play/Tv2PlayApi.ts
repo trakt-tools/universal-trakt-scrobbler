@@ -152,9 +152,7 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 
 	async checkLogin() {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 		return !!this.session && this.session.profileName !== null;
 	}
 
@@ -319,8 +317,9 @@ class _Tv2PlayApi extends ServiceApi {
 		// Use the watched percentage directly from the API
 		if (contentInfo?.progress && typeof contentInfo.progress.watched === 'number') {
 			item.progress = contentInfo.progress.watched;
-		} else {
-			// Fallback to 100 if progress information is not available
+		} else if (!item.progress) {
+			// The progress lookup failed - keep any previously known progress instead of
+			// overwriting it, and only assume fully watched when nothing is known
 			item.progress = 100;
 		}
 
