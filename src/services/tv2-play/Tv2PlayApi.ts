@@ -29,6 +29,16 @@ interface Tv2PlayMovieHistoryItem {
 
 export type Tv2PlayHistoryItem = Tv2PlayMovieHistoryItem | Tv2PlayEpisodeHistoryItem;
 
+export type Tv2PlayHistoryItemWithContent = Tv2PlayHistoryItem & {
+	contentInfo?: Tv2PlayContentInfo;
+};
+
+interface Tv2PlayContentInfo {
+	progress: TV2PlayProgress | null;
+	year: number;
+	contentResponse?: TV2PlayContentResponse;
+}
+
 // Content API response types
 interface TV2PlayProgress {
 	position?: number;
@@ -74,22 +84,24 @@ interface Auth0TokenData {
 interface Tv2PlaySession {
 	accessToken: string;
 	refreshToken?: string;
+
+	// Unix timestamp in seconds
+	expiresAt?: number;
 }
 
 class _Tv2PlayApi extends ServiceApi {
-	HISTORY_URL: string;
-	TOKEN_URL: string;
+	API_URL: string;
 	PROFILE_URL: string;
 	token: string;
 	isActivated: boolean;
 	pageSize = 10;
+	private tokenExpiresAt = 0;
 
 	authRequests = Requests;
 
 	constructor() {
 		super(Tv2PlayService.id);
-		this.HISTORY_URL = 'https://ai.play.tv2.no/v4/viewinghistory/?start=0&size=10';
-		this.TOKEN_URL = 'https://id.tv2.no/oauth/token';
+		this.API_URL = 'https://ai.play.tv2.no/v4';
 		this.PROFILE_URL = 'https://api.play.tv2.no/user/';
 		this.token = '';
 		this.isActivated = false;
@@ -106,8 +118,13 @@ class _Tv2PlayApi extends ServiceApi {
 		if (!sessionData || !sessionData.accessToken) {
 			throw new Error('Could not retrieve Auth0 access token from TV2 Play');
 		}
+		if (sessionData.expiresAt && Utils.unix() >= sessionData.expiresAt) {
+			// The page also only holds an expired token, so there is nothing fresher to pick up
+			throw new Error('The TV2 Play access token has expired');
+		}
 
 		this.token = sessionData.accessToken;
+		this.tokenExpiresAt = sessionData.expiresAt ?? 0;
 
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${this.token}`,
@@ -124,24 +141,31 @@ class _Tv2PlayApi extends ServiceApi {
 		};
 		this.isActivated = true;
 	}
-	async checkLogin() {
-		if (!this.isActivated) {
+	/**
+	 * Re-activates when the access token has expired - the TV 2 Play page keeps a fresh
+	 * token in localStorage, so a new session injection picks it up.
+	 */
+	private async ensureActivated(): Promise<void> {
+		if (!this.isActivated || (this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt)) {
 			await this.activate();
 		}
+	}
+
+	async checkLogin() {
+		await this.ensureActivated();
 		return !!this.session && this.session.profileName !== null;
 	}
 
-	async loadHistoryItems(): Promise<Tv2PlayHistoryItem[]> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+	async loadHistoryItems(cancelKey = 'default'): Promise<Tv2PlayHistoryItem[]> {
+		await this.ensureActivated();
 
 		// Retrieve the history items
 		const responseText = await this.authRequests.send({
-			url: `https://ai.play.tv2.no/v4/viewinghistory/?start=${
+			url: `${this.API_URL}/viewinghistory/?start=${
 				this.nextHistoryPage * this.pageSize
 			}&size=${this.pageSize}`,
 			method: 'GET',
+			cancelKey,
 		});
 		const historyItems = JSON.parse(responseText) as Tv2PlayHistoryItem[];
 
@@ -162,19 +186,30 @@ class _Tv2PlayApi extends ServiceApi {
 		return historyItem.id.toString();
 	}
 
-	async convertHistoryItems(historyItems: Tv2PlayHistoryItem[]) {
+	/**
+	 * Enriches history items with content info (progress, year, and episode title for episodes)
+	 * before cached items and new items take separate paths, so that
+	 * `updateItemFromHistory()` can keep the progress of cached items up-to-date.
+	 */
+	prepareHistoryItems(
+		historyItems: Tv2PlayHistoryItem[]
+	): Promise<Tv2PlayHistoryItemWithContent[]> {
+		return Promise.all(
+			historyItems.map(async (historyItem) => ({
+				...historyItem,
+				contentInfo: await this.getProgressForItem(historyItem.asset.path),
+			}))
+		);
+	}
+
+	async convertHistoryItems(historyItems: Tv2PlayHistoryItemWithContent[]) {
 		const promises = historyItems.map(async (historyItem) => {
-			// Fetch content info (progress, year, and episode title for episodes)
-			let contentInfo;
-			try {
-				contentInfo = await this.getProgressForItem(historyItem.asset.path);
-			} catch (error) {
-				console.error('Failed to get progress for item:', historyItem.asset.path, error);
-			}
+			const item = await this.parseHistoryItemWithTitle(
+				historyItem,
+				historyItem.contentInfo?.contentResponse
+			);
 
-			const item = await this.parseHistoryItemWithTitle(historyItem, contentInfo?.contentResponse);
-
-			await this.updateItemFromHistory(item, historyItem, contentInfo);
+			await this.updateItemFromHistory(item, historyItem);
 			return item;
 		});
 
@@ -199,13 +234,11 @@ class _Tv2PlayApi extends ServiceApi {
 		year: number;
 		contentResponse?: TV2PlayContentResponse;
 	}> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 
 		try {
 			const responseText = await this.authRequests.send({
-				url: `https://ai.play.tv2.no/v4/content/path${path}`,
+				url: `${this.API_URL}/content/path${path}`,
 				method: 'GET',
 			});
 			const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
@@ -216,7 +249,7 @@ class _Tv2PlayApi extends ServiceApi {
 				contentResponse: responseJson,
 			};
 		} catch (error) {
-			console.error('Failed to fetch progress for item:', path, error);
+			console.debug('[UTS] Failed to fetch progress for TV 2 Play item', path, error);
 			return { progress: null, year: 0 };
 		}
 	}
@@ -238,15 +271,17 @@ class _Tv2PlayApi extends ServiceApi {
 				? parseInt(episodeMatch.groups.episode, 10)
 				: 0;
 
-			// Use historyItem.id as the identifier (asset.id was removed by TV2)
+			// Use historyItem.id as the identifier (asset.id was removed by TV2). It holds the
+			// same value as the content response's player.asset_id, which getItem() uses for
+			// scrobbled items, so corrections are shared between scrobbling and history sync.
 			const assetId = historyItem.id;
 
-			// Try to get episode title from content response
-			// Episode title is in player.metainfo[1].text (metainfo[0] is "S1E2" format)
-			let episodeTitle = `Episode ${episodeNumber}`; // Fallback
-			if (contentResponse?.player?.metainfo?.[1]?.text) {
-				episodeTitle = contentResponse.player.metainfo[1].text;
-			}
+			// The asset title in the history response is the episode title, so the content
+			// response (player.metainfo[1].text) is only needed as a fallback
+			const episodeTitle =
+				historyItem.asset.title ||
+				contentResponse?.player?.metainfo?.[1]?.text ||
+				`Episode ${episodeNumber}`;
 
 			const values = {
 				serviceId: this.id,
@@ -274,16 +309,17 @@ class _Tv2PlayApi extends ServiceApi {
 
 	updateItemFromHistory(
 		item: ScrobbleItemValues,
-		historyItem: Tv2PlayHistoryItem,
-		contentInfo?: { progress: TV2PlayProgress | null; year: number }
+		historyItem: Tv2PlayHistoryItemWithContent
 	): Promisable<void> {
+		const { contentInfo } = historyItem;
 		item.watchedAt = historyItem.date ? Utils.unix(historyItem.date) : undefined;
 
 		// Use the watched percentage directly from the API
 		if (contentInfo?.progress && typeof contentInfo.progress.watched === 'number') {
 			item.progress = contentInfo.progress.watched;
-		} else {
-			// Fallback to 100 if progress information is not available
+		} else if (!item.progress) {
+			// The progress lookup failed - keep any previously known progress instead of
+			// overwriting it, and only assume fully watched when nothing is known
 			item.progress = 100;
 		}
 
@@ -294,12 +330,10 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem> {
-		if (!this.isActivated) {
-			await this.activate();
-		}
+		await this.ensureActivated();
 
 		const responseText = await this.authRequests.send({
-			url: `https://ai.play.tv2.no/v4/content/path${path}`,
+			url: `${this.API_URL}/content/path${path}`,
 			method: 'GET',
 		});
 		const responseJson = JSON.parse(responseText) as TV2PlayContentResponse;
@@ -374,6 +408,7 @@ Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Tv2PlaySession | 
 		return {
 			accessToken: auth0Data.body.access_token,
 			refreshToken: auth0Data.body.refresh_token,
+			expiresAt: auth0Data.expiresAt,
 		};
 	} catch (_error) {
 		return null;

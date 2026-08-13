@@ -91,7 +91,7 @@ export interface ViaplayEpisode extends ViaplayProductBase {
 			episodeTitle: string; //Sometimes prefixed with episodeNumber
 			title: string; //Show title
 			season: {
-				seasonNumber: 1;
+				seasonNumber: number;
 			};
 		};
 	};
@@ -246,7 +246,14 @@ class _ViaplayApi extends ServiceApi {
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: ViaplayProduct): Promisable<void> {
 		const progressInfo = historyItem.user.progress;
 		item.watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
-		item.progress = progressInfo?.elapsedPercent || 0;
+		item.progress = this.getProgress(historyItem);
+	}
+
+	private getProgress(product: ViaplayProduct): number {
+		const progressInfo = product.user.progress;
+		// Fall back to the watched flag only when the percentage is missing, so an item
+		// marked as watched without an elapsed percentage isn't treated as unwatched
+		return progressInfo?.elapsedPercent ?? (progressInfo?.watched ? 100 : 0);
 	}
 
 	parseViaplayProduct(product: ViaplayProduct): ScrobbleItem {
@@ -254,7 +261,7 @@ class _ViaplayApi extends ServiceApi {
 		const serviceId = this.id;
 		const year = product.content.production.year;
 		const progressInfo = product.user.progress;
-		const progress = progressInfo?.elapsedPercent || 0;
+		const progress = this.getProgress(product);
 		const watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		const id = product.system.guid;
 		if (product.type === 'episode') {
