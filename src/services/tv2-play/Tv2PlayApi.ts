@@ -276,12 +276,12 @@ class _Tv2PlayApi extends ServiceApi {
 			// Use historyItem.id as the identifier (asset.id was removed by TV2)
 			const assetId = historyItem.id;
 
-			// Try to get episode title from content response
-			// Episode title is in player.metainfo[1].text (metainfo[0] is "S1E2" format)
-			let episodeTitle = `Episode ${episodeNumber}`; // Fallback
-			if (contentResponse?.player?.metainfo?.[1]?.text) {
-				episodeTitle = contentResponse.player.metainfo[1].text;
-			}
+			// The asset title in the history response is the episode title, so the content
+			// response (player.metainfo[1].text) is only needed as a fallback
+			const episodeTitle =
+				historyItem.asset.title ||
+				contentResponse?.player?.metainfo?.[1]?.text ||
+				`Episode ${episodeNumber}`;
 
 			const values = {
 				serviceId: this.id,
