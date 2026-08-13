@@ -91,7 +91,7 @@ export interface ViaplayEpisode extends ViaplayProductBase {
 			episodeTitle: string; //Sometimes prefixed with episodeNumber
 			title: string; //Show title
 			season: {
-				seasonNumber: 1;
+				seasonNumber: number;
 			};
 		};
 	};
