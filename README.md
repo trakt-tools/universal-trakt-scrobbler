@@ -83,6 +83,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |      HBO Max      |    ✔️    |  ✔️  | -                                |
 |      Hotstar      |    ✔️    |  ❌  | -                                |
 |      Kijk.nl      |    ✔️    |  ❌  | -                                |
+|      Kinopub      |    ✔️    |  ✔️  | -                                |
 |       MUBI        |    ✔️    |  ✔️  | -                                |
 |      Netflix      |    ✔️    |  ✔️  | -                                |
 |        NRK        |    ✔️    |  ✔️  | -                                |
