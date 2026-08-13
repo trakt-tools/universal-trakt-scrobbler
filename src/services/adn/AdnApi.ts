@@ -7,6 +7,7 @@ import { Utils } from '@common/Utils';
 import { Shared } from '@common/Shared';
 
 import browser from 'webextension-polyfill';
+import { RequestError } from '@common/RequestError';
 
 export interface AdnSession extends ServiceApiSession {
 	auth: {
@@ -88,7 +89,7 @@ class _AdnApi extends ServiceApi {
 	}
 
 	getDistributionLang() {
-		const uiLang = browser.i18n.getUILanguage();
+		const uiLang = browser.i18n.getUILanguage().split('-')[0];
 		// fallback to france, since this is the native service language (no english available)
 		return SUPPORTED_DIST_LANGUAGES.includes(uiLang) ? uiLang : 'fr';
 	}
@@ -102,61 +103,65 @@ class _AdnApi extends ServiceApi {
 				!partialSession.auth.accessToken ||
 				!partialSession.auth.refreshToken
 			) {
-				throw new Error();
+				throw new Error('Failed to get valid session');
 			}
 
-			const verifyTokenResponse = await Requests.send({
-				url: `${this.PROFILE_URL}`,
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${partialSession.auth.accessToken}`,
-					'x-profile-id': `${partialSession.profileId}`,
-					'x-source': 'Web',
-					'x-target-distribution': `${this.lang}`,
-				},
-			});
-
-			if (verifyTokenResponse === '{"message":"Unauthorized"}') {
+			try {
+				await Requests.send({
+					url: `${this.PROFILE_URL}`,
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${partialSession.auth.accessToken}`,
+						'x-profile-id': `${partialSession.profileId}`,
+						'x-source': 'Web',
+						'x-target-distribution': `${this.lang}`,
+					},
+				});
+			} catch (error: any) {
+				if (
+					!(error instanceof RequestError) ||
+					(error instanceof RequestError && error.status != 401)
+				) {
+					// forward error if not related to authorization (401)
+					throw new Error('Failed to access API');
+				}
 				let response = await Requests.send({
 					url: `${this.REFRESH_URL}`,
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'x-access-token': partialSession.auth.accessToken,
+						'x-access-token': `${partialSession.auth.accessToken}`,
 						'x-profile-id': `${partialSession.profileId}`,
 						'x-source': 'Web',
 						'x-target-distribution': `${this.lang}`,
 					},
 					body: `{"refreshToken":"${partialSession.auth.refreshToken}"}`,
 				});
-
 				const tokenData = JSON.parse(response) as AdnTokenData;
-
-				this.session = {
-					auth: {
-						accessToken: tokenData.accessToken,
-						refreshToken: tokenData.refreshToken,
-					},
-					profileName: partialSession.profileName ?? null,
-					profileId: partialSession.profileId ?? null,
-				};
-			} else {
-				this.session = {
-					auth: {
-						accessToken: partialSession.auth.accessToken,
-						refreshToken: partialSession.auth.refreshToken,
-					},
-					profileName: partialSession.profileName ?? null,
-					profileId: partialSession.profileId ?? null,
-				};
+				partialSession.auth.accessToken = tokenData.accessToken;
+				partialSession.auth.refreshToken = tokenData.refreshToken;
 			}
 
+			this.session = {
+				auth: {
+					accessToken: partialSession.auth.accessToken,
+					refreshToken: partialSession.auth.refreshToken,
+				},
+				profileName: partialSession.profileName ?? null,
+				profileId: partialSession.profileId ?? null,
+			};
+
 			this.isActivated = true;
-		} catch (_err) {}
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.log(`Failed to activate ${this.id} API`, err);
+			}
+			throw new Error('Failed to activate API');
+		}
 	}
 
 	async checkLogin() {
-		if (!this.isActivated || !!this.session) {
+		if (!this.isActivated) {
 			await this.activate();
 		}
 		return !!this.session && this.session.profileName !== null;
