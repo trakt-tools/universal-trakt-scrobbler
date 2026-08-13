@@ -32,6 +32,7 @@ export type StorageValuesV13 = Omit<StorageValuesV12, 'version'> & {
 
 export type StorageValuesV12 = Omit<StorageValuesV11, 'version'> & {
 	version?: 12;
+	anilibriaFirstImportedAt?: Record<string, number>;
 };
 
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
