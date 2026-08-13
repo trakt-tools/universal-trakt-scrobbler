@@ -217,7 +217,9 @@ class _TraktSearch extends TraktApi {
 			return title === itemTitle && (!itemYear || !year || itemYear === year);
 		});
 		if (!searchItem && item.type === 'show') {
-			searchItem = await this.findShowThroughTmdb(item, searchItems, cancelKey);
+			searchItem =
+				(await this.findShowBySlug(item, cancelKey)) ??
+				(await this.findShowThroughTmdb(item, searchItems, cancelKey));
 		}
 		if (!searchItem) {
 			// Couldn't match, so just use the first result
@@ -233,6 +235,54 @@ class _TraktSearch extends TraktApi {
 			});
 		}
 		return searchItem;
+	}
+
+	/**
+	 * Trakt slugs are transliterated titles, so when the text search has no exact match, a
+	 * direct slug lookup can still find the show (e.g. "Åsted Norge" -> "asted-norge") -
+	 * the text search index misses some shows entirely. The result is only used when its
+	 * title and year actually match, so a colliding slug for a different show is rejected.
+	 */
+	private async findShowBySlug(
+		item: Item,
+		cancelKey: string
+	): Promise<TraktSearchItem | undefined> {
+		const slug = this.getSlug(item.title);
+		if (!slug) {
+			return undefined;
+		}
+
+		try {
+			const responseText = await this.requests.send({
+				url: `${this.SHOWS_URL}/${slug}?extended=full`,
+				method: 'GET',
+				cancelKey,
+			});
+			const show = JSON.parse(responseText) as TraktSearchShowItemShow;
+			const matchesTitle = this.getSlug(show.title) === slug;
+			const matchesYear = !item.year || !show.year || item.year === show.year;
+			if (matchesTitle && matchesYear) {
+				return { show };
+			}
+		} catch (_err) {
+			// No show with this slug
+		}
+		return undefined;
+	}
+
+	/**
+	 * Transliterates a title the same way Trakt generates its slugs.
+	 */
+	private getSlug(title: string): string {
+		return title
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/ø/g, 'o')
+			.replace(/æ/g, 'ae')
+			.replace(/ß/g, 'ss')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '');
 	}
 
 	/**
