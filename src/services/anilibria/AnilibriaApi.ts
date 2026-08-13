@@ -4,7 +4,6 @@ import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import { EpisodeItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
 import { AnilibriaService } from '@/anilibria/AnilibriaService';
-import browser from 'webextension-polyfill';
 
 interface AnilibriaProfileResponse {
 	nickname?: string;
@@ -44,11 +43,7 @@ export interface AnilibriaEpisodeResponse {
 	release?: AnilibriaRelease | null;
 }
 
-interface AnilibriaRawTimecode extends Array<string | number | boolean | null> {
-	0: string;
-	1: number;
-	2: boolean;
-}
+type AnilibriaRawTimecode = [string, number, boolean];
 
 export interface AnilibriaHistoryItem {
 	releaseEpisodeId: string;
@@ -87,10 +82,11 @@ class _AnilibriaApi extends ServiceApi {
 		this.hasLoadedHistory = false;
 	}
 
-	async checkLogin(): Promise<boolean> {
+	async checkLogin(cancelKey = 'default'): Promise<boolean> {
 		try {
 			const responseText = await this.sendSessionRequest(
-				`${this.HOST_URL}/api/v1/accounts/users/me/profile`
+				`${this.HOST_URL}/api/v1/accounts/users/me/profile`,
+				cancelKey
 			);
 			const profile = JSON.parse(responseText) as AnilibriaProfileResponse;
 			this.session = {
@@ -106,27 +102,24 @@ class _AnilibriaApi extends ServiceApi {
 		}
 	}
 
-	async loadHistoryItems(_cancelKey = 'default'): Promise<AnilibriaHistoryItem[]> {
+	async loadHistoryItems(cancelKey = 'default'): Promise<AnilibriaHistoryItem[]> {
 		if (this.hasLoadedHistory) {
 			this.hasReachedHistoryEnd = true;
 			return [];
 		}
 
-		const loggedIn = await this.checkLogin();
+		const loggedIn = await this.checkLogin(cancelKey);
 		if (!loggedIn) {
-			this.hasReachedHistoryEnd = true;
-			return [];
+			throw new Error('Invalid session');
 		}
 
 		const responseText = await this.sendSessionRequest(
-			`${this.HOST_URL}/api/v1/accounts/users/me/views/timecodes`
+			`${this.HOST_URL}/api/v1/accounts/users/me/views/timecodes`,
+			cancelKey
 		);
 		const rawTimecodes = JSON.parse(responseText) as AnilibriaRawTimecode[];
-		const { anilibriaFirstImportedAt = {} } = (await browser.storage.local.get(
-			'anilibriaFirstImportedAt'
-		)) as { anilibriaFirstImportedAt?: Record<string, number> };
+		const { anilibriaFirstImportedAt = {} } = await Shared.storage.get('anilibriaFirstImportedAt');
 		const now = Utils.unix();
-		let hasNewImportedAt = false;
 
 		const historyItems = rawTimecodes
 			.map((timecode) => ({
@@ -137,14 +130,17 @@ class _AnilibriaApi extends ServiceApi {
 			}))
 			.filter((timecode) => timecode.releaseEpisodeId && timecode.isWatched);
 
-		for (const historyItem of historyItems) {
-			if (!anilibriaFirstImportedAt[historyItem.releaseEpisodeId]) {
-				anilibriaFirstImportedAt[historyItem.releaseEpisodeId] = historyItem.firstImportedAt;
-				hasNewImportedAt = true;
-			}
-		}
-		if (hasNewImportedAt) {
-			await browser.storage.local.set({ anilibriaFirstImportedAt });
+		const updatedFirstImportedAt = Object.fromEntries(
+			historyItems.map((historyItem) => [historyItem.releaseEpisodeId, historyItem.firstImportedAt])
+		);
+		if (
+			Object.keys(anilibriaFirstImportedAt).length !== Object.keys(updatedFirstImportedAt).length ||
+			historyItems.some(
+				(historyItem) =>
+					anilibriaFirstImportedAt[historyItem.releaseEpisodeId] !== historyItem.firstImportedAt
+			)
+		) {
+			await Shared.storage.set({ anilibriaFirstImportedAt: updatedFirstImportedAt }, true);
 		}
 
 		this.hasLoadedHistory = true;
@@ -161,13 +157,16 @@ class _AnilibriaApi extends ServiceApi {
 	}
 
 	async convertHistoryItems(historyItems: AnilibriaHistoryItem[]): Promise<ScrobbleItem[]> {
-		const items = await Promise.all(
-			historyItems.map(async (historyItem) => {
-				const episode = await this.getEpisode(historyItem.releaseEpisodeId);
-				return this.convertEpisode(episode, historyItem.firstImportedAt, 100);
-			})
-		);
-		return items.filter((item): item is ScrobbleItem => item !== null);
+		const items: ScrobbleItem[] = [];
+		for (const historyItem of historyItems) {
+			const episode = await this.getEpisode(historyItem.releaseEpisodeId);
+			const item = this.convertEpisode(episode, historyItem.firstImportedAt, 100);
+			if (!item) {
+				throw new Error(`Could not convert AniLibria episode ${historyItem.releaseEpisodeId}`);
+			}
+			items.push(item);
+		}
+		return items;
 	}
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: AnilibriaHistoryItem): void {
@@ -187,16 +186,12 @@ class _AnilibriaApi extends ServiceApi {
 		return JSON.parse(responseText) as AnilibriaEpisodeResponse;
 	}
 
-	private async sendSessionRequest(url: string): Promise<string> {
-		const response = await fetch(url, {
+	private sendSessionRequest(url: string, cancelKey: string): Promise<string> {
+		return Requests.send({
+			url,
 			method: 'GET',
-			credentials: 'include',
+			cancelKey,
 		});
-		const text = await response.text();
-		if (!response.ok) {
-			throw new Error(text || `AniLibria request failed with status ${response.status}`);
-		}
-		return text;
 	}
 
 	convertEpisode(

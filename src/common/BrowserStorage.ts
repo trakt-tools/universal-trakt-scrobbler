@@ -28,6 +28,7 @@ export type KinoPubAuthDetails = {
 
 export type StorageValuesV12 = Omit<StorageValuesV11, 'version'> & {
 	version?: 12;
+	anilibriaFirstImportedAt?: Record<string, number>;
 };
 
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
