@@ -273,7 +273,9 @@ class _Tv2PlayApi extends ServiceApi {
 				? parseInt(episodeMatch.groups.episode, 10)
 				: 0;
 
-			// Use historyItem.id as the identifier (asset.id was removed by TV2)
+			// Use historyItem.id as the identifier (asset.id was removed by TV2). It holds the
+			// same value as the content response's player.asset_id, which getItem() uses for
+			// scrobbled items, so corrections are shared between scrobbling and history sync.
 			const assetId = historyItem.id;
 
 			// The asset title in the history response is the episode title, so the content
