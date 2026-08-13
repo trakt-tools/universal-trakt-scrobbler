@@ -216,9 +216,14 @@ class _NrkApi extends ServiceApi {
 		return historyItem.id;
 	}
 
-	convertHistoryItems(historyItems: NrkProgressItem[]) {
-		const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
-		return Promise.all(promises);
+	async convertHistoryItems(historyItems: NrkProgressItem[]) {
+		const items: ScrobbleItem[] = [];
+		// Each item requires a program page lookup - run them sequentially to avoid
+		// bursting the API with one request per item on large (first-time) syncs
+		for (const historyItem of historyItems) {
+			items.push(await this.parseHistoryItem(historyItem));
+		}
+		return items;
 	}
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: NrkProgressItem): Promisable<void> {
