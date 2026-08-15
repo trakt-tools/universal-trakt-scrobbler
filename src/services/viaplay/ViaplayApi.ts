@@ -55,7 +55,7 @@ export interface ViaplayHistoryPage {
 		'viaplay:products': ViaplayProduct[];
 	};
 	_links: {
-		next: {
+		next?: {
 			href: string;
 		};
 	};
@@ -204,16 +204,25 @@ class _ViaplayApi extends ServiceApi {
 	}
 
 	async loadHistoryItems(cancelKey = 'default'): Promise<ViaplayProduct[]> {
-		if (!this.isActivated) {
+		if (!this.isActivated || (!this.nextHistoryUrl && !this.hasCheckedHistoryCache)) {
 			await this.activate();
 		}
+		const isFirstPage = this.nextHistoryUrl === this.HISTORY_API_URL;
+		const requestUrl = this.getHistoryUrl(this.nextHistoryUrl);
+		if (!requestUrl) {
+			// A missing next link marks the end of the history.
+			this.nextHistoryUrl = '';
+			this.hasReachedHistoryEnd = true;
+			return [];
+		}
+		this.nextHistoryUrl = requestUrl;
 		const responseText = await Requests.send({
-			url: this.nextHistoryUrl,
+			url: requestUrl,
 			method: 'GET',
 			cancelKey,
 		});
 		let historyPage: ViaplayHistoryPage;
-		if (this.nextHistoryUrl === this.HISTORY_API_URL) {
+		if (isFirstPage) {
 			//First initial load/page
 			const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
 			historyPage = responseJson._embedded['viaplay:blocks'][0];
@@ -221,10 +230,25 @@ class _ViaplayApi extends ServiceApi {
 			historyPage = JSON.parse(responseText) as ViaplayHistoryPage;
 		}
 		const responseItems = historyPage._embedded['viaplay:products'];
-		const url = historyPage._links?.next?.href;
-		this.nextHistoryUrl = url + '&profileId=' + this.PROFILES_ID;
-		this.hasReachedHistoryEnd = !url || responseItems.length === 0;
+		this.nextHistoryUrl = this.getHistoryUrl(historyPage._links?.next?.href);
+		this.hasReachedHistoryEnd = !this.nextHistoryUrl || responseItems.length === 0;
 		return responseItems;
+	}
+
+	private getHistoryUrl(url?: string): string {
+		if (!url) {
+			return '';
+		}
+		try {
+			const historyUrl = new URL(url);
+			if (historyUrl.protocol !== 'https:') {
+				return '';
+			}
+			historyUrl.searchParams.set('profileId', this.PROFILES_ID);
+			return historyUrl.href;
+		} catch (_err) {
+			return '';
+		}
 	}
 
 	isNewHistoryItem(historyItem: ViaplayProduct, lastSync: number) {
