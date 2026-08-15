@@ -282,7 +282,9 @@ class _ViaplayApi extends ServiceApi {
 				show: {
 					serviceId,
 					title: showTitle,
-					year,
+					// `content.production.year` is the episode's production year, not the
+					// series premiere year. Leave the show year unknown so it cannot reject
+					// the correct Trakt show during title matching.
 				},
 			});
 		} else {
