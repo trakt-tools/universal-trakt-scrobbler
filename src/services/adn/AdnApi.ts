@@ -176,7 +176,7 @@ class _AdnApi extends ServiceApi {
 			!this.session.auth.accessToken ||
 			!this.session.auth.refreshToken
 		) {
-			throw new Error();
+			throw new Error('Invalid session');
 		}
 
 		if (!this.nextHistoryUrl) {
@@ -287,7 +287,6 @@ class _AdnApi extends ServiceApi {
 				method: 'GET',
 			});
 			const response = JSON.parse(responseText) as AdnVideoItemResponse;
-			console.log(response.video);
 			item = this.parseMetadata(response?.video);
 		} catch (err) {
 			if (Shared.errors.validate(err)) {
