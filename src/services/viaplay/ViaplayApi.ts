@@ -55,7 +55,7 @@ export interface ViaplayHistoryPage {
 		'viaplay:products': ViaplayProduct[];
 	};
 	_links: {
-		next: {
+		next?: {
 			href: string;
 		};
 	};
@@ -91,7 +91,7 @@ export interface ViaplayEpisode extends ViaplayProductBase {
 			episodeTitle: string; //Sometimes prefixed with episodeNumber
 			title: string; //Show title
 			season: {
-				seasonNumber: 1;
+				seasonNumber: number;
 			};
 		};
 	};
@@ -204,16 +204,25 @@ class _ViaplayApi extends ServiceApi {
 	}
 
 	async loadHistoryItems(cancelKey = 'default'): Promise<ViaplayProduct[]> {
-		if (!this.isActivated) {
+		if (!this.isActivated || (!this.nextHistoryUrl && !this.hasCheckedHistoryCache)) {
 			await this.activate();
 		}
+		const isFirstPage = this.nextHistoryUrl === this.HISTORY_API_URL;
+		const requestUrl = this.getHistoryUrl(this.nextHistoryUrl);
+		if (!requestUrl) {
+			// A missing next link marks the end of the history.
+			this.nextHistoryUrl = '';
+			this.hasReachedHistoryEnd = true;
+			return [];
+		}
+		this.nextHistoryUrl = requestUrl;
 		const responseText = await Requests.send({
-			url: this.nextHistoryUrl,
+			url: requestUrl,
 			method: 'GET',
 			cancelKey,
 		});
 		let historyPage: ViaplayHistoryPage;
-		if (this.nextHistoryUrl === this.HISTORY_API_URL) {
+		if (isFirstPage) {
 			//First initial load/page
 			const responseJson = JSON.parse(responseText) as ViaplayWatchedTopResponse;
 			historyPage = responseJson._embedded['viaplay:blocks'][0];
@@ -221,10 +230,25 @@ class _ViaplayApi extends ServiceApi {
 			historyPage = JSON.parse(responseText) as ViaplayHistoryPage;
 		}
 		const responseItems = historyPage._embedded['viaplay:products'];
-		const url = historyPage._links?.next?.href;
-		this.nextHistoryUrl = url + '&profileId=' + this.PROFILES_ID;
-		this.hasReachedHistoryEnd = !url || responseItems.length === 0;
+		this.nextHistoryUrl = this.getHistoryUrl(historyPage._links?.next?.href);
+		this.hasReachedHistoryEnd = !this.nextHistoryUrl || responseItems.length === 0;
 		return responseItems;
+	}
+
+	private getHistoryUrl(url?: string): string {
+		if (!url) {
+			return '';
+		}
+		try {
+			const historyUrl = new URL(url);
+			if (historyUrl.protocol !== 'https:') {
+				return '';
+			}
+			historyUrl.searchParams.set('profileId', this.PROFILES_ID);
+			return historyUrl.href;
+		} catch (_err) {
+			return '';
+		}
 	}
 
 	isNewHistoryItem(historyItem: ViaplayProduct, lastSync: number) {
@@ -246,7 +270,14 @@ class _ViaplayApi extends ServiceApi {
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: ViaplayProduct): Promisable<void> {
 		const progressInfo = historyItem.user.progress;
 		item.watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
-		item.progress = progressInfo?.elapsedPercent || 0;
+		item.progress = this.getProgress(historyItem);
+	}
+
+	private getProgress(product: ViaplayProduct): number {
+		const progressInfo = product.user.progress;
+		// Fall back to the watched flag only when the percentage is missing, so an item
+		// marked as watched without an elapsed percentage isn't treated as unwatched
+		return progressInfo?.elapsedPercent ?? (progressInfo?.watched ? 100 : 0);
 	}
 
 	parseViaplayProduct(product: ViaplayProduct): ScrobbleItem {
@@ -254,7 +285,7 @@ class _ViaplayApi extends ServiceApi {
 		const serviceId = this.id;
 		const year = product.content.production.year;
 		const progressInfo = product.user.progress;
-		const progress = progressInfo?.elapsedPercent || 0;
+		const progress = this.getProgress(product);
 		const watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		const id = product.system.guid;
 		if (product.type === 'episode') {
@@ -275,7 +306,9 @@ class _ViaplayApi extends ServiceApi {
 				show: {
 					serviceId,
 					title: showTitle,
-					year,
+					// `content.production.year` is the episode's production year, not the
+					// series premiere year. Leave the show year unknown so it cannot reject
+					// the correct Trakt show during title matching.
 				},
 			});
 		} else {

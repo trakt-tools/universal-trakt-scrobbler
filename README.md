@@ -72,6 +72,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |       ADN         |    ✔️    |  ✔️  | -                                |
 |   Amazon Prime    |    ✔️    |  ✔️  | Scrobbling only works in English |
 |       AMC+        |    ✔️    |  ❌  | -                                |
+|     AniLibria     |    ✔️    |  ✔️  | Synced watched dates are approximate |
 |     Apple TV      |    ✔️    |  ❌  | -                                |
 |       Crave       |    ✔️    |  ✔️  | -                                |
 |    Crunchyroll    |    ❌    |  ✔️  | -                                |
@@ -83,6 +84,7 @@ If you want to scrobble / sync from Netflix, this is the only Trakt.tv [plugin](
 |      HBO Max      |    ✔️    |  ✔️  | -                                |
 |      Hotstar      |    ✔️    |  ❌  | -                                |
 |      Kijk.nl      |    ✔️    |  ❌  | -                                |
+|      Kinopub      |    ✔️    |  ✔️  | -                                |
 |       MUBI        |    ✔️    |  ✔️  | -                                |
 |      Netflix      |    ✔️    |  ✔️  | -                                |
 |        NRK        |    ✔️    |  ✔️  | -                                |

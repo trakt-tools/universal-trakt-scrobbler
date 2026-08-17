@@ -14,7 +14,7 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV12;
+export type StorageValues = StorageValuesV13;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
@@ -26,8 +26,13 @@ export type KinoPubAuthDetails = {
 	created_at: number;
 };
 
+export type StorageValuesV13 = Omit<StorageValuesV12, 'version'> & {
+	version?: 13;
+};
+
 export type StorageValuesV12 = Omit<StorageValuesV11, 'version'> & {
 	version?: 12;
+	anilibriaFirstImportedAt?: Record<string, number>;
 };
 
 export type StorageValuesV11 = Omit<StorageValuesV10, 'version'> & {
@@ -244,7 +249,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 12;
+	readonly currentVersion = 13;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -429,6 +434,25 @@ class _BrowserStorage {
 			if (kinoPub && (kinoPub.scrobble || kinoPub.sync)) {
 				const hasPermission = await browser.permissions.contains({
 					origins: ['*://api.service-kp.com/*'],
+				});
+				if (!hasPermission) {
+					kinoPub.scrobble = false;
+					kinoPub.sync = false;
+					kinoPub.autoSync = false;
+
+					await this.doSet({ options }, true);
+				}
+			}
+		}
+
+		if (version < 13 && this.currentVersion >= 13) {
+			console.log('Upgrading to v13...');
+
+			const { options } = await this.get('options');
+			const kinoPub = options?.services?.['kino-pub'];
+			if (kinoPub && (kinoPub.scrobble || kinoPub.sync)) {
+				const hasPermission = await browser.permissions.contains({
+					origins: ['*://kino.watch/*', '*://*.kino.watch/*'],
 				});
 				if (!hasPermission) {
 					kinoPub.scrobble = false;

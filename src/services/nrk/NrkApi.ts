@@ -141,6 +141,7 @@ class _NrkApi extends ServiceApi {
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
+	private tokenExpiresAt = 0;
 
 	authRequests = Requests;
 
@@ -161,8 +162,9 @@ class _NrkApi extends ServiceApi {
 			method: 'GET',
 		});
 		const data = JSON.parse(authData) as NrkAuth;
-		const { accessToken, user } = data.session;
+		const { accessToken, expiresIn, user } = data.session;
 		this.token = accessToken.split('"').join('');
+		this.tokenExpiresAt = expiresIn > 0 ? Utils.unix() + expiresIn : 0;
 		this.session = {
 			profileName: user.name,
 		};
@@ -183,7 +185,8 @@ class _NrkApi extends ServiceApi {
 	async loadHistoryItems(cancelKey = 'default'): Promise<NrkProgressItem[]> {
 		// `reset()` clears `nextHistoryUrl` without clearing `isActivated`, so re-activate
 		// whenever the URL is missing to avoid sending a request with an empty URL.
-		if (!this.isActivated || !this.nextHistoryUrl) {
+		// Also re-activate when the access token has expired, to pick up a fresh one.
+		if (!this.isActivated || !this.nextHistoryUrl || this.isTokenExpired()) {
 			await this.activate();
 		}
 		const responseText = await this.authRequests.send({
@@ -201,6 +204,10 @@ class _NrkApi extends ServiceApi {
 		return responseItems;
 	}
 
+	private isTokenExpired(): boolean {
+		return this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt;
+	}
+
 	isNewHistoryItem(historyItem: NrkProgressItem, lastSync: number) {
 		return !!historyItem.registeredAt && Utils.unix(historyItem.registeredAt) > lastSync;
 	}
@@ -209,39 +216,50 @@ class _NrkApi extends ServiceApi {
 		return historyItem.id;
 	}
 
-	convertHistoryItems(historyItems: NrkProgressItem[]) {
-		const promises = historyItems.map((historyItem) => this.parseHistoryItem(historyItem));
-		return Promise.all(promises);
+	async convertHistoryItems(historyItems: NrkProgressItem[]) {
+		const items: ScrobbleItem[] = [];
+		// Each item requires a program page lookup - run them sequentially to avoid
+		// bursting the API with one request per item on large (first-time) syncs
+		for (const historyItem of historyItems) {
+			items.push(await this.parseHistoryItem(historyItem));
+		}
+		return items;
 	}
 
 	updateItemFromHistory(item: ScrobbleItemValues, historyItem: NrkProgressItem): Promisable<void> {
 		item.watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
-		item.progress = historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
+		item.progress = this.getProgress(historyItem);
+	}
+
+	private getProgress(historyItem: NrkProgressItem): number {
+		return historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
 	}
 
 	async parseHistoryItem(historyItem: NrkProgressItem): Promise<ScrobbleItem> {
 		const serviceId = this.id;
 		const id = historyItem.id;
 		const programInfo = historyItem._embedded.programs;
-		const programPage = await this.lookupNrkItem(programInfo._links.self.href);
-		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
+		let programPage: NrkProgramPage | null = null;
+		try {
+			programPage = await this.lookupNrkItem(programInfo._links.self.href);
+		} catch (err) {
+			// The program may have been removed from NRK - the history item still embeds
+			// enough information (the titles) to build a searchable item, so degrade
+			// gracefully instead of failing the whole history load
+			console.debug('[UTS] Failed to look up NRK program, using embedded titles', id, err);
+		}
 		const titleInfo = programInfo.titles;
-		//TODO This is a good point for having fallback-search items. Also this could be used to differenciate displaytitle and searchtitle.
-		const title = this.getTitle(programPage);
+		const title = programPage ? this.getTitle(programPage) : titleInfo.title;
 		const watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
 
 		const baseItem: BaseItemValues = {
 			serviceId,
 			id,
 			title,
-			year: programPage.moreInformation.productionYear,
-			progress: historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100,
+			year: programPage?.moreInformation.productionYear,
+			progress: this.getProgress(historyItem),
 			watchedAt,
 		};
-
-		if (type === 'movie') {
-			return new MovieItem(baseItem);
-		}
 
 		/* Known formats:
 		 * S2 / 7. Episode Title
@@ -251,6 +269,19 @@ class _NrkApi extends ServiceApi {
 		const regExp =
 			/(?<fullStr>S(?<seasonStr>[0-9]+) [/] (?<episodeStr>[0-9]+)[.] (?<partialEpisodeTitle>.+))/g; //This captures Season number, episode number, and episode title.
 		const [matches] = [...titleInfo.subtitle.matchAll(regExp)];
+
+		// Without the program page, fall back to the subtitle format to detect episodes
+		const type = programPage
+			? programPage._links.seriesPage !== undefined
+				? 'show'
+				: 'movie'
+			: matches
+				? 'show'
+				: 'movie';
+
+		if (type === 'movie') {
+			return new MovieItem(baseItem);
+		}
 		let episodeTitle;
 		let season = 0;
 		let number = 0;
