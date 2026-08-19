@@ -33,19 +33,22 @@ export interface CrunchyrollHistoryItem {
 	parent_type?: string;
 	panel: {
 		title: string;
-		episode_metadata: {
-			series_id: string;
-			season_number: number;
-			season_id: string;
-			episode: string;
-			episode_number?: number;
-			sequence_number?: number;
-			episode_air_date: Date;
-			season_title: string;
-			series_title: string;
-			duration_ms: number;
-		};
+		episode_metadata: CrunchyrollEpisodeMetadata;
 	};
+}
+
+export interface CrunchyrollEpisodeMetadata {
+	series_id: string;
+	season_number: number;
+	season_id: string;
+	episode: string;
+	episode_number?: number;
+	sequence_number?: number;
+	episode_air_date: Date;
+	season_title: string;
+	season_slug_title?: string;
+	series_title: string;
+	duration_ms: number;
 }
 
 class _CrunchyrollApi extends ServiceApi {
@@ -198,7 +201,9 @@ class _CrunchyrollApi extends ServiceApi {
 							? `${title} ${metadata.episode || metadata.sequence_number}`
 							: title,
 					number: metadata.episode_number || 0,
-					season: metadata.season_number || 0,
+					// season numbering is often not aligned with official seasons
+					// check against slug to receive more aligned season number
+					season: this.getBestSeasonNumber(metadata),
 					// Crunchyroll often numbers anime episodes sequentially across all seasons,
 					// so allow episode matching to resolve the number as absolute.
 					isAbsolute: true,
@@ -218,6 +223,22 @@ class _CrunchyrollApi extends ServiceApi {
 		}
 
 		return Promise.resolve(items);
+	}
+
+	getBestSeasonNumber(metadata: CrunchyrollEpisodeMetadata): number {
+		const slug = metadata.season_slug_title;
+		if (!slug) {
+			return metadata.season_number || 0;
+		}
+		if (/(?:^|-)ovas?(?:-|$)/i.test(slug)) {
+			return 0;
+		}
+		const matches = /season-(?<season>\d+)/i.exec(slug);
+		if (!matches?.groups) {
+			return metadata.season_number || 0;
+		}
+		const { season } = matches.groups;
+		return Number.parseInt(season, 10);
 	}
 
 	parseJsonWithDates<T>(text: string, dateFieldNames: string[]): T {
