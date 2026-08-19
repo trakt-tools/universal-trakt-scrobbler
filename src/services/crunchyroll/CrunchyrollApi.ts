@@ -34,6 +34,9 @@ export interface CrunchyrollHistoryItem {
 	panel: {
 		title: string;
 		episode_metadata: CrunchyrollEpisodeMetadata;
+		images?: {
+			thumbnail?: CrunchyrollThumbnail[][];
+		};
 	};
 }
 
@@ -50,6 +53,13 @@ export interface CrunchyrollEpisodeMetadata {
 	series_title: string;
 	series_slug_title?: string;
 	duration_ms: number;
+}
+
+export interface CrunchyrollThumbnail {
+	height: number;
+	source: string;
+	type: string;
+	width: number;
 }
 
 class _CrunchyrollApi extends ServiceApi {
@@ -177,12 +187,16 @@ class _CrunchyrollApi extends ServiceApi {
 		for (const historyItem of historyItems) {
 			const metadata = historyItem.panel.episode_metadata;
 			const title = this.getNormalizedTitle(historyItem);
+			const thumbnail = historyItem.panel.images?.thumbnail
+				?.find((o) => o.length > 0)
+				?.find((t) => !!t.source);
 
 			if (this.isMovie(historyItem)) {
 				const item = new MovieItem({
 					id: historyItem.id,
 					serviceId: this.id,
 					title: title,
+					imageUrl: thumbnail?.source,
 					year: new Date(metadata.episode_air_date).getUTCFullYear(),
 					watchedAt: Utils.unix(historyItem.date_played),
 					progress: historyItem.fully_watched
@@ -195,6 +209,7 @@ class _CrunchyrollApi extends ServiceApi {
 					id: historyItem.id,
 					serviceId: this.id,
 					title: title,
+					imageUrl: thumbnail?.source,
 					number: metadata.episode_number || 0,
 					// season numbering is often not aligned with official seasons
 					// check against slug to receive more aligned season number
