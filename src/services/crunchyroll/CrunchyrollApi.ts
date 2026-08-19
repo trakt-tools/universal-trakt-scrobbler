@@ -48,6 +48,7 @@ export interface CrunchyrollEpisodeMetadata {
 	season_title: string;
 	season_slug_title?: string;
 	series_title: string;
+	series_slug_title?: string;
 	duration_ms: number;
 }
 
@@ -60,6 +61,9 @@ class _CrunchyrollApi extends ServiceApi {
 	DEVICE_NAME: string;
 	isActivated: boolean;
 	session: CrunchyrollSession | null = null;
+
+	movieRegex: RegExp = /(?:^|-)movies?|mov(?:-|$)/i;
+	dubSubSuffix: RegExp = / \((?:\w+ )?(?:Dub|Dubbed|Sub|Subbed|Subtitled)\)/;
 
 	authRequests = Requests;
 
@@ -169,18 +173,12 @@ class _CrunchyrollApi extends ServiceApi {
 
 	convertHistoryItems(historyItems: CrunchyrollHistoryItem[]): Promise<ScrobbleItem[]> {
 		const items: ScrobbleItem[] = [];
-		const dubSubSuffix = / \((?:\w+ )?(?:Dub|Dubbed|Sub|Subbed|Subtitled)\)/;
 
 		for (const historyItem of historyItems) {
 			const metadata = historyItem.panel.episode_metadata;
-			const isMovie =
-				metadata.season_title?.includes('Movie') ||
-				historyItem.panel.title === 'Movie' ||
-				metadata.episode_number?.toString() === 'Movie';
+			const title = this.getNormalizedTitle(historyItem);
 
-			const title = historyItem.panel.title.replace(dubSubSuffix, '');
-
-			if (isMovie) {
+			if (this.isMovie(historyItem)) {
 				const item = new MovieItem({
 					id: historyItem.id,
 					serviceId: this.id,
@@ -196,10 +194,7 @@ class _CrunchyrollApi extends ServiceApi {
 				const item = new EpisodeItem({
 					id: historyItem.id,
 					serviceId: this.id,
-					title:
-						title.toLowerCase() === 'episode'
-							? `${title} ${metadata.episode || metadata.sequence_number}`
-							: title,
+					title: title,
 					number: metadata.episode_number || 0,
 					// season numbering is often not aligned with official seasons
 					// check against slug to receive more aligned season number
@@ -239,6 +234,32 @@ class _CrunchyrollApi extends ServiceApi {
 		}
 		const { season } = matches.groups;
 		return Number.parseInt(season, 10);
+	}
+
+	isMovie(historyItem: CrunchyrollHistoryItem): boolean {
+		const metadata = historyItem.panel.episode_metadata;
+		return (
+			(!!metadata.season_title && metadata.season_title.toLowerCase().includes('movie')) ||
+			historyItem.panel.title.toLowerCase() === 'movie' ||
+			metadata.episode_number === null ||
+			this.movieRegex.test(metadata.series_slug_title ?? '') ||
+			this.movieRegex.test(metadata.season_slug_title ?? '')
+		);
+	}
+
+	getNormalizedTitle(historyItem: CrunchyrollHistoryItem) {
+		const title = historyItem.panel.title.replace(this.dubSubSuffix, '');
+		const metadata = historyItem.panel.episode_metadata;
+		if (title.toLowerCase() === 'episode') {
+			return `${title} ${metadata.episode || metadata.sequence_number}`;
+		}
+		if (title.toLowerCase() === 'movie' || title.trim().length === 0) {
+			return (
+				metadata.season_title.replace(this.dubSubSuffix, '') ||
+				metadata.series_title.replace(this.dubSubSuffix, '')
+			);
+		}
+		return title;
 	}
 
 	parseJsonWithDates<T>(text: string, dateFieldNames: string[]): T {
