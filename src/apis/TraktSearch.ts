@@ -195,7 +195,6 @@ class _TraktSearch extends TraktApi {
 	}
 
 	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {
-		let searchItem: TraktSearchItem | undefined;
 		await this.activate();
 		const responseText = await this.requests.send({
 			url: `${this.SEARCH_URL}/${item.type}?query=${encodeURIComponent(item.title)}&extended=full`,
@@ -203,44 +202,28 @@ class _TraktSearch extends TraktApi {
 			cancelKey,
 		});
 		const searchItems = JSON.parse(responseText) as TraktSearchItem[];
-		if (searchItems.length === 1) {
-			// If there is only one search result, use it
-			searchItem = searchItems[0];
-		} else {
-			// Try to match by name and year, or just name if year isn't available
-			const itemTitle = item.title.toLowerCase();
-			const itemYear = item.year;
-			searchItem = searchItems.find((currentSearchItem) => {
-				const info = 'show' in currentSearchItem ? currentSearchItem.show : currentSearchItem.movie;
-				const title = info.title.toLowerCase();
-				const year = info.year;
 
-				return title === itemTitle && (!itemYear || !year || itemYear === year);
-			});
-			if (!searchItem && item.type === 'show' && searchItems.length > 1) {
-				// No exact title match — try TMDB cross-reference.
-				// TMDB has better localized title support, so searching TMDB for the
-				// original title and matching the TMDB ID against Trakt results can
-				// resolve cases where Trakt lists a show under a different (e.g. English) name.
-				try {
-					const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
-					if (tmdbShow) {
-						const tmdbMatch = searchItems.find((si) => {
-							const info = 'show' in si ? si.show : null;
-							return info?.ids?.tmdb === tmdbShow.id;
-						});
-						if (tmdbMatch) {
-							searchItem = tmdbMatch;
-						}
-					}
-				} catch (_err) {
-					// TMDB cross-reference failed, will fall back to first result
-				}
-			}
-			if (!searchItem) {
-				// Couldn't match, so just use the first result
-				searchItem = searchItems[0];
-			}
+		// Try to match by name and year, or just name if year isn't available. Even a single
+		// search result must be verified - it can be an alias/translation match on an
+		// unrelated item (e.g. searching "Åsted Norge" only returns "Crime Scene Berlin",
+		// through its Norwegian title, while the actual show isn't returned at all).
+		const itemTitle = item.title.toLowerCase();
+		const itemYear = item.year;
+		let searchItem = searchItems.find((currentSearchItem) => {
+			const info = 'show' in currentSearchItem ? currentSearchItem.show : currentSearchItem.movie;
+			const title = info.title.toLowerCase();
+			const year = info.year;
+
+			return title === itemTitle && (!itemYear || !year || itemYear === year);
+		});
+		if (!searchItem && item.type === 'show') {
+			searchItem =
+				(await this.findShowBySlug(item, cancelKey)) ??
+				(await this.findShowThroughTmdb(item, searchItems, cancelKey));
+		}
+		if (!searchItem) {
+			// Couldn't match, so just use the first result
+			searchItem = searchItems[0];
 		}
 		if (!searchItem) {
 			throw new RequestError({
@@ -252,6 +235,104 @@ class _TraktSearch extends TraktApi {
 			});
 		}
 		return searchItem;
+	}
+
+	/**
+	 * Trakt slugs are transliterated titles, so when the text search has no exact match, a
+	 * direct slug lookup can still find the show (e.g. "Åsted Norge" -> "asted-norge") -
+	 * the text search index misses some shows entirely. The result is only used when its
+	 * title and year actually match, so a colliding slug for a different show is rejected.
+	 */
+	private async findShowBySlug(
+		item: Item,
+		cancelKey: string
+	): Promise<TraktSearchItem | undefined> {
+		const slug = this.getSlug(item.title);
+		if (!slug) {
+			return undefined;
+		}
+
+		try {
+			const responseText = await this.requests.send({
+				url: `${this.SHOWS_URL}/${slug}?extended=full`,
+				method: 'GET',
+				cancelKey,
+			});
+			const show = JSON.parse(responseText) as TraktSearchShowItemShow;
+			const matchesTitle = this.getSlug(show.title) === slug;
+			const matchesYear = !item.year || !show.year || item.year === show.year;
+			if (matchesTitle && matchesYear) {
+				return { show };
+			}
+		} catch (err) {
+			if (!(err instanceof RequestError) || err.status !== 404) {
+				// Only a 404 means there is no show with this slug - propagate cancellations
+				// and other failures instead of falling through to a first-result guess
+				throw err;
+			}
+		}
+		return undefined;
+	}
+
+	/**
+	 * Transliterates a title the same way Trakt generates its slugs.
+	 */
+	private getSlug(title: string): string {
+		return title
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/ø/g, 'o')
+			.replace(/æ/g, 'ae')
+			.replace(/ß/g, 'ss')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '');
+	}
+
+	/**
+	 * TMDB cross-reference for when the text search has no exact title match.
+	 * TMDB has better localized title support, so searching TMDB for the original title can
+	 * resolve cases where Trakt lists a show under a different (e.g. English) name, or where
+	 * Trakt's text search doesn't return the show at all despite an exactly matching title.
+	 */
+	private async findShowThroughTmdb(
+		item: Item,
+		searchItems: TraktSearchItem[],
+		cancelKey: string
+	): Promise<TraktSearchItem | undefined> {
+		// `searchTvShow` catches its own request failures and returns null,
+		// so a TMDB outage degrades gracefully without aborting the search
+		const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
+		if (!tmdbShow) {
+			return undefined;
+		}
+
+		const tmdbMatch = searchItems.find((si) => {
+			const info = 'show' in si ? si.show : null;
+			return info?.ids?.tmdb === tmdbShow.id;
+		});
+		if (tmdbMatch) {
+			return tmdbMatch;
+		}
+
+		try {
+			// The show isn't among the text search results at all,
+			// so look it up on Trakt directly by its TMDB ID instead
+			const responseText = await this.requests.send({
+				url: `${this.SEARCH_URL}/tmdb/${tmdbShow.id.toString()}?type=show&extended=full`,
+				method: 'GET',
+				cancelKey,
+			});
+			const idItems = JSON.parse(responseText) as TraktSearchItem[];
+			return idItems.find((si) => 'show' in si);
+		} catch (err) {
+			if (!(err instanceof RequestError) || err.status !== 404) {
+				// Only a 404 means Trakt doesn't know the TMDB ID - propagate cancellations
+				// and other failures instead of falling through to a first-result guess
+				throw err;
+			}
+		}
+		return undefined;
 	}
 
 	async findShow(
