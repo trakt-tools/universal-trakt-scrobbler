@@ -264,8 +264,12 @@ class _TraktSearch extends TraktApi {
 			if (matchesTitle && matchesYear) {
 				return { show };
 			}
-		} catch (_err) {
-			// No show with this slug
+		} catch (err) {
+			if (!(err instanceof RequestError) || err.status !== 404) {
+				// Only a 404 means there is no show with this slug - propagate cancellations
+				// and other failures instead of falling through to a first-result guess
+				throw err;
+			}
 		}
 		return undefined;
 	}
@@ -296,33 +300,39 @@ class _TraktSearch extends TraktApi {
 		searchItems: TraktSearchItem[],
 		cancelKey: string
 	): Promise<TraktSearchItem | undefined> {
+		// `searchTvShow` catches its own request failures and returns null,
+		// so a TMDB outage degrades gracefully without aborting the search
+		const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
+		if (!tmdbShow) {
+			return undefined;
+		}
+
+		const tmdbMatch = searchItems.find((si) => {
+			const info = 'show' in si ? si.show : null;
+			return info?.ids?.tmdb === tmdbShow.id;
+		});
+		if (tmdbMatch) {
+			return tmdbMatch;
+		}
+
 		try {
-			const tmdbShow = await TmdbApi.searchTvShow(item.title, item.year);
-			if (!tmdbShow) {
-				return undefined;
-			}
-
-			const tmdbMatch = searchItems.find((si) => {
-				const info = 'show' in si ? si.show : null;
-				return info?.ids?.tmdb === tmdbShow.id;
-			});
-			if (tmdbMatch) {
-				return tmdbMatch;
-			}
-
 			// The show isn't among the text search results at all,
 			// so look it up on Trakt directly by its TMDB ID instead
 			const responseText = await this.requests.send({
-				url: `${this.SEARCH_URL}/tmdb/${tmdbShow.id}?type=show&extended=full`,
+				url: `${this.SEARCH_URL}/tmdb/${tmdbShow.id.toString()}?type=show&extended=full`,
 				method: 'GET',
 				cancelKey,
 			});
 			const idItems = JSON.parse(responseText) as TraktSearchItem[];
 			return idItems.find((si) => 'show' in si);
-		} catch (_err) {
-			// TMDB cross-reference failed, will fall back to the first search result
-			return undefined;
+		} catch (err) {
+			if (!(err instanceof RequestError) || err.status !== 404) {
+				// Only a 404 means Trakt doesn't know the TMDB ID - propagate cancellations
+				// and other failures instead of falling through to a first-result guess
+				throw err;
+			}
 		}
+		return undefined;
 	}
 
 	async findShow(
