@@ -189,6 +189,7 @@ class _AdnApi extends ServiceApi {
 			headers: {
 				Authorization: `Bearer ${this.session.auth.accessToken}`,
 				'x-target-distribution': `${this.lang}`,
+				'accept-language': `${this.lang}`,
 				'x-profile-id': `${this.session.profileId}`,
 			},
 			method: 'GET',
