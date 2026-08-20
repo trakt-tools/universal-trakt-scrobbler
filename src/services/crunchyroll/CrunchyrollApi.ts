@@ -45,13 +45,13 @@ export interface CrunchyrollEpisodeMetadata {
 	season_number: number;
 	season_id: string;
 	episode: string;
-	episode_number?: number;
-	sequence_number?: number;
+	episode_number: number;
+	sequence_number: number;
 	episode_air_date: Date;
 	season_title: string;
-	season_slug_title?: string;
+	season_slug_title: string;
 	series_title: string;
-	series_slug_title?: string;
+	series_slug_title: string;
 	duration_ms: number;
 }
 
@@ -72,7 +72,7 @@ class _CrunchyrollApi extends ServiceApi {
 	isActivated: boolean;
 	session: CrunchyrollSession | null = null;
 
-	movieRegex: RegExp = /(?:^|-)movies?|mov(?:-|$)/i;
+	movieRegex: RegExp = /(?:^|-)(?:movies?|mov)(?:-|$)/i;
 	dubSubSuffix: RegExp = / \((?:\w+ )?(?:Dub|Dubbed|Sub|Subbed|Subtitled)\)/;
 
 	authRequests = Requests;
@@ -254,11 +254,11 @@ class _CrunchyrollApi extends ServiceApi {
 	isMovie(historyItem: CrunchyrollHistoryItem): boolean {
 		const metadata = historyItem.panel.episode_metadata;
 		return (
-			(!!metadata.season_title && metadata.season_title.toLowerCase().includes('movie')) ||
+			metadata.season_title.toLowerCase().includes('movie') ||
 			historyItem.panel.title.toLowerCase() === 'movie' ||
 			metadata.episode_number === null ||
-			this.movieRegex.test(metadata.series_slug_title ?? '') ||
-			this.movieRegex.test(metadata.season_slug_title ?? '')
+			this.movieRegex.test(metadata.series_slug_title) ||
+			this.movieRegex.test(metadata.season_slug_title)
 		);
 	}
 
