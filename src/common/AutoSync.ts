@@ -82,6 +82,7 @@ class _AutoSync {
 
 		for (const service of services) {
 			let wasCanceled = false;
+			let hasLoadedHistory = false;
 
 			const serviceValue = Shared.storage.options.services[service.id];
 			let items: ScrobbleItem[] = [];
@@ -94,6 +95,7 @@ class _AutoSync {
 
 			try {
 				await api.loadHistory(Infinity, serviceValue.lastSync, serviceValue.lastSyncId, 'autoSync');
+				hasLoadedHistory = true;
 
 				items = store.data.items.filter(
 					(item) => item.progress >= Shared.storage.syncOptions.minPercentageWatched
@@ -133,7 +135,10 @@ class _AutoSync {
 			api.reset();
 			await store.resetData();
 
-			if (!wasCanceled) {
+			// Only move `lastSync` forward when the history was actually loaded. If loading failed,
+			// nothing was seen, and advancing the date would hide everything watched since the
+			// previous sync behind the last sync date without it ever being synced.
+			if (!wasCanceled && hasLoadedHistory) {
 				const partialServiceValue = partialOptions.services?.[service.id] || {};
 				partialServiceValue.lastSync = now;
 				if (items[0]?.id) {
