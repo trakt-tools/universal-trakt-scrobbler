@@ -90,6 +90,10 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async finishManualAuth(redirectUrl: string): Promise<void> {
+		if (!this.manualAuth.callback) {
+			return;
+		}
+
 		if (typeof this.manualAuth.tabId !== 'undefined') {
 			await browser.tabs.remove(this.manualAuth.tabId);
 		}
