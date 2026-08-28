@@ -1,7 +1,7 @@
 import { Suggestion } from '@apis/CorrectionApi';
 import { TraktSearch } from '@apis/TraktSearch';
 import { TraktSync } from '@apis/TraktSync';
-import { Cache, CacheItems } from '@common/Cache';
+import { Cache, CacheItems, HistoryCache } from '@common/Cache';
 import { RequestError } from '@common/RequestError';
 import { Shared } from '@common/Shared';
 import { createScrobbleItem, ScrobbleItem, ScrobbleItemValues } from '@models/Item';
@@ -169,31 +169,27 @@ export abstract class ServiceApi {
 				} else if (!this.hasReachedHistoryEnd) {
 					responseItems = await this.loadHistoryItems(cancelKey);
 					if (!this.hasCheckedHistoryCache) {
-						let firstItem: ScrobbleItemValues | null = null;
-						if (historyCache.items.length > 0) {
-							const historyItemId = `${this.id}_${this.getHistoryItemId(historyCache.items[0])}`;
-							const itemId = caches.historyItemsToItems.get(historyItemId);
-							if (itemId) {
-								firstItem = caches.items.get(itemId) ?? null;
+						this.hasCheckedHistoryCache = true;
+						if (
+							historyCache.items.length > 0 &&
+							this.isHistoryCacheForCurrentProfile(historyCache)
+						) {
+							const reconciled = await this.reconcileHistoryCache(
+								responseItems,
+								historyCache,
+								cancelKey
+							);
+							responseItems = reconciled.items;
+							if (reconciled.reusedCache) {
+								this.nextHistoryPage = historyCache.nextPage ?? this.nextHistoryPage;
+								this.nextHistoryUrl = historyCache.nextUrl ?? this.nextHistoryUrl;
 							}
 						}
-						if (
-							responseItems.length > 0 &&
-							firstItem &&
-							this.isNewHistoryItem(responseItems[0], firstItem.watchedAt ?? 0, firstItem.id ?? '')
-						) {
-							historyCache = {
-								items: [],
-							};
-						}
-						this.nextHistoryPage = historyCache.nextPage ?? this.nextHistoryPage;
-						this.nextHistoryUrl = historyCache.nextUrl ?? this.nextHistoryUrl;
-						if (historyCache.items.length > 0) {
-							responseItems = historyCache.items;
-							historyCache.items = [];
-						}
-						this.hasCheckedHistoryCache = true;
+						historyCache = {
+							items: [],
+						};
 					}
+					historyCache.profileName = this.session?.profileName;
 					historyCache.nextPage = this.nextHistoryPage;
 					historyCache.nextUrl = this.nextHistoryUrl;
 					historyCache.items.push(...responseItems);
@@ -283,6 +279,92 @@ export abstract class ServiceApi {
 		}
 		return items;
 	}
+
+	/**
+	 * Whether the cached history was written for the profile that is currently logged in.
+	 *
+	 * History item IDs are often content IDs (e.g. Netflix `movieID`), so two profiles that watched the
+	 * same title would otherwise match during reconciliation and mix their histories. When both the cache
+	 * and the current session know the profile, they must agree; if either is unknown (service without
+	 * profiles, or a cache written before this field existed), fall back to ID-based reconciliation.
+	 */
+	private isHistoryCacheForCurrentProfile(historyCache: HistoryCache): boolean {
+		const cachedProfile = historyCache.profileName;
+		const currentProfile = this.session?.profileName;
+		if (cachedProfile == null || currentProfile == null) {
+			return true;
+		}
+		return cachedProfile === currentProfile;
+	}
+
+	/**
+	 * Reconciles the cached history with the fresh first page returned by the service.
+	 *
+	 * The cache stores a contiguous prefix of the history, from the newest item known at the time down to
+	 * `nextUrl`/`nextPage`, so that re-opening the history page does not re-request every page (and every
+	 * item lookup) from the service - which matters for rate-limited APIs.
+	 *
+	 * Whether the cache is still valid is decided by history item IDs, not by watched dates: pages are
+	 * fetched until an item that is already in the cache is found. Everything before that item is new and
+	 * gets prepended, the cached items from that point on are reused (with fresh copies where the service
+	 * returned them, so updated progress/dates win). If no cached item is found within a few pages, the
+	 * cache is considered stale (e.g. profile switch, history cleared) and the fresh items replace it.
+	 *
+	 * Returns `reusedCache: true` when pagination should continue from the cached `nextUrl`/`nextPage`.
+	 */
+	private async reconcileHistoryCache(
+		firstPage: unknown[],
+		historyCache: HistoryCache,
+		cancelKey: string
+	): Promise<{ items: unknown[]; reusedCache: boolean }> {
+		const cachedIndexes = new Map<string, number>();
+		for (const [index, cachedItem] of historyCache.items.entries()) {
+			const id = this.getHistoryItemId(cachedItem);
+			if (!cachedIndexes.has(id)) {
+				cachedIndexes.set(id, index);
+			}
+		}
+
+		const freshItems: unknown[] = [];
+		let page = firstPage;
+		let pagesFetched = 1;
+		for (;;) {
+			let matchIndex = -1;
+			for (const item of page) {
+				const index = cachedIndexes.get(this.getHistoryItemId(item));
+				if (typeof index !== 'undefined') {
+					matchIndex = index;
+					break;
+				}
+			}
+			freshItems.push(...page);
+			if (matchIndex >= 0) {
+				if (this.hasReachedHistoryEnd) {
+					// The fresh pages already cover the whole history, nothing to reuse
+					return { items: freshItems, reusedCache: false };
+				}
+				const freshIds = new Set(freshItems.map((item) => this.getHistoryItemId(item)));
+				const reusedItems = historyCache.items
+					.slice(matchIndex)
+					.filter((item) => !freshIds.has(this.getHistoryItemId(item)));
+				return { items: [...freshItems, ...reusedItems], reusedCache: true };
+			}
+			if (this.hasReachedHistoryEnd || pagesFetched >= ServiceApi.MAX_CACHE_RECONCILE_PAGES) {
+				break;
+			}
+			page = await this.loadHistoryItems(cancelKey);
+			pagesFetched += 1;
+		}
+
+		// No overlap with the cache within the pages fetched - treat the cache as stale
+		return { items: freshItems, reusedCache: false };
+	}
+
+	/**
+	 * How many pages to look through for an item that is already cached before giving up on the cache.
+	 * Keeps the number of requests bounded when a lot has been watched since the last visit.
+	 */
+	private static readonly MAX_CACHE_RECONCILE_PAGES = 5;
 
 	reset(): void {
 		this.leftoverHistoryItems = [];

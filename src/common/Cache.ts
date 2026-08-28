@@ -49,6 +49,12 @@ export type CacheKeysToStorageKeys = {
 export interface HistoryCache {
 	nextPage?: number;
 	nextUrl?: string;
+	/**
+	 * Profile the cached history belongs to, when the service exposes one. Used to discard the cache
+	 * when the user switches profile, since history item IDs alone (often content IDs) can match
+	 * across profiles.
+	 */
+	profileName?: string | null;
 	items: unknown[];
 }
 
