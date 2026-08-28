@@ -59,12 +59,8 @@ class _Session {
 	}
 
 	async finishLogin(): Promise<void> {
-		if (window.location.hostname === 'app.trakt.tv' && window.location.pathname !== '/') {
-			return;
-		}
-
 		const redirectUrl = window.location.search;
-		if (new URLSearchParams(redirectUrl).has('code')) {
+		if (new URLSearchParams(redirectUrl).get('code')) {
 			await Messaging.toExtension({ action: 'finish-login', redirectUrl });
 		}
 	}

@@ -8,6 +8,7 @@ import browser from 'webextension-polyfill';
 
 export type TraktManualAuth = {
 	callback?: PromiseResolve<TraktAuthDetails>;
+	state?: string;
 	tabId?: number;
 };
 
@@ -36,10 +37,10 @@ class _TraktAuth extends TraktApi {
 		return Shared.browser === 'firefox' ? !!Shared.storage.options.grantCookies : false;
 	}
 
-	getAuthorizeUrl(): string {
+	getAuthorizeUrl(state: string): string {
 		return `${this.AUTHORIZE_URL}?response_type=code&client_id=${
 			Shared.clientId
-		}&redirect_uri=${this.getRedirectUrl()}`;
+		}&redirect_uri=${this.getRedirectUrl()}&state=${encodeURIComponent(state)}`;
 	}
 
 	getRedirectUrl(): string {
@@ -51,6 +52,16 @@ class _TraktAuth extends TraktApi {
 	getCode(redirectUrl: string): string {
 		const search = redirectUrl.includes('?') ? redirectUrl.split('?')[1] : redirectUrl;
 		return new URLSearchParams(search).get('code') ?? '';
+	}
+
+	getState(redirectUrl: string): string {
+		const search = redirectUrl.includes('?') ? redirectUrl.split('?')[1] : redirectUrl;
+		return new URLSearchParams(search).get('state') ?? '';
+	}
+
+	createState(): string {
+		const bytes = crypto.getRandomValues(new Uint8Array(32));
+		return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 	}
 
 	hasTokenExpired(auth: TraktAuthDetails): boolean {
@@ -69,37 +80,44 @@ class _TraktAuth extends TraktApi {
 	}
 
 	async startIdentityAuth(): Promise<TraktAuthDetails> {
+		const state = this.createState();
+		let redirectUrl: string;
 		try {
-			const redirectUrl = await browser.identity.launchWebAuthFlow({
-				url: this.getAuthorizeUrl(),
+			redirectUrl = await browser.identity.launchWebAuthFlow({
+				url: this.getAuthorizeUrl(state),
 				interactive: true,
 			});
-			return this.getToken(redirectUrl);
 		} catch (_err) {
 			this.isIdentityAvailable = false;
 			return new Promise<TraktAuthDetails>((resolve) => void this.startManualAuth(resolve));
 		}
+		if (this.getState(redirectUrl) !== state) {
+			throw new Error('Trakt OAuth state mismatch.');
+		}
+		return this.getToken(redirectUrl);
 	}
 
 	async startManualAuth(callback: PromiseResolve<TraktAuthDetails>): Promise<void> {
-		this.manualAuth.callback = callback;
-		const tab = await Tabs.open(this.getAuthorizeUrl());
-		if (tab) {
+		const state = this.createState();
+		this.manualAuth = { callback, state };
+		const tab = await Tabs.open(this.getAuthorizeUrl(state));
+		if (tab && this.manualAuth.state === state) {
 			this.manualAuth.tabId = tab.id;
 		}
 	}
 
 	async finishManualAuth(redirectUrl: string): Promise<void> {
-		if (!this.manualAuth.callback) {
+		const { callback, state, tabId } = this.manualAuth;
+		if (!callback || this.getState(redirectUrl) !== state) {
 			return;
 		}
+		this.manualAuth = {};
 
-		if (typeof this.manualAuth.tabId !== 'undefined') {
-			await browser.tabs.remove(this.manualAuth.tabId);
+		if (typeof tabId !== 'undefined') {
+			await browser.tabs.remove(tabId);
 		}
 		const auth = await this.getToken(redirectUrl);
-		this.manualAuth.callback?.(auth);
-		this.manualAuth = {};
+		callback(auth);
 	}
 
 	getToken(redirectUrl: string): Promise<TraktAuthDetails> {
