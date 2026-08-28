@@ -60,6 +60,7 @@ class _TraktAuth extends TraktApi {
 	}
 
 	createState(): string {
+		// Correlate the callback with this exact login attempt using 256 bits of randomness.
 		const bytes = crypto.getRandomValues(new Uint8Array(32));
 		return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 	}
@@ -101,6 +102,7 @@ class _TraktAuth extends TraktApi {
 		const state = this.createState();
 		this.manualAuth = { callback, state };
 		const tab = await Tabs.open(this.getAuthorizeUrl(state));
+		// A newer login can replace manualAuth while the tab is opening; do not attach a stale tab.
 		if (tab && this.manualAuth.state === state) {
 			this.manualAuth.tabId = tab.id;
 		}
@@ -108,9 +110,12 @@ class _TraktAuth extends TraktApi {
 
 	async finishManualAuth(redirectUrl: string): Promise<void> {
 		const { callback, state, tabId } = this.manualAuth;
+		// trakt.js also runs on app.trakt.tv, whose own login callbacks can contain a code.
+		// Only exchange it when it belongs to the pending extension login.
 		if (!callback || this.getState(redirectUrl) !== state) {
 			return;
 		}
+		// Consume the state before async work so a duplicate callback cannot reuse it.
 		this.manualAuth = {};
 
 		if (typeof tabId !== 'undefined') {
