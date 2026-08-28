@@ -170,7 +170,10 @@ export abstract class ServiceApi {
 					responseItems = await this.loadHistoryItems(cancelKey);
 					if (!this.hasCheckedHistoryCache) {
 						this.hasCheckedHistoryCache = true;
-						if (historyCache.items.length > 0) {
+						if (
+							historyCache.items.length > 0 &&
+							this.isHistoryCacheForCurrentProfile(historyCache)
+						) {
 							const reconciled = await this.reconcileHistoryCache(
 								responseItems,
 								historyCache,
@@ -186,6 +189,7 @@ export abstract class ServiceApi {
 							items: [],
 						};
 					}
+					historyCache.profileName = this.session?.profileName;
 					historyCache.nextPage = this.nextHistoryPage;
 					historyCache.nextUrl = this.nextHistoryUrl;
 					historyCache.items.push(...responseItems);
@@ -274,6 +278,23 @@ export abstract class ServiceApi {
 			throw err;
 		}
 		return items;
+	}
+
+	/**
+	 * Whether the cached history was written for the profile that is currently logged in.
+	 *
+	 * History item IDs are often content IDs (e.g. Netflix `movieID`), so two profiles that watched the
+	 * same title would otherwise match during reconciliation and mix their histories. When both the cache
+	 * and the current session know the profile, they must agree; if either is unknown (service without
+	 * profiles, or a cache written before this field existed), fall back to ID-based reconciliation.
+	 */
+	private isHistoryCacheForCurrentProfile(historyCache: HistoryCache): boolean {
+		const cachedProfile = historyCache.profileName;
+		const currentProfile = this.session?.profileName;
+		if (cachedProfile == null || currentProfile == null) {
+			return true;
+		}
+		return cachedProfile === currentProfile;
 	}
 
 	/**
