@@ -60,7 +60,8 @@ class _Session {
 
 	async finishLogin(): Promise<void> {
 		const redirectUrl = window.location.search;
-		if (redirectUrl.includes('code')) {
+		// The background process verifies that the callback state belongs to a pending login.
+		if (new URLSearchParams(redirectUrl).get('code')) {
 			await Messaging.toExtension({ action: 'finish-login', redirectUrl });
 		}
 	}
