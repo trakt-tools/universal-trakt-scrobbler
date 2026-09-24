@@ -1,8 +1,22 @@
 import { AmazonPrimeApi } from '@/amazon-prime/AmazonPrimeApi';
-import { ScrobbleParser } from '@common/ScrobbleParser';
+import { ScrobbleParser, ScrobblePlayback } from '@common/ScrobbleParser';
 import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
+interface PrimeEpisodeInfo {
+	season: number;
+	number: number;
+	title: string;
+}
+
+interface PrimePlaybackMetadata {
+	title: string;
+	episode: PrimeEpisodeInfo | null;
+	isSeries: boolean;
+}
+
 class _AmazonPrimeParser extends ScrobbleParser {
+	private episodeChangePending = false;
+
 	constructor() {
 		super(AmazonPrimeApi, {
 			videoPlayerSelector: '.dv-player-fullscreen video:not(.tst-video-overlay-player-html5)',
@@ -10,68 +24,144 @@ class _AmazonPrimeParser extends ScrobbleParser {
 		});
 	}
 
-	// skip API method, we parse from DOM instead
-	protected override parseItem(): Promise<ScrobbleItem | null> {
-		return Promise.resolve(this.parseItemFromDom());
+	async parsePlayback(): Promise<ScrobblePlayback | null> {
+		if (this.episodeChangePending) {
+			// The previous empty tick let ScrobbleEvents stop the old episode.
+			// Clear unmatched items too, since the controller only clears matched ones.
+			this.clearItem();
+		}
+
+		const currentItem = this.getItem();
+		if (currentItem) {
+			const metadata = this.getPlaybackMetadata();
+			if (metadata && this.isDifferentTitle(currentItem, metadata)) {
+				this.episodeChangePending = true;
+				return null;
+			}
+		}
+
+		return super.parsePlayback();
+	}
+
+	override clearItem(): void {
+		super.clearItem();
+		this.episodeChangePending = false;
+	}
+
+	// The detail URL can name a season or an earlier episode, so it is not an active item ID.
+	protected override parseItemFromApi(): Promise<ScrobbleItem | null> {
+		return Promise.resolve(null);
 	}
 
 	protected override parseItemFromDom(): ScrobbleItem | null {
+		const metadata = this.getPlaybackMetadata();
+		if (!metadata) {
+			return null;
+		}
+		const { title, episode, isSeries } = metadata;
 		const serviceId = AmazonPrimeApi.id;
 
-		// find active player container, new ones (dv-web-player-2, etc.) are created when switching video without refresh
-		const playerContainer = this.videoPlayer?.closest('[id^="dv-web-player"]');
-
-		// get title from player UI
-		const searchContext = playerContainer || document;
-		const titleElement = searchContext.querySelector('.atvwebplayersdk-title-text');
-		const subtitleElement = searchContext.querySelector('.atvwebplayersdk-subtitle-text');
-
-		if (!titleElement) {
+		if (episode) {
+			const card = this.findEpisodeCard(episode.number);
+			const cardTitle = card?.querySelector('h3')?.textContent?.trim() ?? '';
+			const episodeTitle =
+				episode.title || cardTitle.replace(/^\d+\.\s*(?:Episode\s+\d+\s*)?/i, '').trim();
+			return new EpisodeItem({
+				serviceId,
+				id: this.getEpisodeGti(card),
+				title: episodeTitle,
+				season: episode.season,
+				number: episode.number,
+				show: { serviceId, title: this.getShowTitle(title) },
+			});
+		}
+		if (isSeries) {
+			// A series page without an episode number must not become a movie scrobble.
 			return null;
 		}
 
-		const title = titleElement.textContent?.trim() || '';
-		const subtitle = subtitleElement?.textContent?.trim() || '';
+		return new MovieItem({ serviceId, title });
+	}
 
+	private getPlaybackMetadata(): PrimePlaybackMetadata | null {
+		const player = this.videoPlayer?.isConnected
+			? this.videoPlayer.closest('[id^="dv-web-player"]')
+			: null;
+		const playerTitle = player?.querySelector('.atvwebplayersdk-title-text')?.textContent?.trim();
+		const pageTitle = document.querySelector('h1')?.textContent?.trim();
+		const title = pageTitle || playerTitle;
 		if (!title) {
 			return null;
 		}
 
-		// check if it's a TV show (has season/episode info in subtitle)
-		// ex format: "Season 1, Ep. 4 The Ghouls"
-		const episodeMatch = subtitle.match(
-			/Season\s+(?<season>\d+),?\s*Ep\.?\s*(?<episode>\d+)\s*(?<episodeTitle>.*)/i
-		);
-		if (episodeMatch?.groups) {
-			const season = parseInt(episodeMatch.groups.season, 10);
-			const episodeNumber = parseInt(episodeMatch.groups.episode, 10);
-			const episodeTitle = episodeMatch.groups.episodeTitle?.trim() || '';
+		// Prime unmounts its controls during playback. The detail page's primary
+		// play action remains in the DOM and identifies the selected episode.
+		const playerEpisode = player?.querySelector(
+			'.atvwebplayersdk-episode-info, .atvwebplayersdk-subtitle-text'
+		)?.textContent;
+		const primaryEpisode = document.querySelector(
+			'[data-testid="dp-atf-play-button"]'
+		)?.textContent;
+		const episode = this.parseEpisodeInfo(playerEpisode) ?? this.parseEpisodeInfo(primaryEpisode);
+		return {
+			title,
+			episode,
+			isSeries: !episode && !!document.querySelector('[id^="av-ep-episode-"]'),
+		};
+	}
 
-			// since an "id from service" is required and we don't get/use id for this, we generate one instead
-			const showSlug = title.toLowerCase().replace(/[^a-z0-9]/gi, '');
-			const episodeSlug = episodeTitle.toLowerCase().replace(/[^a-z0-9]/gi, '');
-			const id = `${showSlug}-s${season}-e${episodeNumber}-${episodeSlug}`; // ex: fallout-s1-e4-theghouls
+	private isDifferentTitle(current: ScrobbleItem, metadata: PrimePlaybackMetadata): boolean {
+		if (metadata.episode) {
+			if (current.type !== 'episode') {
+				return true;
+			}
+			return (
+				current.show.title !== this.getShowTitle(metadata.title) ||
+				current.season !== metadata.episode.season ||
+				current.number !== metadata.episode.number
+			);
+		}
+		return current.type === 'movie' && !metadata.isSeries && current.title !== metadata.title;
+	}
 
-			return new EpisodeItem({
-				serviceId,
-				id,
-				title: episodeTitle,
-				season,
-				number: episodeNumber,
-				show: {
-					serviceId,
-					title,
-				},
-			});
+	private parseEpisodeInfo(value?: string | null): PrimeEpisodeInfo | null {
+		const text = value?.trim() ?? '';
+		const match =
+			/\bS(?<season>\d+)\s*E(?<number>\d+)\s*(?<title>.*)$/i.exec(text) ??
+			/Season\s+(?<season>\d+),?\s*Ep\.?\s*(?<number>\d+)\s*(?<title>.*)/i.exec(text);
+		if (!match?.groups) {
+			return null;
 		}
 
-		// otherwise movie
-		const movieSlug = title.toLowerCase().replace(/[^a-z0-9]/gi, '');
-		return new MovieItem({
-			serviceId,
-			id: movieSlug, // ex: oppenheimer
-			title,
-		});
+		const number = Number(match.groups.number);
+		const title = (match.groups.title ?? '')
+			.replace(new RegExp(`^Episode\\s+${number}\\b[\\s:–-]*`, 'i'), '')
+			.trim();
+		return { season: Number(match.groups.season), number, title };
+	}
+
+	private getShowTitle(playerTitle: string): string {
+		// The player can use a licensed collection title such as "Attack on Titan
+		// Season 2" even when the detail page identifies the show as "Attack on Titan".
+		const pageTitle = /^Prime Video:\s*(.+?)\s+-\s+Season\s+\d+\s*$/i.exec(document.title);
+		const canonicalTitle = pageTitle?.[1]?.trim();
+		return canonicalTitle && playerTitle.toLowerCase().includes(canonicalTitle.toLowerCase())
+			? canonicalTitle
+			: playerTitle;
+	}
+
+	private findEpisodeCard(number: number): Element | null {
+		const headingPattern = new RegExp(`^${number}\\.\\s`);
+		return (
+			Array.from(document.querySelectorAll('[id^="av-ep-episode-"]')).find((card) =>
+				headingPattern.test(card.querySelector('h3')?.textContent?.trim() ?? '')
+			) ?? null
+		);
+	}
+
+	private getEpisodeGti(card: Element | null): string | null {
+		const href = card?.querySelector('a[href^="primevideo://detail?"]')?.getAttribute('href');
+		return href ? new URL(href).searchParams.get('gti') : null;
 	}
 }
 
