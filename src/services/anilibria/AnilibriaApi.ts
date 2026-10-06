@@ -52,7 +52,7 @@ export interface AnilibriaHistoryItem {
 	firstImportedAt: number;
 }
 
-const HOST_URL = 'https://anilibria.top';
+const HOST_URL = 'https://aniliberty.top';
 
 const getBestTitle = (release?: AnilibriaRelease | null): string =>
 	release?.name?.english || release?.name?.main || release?.name?.alternative || '';
