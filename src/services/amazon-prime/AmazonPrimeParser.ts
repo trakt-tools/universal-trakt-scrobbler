@@ -1,6 +1,6 @@
 import { AmazonPrimeApi } from '@/amazon-prime/AmazonPrimeApi';
 import { ScrobbleParser, ScrobblePlayback } from '@common/ScrobbleParser';
-import { EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
+import { correctItemTitle, EpisodeItem, MovieItem, ScrobbleItem } from '@models/Item';
 
 interface PrimeEpisodeInfo {
 	season: number;
@@ -62,7 +62,7 @@ class _AmazonPrimeParser extends ScrobbleParser {
 		const serviceId = AmazonPrimeApi.id;
 
 		if (episode) {
-			const card = this.findEpisodeCard(episode.number);
+			const card = this.findEpisodeCard(episode);
 			const cardTitle = card?.querySelector('h3')?.textContent?.trim() ?? '';
 			const episodeTitle =
 				episode.title || cardTitle.replace(/^\d+\.\s*(?:Episode\s+\d+\s*)?/i, '').trim();
@@ -116,12 +116,16 @@ class _AmazonPrimeParser extends ScrobbleParser {
 				return true;
 			}
 			return (
-				current.show.title !== this.getShowTitle(metadata.title) ||
+				current.show.title !== correctItemTitle(this.getShowTitle(metadata.title)) ||
 				current.season !== metadata.episode.season ||
 				current.number !== metadata.episode.number
 			);
 		}
-		return current.type === 'movie' && !metadata.isSeries && current.title !== metadata.title;
+		return (
+			current.type === 'movie' &&
+			!metadata.isSeries &&
+			current.title !== correctItemTitle(metadata.title)
+		);
 	}
 
 	private parseEpisodeInfo(value?: string | null): PrimeEpisodeInfo | null {
@@ -150,12 +154,20 @@ class _AmazonPrimeParser extends ScrobbleParser {
 			: playerTitle;
 	}
 
-	private findEpisodeCard(number: number): Element | null {
-		const headingPattern = new RegExp(`^${number}\\.\\s`);
+	private findEpisodeCard(episode: PrimeEpisodeInfo): Element | null {
 		return (
-			Array.from(document.querySelectorAll('[id^="av-ep-episode-"]')).find((card) =>
-				headingPattern.test(card.querySelector('h3')?.textContent?.trim() ?? '')
-			) ?? null
+			Array.from(document.querySelectorAll('[id^="av-ep-episode-"]')).find((card) => {
+				// The detail page can still show the previous season after autoplay.
+				// Only borrow its GTI/title when a play action confirms both numbers.
+				return Array.from(card.querySelectorAll('[data-testid="episodes-playbutton"]')).some(
+					(button) => {
+						const cardEpisode =
+							this.parseEpisodeInfo(button.getAttribute('aria-label')) ??
+							this.parseEpisodeInfo(button.textContent);
+						return cardEpisode?.season === episode.season && cardEpisode.number === episode.number;
+					}
+				);
+			}) ?? null
 		);
 	}
 

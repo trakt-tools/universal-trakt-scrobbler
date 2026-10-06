@@ -27,6 +27,8 @@ const correctTitles: Record<string, string> = {
 	['Young and Hungry']: '"Young and Hungry"',
 };
 
+export const correctItemTitle = (title: string): string => correctTitles[title] || title;
+
 export type Item = ScrobbleItem | ShowItem;
 
 export type ScrobbleItem = EpisodeItem | MovieItem;
@@ -104,7 +106,7 @@ abstract class BaseItem implements BaseItemValues {
 
 	constructor(values: BaseItemValues) {
 		this.serviceId = values.serviceId;
-		this.title = correctTitles[values.title] || values.title;
+		this.title = correctItemTitle(values.title);
 		this.year = values.year ?? 0;
 		this.watchedAt = values.watchedAt;
 		this.progress = values.progress ? Math.round(values.progress * 100) / 100 : 0.0;
@@ -114,7 +116,8 @@ abstract class BaseItem implements BaseItemValues {
 		this.suggestions = values.suggestions;
 		this.imageUrl = values.imageUrl;
 		this.isLoading = values.isLoading ?? false;
-		this.id = values.id || this.generateId();
+		// Subclasses generate missing IDs after initializing their identity fields.
+		this.id = values.id || '';
 	}
 
 	save(): BaseItemValues {
@@ -202,6 +205,7 @@ export class EpisodeItem extends BaseItem implements EpisodeItemValues {
 		this.number = values.number;
 		this.isAbsolute = values.isAbsolute;
 		this.show = new ShowItem(values.show);
+		this.id ||= this.generateId();
 		this.trakt = values.trakt && new TraktEpisodeItem(values.trakt);
 	}
 
@@ -242,6 +246,7 @@ export class ShowItem extends BaseItem implements ShowItemValues {
 
 	constructor(values: ShowItemParams) {
 		super(values);
+		this.id ||= this.generateId();
 		this.trakt = values.trakt && new TraktShowItem(values.trakt);
 	}
 
@@ -272,6 +277,7 @@ export class MovieItem extends BaseItem implements MovieItemValues {
 
 	constructor(values: ShowItemParams) {
 		super(values);
+		this.id ||= this.generateId();
 		this.trakt = values.trakt && new TraktMovieItem(values.trakt);
 	}
 
