@@ -11,11 +11,10 @@ interface PrimeEpisodeInfo {
 interface PrimePlaybackMetadata {
 	title: string;
 	episode: PrimeEpisodeInfo | null;
-	isSeries: boolean;
 }
 
 class _AmazonPrimeParser extends ScrobbleParser {
-	private episodeChangePending = false;
+	private itemChangePending = false;
 
 	constructor() {
 		super(AmazonPrimeApi, {
@@ -25,8 +24,8 @@ class _AmazonPrimeParser extends ScrobbleParser {
 	}
 
 	async parsePlayback(): Promise<ScrobblePlayback | null> {
-		if (this.episodeChangePending) {
-			// The previous empty tick let ScrobbleEvents stop the old episode.
+		if (this.itemChangePending) {
+			// The previous empty tick let ScrobbleEvents stop the old item.
 			// Clear unmatched items too, since the controller only clears matched ones.
 			this.clearItem();
 		}
@@ -34,8 +33,8 @@ class _AmazonPrimeParser extends ScrobbleParser {
 		const currentItem = this.getItem();
 		if (currentItem) {
 			const metadata = this.getPlaybackMetadata();
-			if (metadata && this.isDifferentTitle(currentItem, metadata)) {
-				this.episodeChangePending = true;
+			if (metadata && this.hasItemChanged(currentItem, metadata)) {
+				this.itemChangePending = true;
 				return null;
 			}
 		}
@@ -45,7 +44,7 @@ class _AmazonPrimeParser extends ScrobbleParser {
 
 	override clearItem(): void {
 		super.clearItem();
-		this.episodeChangePending = false;
+		this.itemChangePending = false;
 	}
 
 	// The detail URL can name a season or an earlier episode, so it is not an active item ID.
@@ -58,11 +57,11 @@ class _AmazonPrimeParser extends ScrobbleParser {
 		if (!metadata) {
 			return null;
 		}
-		const { title, episode, isSeries } = metadata;
-		const serviceId = AmazonPrimeApi.id;
+		const { title, episode } = metadata;
+		const serviceId = this.api.id;
 
 		if (episode) {
-			const card = this.findEpisodeCard(episode);
+			const card = this.findEpisodeCard(title, episode);
 			const cardTitle = card?.querySelector('h3')?.textContent?.trim() ?? '';
 			const episodeTitle =
 				episode.title || cardTitle.replace(/^\d+\.\s*(?:Episode\s+\d+\s*)?/i, '').trim();
@@ -72,12 +71,8 @@ class _AmazonPrimeParser extends ScrobbleParser {
 				title: episodeTitle,
 				season: episode.season,
 				number: episode.number,
-				show: { serviceId, title: this.getShowTitle(title) },
+				show: { serviceId, title },
 			});
-		}
-		if (isSeries) {
-			// A series page without an episode number must not become a movie scrobble.
-			return null;
 		}
 
 		return new MovieItem({ serviceId, title });
@@ -89,42 +84,59 @@ class _AmazonPrimeParser extends ScrobbleParser {
 			: null;
 		const playerTitle = player?.querySelector('.atvwebplayersdk-title-text')?.textContent?.trim();
 		const pageTitle = document.querySelector('h1')?.textContent?.trim();
-		const title = pageTitle || playerTitle;
+		const title = playerTitle || pageTitle;
 		if (!title) {
 			return null;
 		}
 
 		// Prime unmounts its controls during playback. The detail page's primary
 		// play action remains in the DOM and identifies the selected episode.
-		const playerEpisode = player?.querySelector(
-			'.atvwebplayersdk-episode-info, .atvwebplayersdk-subtitle-text'
-		)?.textContent;
-		const primaryEpisode = document.querySelector(
-			'[data-testid="dp-atf-play-button"]'
-		)?.textContent;
-		const episode = this.parseEpisodeInfo(playerEpisode) ?? this.parseEpisodeInfo(primaryEpisode);
-		return {
-			title,
-			episode,
-			isSeries: !episode && !!document.querySelector('[id^="av-ep-episode-"]'),
-		};
+		const pageMatchesPlayer =
+			!playerTitle ||
+			(!!pageTitle && this.getShowTitle(pageTitle) === this.getShowTitle(playerTitle));
+		const episode =
+			this.getEpisodeInfo(
+				player?.querySelector('.atvwebplayersdk-episode-info, .atvwebplayersdk-subtitle-text')
+			) ??
+			(pageMatchesPlayer
+				? this.getEpisodeInfo(document.querySelector('[data-testid="dp-atf-play-button"]'))
+				: null);
+		if (!episode && document.querySelector('[id^="av-ep-episode-"]')) {
+			// Missing episode metadata on a series page is not evidence of a movie.
+			return null;
+		}
+
+		const correctedTitle = episode ? this.getShowTitle(title) : correctItemTitle(title);
+		const current = this.getItem();
+		if (
+			!playerTitle &&
+			current &&
+			correctedTitle !== (current.type === 'episode' ? current.show.title : current.title)
+		) {
+			// Hidden controls must not switch back to a stale detail-page title.
+			return null;
+		}
+		return { title: correctedTitle, episode };
 	}
 
-	private isDifferentTitle(current: ScrobbleItem, metadata: PrimePlaybackMetadata): boolean {
+	private hasItemChanged(current: ScrobbleItem, metadata: PrimePlaybackMetadata): boolean {
 		if (metadata.episode) {
 			if (current.type !== 'episode') {
 				return true;
 			}
 			return (
-				current.show.title !== correctItemTitle(this.getShowTitle(metadata.title)) ||
+				current.show.title !== metadata.title ||
 				current.season !== metadata.episode.season ||
 				current.number !== metadata.episode.number
 			);
 		}
+		return current.type === 'movie' && current.title !== metadata.title;
+	}
+
+	private getEpisodeInfo(element?: Element | null): PrimeEpisodeInfo | null {
 		return (
-			current.type === 'movie' &&
-			!metadata.isSeries &&
-			current.title !== correctItemTitle(metadata.title)
+			this.parseEpisodeInfo(element?.getAttribute('aria-label')) ??
+			this.parseEpisodeInfo(element?.textContent)
 		);
 	}
 
@@ -144,31 +156,34 @@ class _AmazonPrimeParser extends ScrobbleParser {
 		return { season: Number(match.groups.season), number, title };
 	}
 
-	private getShowTitle(playerTitle: string): string {
+	private getShowTitle(displayTitle: string): string {
 		// The player can use a licensed collection title such as "Attack on Titan
 		// Season 2" even when the detail page identifies the show as "Attack on Titan".
-		const pageTitle = /^Prime Video:\s*(.+?)\s+-\s+Season\s+\d+\s*$/i.exec(document.title);
-		const canonicalTitle = pageTitle?.[1]?.trim();
-		return canonicalTitle && playerTitle.toLowerCase().includes(canonicalTitle.toLowerCase())
+		const pageMatch = /^Prime Video:\s*(.+?)\s+-\s+Season\s+\d+\s*$/i.exec(document.title);
+		const canonicalTitle = correctItemTitle(pageMatch?.[1]?.trim() ?? '');
+		const collectionTitle = correctItemTitle(
+			displayTitle.replace(/\s+(?:-\s*)?Season\s+\d+\s*$/i, '').trim()
+		);
+		return canonicalTitle && collectionTitle.toLowerCase() === canonicalTitle.toLowerCase()
 			? canonicalTitle
-			: playerTitle;
+			: correctItemTitle(displayTitle);
 	}
 
-	private findEpisodeCard(episode: PrimeEpisodeInfo): Element | null {
-		return (
-			Array.from(document.querySelectorAll('[id^="av-ep-episode-"]')).find((card) => {
-				// The detail page can still show the previous season after autoplay.
-				// Only borrow its GTI/title when a play action confirms both numbers.
-				return Array.from(card.querySelectorAll('[data-testid="episodes-playbutton"]')).some(
-					(button) => {
-						const cardEpisode =
-							this.parseEpisodeInfo(button.getAttribute('aria-label')) ??
-							this.parseEpisodeInfo(button.textContent);
-						return cardEpisode?.season === episode.season && cardEpisode.number === episode.number;
-					}
-				);
-			}) ?? null
-		);
+	private findEpisodeCard(showTitle: string, episode: PrimeEpisodeInfo): Element | null {
+		const pageTitle = document.querySelector('h1')?.textContent?.trim();
+		if (!pageTitle || this.getShowTitle(pageTitle) !== showTitle) {
+			return null;
+		}
+		// Only borrow page data when its show, season, and episode match playback.
+		for (const button of Array.from(
+			document.querySelectorAll('[id^="av-ep-episode-"] [data-testid="episodes-playbutton"]')
+		)) {
+			const cardEpisode = this.getEpisodeInfo(button);
+			if (cardEpisode?.season === episode.season && cardEpisode.number === episode.number) {
+				return button.closest('[id^="av-ep-episode-"]');
+			}
+		}
+		return null;
 	}
 
 	private getEpisodeGti(card: Element | null): string | null {
