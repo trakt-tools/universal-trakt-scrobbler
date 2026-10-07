@@ -130,7 +130,7 @@ class _AmazonPrimeParser extends ScrobbleParser {
 				current.number !== metadata.episode.number
 			);
 		}
-		return current.type === 'movie' && current.title !== metadata.title;
+		return current.type !== 'movie' || current.title !== metadata.title;
 	}
 
 	private getEpisodeInfo(element?: Element | null): PrimeEpisodeInfo | null {
