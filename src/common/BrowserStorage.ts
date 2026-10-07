@@ -14,7 +14,7 @@ import '@services';
 import { PartialDeep } from 'type-fest';
 import browser, { Manifest as WebExtManifest } from 'webextension-polyfill';
 
-export type StorageValues = StorageValuesV13;
+export type StorageValues = StorageValuesV14;
 export type StorageValuesOptions = StorageValuesOptionsV4;
 export type StorageValuesSyncOptions = StorageValuesSyncOptionsV3;
 
@@ -24,6 +24,10 @@ export type KinoPubAuthDetails = {
 	expires_in: number;
 	refresh_token: string;
 	created_at: number;
+};
+
+export type StorageValuesV14 = Omit<StorageValuesV13, 'version'> & {
+	version?: 14;
 };
 
 export type StorageValuesV13 = Omit<StorageValuesV12, 'version'> & {
@@ -249,7 +253,7 @@ export type BrowserStorageSetValues = Omit<StorageValues, 'options' | 'syncOptio
 export type BrowserStorageRemoveKey = Exclude<keyof StorageValues, 'options' | 'syncOptions'>;
 
 class _BrowserStorage {
-	readonly currentVersion = 13;
+	readonly currentVersion = 14;
 
 	isSyncAvailable: boolean;
 	options = {} as StorageValuesOptions;
@@ -458,6 +462,26 @@ class _BrowserStorage {
 					kinoPub.scrobble = false;
 					kinoPub.sync = false;
 					kinoPub.autoSync = false;
+
+					await this.doSet({ options }, true);
+				}
+			}
+		}
+
+		if (version < 14 && this.currentVersion >= 14) {
+			console.log('Upgrading to v14...');
+
+			const { options } = await this.get('options');
+			const anilibria = options?.services?.anilibria;
+			if (anilibria && (anilibria.scrobble || anilibria.sync)) {
+				const hasPermission = await browser.permissions.contains({
+					origins: ['*://aniliberty.top/*'],
+				});
+				if (!hasPermission) {
+					// Re-enabling the service requests the new origin with a user gesture.
+					anilibria.scrobble = false;
+					anilibria.sync = false;
+					anilibria.autoSync = false;
 
 					await this.doSet({ options }, true);
 				}
