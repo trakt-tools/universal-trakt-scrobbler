@@ -65,7 +65,7 @@ const SuggestionListItem = ({
 							{suggestion.title}
 						</Link>
 					) : (
-						<Typography>{suggestion.title}</Typography>
+						suggestion.title
 					)
 				}
 				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
@@ -262,13 +262,21 @@ export const CorrectionDialog = (): JSX.Element => {
 	 * Accepts both the old website format (/shows/dark/seasons/1/episodes/1) and the Trakt app format (/shows/dark?view=episode&season=1&episode=1).
 	 */
 	const cleanUrl = (url: string): string => {
-		const [path, query = ''] = url.split('#')[0].split('?');
-		const matches = validUrlRegex.exec(path);
+		let parsedUrl: URL;
+		try {
+			parsedUrl = new URL(/^https?:\/\//.test(url) ? url : `https://${url}`);
+		} catch {
+			return '';
+		}
+		const { hostname, pathname, searchParams } = parsedUrl;
+		if (hostname !== 'trakt.tv' && !hostname.endsWith('.trakt.tv')) {
+			return '';
+		}
+		const matches = validUrlRegex.exec(pathname);
 		if (!matches?.groups) {
 			return '';
 		}
 		const { show, movie } = matches.groups;
-		const searchParams = new URLSearchParams(query);
 		const season = matches.groups.season ?? searchParams.get('season');
 		const episode = matches.groups.episode ?? searchParams.get('episode');
 		if (show && season && episode) {
