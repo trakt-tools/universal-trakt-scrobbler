@@ -5,7 +5,6 @@ import { Cache } from '@common/Cache';
 import { CorrectionDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
-import { Tabs } from '@common/Tabs';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { ScrobbleItem } from '@models/Item';
@@ -39,6 +38,7 @@ interface CorrectionDialogState {
 
 interface SuggestionListItemData {
 	suggestions: Suggestion[];
+	suggestionUrls: Partial<Record<string, string>>;
 	onCorrectButtonClick: (suggestion: Suggestion) => void;
 }
 
@@ -50,26 +50,23 @@ interface CorrectionItemProps {
 const SuggestionListItem = ({
 	index,
 	suggestions,
+	suggestionUrls,
 	onCorrectButtonClick,
 	style,
 }: SuggestionListItemData & { index: number; style: CSSProperties }): JSX.Element => {
 	const suggestion = suggestions[index];
-	const openSuggestion = async () => {
-		try {
-			await Tabs.open(await TraktSearch.getItemUrl(suggestion));
-		} catch (err) {
-			if (Shared.errors.validate(err)) {
-				Shared.errors.error('Failed to open suggestion.', err);
-			}
-		}
-	};
+	const url = suggestionUrls[CorrectionApi.getSuggestionDatabaseId(suggestion)];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
 			<ListItemText
 				primary={
-					<Link component="button" onClick={() => void openSuggestion()}>
-						{suggestion.title}
-					</Link>
+					url ? (
+						<Link href={url} target="_blank" rel="noopener">
+							{suggestion.title}
+						</Link>
+					) : (
+						<Typography>{suggestion.title}</Typography>
+					)
 				}
 				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 			/>
@@ -106,6 +103,7 @@ export const CorrectionDialog = (): JSX.Element => {
 		url: '',
 		correction: null,
 	});
+	const [suggestionUrls, setSuggestionUrls] = useState<Partial<Record<string, string>>>({});
 
 	const closeDialog = (): void => {
 		setDialog((prevDialog) => ({
@@ -307,6 +305,40 @@ export const CorrectionDialog = (): JSX.Element => {
 				url: '',
 				correction,
 			});
+
+			if (data.item?.suggestions && data.item.suggestions.length > 0) {
+				const urls = await loadSuggestionUrls(data.item.suggestions);
+				setSuggestionUrls((prevUrls) => ({ ...prevUrls, ...urls }));
+			}
+		};
+
+		/**
+		 * Episode URLs in the Trakt app need the show slug, which suggestions don't have, so they are looked up through the API when the dialog opens.
+		 */
+		const loadSuggestionUrls = async (
+			suggestions: Suggestion[]
+		): Promise<Partial<Record<string, string>>> => {
+			const urls: Partial<Record<string, string>> = {};
+			const cache = await Cache.get('traktItemUrls');
+			await Promise.all(
+				suggestions.map(async (suggestion) => {
+					const databaseId = CorrectionApi.getSuggestionDatabaseId(suggestion);
+					let url = cache.get(databaseId);
+					if (!url) {
+						try {
+							url = await TraktSearch.getItemUrl(suggestion);
+							cache.set(databaseId, url);
+						} catch (err) {
+							if (Shared.errors.validate(err)) {
+								Shared.errors.log('Failed to get suggestion URL.', err);
+							}
+						}
+					}
+					urls[databaseId] = url;
+				})
+			);
+			await Cache.set({ traktItemUrls: cache });
+			return urls;
 		};
 
 		startListeners();
@@ -367,6 +399,7 @@ export const CorrectionDialog = (): JSX.Element => {
 									rowCount={dialog.item.suggestions.length}
 									rowProps={{
 										suggestions: dialog.item.suggestions,
+										suggestionUrls,
 										onCorrectButtonClick,
 									}}
 									rowHeight={72}
