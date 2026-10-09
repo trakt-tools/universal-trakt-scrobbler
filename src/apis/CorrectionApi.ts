@@ -32,13 +32,6 @@ class _CorrectionApi {
 	}
 
 	/**
-	 * Returns a Trakt URL for a suggestion.
-	 */
-	getSuggestionUrl(suggestion: Suggestion) {
-		return `https://trakt.tv/${suggestion.type}s/${suggestion.id.toString()}`;
-	}
-
-	/**
 	 * Loads suggestions for items from the database.
 	 *
 	 * If all suggestions have already been loaded, returns the same parameter array, otherwise returns a new array for immutability.

@@ -5,6 +5,7 @@ import { Cache } from '@common/Cache';
 import { CorrectionDialogShowData } from '@common/Events';
 import { I18N } from '@common/I18N';
 import { Shared } from '@common/Shared';
+import { Tabs } from '@common/Tabs';
 import { Center } from '@components/Center';
 import { CustomDialogRoot } from '@components/CustomDialogRoot';
 import { ScrobbleItem } from '@models/Item';
@@ -53,11 +54,20 @@ const SuggestionListItem = ({
 	style,
 }: SuggestionListItemData & { index: number; style: CSSProperties }): JSX.Element => {
 	const suggestion = suggestions[index];
+	const openSuggestion = async () => {
+		try {
+			await Tabs.open(await TraktSearch.getItemUrl(suggestion));
+		} catch (err) {
+			if (Shared.errors.validate(err)) {
+				Shared.errors.error('Failed to open suggestion.', err);
+			}
+		}
+	};
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
 			<ListItemText
 				primary={
-					<Link href={CorrectionApi.getSuggestionUrl(suggestion)} target="_blank" rel="noopener">
+					<Link component="button" onClick={() => void openSuggestion()}>
 						{suggestion.title}
 					</Link>
 				}
@@ -246,41 +256,29 @@ export const CorrectionDialog = (): JSX.Element => {
 	};
 
 	const validUrlRegex =
-		/\/shows\/(?<show>[\w-]+)\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
-	const validAppUrlRegex = /\/shows\/(?<show>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
+		/\/shows\/(?<show>[\w-]+)(?:\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+))?|\/movies\/(?<movie>[\w-]+)/;
 
 	const isValidUrl = (url: string): boolean => cleanUrl(url) !== '';
 
+	/**
+	 * Accepts both the old website format (/shows/dark/seasons/1/episodes/1) and the Trakt app format (/shows/dark?view=episode&season=1&episode=1).
+	 */
 	const cleanUrl = (url: string): string => {
-		if (url.startsWith('https://app.trakt.tv')) {
-			const matches = validAppUrlRegex.exec(url);
-			if (!matches?.groups) {
-				return '';
-			}
-			const { show, movie } = matches.groups;
-			const searchParams = new URLSearchParams(url.split('?')[1]);
-			const season = searchParams.get('season');
-			const episode = searchParams.get('episode');
-			if (show && season && episode) {
-				return `/shows/${show}/seasons/${season}/episodes/${episode}`;
-			}
-			if (movie) {
-				return `/movies/${movie}`;
-			}
-		} else {
-			const matches = validUrlRegex.exec(url);
-			if (!matches?.groups) {
-				return '';
-			}
-			const { show, season, episode, movie } = matches.groups;
-			if (show && season && episode) {
-				return `/shows/${show}/seasons/${season}/episodes/${episode}`;
-			}
-			if (movie) {
-				return `/movies/${movie}`;
-			}
+		const [path, query = ''] = url.split('#')[0].split('?');
+		const matches = validUrlRegex.exec(path);
+		if (!matches?.groups) {
+			return '';
 		}
-
+		const { show, movie } = matches.groups;
+		const searchParams = new URLSearchParams(query);
+		const season = matches.groups.season ?? searchParams.get('season');
+		const episode = matches.groups.episode ?? searchParams.get('episode');
+		if (show && season && episode) {
+			return `/shows/${show}/seasons/${season}/episodes/${episode}`;
+		}
+		if (movie) {
+			return `/movies/${movie}`;
+		}
 		return '';
 	};
 
@@ -402,7 +400,7 @@ export const CorrectionDialog = (): JSX.Element => {
 							id="correction-dialog-url"
 							label={urlLabel}
 							error={urlError}
-							placeholder="https://trakt.tv/shows/dark/seasons/1/episodes/1"
+							placeholder="https://app.trakt.tv/shows/dark?view=episode&season=1&episode=1"
 							value={dialog.url}
 							autoFocus
 							fullWidth

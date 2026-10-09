@@ -125,7 +125,7 @@ export class TraktEpisodeItem extends TraktBaseItem implements TraktEpisodeItemV
 	}
 
 	getHistoryUrl(): string {
-		return `https://trakt.tv/users/me/history?episode=${this.id}`;
+		return `https://app.trakt.tv/profile/me/history?episode=${this.id}`;
 	}
 
 	clone(): TraktEpisodeItem {
@@ -152,7 +152,7 @@ export class TraktShowItem extends TraktBaseItem implements TraktShowItemValues 
 	}
 
 	getHistoryUrl(): string {
-		return `https://trakt.tv/users/me/history/episodes?show=${this.id}`;
+		return `https://app.trakt.tv/profile/me/history?show=${this.id}`;
 	}
 
 	clone(): TraktShowItem {
@@ -179,7 +179,7 @@ export class TraktMovieItem extends TraktBaseItem implements TraktMovieItemValue
 	}
 
 	getHistoryUrl(): string {
-		return `https://trakt.tv/users/me/history?movie=${this.id}`;
+		return `https://app.trakt.tv/profile/me/history?movie=${this.id}`;
 	}
 
 	clone(): TraktMovieItem {
