@@ -194,6 +194,35 @@ class _TraktSearch extends TraktApi {
 		}
 	}
 
+	/**
+	 * Returns a Trakt URL for an item by its Trakt ID.
+	 *
+	 * The Trakt app has no URL for an episode by its ID alone, so episodes are looked up first.
+	 */
+	async getItemUrl(
+		details: { type: 'episode' | 'movie'; id: number },
+		cancelKey = 'default'
+	): Promise<string> {
+		if (details.type === 'movie') {
+			return `https://app.trakt.tv/movies/${details.id.toString()}`;
+		}
+		await this.activate();
+		const responseText = await this.requests.send({
+			url: `${this.SEARCH_URL}/trakt/${details.id.toString()}?type=episode`,
+			method: 'GET',
+			cancelKey,
+		});
+		const [searchItem] = JSON.parse(responseText) as TraktSearchEpisodeItem[];
+		if (!searchItem) {
+			throw new RequestError({
+				status: 404,
+				text: responseText,
+			});
+		}
+		const { episode, show } = searchItem;
+		return `https://app.trakt.tv/shows/${show.ids.trakt.toString()}?view=episode&season=${episode.season.toString()}&episode=${episode.number.toString()}`;
+	}
+
 	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {
 		await this.activate();
 		const responseText = await this.requests.send({

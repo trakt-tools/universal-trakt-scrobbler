@@ -38,6 +38,7 @@ interface CorrectionDialogState {
 
 interface SuggestionListItemData {
 	suggestions: Suggestion[];
+	suggestionUrls: Partial<Record<string, string>>;
 	onCorrectButtonClick: (suggestion: Suggestion) => void;
 }
 
@@ -49,17 +50,23 @@ interface CorrectionItemProps {
 const SuggestionListItem = ({
 	index,
 	suggestions,
+	suggestionUrls,
 	onCorrectButtonClick,
 	style,
 }: SuggestionListItemData & { index: number; style: CSSProperties }): JSX.Element => {
 	const suggestion = suggestions[index];
+	const url = suggestionUrls[CorrectionApi.getSuggestionDatabaseId(suggestion)];
 	return (
 		<ListItem key={index} ContainerComponent="div" ContainerProps={{ style }}>
 			<ListItemText
 				primary={
-					<Link href={CorrectionApi.getSuggestionUrl(suggestion)} target="_blank" rel="noopener">
-						{suggestion.title}
-					</Link>
+					url ? (
+						<Link href={url} target="_blank" rel="noopener">
+							{suggestion.title}
+						</Link>
+					) : (
+						suggestion.title
+					)
 				}
 				secondary={I18N.translate('suggestedBy', suggestion.count.toString())}
 			/>
@@ -96,6 +103,7 @@ export const CorrectionDialog = (): JSX.Element => {
 		url: '',
 		correction: null,
 	});
+	const [suggestionUrls, setSuggestionUrls] = useState<Partial<Record<string, string>>>({});
 
 	const closeDialog = (): void => {
 		setDialog((prevDialog) => ({
@@ -246,41 +254,37 @@ export const CorrectionDialog = (): JSX.Element => {
 	};
 
 	const validUrlRegex =
-		/\/shows\/(?<show>[\w-]+)\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
-	const validAppUrlRegex = /\/shows\/(?<show>[\w-]+)|\/movies\/(?<movie>[\w-]+)/;
+		/\/shows\/(?<show>[\w-]+)(?:\/seasons\/(?<season>[\w-]+)\/episodes\/(?<episode>[\w-]+))?|\/movies\/(?<movie>[\w-]+)/;
 
 	const isValidUrl = (url: string): boolean => cleanUrl(url) !== '';
 
+	/**
+	 * Accepts both the old website format (/shows/dark/seasons/1/episodes/1) and the Trakt app format (/shows/dark?view=episode&season=1&episode=1).
+	 */
 	const cleanUrl = (url: string): string => {
-		if (url.startsWith('https://app.trakt.tv')) {
-			const matches = validAppUrlRegex.exec(url);
-			if (!matches?.groups) {
-				return '';
-			}
-			const { show, movie } = matches.groups;
-			const searchParams = new URLSearchParams(url.split('?')[1]);
-			const season = searchParams.get('season');
-			const episode = searchParams.get('episode');
-			if (show && season && episode) {
-				return `/shows/${show}/seasons/${season}/episodes/${episode}`;
-			}
-			if (movie) {
-				return `/movies/${movie}`;
-			}
-		} else {
-			const matches = validUrlRegex.exec(url);
-			if (!matches?.groups) {
-				return '';
-			}
-			const { show, season, episode, movie } = matches.groups;
-			if (show && season && episode) {
-				return `/shows/${show}/seasons/${season}/episodes/${episode}`;
-			}
-			if (movie) {
-				return `/movies/${movie}`;
-			}
+		let parsedUrl: URL;
+		try {
+			parsedUrl = new URL(/^https?:\/\//.test(url) ? url : `https://${url}`);
+		} catch {
+			return '';
 		}
-
+		const { hostname, pathname, searchParams } = parsedUrl;
+		if (hostname !== 'trakt.tv' && !hostname.endsWith('.trakt.tv')) {
+			return '';
+		}
+		const matches = validUrlRegex.exec(pathname);
+		if (!matches?.groups) {
+			return '';
+		}
+		const { show, movie } = matches.groups;
+		const season = matches.groups.season ?? searchParams.get('season');
+		const episode = matches.groups.episode ?? searchParams.get('episode');
+		if (show && season && episode) {
+			return `/shows/${show}/seasons/${season}/episodes/${episode}`;
+		}
+		if (movie) {
+			return `/movies/${movie}`;
+		}
 		return '';
 	};
 
@@ -309,6 +313,40 @@ export const CorrectionDialog = (): JSX.Element => {
 				url: '',
 				correction,
 			});
+
+			if (data.item?.suggestions && data.item.suggestions.length > 0) {
+				const urls = await loadSuggestionUrls(data.item.suggestions);
+				setSuggestionUrls((prevUrls) => ({ ...prevUrls, ...urls }));
+			}
+		};
+
+		/**
+		 * Episode URLs in the Trakt app need the show ID, which suggestions don't have, so they are looked up through the API when the dialog opens.
+		 */
+		const loadSuggestionUrls = async (
+			suggestions: Suggestion[]
+		): Promise<Partial<Record<string, string>>> => {
+			const urls: Partial<Record<string, string>> = {};
+			const cache = await Cache.get('traktItemUrls');
+			await Promise.all(
+				suggestions.map(async (suggestion) => {
+					const databaseId = CorrectionApi.getSuggestionDatabaseId(suggestion);
+					let url = cache.get(databaseId);
+					if (!url) {
+						try {
+							url = await TraktSearch.getItemUrl(suggestion);
+							cache.set(databaseId, url);
+						} catch (err) {
+							if (Shared.errors.validate(err)) {
+								Shared.errors.log('Failed to get suggestion URL.', err);
+							}
+						}
+					}
+					urls[databaseId] = url;
+				})
+			);
+			await Cache.set({ traktItemUrls: cache });
+			return urls;
 		};
 
 		startListeners();
@@ -369,6 +407,7 @@ export const CorrectionDialog = (): JSX.Element => {
 									rowCount={dialog.item.suggestions.length}
 									rowProps={{
 										suggestions: dialog.item.suggestions,
+										suggestionUrls,
 										onCorrectButtonClick,
 									}}
 									rowHeight={72}
@@ -402,7 +441,7 @@ export const CorrectionDialog = (): JSX.Element => {
 							id="correction-dialog-url"
 							label={urlLabel}
 							error={urlError}
-							placeholder="https://trakt.tv/shows/dark/seasons/1/episodes/1"
+							placeholder="https://app.trakt.tv/shows/dark?view=episode&season=1&episode=1"
 							value={dialog.url}
 							autoFocus
 							fullWidth
