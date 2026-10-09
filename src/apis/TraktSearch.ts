@@ -212,9 +212,7 @@ class _TraktSearch extends TraktApi {
 			method: 'GET',
 			cancelKey,
 		});
-		const [searchItem] = JSON.parse(responseText) as (TraktSearchEpisodeItemEpisode & {
-			show: { ids: { slug: string } };
-		})[];
+		const [searchItem] = JSON.parse(responseText) as TraktSearchEpisodeItem[];
 		if (!searchItem) {
 			throw new RequestError({
 				status: 404,
@@ -222,7 +220,7 @@ class _TraktSearch extends TraktApi {
 			});
 		}
 		const { episode, show } = searchItem;
-		return `https://app.trakt.tv/shows/${show.ids.slug}?view=episode&season=${episode.season.toString()}&episode=${episode.number.toString()}`;
+		return `https://app.trakt.tv/shows/${show.ids.trakt.toString()}?view=episode&season=${episode.season.toString()}&episode=${episode.number.toString()}`;
 	}
 
 	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {

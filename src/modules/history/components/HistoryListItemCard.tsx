@@ -51,7 +51,7 @@ export const HistoryListItemCard = ({
 				watchedAtComponent = (
 					<Typography variant="overline">
 						<Link
-							href={item.getHistoryUrl()}
+							href={item.getUrl()}
 							target="_blank"
 							rel="noreferrer"
 							sx={{
@@ -93,7 +93,7 @@ export const HistoryListItemCard = ({
 						}
 					>
 						<Link
-							href={item.getHistoryUrl()}
+							href={item.getUrl()}
 							target="_blank"
 							rel="noreferrer"
 							sx={{

@@ -313,7 +313,7 @@ export const CorrectionDialog = (): JSX.Element => {
 		};
 
 		/**
-		 * Episode URLs in the Trakt app need the show slug, which suggestions don't have, so they are looked up through the API when the dialog opens.
+		 * Episode URLs in the Trakt app need the show ID, which suggestions don't have, so they are looked up through the API when the dialog opens.
 		 */
 		const loadSuggestionUrls = async (
 			suggestions: Suggestion[]

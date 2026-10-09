@@ -89,7 +89,7 @@ abstract class TraktBaseItem implements TraktBaseItemValues {
 	 */
 	abstract getDatabaseId(): string;
 
-	abstract getHistoryUrl(): string;
+	abstract getUrl(): string;
 
 	/**
 	 * Clones the item for immutability.
@@ -124,8 +124,8 @@ export class TraktEpisodeItem extends TraktBaseItem implements TraktEpisodeItemV
 		return `episode_${this.id.toString()}`;
 	}
 
-	getHistoryUrl(): string {
-		return `https://app.trakt.tv/profile/me/history?episode=${this.id}`;
+	getUrl(): string {
+		return `https://app.trakt.tv/shows/${this.show.id}?view=episode&season=${this.season}&episode=${this.number}`;
 	}
 
 	clone(): TraktEpisodeItem {
@@ -151,8 +151,8 @@ export class TraktShowItem extends TraktBaseItem implements TraktShowItemValues 
 		return `show_${this.id.toString()}`;
 	}
 
-	getHistoryUrl(): string {
-		return `https://app.trakt.tv/profile/me/history?show=${this.id}`;
+	getUrl(): string {
+		return `https://app.trakt.tv/shows/${this.id}`;
 	}
 
 	clone(): TraktShowItem {
@@ -178,8 +178,8 @@ export class TraktMovieItem extends TraktBaseItem implements TraktMovieItemValue
 		return `movie_${this.id.toString()}`;
 	}
 
-	getHistoryUrl(): string {
-		return `https://app.trakt.tv/profile/me/history?movie=${this.id}`;
+	getUrl(): string {
+		return `https://app.trakt.tv/movies/${this.id}`;
 	}
 
 	clone(): TraktMovieItem {
