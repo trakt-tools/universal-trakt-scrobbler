@@ -321,31 +321,26 @@ export const CorrectionDialog = (): JSX.Element => {
 		};
 
 		/**
-		 * Episode URLs in the Trakt app need the show ID, which suggestions don't have, so they are looked up through the API when the dialog opens.
+		 * Episode URLs in the Trakt app need the show ID, which suggestions don't have, so they are looked up when the dialog opens.
 		 */
 		const loadSuggestionUrls = async (
 			suggestions: Suggestion[]
 		): Promise<Partial<Record<string, string>>> => {
 			const urls: Partial<Record<string, string>> = {};
-			const cache = await Cache.get('traktItemUrls');
+			const caches = await Cache.get(['traktItems', 'urlsToTraktItems']);
 			await Promise.all(
 				suggestions.map(async (suggestion) => {
-					const databaseId = CorrectionApi.getSuggestionDatabaseId(suggestion);
-					let url = cache.get(databaseId);
-					if (!url) {
-						try {
-							url = await TraktSearch.getItemUrl(suggestion);
-							cache.set(databaseId, url);
-						} catch (err) {
-							if (Shared.errors.validate(err)) {
-								Shared.errors.log('Failed to get suggestion URL.', err);
-							}
+					try {
+						const traktItem = await TraktSearch.findById(suggestion, caches);
+						urls[CorrectionApi.getSuggestionDatabaseId(suggestion)] = traktItem.getUrl();
+					} catch (err) {
+						if (Shared.errors.validate(err)) {
+							Shared.errors.log('Failed to get suggestion URL.', err);
 						}
 					}
-					urls[databaseId] = url;
 				})
 			);
-			await Cache.set({ traktItemUrls: cache });
+			await Cache.set(caches);
 			return urls;
 		};
 
