@@ -114,13 +114,8 @@ class _TraktSearch extends TraktApi {
 			throw err;
 		}
 		if (traktItem) {
-			traktDatabaseId = traktItem.getDatabaseId();
+			traktDatabaseId = this.cacheTraktItem(caches, traktItem);
 			caches.itemsToTraktItems.set(databaseId, traktDatabaseId);
-			caches.traktItems.set(traktDatabaseId, {
-				...traktItem.save(),
-				syncId: undefined,
-				watchedAt: undefined,
-			});
 			if (exactItemDetails && 'url' in exactItemDetails) {
 				caches.urlsToTraktItems.set(exactItemDetails.url, traktDatabaseId);
 			}
@@ -178,12 +173,21 @@ class _TraktSearch extends TraktApi {
 			return createTraktScrobbleItem(cacheItem);
 		}
 		const traktItem = this.createTraktItem(await this.findExactItem(details, caches, cancelKey));
+		this.cacheTraktItem(caches, traktItem);
+		return traktItem;
+	}
+
+	/**
+	 * Stores the item in the `traktItems` cache and returns its database ID.
+	 */
+	private cacheTraktItem(caches: CacheItems<['traktItems']>, traktItem: TraktScrobbleItem): string {
+		const traktDatabaseId = traktItem.getDatabaseId();
 		caches.traktItems.set(traktDatabaseId, {
 			...traktItem.save(),
 			syncId: undefined,
 			watchedAt: undefined,
 		});
-		return traktItem;
+		return traktDatabaseId;
 	}
 
 	private createTraktItem(
