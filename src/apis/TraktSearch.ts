@@ -103,37 +103,7 @@ class _TraktSearch extends TraktApi {
 			} else {
 				searchItem = (await this.findItem(item, cancelKey)) as TraktSearchMovieItem;
 			}
-			if ('episode' in searchItem) {
-				const { episode, show } = searchItem;
-				const firstAired = episode.first_aired;
-				const releaseDate = firstAired ? Utils.unix(firstAired) : undefined;
-				traktItem = new TraktEpisodeItem({
-					id: episode.ids.trakt,
-					tmdbId: episode.ids.tmdb,
-					title: episode.title,
-					year: show.year,
-					season: episode.season,
-					number: episode.number,
-					releaseDate,
-					show: {
-						id: show.ids.trakt,
-						tmdbId: show.ids.tmdb,
-						title: show.title,
-						year: show.year,
-					},
-				});
-			} else {
-				const { movie } = searchItem;
-				const released = movie.released;
-				const releaseDate = released ? Utils.unix(released) : undefined;
-				traktItem = new TraktMovieItem({
-					id: movie.ids.trakt,
-					tmdbId: movie.ids.tmdb,
-					title: movie.title,
-					year: movie.year,
-					releaseDate,
-				});
-			}
+			traktItem = this.createTraktItem(searchItem);
 			if (Shared.pageType === 'content') {
 				await Shared.events.dispatch('SEARCH_SUCCESS', null, { searchItem });
 			}
@@ -144,13 +114,8 @@ class _TraktSearch extends TraktApi {
 			throw err;
 		}
 		if (traktItem) {
-			traktDatabaseId = traktItem.getDatabaseId();
+			traktDatabaseId = this.cacheTraktItem(caches, traktItem);
 			caches.itemsToTraktItems.set(databaseId, traktDatabaseId);
-			caches.traktItems.set(traktDatabaseId, {
-				...traktItem.save(),
-				syncId: undefined,
-				watchedAt: undefined,
-			});
 			if (exactItemDetails && 'url' in exactItemDetails) {
 				caches.urlsToTraktItems.set(exactItemDetails.url, traktDatabaseId);
 			}
@@ -192,6 +157,72 @@ class _TraktSearch extends TraktApi {
 		} else {
 			return { movie: searchItem };
 		}
+	}
+
+	/**
+	 * Finds an item by its Trakt ID, using the cache if possible.
+	 */
+	async findById(
+		details: { type: 'episode' | 'movie'; id: number },
+		caches: CacheItems<['traktItems', 'urlsToTraktItems']>,
+		cancelKey = 'default'
+	): Promise<TraktScrobbleItem> {
+		const traktDatabaseId = CorrectionApi.getSuggestionDatabaseId(details);
+		const cacheItem = caches.traktItems.get(traktDatabaseId);
+		if (cacheItem && cacheItem.type !== 'show') {
+			return createTraktScrobbleItem(cacheItem);
+		}
+		const traktItem = this.createTraktItem(await this.findExactItem(details, caches, cancelKey));
+		this.cacheTraktItem(caches, traktItem);
+		return traktItem;
+	}
+
+	/**
+	 * Stores the item in the `traktItems` cache and returns its database ID.
+	 */
+	private cacheTraktItem(caches: CacheItems<['traktItems']>, traktItem: TraktScrobbleItem): string {
+		const traktDatabaseId = traktItem.getDatabaseId();
+		caches.traktItems.set(traktDatabaseId, {
+			...traktItem.save(),
+			syncId: undefined,
+			watchedAt: undefined,
+		});
+		return traktDatabaseId;
+	}
+
+	private createTraktItem(
+		searchItem: TraktSearchEpisodeItem | TraktSearchMovieItem
+	): TraktScrobbleItem {
+		if ('episode' in searchItem) {
+			const { episode, show } = searchItem;
+			const firstAired = episode.first_aired;
+			const releaseDate = firstAired ? Utils.unix(firstAired) : undefined;
+			return new TraktEpisodeItem({
+				id: episode.ids.trakt,
+				tmdbId: episode.ids.tmdb,
+				title: episode.title,
+				year: show.year,
+				season: episode.season,
+				number: episode.number,
+				releaseDate,
+				show: {
+					id: show.ids.trakt,
+					tmdbId: show.ids.tmdb,
+					title: show.title,
+					year: show.year,
+				},
+			});
+		}
+		const { movie } = searchItem;
+		const released = movie.released;
+		const releaseDate = released ? Utils.unix(released) : undefined;
+		return new TraktMovieItem({
+			id: movie.ids.trakt,
+			tmdbId: movie.ids.tmdb,
+			title: movie.title,
+			year: movie.year,
+			releaseDate,
+		});
 	}
 
 	async findItem(item: Item, cancelKey = 'default'): Promise<TraktSearchItem> {
