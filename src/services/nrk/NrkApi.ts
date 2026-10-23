@@ -47,6 +47,10 @@ interface NrkLinkObject {
 interface NrkProgressItemCommon {
 	accessibilityValue: string;
 	id: string;
+	/** The program id (prfId), the same id the player uses */
+	contentId: string;
+	/** URL friendly series id, only present for episodes */
+	seriesId?: string;
 	registeredAt: string;
 	_embedded: {
 		programs: NrkProgram;
@@ -75,6 +79,8 @@ interface NrkProgressItemInProgress extends NrkProgressItemCommon {
 }
 
 interface NrkProgram {
+	/** ISO 8601 duration */
+	duration: string;
 	image: unknown;
 	titles: {
 		title: string;
@@ -91,7 +97,16 @@ interface NrkProgramPage {
 		category: {
 			id: string;
 		};
-		originalTitle: string;
+		duration: {
+			seconds: number;
+			iso8601: string;
+		};
+		/**
+		 * Either the original title of the series or of the episode - which one can only be
+		 * told by comparing it with the other episodes in the season.
+		 */
+		originalTitle: string | null;
+		/** The production year of the program itself, not the first year of the series */
 		productionYear: number;
 	};
 	programInformation: {
@@ -107,9 +122,29 @@ interface NrkProgramPage {
 			title: string;
 		};
 		season: {
+			href: string;
 			name: string;
 			title: string;
 		};
+	};
+}
+
+interface NrkSeason {
+	_embedded: {
+		/** Sequential series */
+		episodes?: NrkSeasonEpisode[];
+		/** Standard and news series */
+		instalments?: NrkSeasonEpisode[];
+	};
+}
+
+interface NrkSeasonEpisode {
+	prfId: string;
+	/** Always `null` for instalments, even when the program page has one */
+	originalTitle: string | null;
+	titles: {
+		title: string;
+		subtitle: string;
 	};
 }
 
@@ -142,6 +177,7 @@ class _NrkApi extends ServiceApi {
 	token: string;
 	isActivated: boolean;
 	private tokenExpiresAt = 0;
+	private seasonOriginalTitles = new Map<string, Promise<(string | null)[]>>();
 
 	authRequests = Requests;
 
@@ -249,7 +285,7 @@ class _NrkApi extends ServiceApi {
 			console.debug('[UTS] Failed to look up NRK program, using embedded titles', id, err);
 		}
 		const titleInfo = programInfo.titles;
-		const title = programPage ? this.getTitle(programPage) : titleInfo.title;
+		const title = programPage ? await this.getShowTitle(programPage) : titleInfo.title;
 		const watchedAt = historyItem.registeredAt ? Utils.unix(historyItem.registeredAt) : undefined;
 
 		const baseItem: BaseItemValues = {
@@ -305,10 +341,16 @@ class _NrkApi extends ServiceApi {
 		});
 	}
 
-	getTitle(programPage: NrkProgramPage) {
+	async getShowTitle(programPage: NrkProgramPage) {
+		if (!programPage._links.seriesPage) {
+			return this.getTitle(programPage, programPage.moreInformation.originalTitle);
+		}
+		return this.getTitle(programPage, await this.getSeriesOriginalTitle(programPage));
+	}
+
+	getTitle(programPage: NrkProgramPage, originalTitle: string | null) {
 		const title =
 			programPage._links?.seriesPage?.title || programPage.programInformation.titles.title;
-		const { originalTitle } = programPage.moreInformation;
 		if (originalTitle && !originalTitle.toLowerCase().includes(title.toLowerCase())) {
 			//A few times the originalTitle could be a mix of title, season, episode number etc. But follows different patterns. Some Examples:
 			//Mr. Robot, s. 4 - UNAUTHORIZED
@@ -321,6 +363,58 @@ class _NrkApi extends ServiceApi {
 		return title;
 	}
 
+	/**
+	 * The `originalTitle` of an episode is sometimes the original title of the series
+	 * ("All Creatures Great and Small") and sometimes of the episode itself ("Rock House, The"
+	 * for Alone, "Psyk" for Folkeopplysningen). It is only treated as the series title when
+	 * most episodes in the season share it - a single special or "making of" episode with its
+	 * own title shouldn't hide the series title for the rest.
+	 */
+	private async getSeriesOriginalTitle(programPage: NrkProgramPage): Promise<string | null> {
+		const { originalTitle } = programPage.moreInformation;
+		const seasonUrl = programPage._links.season?.href;
+		if (!originalTitle || !seasonUrl) {
+			return null;
+		}
+		let seasonTitles = this.seasonOriginalTitles.get(seasonUrl);
+		if (!seasonTitles) {
+			seasonTitles = this.lookupSeasonOriginalTitles(seasonUrl);
+			this.seasonOriginalTitles.set(seasonUrl, seasonTitles);
+		}
+		let titles: (string | null)[];
+		try {
+			titles = await seasonTitles;
+		} catch (err) {
+			this.seasonOriginalTitles.delete(seasonUrl);
+			console.debug('[UTS] Failed to look up NRK season, ignoring original title', seasonUrl, err);
+			return null;
+		}
+		const counts = new Map<string, number>();
+		for (const title of titles) {
+			if (title) {
+				counts.set(title, (counts.get(title) ?? 0) + 1);
+			}
+		}
+		const seriesTitle = [...counts].find(([, count]) => count > titles.length / 2)?.[0];
+		if (!seriesTitle) {
+			return null;
+		}
+		// Strip season suffixes, e.g. "The Jetty s.1", "Hunter, sesong 2", "BLINDPASSASJER 1:3."
+		return seriesTitle
+			.replace(/(?:[\s,.-]+(?:s|ses|sesong|season)\.?\s*\d+|\s+\d+:\d+\.?)$/i, '')
+			.trim();
+	}
+
+	private async lookupSeasonOriginalTitles(seasonUrl: string) {
+		const response = await Requests.send({
+			url: this.API_HOST_URL + seasonUrl,
+			method: 'GET',
+		});
+		const season = JSON.parse(response) as NrkSeason;
+		const episodes = season._embedded.episodes ?? season._embedded.instalments ?? [];
+		return episodes.map((episode) => episode.originalTitle);
+	}
+
 	async lookupNrkItem(url: string) {
 		const response = await Requests.send({
 			url: this.API_HOST_URL + url,
@@ -331,7 +425,7 @@ class _NrkApi extends ServiceApi {
 
 	async getItem(id: string): Promise<ScrobbleItem | null> {
 		const programPage = await this.lookupNrkItem(this.PROGRAM_URL + id);
-		const title = this.getTitle(programPage);
+		const title = await this.getShowTitle(programPage);
 		const type = programPage._links.seriesPage !== undefined ? 'show' : 'movie';
 		const baseItem: BaseItemValues = {
 			serviceId: this.id,
