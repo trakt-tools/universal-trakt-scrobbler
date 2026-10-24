@@ -50,18 +50,7 @@ export const HistoryListItemCard = ({
 			} else {
 				watchedAtComponent = (
 					<Typography variant="overline">
-						<Link
-							href={item.getUrl()}
-							target="_blank"
-							rel="noreferrer"
-							sx={{
-								color: 'inherit',
-								textDecorationColor: 'inherit',
-								textDecorationStyle: 'dotted',
-							}}
-						>
-							{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
-						</Link>
+						{`${I18N.translate('watched')} ${Utils.timestamp(watchedAt)}`}
 					</Typography>
 				);
 			}
@@ -92,18 +81,7 @@ export const HistoryListItemCard = ({
 							</span>
 						}
 					>
-						<Link
-							href={item.getUrl()}
-							target="_blank"
-							rel="noreferrer"
-							sx={{
-								color: 'inherit',
-								textDecorationColor: 'inherit',
-								textDecorationStyle: 'dotted',
-							}}
-						>
-							{I18N.translate('watchedOtherTimes', item.otherWatches.length.toString())}
-						</Link>
+						<span>{I18N.translate('watchedOtherTimes', item.otherWatches.length.toString())}</span>
 					</Tooltip>
 				</Typography>
 			);
@@ -127,6 +105,8 @@ export const HistoryListItemCard = ({
 
 	const hasImage: boolean =
 		Shared.storage.options.loadImages && (!!item?.imageUrl || isTraktItem(item) || item === null);
+	const onText = `${I18N.translate('on')} ${name}`;
+
 	return (
 		<Card
 			variant="outlined"
@@ -150,7 +130,24 @@ export const HistoryListItemCard = ({
 				}}
 			>
 				<Center isHorizontal={false}>
-					<Typography variant="overline">{`${I18N.translate('on')} ${name}`}</Typography>
+					<Typography variant="overline">
+						{isTraktItem(item) ? (
+							<Link
+								href={item.getUrl()}
+								target="_blank"
+								rel="noreferrer"
+								sx={{
+									color: 'inherit',
+									textDecorationColor: 'inherit',
+									textDecorationStyle: 'dotted',
+								}}
+							>
+								{onText}
+							</Link>
+						) : (
+							onText
+						)}
+					</Typography>
 					<HistoryListItemDivider useDarkMode={hasImage} />
 					{typeof item !== 'undefined' ? (
 						<>
