@@ -142,6 +142,7 @@ export interface NetflixMetadataGeneric extends NetflixPlaybackMetadata {
 	id: number;
 	title: string;
 	year: number;
+	artwork: NetflixImage[];
 }
 
 export type NetflixMetadataShow = NetflixMetadataGeneric & {
@@ -160,15 +161,26 @@ export interface NetflixMetadataShowEpisode extends NetflixPlaybackMetadata {
 	id: number;
 	seq: number;
 	title: string;
+	stills: NetflixImage[];
+	thumbs: NetflixImage[];
+}
+
+export interface NetflixImage {
+	url: string;
+	w: number;
+	h: number;
 }
 
 export type NetflixMetadataMovie = NetflixMetadataGeneric & {
 	type: 'movie';
 };
 
-export type NetflixHistoryItemWithMetadata =
+export type NetflixHistoryItemWithMetadata = (
 	| NetflixHistoryEpisodeItemWithMetadata
-	| NetflixHistoryMovieItemWithMetadata;
+	| NetflixHistoryMovieItemWithMetadata
+) & {
+	imageUrl?: string;
+};
 
 export type NetflixHistoryEpisodeItemWithMetadata = NetflixHistoryEpisodeItem &
 	NetflixMetadataEpisodeItemWithSeason;
@@ -345,6 +357,9 @@ class _NetflixApi extends ServiceApi {
 	): Promisable<void> {
 		item.watchedAt = Utils.unix(historyItem.date);
 		item.progress = getNetflixHistoryProgress(historyItem.bookmark, historyItem.duration);
+		if (historyItem.imageUrl) {
+			item.imageUrl = historyItem.imageUrl;
+		}
 	}
 
 	/**
@@ -419,6 +434,7 @@ class _NetflixApi extends ServiceApi {
 								releaseYear: video.year,
 								seriesTitle: video.title || historyItem.seriesTitle,
 								episodeTitle: episode.title || historyItem.episodeTitle,
+								imageUrl: this.getImageUrl([...(episode.stills ?? []), ...(episode.thumbs ?? [])]),
 								summary: {
 									episode: episode.seq,
 									id: historyItem.movieID,
@@ -440,6 +456,7 @@ class _NetflixApi extends ServiceApi {
 						...mergeNetflixHistoryProgress(historyItem, video),
 						releaseYear: video.year,
 						title: video.title || historyItem.title,
+						imageUrl: this.getImageUrl(video.artwork),
 						summary: { id: historyItem.movieID },
 					};
 				}
@@ -460,6 +477,15 @@ class _NetflixApi extends ServiceApi {
 		}
 
 		return historyItemsWithMetadata;
+	}
+
+	/**
+	 * The image lists hold the same image in different sizes, so pick the smallest
+	 * one that still covers the width of the history card (350px).
+	 */
+	private getImageUrl(images: NetflixImage[] = []): string | undefined {
+		const sortedImages = [...images].sort((a, b) => a.w - b.w);
+		return (sortedImages.find((image) => image.w >= 350) ?? sortedImages.at(-1))?.url;
 	}
 
 	private async getSingleMetadata(id: string): Promise<NetflixSingleMetadataItem | null> {
@@ -535,6 +561,7 @@ class _NetflixApi extends ServiceApi {
 				number,
 				watchedAt,
 				progress,
+				imageUrl: historyItem.imageUrl,
 				show: {
 					serviceId,
 					title,
@@ -550,6 +577,7 @@ class _NetflixApi extends ServiceApi {
 				year,
 				watchedAt,
 				progress,
+				imageUrl: historyItem.imageUrl,
 			});
 		}
 		return item;
@@ -643,6 +671,7 @@ class _NetflixApi extends ServiceApi {
 				year,
 				season,
 				number,
+				imageUrl: this.getImageUrl([...(episodeInfo.stills ?? []), ...(episodeInfo.thumbs ?? [])]),
 				show: {
 					serviceId,
 					id: video.id.toString(),
@@ -656,6 +685,7 @@ class _NetflixApi extends ServiceApi {
 				id,
 				title,
 				year,
+				imageUrl: this.getImageUrl(video.artwork),
 			});
 		}
 		return item;
