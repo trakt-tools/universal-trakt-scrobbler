@@ -221,7 +221,6 @@ class _ScriptInjector {
 						target: { tabId },
 						func: Shared.functionsToInject[id],
 						args: [params],
-						// @ts-expect-error This is a newer value, so it's missing from the types.
 						world: 'MAIN',
 					})
 					.then((results) => {
@@ -264,7 +263,6 @@ class _ScriptInjector {
 							target: { tabId },
 							func: Shared.functionsToInject[id],
 							args: [params],
-							// @ts-expect-error This is a newer value, so it's missing from the types.
 							world: 'MAIN',
 						});
 						value = results[0].result as T | null;
