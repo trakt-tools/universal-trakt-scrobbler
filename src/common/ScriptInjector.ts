@@ -17,6 +17,7 @@ export interface ScriptInjectorMessage {
 class _ScriptInjector {
 	contentScripts: WebExtManifest.ContentScript[] | null = null;
 	injectedScriptIds = new Set<string>();
+	private tabUpdates = new Map<number, Promise<void>>();
 
 	/**
 	 * Adds the `tabs.onUpdated` listener. It must be called synchronously, at the top level of the background script.
@@ -87,11 +88,25 @@ class _ScriptInjector {
 	}
 
 	onTabUpdated = (
-		_: unknown,
+		tabId: number,
 		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
 		tab: WebExtTabs.Tab
 	) => {
-		void this.onTabUpdatedAfterInit(changeInfo, tab);
+		// Updates that arrive while the background is waking up all resume together once init is done, so they are processed one at a time per tab, in order. Otherwise a reload could be checked before the previous page's disconnect cleanup, or the same page could be injected twice.
+		const previousUpdate = this.tabUpdates.get(tabId) ?? Promise.resolve();
+		const update = previousUpdate
+			.then(() => this.onTabUpdatedAfterInit(changeInfo, tab))
+			.catch((err) => {
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log('Failed to inject content script.', err);
+				}
+			})
+			.finally(() => {
+				if (this.tabUpdates.get(tabId) === update) {
+					this.tabUpdates.delete(tabId);
+				}
+			});
+		this.tabUpdates.set(tabId, update);
 	};
 
 	private async onTabUpdatedAfterInit(
@@ -118,7 +133,7 @@ class _ScriptInjector {
 			changeInfo.status === 'loading' &&
 			typeof changeInfo.url === 'undefined'
 		) {
-			void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId: tab.id });
+			await Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId: tab.id });
 			return;
 		}
 		if (
