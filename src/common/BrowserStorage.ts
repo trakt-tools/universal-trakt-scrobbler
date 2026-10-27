@@ -715,7 +715,9 @@ class _BrowserStorage {
 	 * and therefore can be saved in the sync storage.
 	 */
 	private async splitChunks(values: Record<string, unknown>): Promise<StorageValues> {
-		const maxSize = browser.storage.sync.QUOTA_BYTES_PER_ITEM ?? 8192;
+		const syncStorage: typeof browser.storage.sync & { QUOTA_BYTES_PER_ITEM?: number } =
+			browser.storage.sync;
+		const maxSize = syncStorage.QUOTA_BYTES_PER_ITEM ?? 8192;
 		const newValues: Record<string, unknown> = {};
 		const keysToRemove: string[] = [];
 
