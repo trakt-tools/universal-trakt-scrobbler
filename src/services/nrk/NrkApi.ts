@@ -271,6 +271,11 @@ class _NrkApi extends ServiceApi {
 		return historyItem.progress === 'inProgress' ? historyItem.inProgress.percentage : 100;
 	}
 
+	private getImageUrl(programPage: NrkProgramPage): string | undefined {
+		const { image } = programPage.programInformation;
+		return (image.find((img) => img.width >= 600) ?? image[image.length - 1])?.url;
+	}
+
 	async parseHistoryItem(historyItem: NrkProgressItem): Promise<ScrobbleItem> {
 		const serviceId = this.id;
 		const id = historyItem.id;
@@ -295,6 +300,7 @@ class _NrkApi extends ServiceApi {
 			year: programPage?.moreInformation.productionYear,
 			progress: this.getProgress(historyItem),
 			watchedAt,
+			imageUrl: programPage ? this.getImageUrl(programPage) : undefined,
 		};
 
 		/* Known formats:
@@ -432,6 +438,7 @@ class _NrkApi extends ServiceApi {
 			id,
 			title,
 			year: programPage.moreInformation.productionYear,
+			imageUrl: this.getImageUrl(programPage),
 		};
 		if (type === 'movie') {
 			return new MovieItem(baseItem);

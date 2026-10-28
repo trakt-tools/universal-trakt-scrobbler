@@ -103,6 +103,13 @@ export interface AmazonPrimeMetadataItem {
 				},
 			];
 		};
+		images: {
+			imageUrls: {
+				episode: string;
+				title: string;
+				hero: string;
+			};
+		};
 	};
 }
 
@@ -387,8 +394,9 @@ class _AmazonPrimeApi extends ServiceApi {
 	parseMetadata(metadata: AmazonPrimeMetadataItem): ScrobbleItem {
 		let item: ScrobbleItem;
 		const serviceId = this.id;
-		const { catalog, family } = metadata.catalogMetadata;
+		const { catalog, family, images } = metadata.catalogMetadata;
 		const { id, entityType } = catalog;
+		const imageUrl = images?.imageUrls?.title;
 		const versionTagRegex = / \[[\w.]+\/[\w.]+\]$/; // some media with dub/subtitle will add [version/tag] to the title (issue #342)
 
 		if (entityType === 'TV Show' || entityType === 'Bonus Content') {
@@ -406,6 +414,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				title: episodeTitle,
 				season,
 				number,
+				imageUrl,
 				show: {
 					serviceId,
 					title,
@@ -417,6 +426,7 @@ class _AmazonPrimeApi extends ServiceApi {
 				serviceId,
 				id,
 				title,
+				imageUrl,
 			});
 		}
 		return item;

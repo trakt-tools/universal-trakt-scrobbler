@@ -46,6 +46,11 @@ interface TV2PlayProgress {
 	watched: number;
 }
 
+interface TV2PlayImage {
+	src: string;
+	locs: number;
+}
+
 interface TV2PlayContentResponse {
 	layout: 'seasonal' | 'movie' | 'plain'; // seasonal=series, movie=film, plain=sport
 	player: {
@@ -53,13 +58,14 @@ interface TV2PlayContentResponse {
 		asset_id: string;
 		title: string; // Show title, NOT episode title
 		progress: TV2PlayProgress;
+		image: TV2PlayImage;
 		// Episode title is in metainfo[1].text (metainfo[0] is "S1E2" format)
 		metainfo?: Array<{ text: string }>;
 	};
 	details: {
 		content_id: string;
 		title: string;
-		image: { src: string };
+		image: TV2PlayImage;
 		// Used to parse year for movies
 		metainfo?: Array<{ text: string; type?: string }>;
 	};
@@ -327,6 +333,11 @@ class _Tv2PlayApi extends ServiceApi {
 		if (item.type === 'movie' && contentInfo?.year && contentInfo.year > 0) {
 			item.year = contentInfo.year;
 		}
+
+		const imageUrl = contentInfo?.contentResponse?.player.image?.src;
+		if (imageUrl) {
+			item.imageUrl = imageUrl;
+		}
 	}
 
 	async getItem(path: string): Promise<ScrobbleItem> {
@@ -366,6 +377,7 @@ class _Tv2PlayApi extends ServiceApi {
 				title: episodeTitle,
 				season: seasonNumber,
 				number: episodeNumber,
+				imageUrl: responseJson.player.image?.src,
 				show: {
 					serviceId: this.id,
 					id: responseJson.details.content_id,
@@ -381,6 +393,7 @@ class _Tv2PlayApi extends ServiceApi {
 			id: itemId,
 			title: responseJson.details.title,
 			year,
+			imageUrl: responseJson.player.image?.src,
 		});
 	}
 }

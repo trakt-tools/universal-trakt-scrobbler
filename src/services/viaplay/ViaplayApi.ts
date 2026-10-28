@@ -78,11 +78,19 @@ export interface ViaplayProductBase {
 	user: ViaplayProductUserInfo;
 }
 
+export interface ViaplayImages {
+	landscape: {
+		template: string;
+		url: string;
+	};
+}
+
 export interface ViaplayEpisode extends ViaplayProductBase {
 	type: 'episode';
 	content: {
 		originalTitle?: string; //Show title
 		title: string; //Usually Episode title, sometimes Show title :-(
+		images: ViaplayImages;
 		production: {
 			year: number;
 		};
@@ -101,6 +109,7 @@ export interface ViaplayMovie extends ViaplayProductBase {
 	type: 'movie';
 	content: {
 		title: string;
+		images: ViaplayImages;
 		imdb: {
 			id: string;
 		};
@@ -271,6 +280,11 @@ class _ViaplayApi extends ServiceApi {
 		const progressInfo = historyItem.user.progress;
 		item.watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		item.progress = this.getProgress(historyItem);
+		item.imageUrl = this.getImageUrl(historyItem);
+	}
+
+	private getImageUrl(product: ViaplayProduct): string | undefined {
+		return product.content.images?.landscape?.url;
 	}
 
 	private getProgress(product: ViaplayProduct): number {
@@ -288,6 +302,7 @@ class _ViaplayApi extends ServiceApi {
 		const progress = this.getProgress(product);
 		const watchedAt = progressInfo?.updated ? Utils.unix(progressInfo.updated) : undefined;
 		const id = product.system.guid;
+		const imageUrl = this.getImageUrl(product);
 		if (product.type === 'episode') {
 			const content = product.content;
 			const showTitle = content.originalTitle ?? content.series.title;
@@ -303,6 +318,7 @@ class _ViaplayApi extends ServiceApi {
 				number,
 				progress,
 				watchedAt,
+				imageUrl,
 				show: {
 					serviceId,
 					title: showTitle,
@@ -320,6 +336,7 @@ class _ViaplayApi extends ServiceApi {
 				year,
 				progress,
 				watchedAt,
+				imageUrl,
 			});
 		}
 		return item;
