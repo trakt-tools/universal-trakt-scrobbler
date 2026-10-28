@@ -17,11 +17,27 @@ export interface ScriptInjectorMessage {
 class _ScriptInjector {
 	contentScripts: WebExtManifest.ContentScript[] | null = null;
 	injectedScriptIds = new Set<string>();
+	private tabUpdates = new Map<number, Promise<void>>();
+
+	/**
+	 * Adds the `tabs.onUpdated` listener. It must be called synchronously, at the top level of the background script.
+	 *
+	 * The background is not persistent (event page on Firefox, service worker on Chrome), and the browser only wakes it up for listeners added during the first run of the script. A listener added after the async init is lost once the background goes to sleep, so a tab that loads while it sleeps never gets the content script, and the service is not detected until the tab is reloaded with the background awake.
+	 */
+	addBackgroundListeners() {
+		if (Shared.browser === 'firefox') {
+			// Firefox can filter by URL, which avoids waking up the background for unrelated tabs.
+			browser.tabs.onUpdated.addListener(this.onTabUpdated, {
+				urls: getServices().flatMap((service) => service.hostPatterns),
+			});
+		} else {
+			browser.tabs.onUpdated.addListener(this.onTabUpdated);
+		}
+	}
 
 	init() {
 		if (Shared.pageType === 'background') {
 			this.updateContentScripts();
-			this.checkTabListener();
 			Shared.events.subscribe('STORAGE_OPTIONS_CHANGE', null, this.onStorageOptionsChange);
 			Shared.events.subscribe('CONTENT_SCRIPT_DISCONNECT', null, this.onContentScriptDisconnect);
 		}
@@ -34,7 +50,6 @@ class _ScriptInjector {
 			);
 			if (doCheck) {
 				this.updateContentScripts();
-				this.checkTabListener();
 			}
 		}
 	};
@@ -72,26 +87,39 @@ class _ScriptInjector {
 			}));
 	}
 
-	checkTabListener() {
-		const shouldInject = getServices().some(
-			(service) =>
-				(service.hasScrobbler && Shared.storage.options.services[service.id].scrobble) ||
-				(service.hasSync && Shared.storage.options.services[service.id].sync)
-		);
-		if (shouldInject && !browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
-			browser.tabs.onUpdated.addListener(this.onTabUpdated);
-		} else if (!shouldInject && browser.tabs.onUpdated.hasListener(this.onTabUpdated)) {
-			browser.tabs.onUpdated.removeListener(this.onTabUpdated);
-		}
-	}
-
 	onTabUpdated = (
-		_: unknown,
+		tabId: number,
 		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
 		tab: WebExtTabs.Tab
 	) => {
-		void this.injectContentScript(changeInfo, tab);
+		// Updates that arrive while the background is waking up all resume together once init is done, so they are processed one at a time per tab, in order. Otherwise a reload could be checked before the previous page's disconnect cleanup, or the same page could be injected twice.
+		const previousUpdate = this.tabUpdates.get(tabId) ?? Promise.resolve();
+		const update = previousUpdate
+			.then(() => this.onTabUpdatedAfterInit(changeInfo, tab))
+			.catch((err) => {
+				if (Shared.errors.validate(err)) {
+					Shared.errors.log('Failed to inject content script.', err);
+				}
+			})
+			.finally(() => {
+				if (this.tabUpdates.get(tabId) === update) {
+					this.tabUpdates.delete(tabId);
+				}
+			});
+		this.tabUpdates.set(tabId, update);
 	};
+
+	private async onTabUpdatedAfterInit(
+		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
+		tab: WebExtTabs.Tab
+	) {
+		// When the update wakes up the background, the listener fires before the options are loaded.
+		await Shared.waitForInit();
+		if (!this.contentScripts || this.contentScripts.length === 0) {
+			return;
+		}
+		await this.injectContentScript(changeInfo, tab);
+	}
 
 	async injectContentScript(
 		changeInfo: WebExtTabs.OnUpdatedChangeInfoType,
@@ -105,7 +133,7 @@ class _ScriptInjector {
 			changeInfo.status === 'loading' &&
 			typeof changeInfo.url === 'undefined'
 		) {
-			void Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId: tab.id });
+			await Shared.events.dispatch('CONTENT_SCRIPT_DISCONNECT', null, { tabId: tab.id });
 			return;
 		}
 		if (
@@ -221,7 +249,6 @@ class _ScriptInjector {
 						target: { tabId },
 						func: Shared.functionsToInject[id],
 						args: [params],
-						// @ts-expect-error This is a newer value, so it's missing from the types.
 						world: 'MAIN',
 					})
 					.then((results) => {
@@ -264,7 +291,6 @@ class _ScriptInjector {
 							target: { tabId },
 							func: Shared.functionsToInject[id],
 							args: [params],
-							// @ts-expect-error This is a newer value, so it's missing from the types.
 							world: 'MAIN',
 						});
 						value = results[0].result as T | null;

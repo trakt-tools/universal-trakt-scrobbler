@@ -200,16 +200,17 @@ class _Messaging {
 		});
 	};
 
-	private onMessage = <T extends MessageRequest>(
-		message: T,
+	private onMessage = (
+		message: unknown,
 		sender: WebExtRuntime.MessageSender
-	): Promise<ReturnType<T>> | void => {
-		const messageHandler = this.messageHandlers[message.action];
+	): Promise<unknown> | void => {
+		const request = message as MessageRequest;
+		const messageHandler = this.messageHandlers[request.action];
 		if (typeof messageHandler === 'undefined') {
 			return;
 		}
-		const executingAction = messageHandler(message as never, sender.tab?.id ?? null) as
-			| Promisable<ReturnType<T>>
+		const executingAction = messageHandler(request as never, sender.tab?.id ?? null) as
+			| Promisable<unknown>
 			| undefined;
 		if (typeof executingAction === 'undefined') {
 			return;
