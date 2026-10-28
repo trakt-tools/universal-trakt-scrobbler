@@ -23,6 +23,7 @@ Shared.pageType = 'background';
 
 Cache.addBackgroundListeners();
 AutoSync.addBackgroundListeners();
+ScriptInjector.addBackgroundListeners();
 Messaging.addListeners();
 
 const init = async () => {
