@@ -80,6 +80,7 @@ export const HistoryApp = (): JSX.Element => {
 					element={
 						<LoginWrapper>
 							<SyncProvider serviceId={null}>
+								<SyncDialog />
 								<HistoryHeader />
 								<HistoryContainer isSync={true} disableGutters={true} maxWidth={false}>
 									<AutoSyncPage />
