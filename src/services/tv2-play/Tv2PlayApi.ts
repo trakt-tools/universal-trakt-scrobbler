@@ -152,7 +152,11 @@ class _Tv2PlayApi extends ServiceApi {
 	 * token in localStorage, so a new session injection picks it up.
 	 */
 	private async ensureActivated(): Promise<void> {
-		if (!this.isActivated || (this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt)) {
+		// Re-activate a little before the token expires, so that requests don't fail mid-sync
+		if (
+			!this.isActivated ||
+			(this.tokenExpiresAt > 0 && Utils.unix() >= this.tokenExpiresAt - 60)
+		) {
 			await this.activate();
 		}
 	}
@@ -398,34 +402,81 @@ class _Tv2PlayApi extends ServiceApi {
 	}
 }
 
-// Inject this function into the TV2 Play page to retrieve the Auth0 token from localStorage
-Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Tv2PlaySession | null => {
-	const auth0Key = Object.keys(window.localStorage).find((key) => key.startsWith('@@auth0spajs@@'));
+/**
+ * Inject this function into the TV2 Play page to retrieve the Auth0 token from localStorage.
+ *
+ * auth0-spa-js stores several `@@auth0spajs@@` entries (the token entry is keyed by
+ * `::<clientId>::<audience>::<scope>`, the user entry by `::<clientId>::@@user@@`), so every
+ * entry is checked and the one holding the freshest access token is used.
+ *
+ * When the page has just been opened, the cached token may have expired, and the page only
+ * renews it (with its refresh token) after it has loaded, so the function polls for a while
+ * until a fresh token shows up, returning the expired one if none does.
+ *
+ * It must not use syntax that Babel transpiles with helpers (async/await, for...of, spread).
+ */
+Shared.functionsToInject[`${Tv2PlayService.id}-session`] = (): Promise<Tv2PlaySession | null> => {
+	const AUDIENCE = 'https://id.tv2.no';
+	// Same margin auth0-spa-js uses before it considers a cached token expired
+	const EXPIRY_MARGIN = 60;
+	const POLL_INTERVAL = 500;
+	const MAX_WAIT = 20000;
 
-	if (!auth0Key) {
-		return null;
-	}
-
-	try {
-		const auth0DataStr = window.localStorage.getItem(auth0Key);
-		if (!auth0DataStr) {
-			return null;
+	const findSession = (): Tv2PlaySession | null => {
+		let best: Tv2PlaySession | null = null;
+		let bestMatchesAudience = false;
+		const keys = Object.keys(window.localStorage);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			if (key.indexOf('@@auth0spajs@@::') !== 0) {
+				continue;
+			}
+			try {
+				const auth0DataStr = window.localStorage.getItem(key);
+				if (!auth0DataStr) {
+					continue;
+				}
+				const auth0Data = JSON.parse(auth0DataStr) as Auth0TokenData;
+				if (!auth0Data.body || !auth0Data.body.access_token) {
+					continue;
+				}
+				const matchesAudience = key.split('::')[2] === AUDIENCE;
+				const isBetter =
+					!best ||
+					(matchesAudience && !bestMatchesAudience) ||
+					(matchesAudience === bestMatchesAudience &&
+						(auth0Data.expiresAt || 0) > (best.expiresAt || 0));
+				if (isBetter) {
+					best = {
+						accessToken: auth0Data.body.access_token,
+						refreshToken: auth0Data.body.refresh_token,
+						expiresAt: auth0Data.expiresAt,
+					};
+					bestMatchesAudience = matchesAudience;
+				}
+			} catch (_error) {
+				// Ignore entries that are not valid JSON
+			}
 		}
+		return best;
+	};
 
-		const auth0Data = JSON.parse(auth0DataStr) as Auth0TokenData;
+	const isFresh = (session: Tv2PlaySession | null) =>
+		!!session &&
+		(!session.expiresAt || session.expiresAt - EXPIRY_MARGIN > Math.floor(Date.now() / 1e3));
 
-		if (!auth0Data.body?.access_token) {
-			return null;
-		}
-
-		return {
-			accessToken: auth0Data.body.access_token,
-			refreshToken: auth0Data.body.refresh_token,
-			expiresAt: auth0Data.expiresAt,
+	return new Promise((resolve) => {
+		const startedAt = Date.now();
+		const check = () => {
+			const session = findSession();
+			if (isFresh(session) || Date.now() - startedAt >= MAX_WAIT) {
+				resolve(session);
+				return;
+			}
+			setTimeout(check, POLL_INTERVAL);
 		};
-	} catch (_error) {
-		return null;
-	}
+		check();
+	});
 };
 
 export const Tv2PlayApi = new _Tv2PlayApi();

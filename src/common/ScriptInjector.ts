@@ -335,21 +335,25 @@ class _ScriptInjector {
 	private getScriptFn() {
 		return <T, U extends Record<string, unknown>>(
 			id: string,
-			fn: (params: U) => T | null,
+			fn: (params: U) => T | Promise<T | null> | null,
 			fnParams: U
 		) => {
-			window.addEventListener(`uts-get-${id}`, () => {
-				let value: T | null = null;
-				try {
-					value = fn(fnParams);
-				} catch (_err) {
-					// Do nothing
-				}
-
+			const dispatchValue = (value: T | null) => {
 				const event = new CustomEvent(`uts-on-${id}-received`, {
 					detail: value,
 				});
 				window.dispatchEvent(event);
+			};
+
+			window.addEventListener(`uts-get-${id}`, () => {
+				// The function may return a promise (e.g. when it has to wait for the page), so the value is always resolved before it is sent back
+				let result: T | Promise<T | null> | null = null;
+				try {
+					result = fn(fnParams);
+				} catch (_err) {
+					// Do nothing
+				}
+				Promise.resolve(result).then(dispatchValue, () => dispatchValue(null));
 			});
 		};
 	}
