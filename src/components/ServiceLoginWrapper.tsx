@@ -26,7 +26,8 @@ export const ServiceLoginWrapper = ({ children }: ServiceLoginWrapperProps): JSX
 					throw new Error('Not logged in');
 				}
 				setLoading(false);
-			} catch (_err) {
+			} catch (err) {
+				console.warn(`[UTS] Login check failed for ${service.id}`, err);
 				history.push('/home');
 				await Shared.events.dispatch('DIALOG_SHOW', null, {
 					title: I18N.translate('notLoggedIn'),
