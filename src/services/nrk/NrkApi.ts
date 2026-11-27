@@ -1,6 +1,7 @@
 import { NrkService } from '@/nrk/NrkService';
 import { ServiceApi } from '@apis/ServiceApi';
 import { Requests, withHeaders } from '@common/Requests';
+import { ScriptInjector } from '@common/ScriptInjector';
 import { Shared } from '@common/Shared';
 import { Utils } from '@common/Utils';
 import {
@@ -15,21 +16,32 @@ export interface NrkGlobalObject {
 	getPlaybackSession: () => NrkSession;
 }
 
-interface NrkAuth {
-	state: string;
-	userAction: string;
-	session: {
-		accessToken: string;
-		expiresIn: number;
-		idToken: string;
-		user: {
-			email: string;
-			name: string;
-			profileType: string;
-			sub: string;
-		};
-	};
+/** Response from `/_auth/web/session/token/refresh` on tv.nrk.no */
+type NrkAuth = NrkAuthLoggedOut | NrkAuthLoggedIn;
+
+interface NrkAuthLoggedOut {
+	authState: 'loggedOut';
+	version: number;
 }
+
+interface NrkAuthLoggedIn {
+	authState: 'loggedIn';
+	version: number;
+	accessToken: string;
+	/** Seconds until the access token expires */
+	expiresIn: number;
+	userInfo: {
+		sub: string;
+		name: string;
+	};
+	identities?: {
+		sub: string;
+		shortName?: string;
+	}[];
+}
+
+const isLoggedIn = (data: NrkAuth | null): data is NrkAuthLoggedIn =>
+	data?.authState === 'loggedIn' && !!data.accessToken && !!data.userInfo?.sub;
 
 interface NrkProgressResponse {
 	progresses: NrkProgressItem[];
@@ -172,7 +184,6 @@ export interface NrkSession {
 class _NrkApi extends ServiceApi {
 	HOST_URL: string;
 	API_HOST_URL: string;
-	TOKEN_URL: string;
 	PROGRAM_URL: string;
 	token: string;
 	isActivated: boolean;
@@ -186,25 +197,26 @@ class _NrkApi extends ServiceApi {
 
 		this.HOST_URL = 'https://tv.nrk.no';
 		this.API_HOST_URL = 'https://psapi.nrk.no';
-		this.TOKEN_URL = `${this.HOST_URL}/auth/session/tokenforsub/_`;
 		this.PROGRAM_URL = '/tv/catalog/programs/';
 		this.token = '';
 		this.isActivated = false;
 	}
 
 	async activate() {
-		const authData = await Requests.send({
-			url: `${this.TOKEN_URL}?_=${Date.now()}`,
-			method: 'GET',
-		});
-		const data = JSON.parse(authData) as NrkAuth;
-		const { accessToken, expiresIn, user } = data.session;
-		this.token = accessToken.split('"').join('');
+		// The auth endpoint rejects requests made from the extension, and the auth cookies are
+		// first-party only, so the token is requested from inside a tv.nrk.no tab instead.
+		const data = await ScriptInjector.inject<NrkAuth>(NrkService.id, 'auth', this.HOST_URL);
+		if (!isLoggedIn(data)) {
+			throw new Error(`NRK returned no session (authState: ${data?.authState ?? 'unknown'})`);
+		}
+		const { accessToken, expiresIn, userInfo, identities } = data;
+		const identity = identities?.find((candidate) => candidate.sub === userInfo.sub);
+		this.token = accessToken;
 		this.tokenExpiresAt = expiresIn > 0 ? Utils.unix() + expiresIn : 0;
 		this.session = {
-			profileName: user.name,
+			profileName: identity?.shortName || userInfo.name,
 		};
-		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${user.sub}/progress?sortorder=descending&pageSize=10`;
+		this.nextHistoryUrl = `${this.API_HOST_URL}/tv/userdata/${userInfo.sub}/progress?sortorder=descending&pageSize=10`;
 		this.authRequests = withHeaders({
 			Authorization: `Bearer ${this.token}`,
 		});
@@ -479,6 +491,22 @@ Shared.functionsToInject[`${NrkService.id}-item-id`] = () => {
 		}
 	}
 	return itemId;
+};
+
+/**
+ * Requests the auth session from inside a tv.nrk.no page, the same way the site itself does,
+ * so that the request carries the first-party NRK auth cookies.
+ *
+ * It must not use syntax that Babel transpiles with helpers (async/await, for...of, spread).
+ */
+Shared.functionsToInject[`${NrkService.id}-auth`] = () => {
+	return fetch('/_auth/web/session/token/refresh', {
+		method: 'POST',
+		credentials: 'include',
+		headers: { 'X-Auth-CSRF': '1' },
+	})
+		.then((response) => (response.ok ? (response.json() as Promise<NrkAuth>) : null))
+		.catch(() => null);
 };
 
 export const NrkApi = new _NrkApi();
